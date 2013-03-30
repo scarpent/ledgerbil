@@ -19,7 +19,7 @@ class Redirector(unittest.TestCase):
     def tearDown(self):
         sys.stdout = self.savestdout
 
-class VerifyStuff(Redirector):
+class ParseFileGoodInput(Redirector):
     def testParsedFileUnchanged(self):
         '''file output after parsing should be identical to input file'''
         known_result = open('test.ledger', 'r').read()
