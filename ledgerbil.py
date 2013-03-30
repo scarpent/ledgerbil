@@ -7,15 +7,23 @@ import os
 
 class Ledgerbil():
 
-    def parseFile(self, filename):
+    filelines = []
+
+    def parsefile(self, filename):
         try:
             file = open(filename)
         except IOError:
             return False
 
         for line in file:
-            print(line, end='')
+            self.filelines.append(line)
+            
         return True
+
+    def printfile(self):
+        for line in self.filelines:
+            print(line, end='')
+
 
 def main(argv=None):
     if argv is None:
@@ -27,7 +35,8 @@ def main(argv=None):
 
     ledgerbil = Ledgerbil()
 
-    ledgerbil.parseFile(argv[0])
+    ledgerbil.parsefile(argv[0])
+    ledgerbil.printfile()
 
 if __name__ == "__main__":
     sys.exit(main())
