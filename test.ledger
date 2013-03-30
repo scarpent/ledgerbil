@@ -1,0 +1,102 @@
+; * * * * * * * * * * * * * * * * * * * *
+; *           ledger: TESTING           *
+; * * * * * * * * * * * * * * * * * * * *
+
+; ==============================================================================
+; asset opening balances
+
+2013/01/01 opening balance
+    assets: cash                            $50
+    equity: opening balances
+2013/01/01 opening balance
+    assets: checking up                     $543.21
+    equity: opening balances
+
+; ==============================================================================
+; liability opening balances
+
+2013/01/01 opening balance
+    liabilities: credit card                $-123.45
+    equity: opening balances
+
+; ==============================================================================
+; ==============================================================================
+
+; plc = placeholder (estimated)
+
+2013/01/01 amazon
+    ; some kind of game or other
+    E: leisure: games
+    L: credit card                          $-10.63
+
+2013/01/03 (1500) haircuttery inc
+    E: misc: haircut
+    A: checking up                          $-28
+
+2013/01/04 amazon
+    E: leisure: games                       $19.99      ; another game?
+    E: home in: misc
+    L: credit card                          $-42.15
+
+2013/01/06 pizza planet
+    E: food: groceries                                  ; yummy pizza
+    A: checking up                          $-16
+
+2013/01/12 lightning energy
+    E: bills: electricity
+    A: checking up                          $-75        ; plc
+
+2013/01/15 abc paycheck
+    I: wages: gross pay                     $-135       ; plc
+    E: taxes: ss and med
+    A: checking up                          $125        ; plc
+
+2013/03/15 woodstock
+    ; outdoor music or something like that
+    E: leisure: activities
+    A: cash                                 $-25
+
+2013/03/17 el guapo
+    E: food: alcohol                        $11
+    E: food: dining out
+    L: credit card                          $-42.23
+
+2013/03/17 holiday
+    E: car: gas                                         ; class: honda 01
+    L: credit card                          $-36.56
+
+2013/03/17 (1501) parks and recreation
+    E: education: activities
+    A: checking up                          $-30
+
+2013/03/19 mills fleet farm
+    E: pets: food                           $32
+    E: leisure: toys                        $18
+    E: clothing                             $20
+    E: food: groceries
+    L: credit card                          $-81.87
+
+2013/03/21 4 circles
+    E: food: alcohol                        $12
+    E: food: dining out
+    L: credit card                          $-41.9
+
+2013/03/24 mega foods
+    E: healthcare: vitamins                 $14
+    E: misc: seasonal                       $19
+    E: food: groceries
+    L: credit card                          $-97.92
+
+2013/03/29 mobil
+    E: car: gas                                         ; class: saturn 98
+    E: car: maintenance                     $4.36       ; class: saturn 98
+    L: credit card                          $-42.09
+
+2013/03/29 xyz paycheck
+    I: wages: gross pay                     $-1000
+    E: taxes: federal                       $80.31
+    E: taxes: state                         $71.29
+    E: taxes: social security               $60
+    E: taxes: medicare                      $15
+    E: food: work
+    A: checking up                          $752.61
