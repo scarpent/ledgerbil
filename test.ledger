@@ -2,6 +2,62 @@
 ; *           ledger: TESTING           *
 ; * * * * * * * * * * * * * * * * * * * *
 
+; * * * * * * * * * * * * * * * * * * * *
+; *           ledger: accounts          *
+; * * * * * * * * * * * * * * * * * * * *
+account equity
+account equity: opening balances
+
+account income
+    alias I
+account income: wages
+account income: wages: gross pay
+
+account assets
+    alias A
+account assets: cash
+account assets: checking up
+
+account liabilities
+    alias L
+account liabilities: credit card
+
+account expenses
+    alias E
+account expenses: bills
+account expenses: bills: electricity
+account expenses: bills: phone
+account expenses: bills: water
+account expenses: car
+account expenses: car: gas
+account expenses: car: maintenance
+account expenses: clothing
+account expenses: charity
+account expenses: education
+account expenses: education: activities
+account expenses: food
+account expenses: food: alcohol
+account expenses: food: dining out
+account expenses: food: groceries
+account expenses: food: work
+account expenses: healthcare
+account expenses: healthcare: vitamins
+account expenses: leisure
+account expenses: leisure: activities
+account expenses: leisure: games
+account expenses: leisure: toys
+account expenses: misc
+account expenses: misc: haircut
+account expenses: misc: seasonal
+account expenses: pets
+account expenses: pets: food
+account expenses: taxes
+account expenses: taxes: federal
+account expenses: taxes: medicare
+account expenses: taxes: social security
+account expenses: taxes: ss and med
+account expenses: taxes: state
+
 ; ==============================================================================
 ; asset opening balances
 
@@ -87,6 +143,10 @@
     E: food: groceries
     L: credit card                          $-97.92
 
+2013/03/25 big credit co
+  * A: checking up
+  ! L: credit card                          $150
+
 2013/03/29 mobil
     E: car: gas                                         ; class: saturn 98
     E: car: maintenance                     $4.36       ; class: saturn 98
@@ -100,3 +160,12 @@
     E: taxes: medicare                      $15
     E: food: work
     A: checking up                          $752.61
+
+!comment
+    This is a block comment with
+    multiple lines
+2013/03/17 el guapo
+    E: food: alcohol                        $11
+    E: food: dining out
+    L: credit card                          $-42.23
+!end comment
