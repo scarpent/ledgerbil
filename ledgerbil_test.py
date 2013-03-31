@@ -1,8 +1,10 @@
 #!/usr/bin/python
-__author__ = "scarpent"
-__date__ = "$Mar 30, 2013$"
 
 '''unit test for ledgerbil.py'''
+
+__author__ = 'scarpent'
+__license__ = 'gpl v3 or greater'
+__email__ = 'scottc@movingtofreedom.org'
 
 import unittest
 import os
