@@ -50,23 +50,30 @@ class MainBadInput(Redirector):
 class MainGoodInput(Redirector):
 
     def testMainGoodFilename(self):
-        '''main should fail with "No such file or directory"'''
+        '''main should parse and print file, matching basic file read'''
         known_result = open('test-small.ledger', 'r').read()
         ledgerbil.main(['ledgerbil.py', 'test-small.ledger'])
 
         self.redirect.seek(0)
         self.assertEqual(self.redirect.read(), known_result)
 
-class ScriptGoodInput(Redirector):
-    # not sure what this one tests - coverage doesn't show what I expect
-    def testScriptKnownInput(self):
-        '''script should print expected stdout with known input (case 1)'''
+    def testMainNoArgv(self):
+        '''main should use sys.argv if args not passed in'''
         known_result = open('test-small.ledger', 'r').read()
-        process = Popen(
-            ['python', 'ledgerbil.py', 'test-small.ledger'],
-            stdout=PIPE
-        )
-        print(process.stdout.read(), end='')
+        sys.argv = ['ledgerbil.py', 'test-small.ledger']
+        ledgerbil.main()
+
+        self.redirect.seek(0)
+        self.assertEqual(self.redirect.read(), known_result)
+
+    def testMainStdin(self):
+        '''main should use stdin if file not passed in'''
+        known_result = open('test-small.ledger', 'r').read()
+        original_stdin = sys.stdin
+        sys.stdin = open('test-small.ledger', 'r')
+        ledgerbil.main(['ledgerbil.py'])
+        sys.stdin = original_stdin
+
         self.redirect.seek(0)
         self.assertEqual(self.redirect.read(), known_result)
 
