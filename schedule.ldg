@@ -1,0 +1,29 @@
+; name: abc paycheck
+; every 1 half-month    ; next: 2013/04/15      ; auto
+
+2013/04/15 abc paycheck
+    i: wages: gross pay                     $-135
+    e: taxes: social security               ($135 * 0.062)
+    e: taxes: medicare                      ($135 * 0.0145)
+    a: checking up
+
+; name: electricity
+; every: 1 month        ; next: 2013/04/12      ; auto
+
+2013/01/12 lightning energy
+    e: bills: electricity
+    a: checking up                          $-75
+
+; name: haircuttery
+; every: 5 weeks        ; next: 2013/05/04
+
+2013/05/04 haircuttery inc
+    e: misc: haircut
+    a: checking up                          $-28
+
+; name: car insurance
+; every: 6 months       ; next: 2013/08/16      ; auto
+
+2013/05/04 absolute insurance
+    e: car: insurance
+    l: credit card                          $-425

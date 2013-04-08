@@ -9,27 +9,28 @@ account equity
 account equity: opening balances
 
 account income
-    alias I
+    alias i
 account income: wages
 account income: wages: gross pay
 
 account assets
-    alias A
+    alias a
 account assets: cash
 account assets: checking up
 
 account liabilities
-    alias L
+    alias l
 account liabilities: credit card
 
 account expenses
-    alias E
+    alias e
 account expenses: bills
 account expenses: bills: electricity
 account expenses: bills: phone
 account expenses: bills: water
 account expenses: car
 account expenses: car: gas
+account expenses: car: insurance
 account expenses: car: maintenance
 account expenses: clothing
 account expenses: charity
@@ -82,90 +83,91 @@ account expenses: taxes: state
 
 2013/01/01 amazon
     ; some kind of game or other
-    E: leisure: games
-    L: credit card                          $-10.63
+    e: leisure: games
+    l: credit card                          $-10.63
 
 2013/01/03 (1500) haircuttery inc
-    E: misc: haircut
-    A: checking up                          $-28
+    e: misc: haircut
+    a: checking up                          $-28
 
 2013/01/04 amazon
-    E: leisure: games                       $19.99      ; another game?
-    E: home in: misc
-    L: credit card                          $-42.15
+    e: leisure: games                       $19.99      ; another game?
+    e: home in: misc
+    l: credit card                          $-42.15
 
 2013/01/06 pizza planet
-    E: food: groceries                                  ; yummy pizza
-    A: checking up                          $-16
+    e: food: groceries                                  ; yummy pizza
+    a: checking up                          $-16
 
 2013/01/12 lightning energy
-    E: bills: electricity
-    A: checking up                          $-75        ; plc
+    e: bills: electricity
+    a: checking up                          $-75        ; plc
 
 2013/01/15 abc paycheck
-    I: wages: gross pay                     $-135       ; plc
-    E: taxes: ss and med
-    A: checking up                          $125        ; plc
+    i: wages: gross pay                     $-135       ; plc
+    e: taxes: social security               ($135*0.062)
+    e: taxes: medicare
+    a: checking up                          $125        ; plc
 
 2013/03/15 woodstock
     ; outdoor music or something like that
-    E: leisure: activities
-    A: cash                                 $-25
+    e: leisure: activities
+    a: cash                                 $-25
 
 2013/03/17 el guapo
-    E: food: alcohol                        $11
-    E: food: dining out
-    L: credit card                          $-42.23
+    e: food: alcohol                        $11
+    e: food: dining out
+    l: credit card                          $-42.23
 
 2013/03/17 holiday
-    E: car: gas                                         ; class: honda 01
-    L: credit card                          $-36.56
+    e: car: gas                                         ; class: honda 01
+    l: credit card                          $-36.56
 
 2013/03/17 (1501) parks and recreation
-    E: education: activities
-    A: checking up                          $-30
+    e: education: activities
+    a: checking up                          $-30
 
 2013/03/19 mills fleet farm
-    E: pets: food                           $32
-    E: leisure: toys                        $18
-    E: clothing                             $20
-    E: food: groceries
-    L: credit card                          $-81.87
+    e: pets: food                           $32
+    e: leisure: toys                        $18
+    e: clothing                             $20
+    e: food: groceries
+    l: credit card                          $-81.87
 
 2013/03/21 4 circles
-    E: food: alcohol                        $12
-    E: food: dining out
-    L: credit card                          $-41.9
+    e: food: alcohol                        $12
+    e: food: dining out
+    l: credit card                          $-41.9
 
 2013/03/24 mega foods
-    E: healthcare: vitamins                 $14
-    E: misc: seasonal                       $19
-    E: food: groceries
-    L: credit card                          $-97.92
+    e: healthcare: vitamins                 $14
+    e: misc: seasonal                       $19
+    e: food: groceries
+    l: credit card                          $-97.92
 
 2013/03/25 big credit co
-  * A: checking up
-  ! L: credit card                          $150
+  * a: checking up
+  ! l: credit card                          $150
 
 2013/03/29 mobil
-    E: car: gas                                         ; class: saturn 98
-    E: car: maintenance                     $4.36       ; class: saturn 98
-    L: credit card                          $-42.09
+    e: car: gas                                         ; class: saturn 98
+    e: car: maintenance                     $4.36       ; class: saturn 98
+    l: credit card                          $-42.09
 
 2013/03/29 xyz paycheck
-    I: wages: gross pay                     $-1000
-    E: taxes: federal                       $80.31
-    E: taxes: state                         $71.29
-    E: taxes: social security               $60
-    E: taxes: medicare                      $15
-    E: food: work
-    A: checking up                          $752.61
+    i: wages: gross pay                     $-1000
+    e: taxes: federal                       $80.31
+    e: taxes: state                         $71.29
+    e: taxes: social security               $60
+    e: taxes: medicare                      $15
+    e: food: work
+    a: checking up                          $752.61
 
 !comment
     This is a block comment with
     multiple lines
 2013/03/17 el guapo
-    E: food: alcohol                        $11
-    E: food: dining out
-    L: credit card                          $-42.23
+    e: food: alcohol                        $11
+    e: food: dining out
+    l: credit card                          $-42.23
 !end comment
