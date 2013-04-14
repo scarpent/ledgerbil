@@ -37,8 +37,7 @@ class Ledgerbil():
     def getFileLines(self):
         fileLines = []
         for thing in self.things:
-            for line in thing.getLines():
-                fileLines.append(line)
+            fileLines.extend(thing.getLines())
 
         return fileLines
 
