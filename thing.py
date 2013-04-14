@@ -24,9 +24,9 @@ class LedgerThing():
         return self.rawlines
 
     @staticmethod
-    def isTransactionStart(line):
-        # a date at the start of a line with something following it
-        # makes it a transaction
+    def isNewThing(line):
+        # for now we're looking for dates as the start of transactions
+        # later: payees, accounts, aliases, etc
         match = re.match(r'^([-0-9/]{6,})[\s]+[^\s].*$', line)
         if match:
             try:
