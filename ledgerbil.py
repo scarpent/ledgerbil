@@ -9,22 +9,44 @@ __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
 import sys
-import os
+import re
+from dateutil.parser import parse
+
+from thing import Thing
 
 class Ledgerbil():
 
-    filelines = []
+    _things = []
 
-    def parsefile(self, file):
+    def parseFile(self, afile):
+        currentThing = []
+        for line in afile:
+            if self._isTransactionStart(line):
+                self._things.append(Thing(currentThing))
+                currentThing = []
 
-        self.filelines = file.readlines()
+            currentThing.append(line)
+
+        if (currentThing):
+            self._things.append(Thing(currentThing))
 
         return True
 
-    def printfile(self):
-        for line in self.filelines:
-            print(line, end='')
+    def _isTransactionStart(self, line):
+        try:
+            match = re.match(r'^([-0-9/]{6,})[\s]+[^\s].*$', line)
+            if match:
+                parse(match.group(1))
+                return True
+        except:
+            pass
 
+        return False
+
+    def printFile(self):
+        for thing in self._things:
+            for line in thing.getLines():
+                print(line, end='')
 
 def main(argv=None):
 
@@ -32,19 +54,20 @@ def main(argv=None):
 
     if argv is None:
         argv = sys.argv
+
     if len(argv) < 2:
-        ledgerbil.parsefile(sys.stdin)
+        ledgerbil.parseFile(sys.stdin)
     else:
         try:
             filename = argv[1]
-            file = open(filename, 'r')
+            afile = open(filename, 'r')
         except IOError as e:
             print('error: %s' % e)
             return -1
 
-        ledgerbil.parsefile(file)
+        ledgerbil.parseFile(afile)
 
-    ledgerbil.printfile()
+    ledgerbil.printFile()
 
     return 0
 

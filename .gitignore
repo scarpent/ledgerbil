@@ -1,9 +1,8 @@
 *.pyc
 .DS_Store
-searcher.py
+/temp
 tmpp*
 tempp*
-sequence_generator_test.py
-journal_wc_test.py
 .coverage
 htmlcov
+.idea
