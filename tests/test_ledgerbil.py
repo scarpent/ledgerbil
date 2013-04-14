@@ -12,7 +12,7 @@ import sys
 from StringIO import StringIO
 import ledgerbil
 
-testFile = 'test.ledger'
+testFile = 'tests/files/test.ledger'
 mainFile = 'ledgerbil.py'
 
 
