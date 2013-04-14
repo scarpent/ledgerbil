@@ -9,44 +9,44 @@ __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
 import sys
-import re
-from dateutil.parser import parse
 
-from thing import Thing
+from thing import LedgerThing
+
 
 class Ledgerbil():
 
-    _things = []
+    things = []
+
+    def __init__(self):
+        self.things = []
 
     def parseFile(self, afile):
-        currentThing = []
+        currentLines = []
         for line in afile:
-            if self._isTransactionStart(line):
-                self._things.append(Thing(currentThing))
-                currentThing = []
+            if LedgerThing([]).isTransactionStart(line):
+                self.things.append(LedgerThing(currentLines))
+                currentLines = []
 
-            currentThing.append(line)
+            currentLines.append(line)
 
-        if (currentThing):
-            self._things.append(Thing(currentThing))
+        if currentLines:
+            self.things.append(LedgerThing(currentLines))
 
         return True
 
-    def _isTransactionStart(self, line):
-        try:
-            match = re.match(r'^([-0-9/]{6,})[\s]+[^\s].*$', line)
-            if match:
-                parse(match.group(1))
-                return True
-        except:
-            pass
+    def getFileLines(self):
+        fileLines = []
+        for thing in self.things:
+            for line in thing.getLines():
+                fileLines.append(line)
 
-        return False
+        return fileLines
 
     def printFile(self):
-        for thing in self._things:
+        for thing in self.things:
             for line in thing.getLines():
                 print(line, end='')
+
 
 def main(argv=None):
 

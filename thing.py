@@ -8,14 +8,29 @@ __author__ = 'scarpent'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
+import re
+from dateutil.parser import parse
 
-class Thing():
+class LedgerThing():
 
-    _rawlines = []
-    _date = ''
+    rawlines = []
+    date_ = ''
 
     def __init__(self, lines):
-        self._rawlines = lines
+        self.rawlines = lines
 
     def getLines(self):
-        return self._rawlines
+        return self.rawlines
+
+    def isTransactionStart(self, line):
+        # a date at the start of a line with something following it
+        # makes it a transaction
+        match = re.match(r'^([-0-9/]{6,})[\s]+[^\s].*$', line)
+        if match:
+            try:
+                parse(match.group(1))
+                return True
+            except ValueError:
+                pass
+
+        return False
