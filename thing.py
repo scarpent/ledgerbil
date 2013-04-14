@@ -11,6 +11,7 @@ __email__ = 'scottc@movingtofreedom.org'
 import re
 from dateutil.parser import parse
 
+
 class LedgerThing():
 
     rawlines = []
@@ -22,7 +23,8 @@ class LedgerThing():
     def getLines(self):
         return self.rawlines
 
-    def isTransactionStart(self, line):
+    @staticmethod
+    def isTransactionStart(line):
         # a date at the start of a line with something following it
         # makes it a transaction
         match = re.match(r'^([-0-9/]{6,})[\s]+[^\s].*$', line)

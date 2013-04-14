@@ -23,7 +23,7 @@ class Ledgerbil():
     def parseFile(self, afile):
         currentLines = []
         for line in afile:
-            if LedgerThing([]).isTransactionStart(line):
+            if LedgerThing.isTransactionStart(line):
                 self.things.append(LedgerThing(currentLines))
                 currentLines = []
 
