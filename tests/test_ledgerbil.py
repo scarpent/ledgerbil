@@ -92,4 +92,4 @@ class MainGoodInput(Redirector):
         self.redirect.truncate(0)
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest.main()         # pragma: no cover
