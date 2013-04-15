@@ -14,9 +14,6 @@ from dateutil.parser import parse
 
 class LedgerThing():
 
-    rawlines = []
-    date_ = ''
-
     def __init__(self, lines):
         self.rawlines = lines
 

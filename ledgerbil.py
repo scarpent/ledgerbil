@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-'''main ledgerbil program file'''
+"""main ledgerbil program file"""
 
 from __future__ import print_function
 
@@ -14,8 +14,6 @@ from thing import LedgerThing
 
 
 class Ledgerbil():
-
-    things = []
 
     def __init__(self):
         self.things = []
