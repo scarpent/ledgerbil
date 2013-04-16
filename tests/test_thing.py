@@ -10,21 +10,42 @@ import unittest
 
 from thing import LedgerThing
 
+START_DATE = '1899/01/01'
 
-class Constructor(unittest.TestCase):
+
+class ThingTester(unittest.TestCase):
+
+    def setUp(self):
+        LedgerThing.thingCounter = 0
+        LedgerThing.date = START_DATE
+
+
+class Constructor(ThingTester):
 
     def testKnowsHowToCountTransactions(self):
-        LedgerThing.thingCounter = 0
+        """should count two actual transactions"""
         LedgerThing(['2013/04/15 blah', '    ; something...'])
         LedgerThing(['2013/04/15 more blah', '    ; something...'])
-        self.assertEquals(LedgerThing.thingCounter, 2)
+        self.assertEquals(2, LedgerThing.thingCounter)
 
     def testKnowsHowToCountNonTransactions(self):
-        LedgerThing.thingCounter = 0
+        """should count three non-transactions"""
+        # todo: add here if/when a way to tell if a transaction
         LedgerThing(['blah', 'blah blah blah'])
         LedgerThing(['mountain', 'dew'])
         LedgerThing(['qwerty'])
-        self.assertEquals(LedgerThing.thingCounter, 3)
+        self.assertEquals(3, LedgerThing.thingCounter)
+
+    def testInitialNonTransactionDate(self):
+        """when 1st thing in file is a non-transaction, it has default date"""
+        thing = LedgerThing(['blah', 'blah blah blah'])
+        self.assertEqual(START_DATE, thing.date)
+
+    def testLaterNonTransactionDate(self):
+        """later non-transaction things inherit date of preceding thing"""
+        thingOne = LedgerThing(['2013/04/16 blah', '    ; something...'])
+        thingTwo = LedgerThing(['blah', 'blah blah blah'])
+        self.assertEqual(thingOne.date, thingTwo.date)
 
 
 class GetLines(unittest.TestCase):

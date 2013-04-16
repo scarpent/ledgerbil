@@ -15,16 +15,20 @@ from dateutil.parser import parse
 class LedgerThing():
 
     thingCounter = 0
+    date = '1899/01/01'
 
     def __init__(self, lines):
         LedgerThing.thingCounter += 1
+
+        self.thingNumber = LedgerThing.thingCounter
         self.rawlines = lines
 
         if self.isTransactionStart(lines[0]):
-            # may not be a real date: initially for a non-transaction
-            # at start of file, and later for other non-transactions elsewhere
-            # todo: deal with the situation
             self.date = re.sub(r'^(\s+)', r'\1', lines[0])
+            LedgerThing.date = self.date
+        else:
+            # preserve sort order by date
+            self.date = LedgerThing.date
 
     def getLines(self):
         return self.rawlines
