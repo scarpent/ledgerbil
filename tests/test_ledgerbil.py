@@ -55,7 +55,6 @@ class MainBadInput(Redirector):
 
         self.redirect.seek(0)
         self.assertEqual(known_result, self.redirect.read())
-        self.redirect.truncate(0)
 
 
 class MainGoodInput(Redirector):
@@ -67,7 +66,6 @@ class MainGoodInput(Redirector):
 
         self.redirect.seek(0)
         self.assertEqual(known_result, self.redirect.read())
-        self.redirect.truncate(0)
 
     def testMainNoArgv(self):
         """main should use sys.argv if args not passed in"""
@@ -77,7 +75,6 @@ class MainGoodInput(Redirector):
 
         self.redirect.seek(0)
         self.assertEqual(known_result, self.redirect.read())
-        self.redirect.truncate(0)
 
     def testMainStdin(self):
         """main should use stdin if file not passed in"""
@@ -89,7 +86,6 @@ class MainGoodInput(Redirector):
 
         self.redirect.seek(0)
         self.assertEqual(known_result, self.redirect.read())
-        self.redirect.truncate(0)
 
 if __name__ == "__main__":
     unittest.main()         # pragma: no cover
