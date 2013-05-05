@@ -24,7 +24,8 @@ class LedgerThing():
         self.rawlines = lines
 
         if self.isTransactionStart(lines[0]):
-            self.date = re.sub(r'^(\s+)', r'\1', lines[0])
+            # maybe will want to use same date regex here and in isT... method
+            self.date = re.search(r'^(\S+)', lines[0]).group(1)
             LedgerThing.date = self.date
         else:
             # preserve sort order by date
@@ -48,7 +49,7 @@ class LedgerThing():
         match = re.match(r'^([-0-9/]{6,})\s+[^\s].*$', line)
         if match:
             try:
-                parse(match.group(1))
+                parse(match.group(1))  # verify it parses as date
                 return True
             except ValueError:
                 pass

@@ -2,6 +2,9 @@
 ; *           ledger: TESTING           *
 ; * * * * * * * * * * * * * * * * * * * *
 
+account equity
+account equity: opening balances
+
 2013/01/01 opening balance
     assets: cash                            $50
     equity: opening balances

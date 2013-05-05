@@ -11,6 +11,7 @@ __email__ = 'scottc@movingtofreedom.org'
 import sys
 
 from thing import LedgerThing
+from operator import attrgetter
 
 
 class Ledgerbil():
@@ -20,13 +21,18 @@ class Ledgerbil():
 
     def parseFile(self, afile):
         currentLines = []
+        i = 0
         for line in afile:
-            if LedgerThing.isNewThing(line):
+            i += 1
+            #sys.stderr.write('%d) %s' % (i, line))
+            # if first line a new "thing," currentLines will be empty
+            if LedgerThing.isNewThing(line) and currentLines:
                 self.things.append(LedgerThing(currentLines))
                 currentLines = []
 
-            currentLines.append(line)
+            currentLines.append(line.rstrip())
 
+        #currentLines.append('\n')
         if currentLines:
             self.things.append(LedgerThing(currentLines))
 
@@ -40,9 +46,17 @@ class Ledgerbil():
         return fileLines
 
     def printFile(self):
+        i = 0
         for thing in self.things:
+            # sys.stderr.write('-->%s %s <--\n' %
+            #                  (thing.thingNumber, thing.date))
             for line in thing.getLines():
-                print(line, end='')
+                i += 1
+                #sys.stderr.write('%d) %s' % (i, line))
+                print(line)
+
+    def sortThings(self):
+        self.things.sort(key=attrgetter('date', 'thingNumber'))
 
 
 def main(argv=None):
@@ -64,6 +78,7 @@ def main(argv=None):
 
         ledgerbil.parseFile(afile)
 
+    #ledgerbil.sortThings()
     ledgerbil.printFile()
 
     return 0

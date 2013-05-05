@@ -9,15 +9,7 @@ __email__ = 'scottc@movingtofreedom.org'
 import unittest
 
 from thing import LedgerThing
-
-START_DATE = '1899/01/01'
-
-
-class ThingTester(unittest.TestCase):
-
-    def setUp(self):
-        LedgerThing.thingCounter = 0
-        LedgerThing.date = START_DATE
+from thingtester import ThingTester
 
 
 class Constructor(ThingTester):
@@ -39,7 +31,7 @@ class Constructor(ThingTester):
     def testInitialNonTransactionDate(self):
         """when 1st thing in file is a non-transaction, it has default date"""
         thing = LedgerThing(['blah', 'blah blah blah'])
-        self.assertEqual(START_DATE, thing.date)
+        self.assertEqual(ThingTester.START_DATE, thing.date)
 
     def testLaterNonTransactionDate(self):
         """later non-transaction things inherit date of preceding thing"""
@@ -48,7 +40,7 @@ class Constructor(ThingTester):
         self.assertEqual(thingOne.date, thingTwo.date)
 
 
-class GetLines(unittest.TestCase):
+class GetLines(ThingTester):
 
     def testGetLines(self):
         """lines can be entered and retrieved as is"""
@@ -57,7 +49,7 @@ class GetLines(unittest.TestCase):
         self.assertEqual(lines, thing.getLines())
 
 
-class isNewThing(unittest.TestCase):
+class isNewThing(ThingTester):
 
     def testIsNewThing(self):
         """should be recognized as a new ledger 'thing' """
@@ -70,7 +62,7 @@ class isNewThing(unittest.TestCase):
         self.assertFalse(LedgerThing.isNewThing(line))
 
 
-class isTransactionStart(unittest.TestCase):
+class isTransactionStart(ThingTester):
 
     def testValidTransactionStart(self):
         """date recognized as the start of a transaction (return true)"""

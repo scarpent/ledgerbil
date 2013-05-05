@@ -12,13 +12,18 @@ import sys
 from StringIO import StringIO
 import ledgerbil
 
-testFile = 'tests/files/test.ledger'
+from thingtester import ThingTester
+
+testdir = 'tests/files/'
+testfile = testdir + 'test.ledger'
+sortedfile = testdir + 'test-already-sorted.ledger'
+
 mainFile = 'ledgerbil.py'
 
-
-class Redirector(unittest.TestCase):
+class Redirector(ThingTester):
 
     def setUp(self):
+        super(Redirector, self).setUp()
         self.savestdout = sys.stdout
         self.redirect = StringIO()
         sys.stdout = self.redirect
@@ -28,16 +33,30 @@ class Redirector(unittest.TestCase):
         sys.stdout = self.savestdout
 
 
-class ParseFileGoodInput(unittest.TestCase):
+class ParseFileGoodInput(ThingTester):
 
     def testParsedFileUnchanged(self):
         """file output after parsing should be identical to input file"""
-        f = open(testFile, 'r')
-        known_result = f.readlines()
+        f = open(testfile, 'r')
+        known_result = f.read().splitlines()
         f.close()
         lbil = ledgerbil.Ledgerbil()
-        f = open(testFile, 'r')
+        f = open(testfile, 'r')
         lbil.parseFile(f)
+        f.close()
+
+        actual = lbil.getFileLines()
+        self.assertEqual(known_result, actual)
+
+    def testAlreadySortedFileUnchanged(self):
+        """file output after sorting is identical to sorted input file"""
+        f = open(sortedfile, 'r')
+        known_result = f.read().splitlines()
+        f.close()
+        lbil = ledgerbil.Ledgerbil()
+        f = open(sortedfile, 'r')
+        lbil.parseFile(f)
+        lbil.sortThings()
         f.close()
 
         actual = lbil.getFileLines()
@@ -61,16 +80,16 @@ class MainGoodInput(Redirector):
 
     def testMainGoodFilename(self):
         """main should parse and print file, matching basic file read"""
-        known_result = open(testFile, 'r').read()
-        ledgerbil.main([mainFile, testFile])
+        known_result = open(testfile, 'r').read()
+        ledgerbil.main([mainFile, testfile])
 
         self.redirect.seek(0)
         self.assertEqual(known_result, self.redirect.read())
 
     def testMainNoArgv(self):
         """main should use sys.argv if args not passed in"""
-        known_result = open(testFile, 'r').read()
-        sys.argv = [mainFile, testFile]
+        known_result = open(testfile, 'r').read()
+        sys.argv = [mainFile, testfile]
         ledgerbil.main()
 
         self.redirect.seek(0)
@@ -78,9 +97,9 @@ class MainGoodInput(Redirector):
 
     def testMainStdin(self):
         """main should use stdin if file not passed in"""
-        known_result = open(testFile, 'r').read()
+        known_result = open(testfile, 'r').read()
         original_stdin = sys.stdin
-        sys.stdin = open(testFile, 'r')
+        sys.stdin = open(testfile, 'r')
         ledgerbil.main([mainFile])
         sys.stdin = original_stdin
 
