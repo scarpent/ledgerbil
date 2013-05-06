@@ -12,6 +12,7 @@ import sys
 from StringIO import StringIO
 import ledgerbil
 
+from thing import LedgerThing
 from thingtester import ThingTester
 
 testdir = 'tests/files/'
@@ -19,6 +20,7 @@ testfile = testdir + 'test.ledger'
 sortedfile = testdir + 'test-already-sorted.ledger'
 
 mainFile = 'ledgerbil.py'
+
 
 class Redirector(ThingTester):
 
@@ -62,6 +64,32 @@ class ParseFileGoodInput(ThingTester):
         actual = lbil.getFileLines()
         self.assertEqual(known_result, actual)
 
+
+class ParseLinesGoodInput(ThingTester):
+
+    def testCountInitialNonTransaction(self):
+        """counts initial non-transaction (probably a comment)"""
+        lines = ['; blah',
+                 '; blah blah blah',
+                 '2013/05/06 payee name',
+                 '    expenses: misc',
+                 '    liabilities: credit card  $-50']
+        lbil = ledgerbil.Ledgerbil()
+        lbil.parseLines(lines)
+        self.assertEquals(2, LedgerThing.thingCounter)
+
+    def testCountInitialTransaction(self):
+        """counts initial transaction"""
+        lines = ['2013/05/06 payee name',
+                 '    expenses: misc',
+                 '    liabilities: credit card  $-50',
+                 '; blah blah blah',
+                 '2013/05/06 payee name',
+                 '    expenses: misc',
+                 '    liabilities: credit card  $-50']
+        lbil = ledgerbil.Ledgerbil()
+        lbil.parseLines(lines)
+        self.assertEquals(2, LedgerThing.thingCounter)
 
 class MainBadInput(Redirector):
 

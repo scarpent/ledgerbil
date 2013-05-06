@@ -10,6 +10,7 @@ import unittest
 
 from thing import LedgerThing
 
+
 class ThingTester(unittest.TestCase):
 
     START_DATE = '1899/01/01'

@@ -20,9 +20,12 @@ class Ledgerbil():
         self.things = []
 
     def parseFile(self, afile):
+        return self.parseLines(afile.read().splitlines())
+
+    def parseLines(self, lines):
         currentLines = []
         i = 0
-        for line in afile:
+        for line in lines:
             i += 1
             #sys.stderr.write('%d) %s' % (i, line))
             # if first line a new "thing," currentLines will be empty
@@ -30,7 +33,7 @@ class Ledgerbil():
                 self.things.append(LedgerThing(currentLines))
                 currentLines = []
 
-            currentLines.append(line.rstrip())
+            currentLines.append(line)
 
         #currentLines.append('\n')
         if currentLines:
