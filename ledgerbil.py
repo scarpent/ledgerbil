@@ -69,22 +69,20 @@ def main():
 
     ledgerbil = Ledgerbil()
 
-    #parser = argparse.ArgumentParser()
-    #parser.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('file', help='ledger file to be processed')
+    args = parser.parse_args()
 
-    if len(sys.argv) < 2:
-        ledgerbil.parseFile(sys.stdin)
-    else:
-        try:
-            filename = sys.argv[1]
-            afile = open(filename, 'r')
-        except IOError as e:
-            print('error: %s' % e)
-            return -1
+    try:
+        filename = args.file
+        afile = open(filename, 'r')
+    except IOError as e:
+        print('error: %s' % e)
+        return -1
 
-        ledgerbil.parseFile(afile)
+    ledgerbil.parseFile(afile)
 
-    ledgerbil.sortThings()
+    #ledgerbil.sortThings()
     ledgerbil.printFile()
 
     return 0

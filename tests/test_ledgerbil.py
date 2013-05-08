@@ -117,17 +117,5 @@ class MainGoodInput(Redirector):
         self.redirect.seek(0)
         self.assertEqual(known_result, self.redirect.read())
 
-    def testMainStdin(self):
-        """main should use stdin if file not passed in"""
-        known_result = open(testfile, 'r').read()
-        original_stdin = sys.stdin
-        sys.stdin = open(testfile, 'r')
-        sys.argv = [mainFile]
-        ledgerbil.main()
-        sys.stdin = original_stdin
-
-        self.redirect.seek(0)
-        self.assertEqual(known_result, self.redirect.read())
-
 if __name__ == "__main__":
     unittest.main()         # pragma: no cover
