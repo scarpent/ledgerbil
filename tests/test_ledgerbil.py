@@ -14,6 +14,7 @@ import ledgerbil
 
 from thing import LedgerThing
 from thingtester import ThingTester
+from argtester import ArgTester
 
 testdir = 'tests/files/'
 testfile = testdir + 'test.ledger'
@@ -42,23 +43,10 @@ class ParseFileGoodInput(ThingTester):
         f = open(testfile, 'r')
         known_result = f.read().splitlines()
         f.close()
-        lbil = ledgerbil.Ledgerbil()
+        args = ArgTester()
+        lbil = ledgerbil.Ledgerbil(args)
         f = open(testfile, 'r')
         lbil.parseFile(f)
-        f.close()
-
-        actual = lbil.getFileLines()
-        self.assertEqual(known_result, actual)
-
-    def testAlreadySortedFileUnchanged(self):
-        """file output after sorting is identical to sorted input file"""
-        f = open(sortedfile, 'r')
-        known_result = f.read().splitlines()
-        f.close()
-        lbil = ledgerbil.Ledgerbil()
-        f = open(sortedfile, 'r')
-        lbil.parseFile(f)
-        lbil.sortThings()
         f.close()
 
         actual = lbil.getFileLines()
@@ -74,7 +62,8 @@ class ParseLinesGoodInput(ThingTester):
                  '2013/05/06 payee name',
                  '    expenses: misc',
                  '    liabilities: credit card  $-50']
-        lbil = ledgerbil.Ledgerbil()
+        args = ArgTester()
+        lbil = ledgerbil.Ledgerbil(args)
         lbil.parseLines(lines)
         self.assertEquals(2, LedgerThing.thingCounter)
 
@@ -87,9 +76,31 @@ class ParseLinesGoodInput(ThingTester):
                  '2013/05/06 payee name',
                  '    expenses: misc',
                  '    liabilities: credit card  $-50']
-        lbil = ledgerbil.Ledgerbil()
+        lbil = ledgerbil.Ledgerbil('')
         lbil.parseLines(lines)
         self.assertEquals(2, LedgerThing.thingCounter)
+
+
+class Sorting(ThingTester):
+
+    # todo: revisit this one
+    def testAlreadySortedFileUnchanged(self):
+        """file output after sorting is identical to sorted input file"""
+        f = open(sortedfile, 'r')
+        known_result = f.read().splitlines()
+        f.close()
+        args = ArgTester()
+        args.sort = True
+        lbil = ledgerbil.Ledgerbil(args)
+        f = open(sortedfile, 'r')
+        lbil.parseFile(f)
+        lbil.sortThings()
+        f.close()
+
+        actual = lbil.getFileLines()
+        self.assertEqual(known_result, actual)
+
+    # def todo: other sorting tests...
 
 
 class MainBadInput(Redirector):
@@ -116,6 +127,8 @@ class MainGoodInput(Redirector):
 
         self.redirect.seek(0)
         self.assertEqual(known_result, self.redirect.read())
+
+# todo: unit tests for command line arguments...
 
 if __name__ == "__main__":
     unittest.main()         # pragma: no cover

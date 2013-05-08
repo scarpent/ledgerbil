@@ -17,13 +17,16 @@ from operator import attrgetter
 
 class Ledgerbil():
 
-    sort = False
-
-    def __init__(self):
+    def __init__(self, args):
         self.things = []
+        self.args = args
 
     def parseFile(self, afile):
-        return self.parseLines(afile.read().splitlines())
+        self.parseLines(afile.read().splitlines())
+        if self.args.sort:
+            self.sortThings()
+
+        return True
 
     def parseLines(self, lines):
         currentLines = []
@@ -67,10 +70,12 @@ class Ledgerbil():
 
 def main():
 
-    ledgerbil = Ledgerbil()
-
     parser = argparse.ArgumentParser()
     parser.add_argument('file', help='ledger file to be processed')
+    parser.add_argument(
+        '-s', '--sort',
+        help='sort the file by transaction date', action='store_true'
+    )
     args = parser.parse_args()
 
     try:
@@ -80,9 +85,9 @@ def main():
         print('error: %s' % e)
         return -1
 
-    ledgerbil.parseFile(afile)
+    ledgerbil = Ledgerbil(args)
 
-    #ledgerbil.sortThings()
+    ledgerbil.parseFile(afile)
     ledgerbil.printFile()
 
     return 0
