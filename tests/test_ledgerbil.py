@@ -91,6 +91,7 @@ class ParseLinesGoodInput(ThingTester):
         lbil.parseLines(lines)
         self.assertEquals(2, LedgerThing.thingCounter)
 
+
 class MainBadInput(Redirector):
 
     def testMainBadFilename(self):
@@ -98,7 +99,8 @@ class MainBadInput(Redirector):
         known_result = (
             "error: [Errno 2] No such file or directory: 'invalid.journal'\n"
         )
-        ledgerbil.main([mainFile, 'invalid.journal'])
+        sys.argv = [mainFile, 'invalid.journal']
+        ledgerbil.main()
 
         self.redirect.seek(0)
         self.assertEqual(known_result, self.redirect.read())
@@ -108,14 +110,6 @@ class MainGoodInput(Redirector):
 
     def testMainGoodFilename(self):
         """main should parse and print file, matching basic file read"""
-        known_result = open(testfile, 'r').read()
-        ledgerbil.main([mainFile, testfile])
-
-        self.redirect.seek(0)
-        self.assertEqual(known_result, self.redirect.read())
-
-    def testMainNoArgv(self):
-        """main should use sys.argv if args not passed in"""
         known_result = open(testfile, 'r').read()
         sys.argv = [mainFile, testfile]
         ledgerbil.main()
@@ -128,7 +122,8 @@ class MainGoodInput(Redirector):
         known_result = open(testfile, 'r').read()
         original_stdin = sys.stdin
         sys.stdin = open(testfile, 'r')
-        ledgerbil.main([mainFile])
+        sys.argv = [mainFile]
+        ledgerbil.main()
         sys.stdin = original_stdin
 
         self.redirect.seek(0)

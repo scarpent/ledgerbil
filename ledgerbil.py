@@ -9,12 +9,15 @@ __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
 import sys
+import argparse
 
 from thing import LedgerThing
 from operator import attrgetter
 
 
 class Ledgerbil():
+
+    sort = False
 
     def __init__(self):
         self.things = []
@@ -62,18 +65,18 @@ class Ledgerbil():
         self.things.sort(key=attrgetter('date', 'thingNumber'))
 
 
-def main(argv=None):
+def main():
 
     ledgerbil = Ledgerbil()
 
-    if argv is None:
-        argv = sys.argv
+    #parser = argparse.ArgumentParser()
+    #parser.parse_args()
 
-    if len(argv) < 2:
+    if len(sys.argv) < 2:
         ledgerbil.parseFile(sys.stdin)
     else:
         try:
-            filename = argv[1]
+            filename = sys.argv[1]
             afile = open(filename, 'r')
         except IOError as e:
             print('error: %s' % e)
@@ -81,7 +84,7 @@ def main(argv=None):
 
         ledgerbil.parseFile(afile)
 
-    #ledgerbil.sortThings()
+    ledgerbil.sortThings()
     ledgerbil.printFile()
 
     return 0
