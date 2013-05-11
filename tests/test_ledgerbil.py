@@ -19,8 +19,10 @@ from argtester import ArgTester
 testdir = 'tests/files/'
 testfile = testdir + 'test.ledger'
 sortedfile = testdir + 'test-already-sorted.ledger'
+alpha_unsortedfile = testdir + 'test-alpha-unsorted.ledger'
+alpha_sortedfile = testdir + 'test-alpha-sorted.ledger'
 
-mainFile = 'ledgerbil.py'
+mainfile = 'ledgerbil.py'
 
 
 class Redirector(ThingTester):
@@ -134,7 +136,7 @@ class MainBadInput(Redirector):
         expected = (
             "error: [Errno 2] No such file or directory: 'invalid.journal'\n"
         )
-        sys.argv = [mainFile, 'invalid.journal']
+        sys.argv = [mainfile, 'invalid.journal']
         ledgerbil.main()
 
         self.redirect.seek(0)
@@ -146,13 +148,32 @@ class MainGoodInput(Redirector):
     def testMainGoodFilename(self):
         """main should parse and print file, matching basic file read"""
         expected = open(testfile, 'r').read()
-        sys.argv = [mainFile, testfile]
+        sys.argv = [mainfile, testfile]
         ledgerbil.main()
 
         self.redirect.seek(0)
         self.assertEqual(expected, self.redirect.read())
 
-# todo: unit tests for command line arguments...
+
+class MainArguments(Redirector):
+
+    def testSortingShortOption(self):
+        """main should sort if -s or --sort is passed in"""
+        expected = open(alpha_sortedfile, 'r').read()
+        sys.argv = [mainfile, '-s', alpha_unsortedfile]
+        ledgerbil.main()
+
+        self.redirect.seek(0)
+        self.assertEqual(expected, self.redirect.read())
+
+    def testSortingLongOption(self):
+        """main should sort if -s or --sort is passed in"""
+        expected = open(alpha_sortedfile, 'r').read()
+        sys.argv = [mainfile, '--sort', alpha_unsortedfile]
+        ledgerbil.main()
+
+        self.redirect.seek(0)
+        self.assertEqual(expected, self.redirect.read())
 
 if __name__ == "__main__":
     unittest.main()         # pragma: no cover

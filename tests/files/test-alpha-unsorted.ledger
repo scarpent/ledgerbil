@@ -1,0 +1,24 @@
+; * * * * * * * * * * * * * * * * * * * *
+; *           ledger: sorting           *
+; * * * * * * * * * * * * * * * * * * * *
+
+account equity
+account equity: opening balances
+
+2013/03/30 (1500) flubbery
+    expenses: misc: shrubberies
+    expenses: misc: tools                   $5.12
+    assets: cash                            $-18.16
+
+2013/03/25 abc store
+    expenses: leisure: games
+    liabilities: credit card                $-11.21
+
+2013/01/01 opening balance
+    assets: cash                            $50
+    equity: opening balances
+
+2013/01/01 opening balance
+    liabilities: credit card                $-75
+    equity: opening balances
+
