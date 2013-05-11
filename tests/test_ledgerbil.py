@@ -135,6 +135,7 @@ class Sorting(ThingTester):
         lbil.sortThings()
         self.assertEqual(expected, lbil.getFileLines())
 
+
 class MainBadInput(Redirector):
 
     def testMainBadFilename(self):
