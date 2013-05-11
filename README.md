@@ -8,11 +8,11 @@ I hope this will be my last money program. It's wonderful:
 
 http://www.ledger-cli.org/
 
-But it only *reads* financial data from a journal. And this in itself is usable. I'm using Sublime Text to manage my journal, and with syntax highlighting and regular expressions, it handles the job well.
+But it only *reads* financial data from a journal. You have to provide your own tools for working with the file. At a minimum, all you need is a text editor. I'm using Sublime Text to manage my journal, and with syntax highlighting and regular expressions, it handles the job well.
 
-But I'd like to automate the handling of recurring transactions (a **scheduler**), and it might be nice to have a tool to speed up statement **reconciliations**, and so on. I imagine it will be fun to do all this myself, using python.
+But I'd like to automate the handling of recurring transactions, with a **scheduler**, and it might be nice to have a tool to speed up statement **reconciliations**, and so on. I imagine it will be fun to do all this myself, using python. I'll be taking my time at it since I can manage indefinitely with just Sublime Text.
 
-I'll be taking my time at it since I can manage indefinitely with Sublime Text. So far **the program will sort an input file** by transaction date. (Woo hoo!) I intend to go overboard with unit testing. If ledger-cli is my "forever money program," then I want to be able to trust the tools I build to work with it.
+So far, **the program will sort an input file** by transaction date. (Woo hoo!) I intend to go overboard with unit testing. If ledger-cli is my "forever money program," then I want to be able to trust the tools I build to work with it.
 
 I don't expect that there will be wide interest in this program, but if you *do* want to use it, that would be awesome. My first goal is to properly handle the subset of ledger-cli that I'm actually using, but I'm open to building it out if asked, and if I can manage it within the limitations of my time and skills.
 
