@@ -83,7 +83,6 @@ class ParseLinesGoodInput(ThingTester):
 
 class Sorting(ThingTester):
 
-    # todo: revisit this one
     def testAlreadySortedFileUnchanged(self):
         """file output after sorting is identical to sorted input file"""
         f = open(sortedfile, 'r')
@@ -100,7 +99,32 @@ class Sorting(ThingTester):
         actual = lbil.getFileLines()
         self.assertEqual(expected, actual)
 
-    # def todo: other sorting tests...
+    def testSorting(self):
+        """test sorting"""
+        unsorted = [
+            '; blah blah blah',
+            '2013/05/11 payee name',
+            '    expenses: misc',
+            '    liabilities: credit card  $-110',
+            '2013/05/05 payee name',
+            '    expenses: misc',
+            '    liabilities: credit card  $-50'
+        ]
+        expected = [
+            '; blah blah blah',
+            '2013/05/05 payee name',
+            '    expenses: misc',
+            '    liabilities: credit card  $-50',
+            '2013/05/11 payee name',
+            '    expenses: misc',
+            '    liabilities: credit card  $-110'
+        ]
+        args = ArgTester()
+        args.sort = True
+        lbil = ledgerbil.Ledgerbil(args)
+        lbil.parseLines(unsorted)
+        lbil.sortThings()
+        self.assertEqual(expected, lbil.getFileLines())
 
 
 class MainBadInput(Redirector):
