@@ -71,9 +71,10 @@ class Ledgerbil():
 def main():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('file', help='ledger file to be processed')
-    parser.add_argument(
-        '-s', '--sort',
+
+    parser.add_argument('-f', '--file', type=str, required=True,
+        help='ledger file to be processed')
+    parser.add_argument('-s', '--sort',
         help='sort the file by transaction date', action='store_true'
     )
     args = parser.parse_args()
