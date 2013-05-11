@@ -41,7 +41,7 @@ class ParseFileGoodInput(ThingTester):
     def testParsedFileUnchanged(self):
         """file output after parsing should be identical to input file"""
         f = open(testfile, 'r')
-        known_result = f.read().splitlines()
+        expected = f.read().splitlines()
         f.close()
         args = ArgTester()
         lbil = ledgerbil.Ledgerbil(args)
@@ -50,7 +50,7 @@ class ParseFileGoodInput(ThingTester):
         f.close()
 
         actual = lbil.getFileLines()
-        self.assertEqual(known_result, actual)
+        self.assertEqual(expected, actual)
 
 
 class ParseLinesGoodInput(ThingTester):
@@ -87,7 +87,7 @@ class Sorting(ThingTester):
     def testAlreadySortedFileUnchanged(self):
         """file output after sorting is identical to sorted input file"""
         f = open(sortedfile, 'r')
-        known_result = f.read().splitlines()
+        expected = f.read().splitlines()
         f.close()
         args = ArgTester()
         args.sort = True
@@ -98,7 +98,7 @@ class Sorting(ThingTester):
         f.close()
 
         actual = lbil.getFileLines()
-        self.assertEqual(known_result, actual)
+        self.assertEqual(expected, actual)
 
     # def todo: other sorting tests...
 
@@ -107,26 +107,26 @@ class MainBadInput(Redirector):
 
     def testMainBadFilename(self):
         """main should fail with 'No such file or directory'"""
-        known_result = (
+        expected = (
             "error: [Errno 2] No such file or directory: 'invalid.journal'\n"
         )
         sys.argv = [mainFile, 'invalid.journal']
         ledgerbil.main()
 
         self.redirect.seek(0)
-        self.assertEqual(known_result, self.redirect.read())
+        self.assertEqual(expected, self.redirect.read())
 
 
 class MainGoodInput(Redirector):
 
     def testMainGoodFilename(self):
         """main should parse and print file, matching basic file read"""
-        known_result = open(testfile, 'r').read()
+        expected = open(testfile, 'r').read()
         sys.argv = [mainFile, testfile]
         ledgerbil.main()
 
         self.redirect.seek(0)
-        self.assertEqual(known_result, self.redirect.read())
+        self.assertEqual(expected, self.redirect.read())
 
 # todo: unit tests for command line arguments...
 
