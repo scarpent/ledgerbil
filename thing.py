@@ -16,6 +16,7 @@ class LedgerThing():
 
     thingCounter = 0
     date = '1899/01/01'
+    dateRegex = r'\d{4}([-/]\d\d){2}'
 
     def __init__(self, lines):
         LedgerThing.thingCounter += 1
@@ -25,7 +26,9 @@ class LedgerThing():
 
         if self.isTransactionStart(lines[0]):
             # maybe will want to use same date regex here and in isT... method
-            self.date = re.search(r'^(\S+)', lines[0]).group(1)
+            self.date = re.search(
+                r'^(%s)' % LedgerThing.dateRegex, lines[0]
+            ).group(1)
             LedgerThing.date = self.date
         else:
             # preserve sort order by date
@@ -46,7 +49,7 @@ class LedgerThing():
     @staticmethod
     def isTransactionStart(line):
         # loose date-like check, pending refinement based on ledger spec
-        match = re.match(r'^([-0-9/]{6,})\s+[^\s].*$', line)
+        match = re.match(r'^(%s)\s+[^\s].*$' % LedgerThing.dateRegex, line)
         if match:
             try:
                 parse(match.group(1))  # verify it parses as date

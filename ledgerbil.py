@@ -33,7 +33,6 @@ class Ledgerbil():
         i = 0
         for line in lines:
             i += 1
-            #sys.stderr.write('%d) %s' % (i, line))
             # if first line a new "thing," currentLines will be empty
             if LedgerThing.isNewThing(line) and currentLines:
                 self.things.append(LedgerThing(currentLines))
@@ -41,7 +40,6 @@ class Ledgerbil():
 
             currentLines.append(line)
 
-        #currentLines.append('\n')
         if currentLines:
             self.things.append(LedgerThing(currentLines))
 
@@ -57,11 +55,8 @@ class Ledgerbil():
     def printFile(self):
         i = 0
         for thing in self.things:
-            # sys.stderr.write('-->%s %s <--\n' %
-            #                  (thing.thingNumber, thing.date))
             for line in thing.getLines():
                 i += 1
-                #sys.stderr.write('%d) %s' % (i, line))
                 print(line)
 
     def sortThings(self):
