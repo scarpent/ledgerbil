@@ -75,11 +75,20 @@ def main():
         '-s', '--sort',
         help='sort the file by transaction date', action='store_true'
     )
+    parser.add_argument(
+        '-S', '--schedule',
+        type=str, metavar='FILE',
+        help='file with scheduled transactions (to be added to -f ledger file)'
+    )
+    parser.add_argument(
+        '-p', '--preview',
+        type=str, metavar='FILE',
+        help='file for previewed scheduled transactions (will be overwritten)'
+    )
     args = parser.parse_args()
 
     try:
-        filename = args.file
-        afile = open(filename, 'r')
+        afile = open(args.file, 'r')
     except IOError as e:
         print('error: %s' % e)
         return -1

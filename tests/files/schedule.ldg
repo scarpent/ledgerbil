@@ -1,3 +1,5 @@
+;; scheduler ; enter 7 days ; preview 30 days
+
 2013/04/15 abc paycheck
     ; schedule ; every 1 half-month ; auto
     i: wages: gross pay                     $-135.00

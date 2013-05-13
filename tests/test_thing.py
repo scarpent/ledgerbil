@@ -100,8 +100,8 @@ class isTransactionStart(ThingTester):
         self.assertFalse(LedgerThing.isTransactionStart(line))
 
     def testInvalidDate(self):
-        """invalid date format should return false"""
-        line = '//201304/14 abc store'
+        """invalid date should return false"""
+        line = '2013/02/30 abc store'
         self.assertFalse(LedgerThing.isTransactionStart(line))
 
 if __name__ == "__main__":
