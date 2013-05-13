@@ -104,5 +104,15 @@ class isTransactionStart(ThingTester):
         line = '2013/02/30 abc store'
         self.assertFalse(LedgerThing.isTransactionStart(line))
 
+    def testInvalidDateFormatMonth(self):
+        """valid date but invalid (for ledger) date fmt should return false"""
+        line = '2013/5/12 abc store'
+        self.assertFalse(LedgerThing.isTransactionStart(line))
+
+    def testInvalidDateFormatDay(self):
+        """valid date but invalid (for ledger) date fmt should return false"""
+        line = '2013/06/1 abc store'
+        self.assertFalse(LedgerThing.isTransactionStart(line))
+
 if __name__ == "__main__":
     unittest.main()         # pragma: no cover
