@@ -9,11 +9,10 @@ __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
 import sys
-import argparse
-
-from thing import LedgerThing
 from operator import attrgetter
 
+from thing import LedgerThing
+from arghandler import ArgHandler
 
 class Ledgerbil():
 
@@ -65,28 +64,9 @@ class Ledgerbil():
 
 def main():
 
-    parser = argparse.ArgumentParser()
+    args = ArgHandler.getArgs()
 
-    parser.add_argument(
-        '-f', '--file',
-        type=str, required=True, help='ledger file to be processed'
-    )
-    parser.add_argument(
-        '-s', '--sort',
-        help='sort the file by transaction date', action='store_true'
-    )
-    parser.add_argument(
-        '-S', '--schedule',
-        type=str, metavar='FILE',
-        help='file with scheduled transactions (to be added to -f ledger file)'
-    )
-    parser.add_argument(
-        '-p', '--preview',
-        type=str, metavar='FILE',
-        help='file for previewed scheduled transactions (will be overwritten)'
-    )
-    args = parser.parse_args()
-
+    # todo: move file handling into class
     try:
         afile = open(args.file, 'r')
     except IOError as e:
