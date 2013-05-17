@@ -16,25 +16,26 @@ from thing import LedgerThing
 
 class LedgerFile():
 
+    startingDate = '1899/01/01'
+
     def __init__(self, filename):
         self.thingCounter = 0
-        self.currentDate = '1899/01/01'
         self.things = []
 
-        self.ledgerFile = self.openFile(filename)
-        self.parseFile()
+        self._openFile(filename)
+        self._parseFile()
 
-    def openFile(self, filename):
+    def _openFile(self, filename):
         try:
             self.ledgerFile = open(filename, 'r+')
         except IOError as e:
             sys.stderr.write('error: %s\n' % e)
             sys.exit(-1)
 
-    def parseFile(self):
-        self.parseLines(self.ledgerFile.read().splitlines())
+    def _parseFile(self):
+        self._parseLines(self.ledgerFile.read().splitlines())
 
-    def parseLines(self, lines):
+    def _parseLines(self, lines):
         currentLines = []
         for line in lines:
             if LedgerThing.isNewThing(line):
@@ -45,21 +46,24 @@ class LedgerFile():
 
         self.addThing(currentLines)
 
-    def addThing(self, currentLines):
-        if currentLines:
+    def addThing(self, lines):
+        if lines:
             self.thingCounter += 1
-            thing = LedgerThing(
-                currentLines,
-                self.thingCounter,
-                self.currentDate
-            )
-            self.currentDate = thing.date
+            thing = LedgerThing(lines, self.thingCounter)
             self.things.append(thing)
 
     def getThings(self):
         return self.things
 
-    def sortFile(self):
+    def sort(self):
+        currentDate = self.startingDate
+
+        for thing in self.things:
+            if thing.date is None:
+                thing.date = currentDate
+            else:
+                currentDate = thing.date
+
         self.things.sort(key=attrgetter('date', 'thingNumber'))
 
     def printFile(self):
