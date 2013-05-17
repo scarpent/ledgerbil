@@ -21,17 +21,15 @@ class Ledgerbil():
 
     def processFile(self):
         ledgerFile = LedgerFile(self.args.file)
+
         if self.args.sort:
             ledgerFile.sort()
-            
+
         ledgerFile.printFile()
 
 def main():
-
     args = ArgHandler.getArgs()
-
     ledgerbil = Ledgerbil(args)
-
     ledgerbil.processFile()
 
     return 0

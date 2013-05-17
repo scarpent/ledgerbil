@@ -9,7 +9,7 @@ __email__ = 'scottc@movingtofreedom.org'
 import unittest
 
 from thing import LedgerThing
-from thingtester import ThingTester
+from redirector import ThingTester
 
 
 class Constructor(ThingTester):
