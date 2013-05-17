@@ -14,14 +14,11 @@ from dateutil.parser import parse
 
 class LedgerThing():
 
-    thingCounter = 0
-    date = '1899/01/01'
     dateRegex = r'\d{4}([-/]\d\d){2}'
 
-    def __init__(self, lines):
-        LedgerThing.thingCounter += 1
+    def __init__(self, lines, thingNumber=1, thingDate='1899/01/01'):
 
-        self.thingNumber = LedgerThing.thingCounter
+        self.thingNumber = thingNumber
         self.rawlines = lines
 
         if self.isTransactionStart(lines[0]):
@@ -29,10 +26,9 @@ class LedgerThing():
             self.date = re.search(
                 r'^(%s)' % LedgerThing.dateRegex, lines[0]
             ).group(1)
-            LedgerThing.date = self.date
         else:
             # preserve sort order by date
-            self.date = LedgerThing.date
+            self.date = thingDate
 
     def getLines(self):
         return self.rawlines

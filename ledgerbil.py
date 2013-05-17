@@ -14,6 +14,7 @@ from operator import attrgetter
 from thing import LedgerThing
 from arghandler import ArgHandler
 
+
 class Ledgerbil():
 
     def __init__(self, args):
