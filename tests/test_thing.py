@@ -9,28 +9,14 @@ __email__ = 'scottc@movingtofreedom.org'
 import unittest
 
 from thing import LedgerThing
-from redirector import ThingTester
 
 
-class Constructor(ThingTester):
-
-    def testKnowsHowToCountTransactions(self):
-        """should count two actual transactions"""
-        LedgerThing(['2013/04/15 blah', '    ; something...'])
-        LedgerThing(['2013/04/15 more blah', '    ; something...'])
-        self.assertEquals(2, LedgerThing.thingCounter)
-
-    def testKnowsHowToCountNonTransactions(self):
-        """should count three non-transactions"""
-        # todo: add here if/when a way to tell if a transaction
-        LedgerThing(['blah', 'blah blah blah'])
-        LedgerThing(['mountain', 'dew'])
-        LedgerThing(['qwerty'])
-        self.assertEquals(3, LedgerThing.thingCounter)
+class Constructor(unittest.TestCase):
 
     def testInitialNonTransactionDate(self):
         """when 1st thing in file is a non-transaction, it has default date"""
         thing = LedgerThing(['blah', 'blah blah blah'])
+        # todo: check for none (also, not initial?)
         self.assertEqual(ThingTester.START_DATE, thing.date)
 
     def testLaterNonTransactionDate(self):
@@ -40,7 +26,7 @@ class Constructor(ThingTester):
         self.assertEqual(thingOne.date, thingTwo.date)
 
 
-class GetLines(ThingTester):
+class GetLines(unittest.TestCase):
 
     def testGetLines(self):
         """lines can be entered and retrieved as is"""
@@ -49,7 +35,7 @@ class GetLines(ThingTester):
         self.assertEqual(lines, thing.getLines())
 
 
-class isNewThing(ThingTester):
+class isNewThing(unittest.TestCase):
 
     def testIsNewThing(self):
         """should be recognized as a new ledger 'thing' """
@@ -62,7 +48,7 @@ class isNewThing(ThingTester):
         self.assertFalse(LedgerThing.isNewThing(line))
 
 
-class isTransactionStart(ThingTester):
+class isTransactionStart(unittest.TestCase):
 
     def testValidTransactionStart(self):
         """date recognized as the start of a transaction (return true)"""

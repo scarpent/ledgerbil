@@ -17,18 +17,36 @@ from redirector import Redirector
 
 testdir = 'tests/files/'
 testfile = testdir + 'test.ledger'
-testfile_copy = testdir + 'test.ledger.copy'
 sortedfile = testdir + 'test-already-sorted.ledger'
 alpha_unsortedfile = testdir + 'test-alpha-unsorted.ledger'
 alpha_sortedfile = testdir + 'test-alpha-sorted.ledger'
 
 
-def getTempFilename():
-    # gets the name of the calling function
-    return testdir + 'temp_' + inspect.stack()[1][3]
+class TestingFileHelper():
+
+    @staticmethod
+    def getTempFilename():
+        # gets the name of the calling function
+        return testdir + 'temp_' + inspect.stack()[1][3]
+
+    @staticmethod
+    def createTempFile(testdata):
+        # includes the name of the calling function
+        tempfile = testdir + 'temp_' + inspect.stack()[1][3]
+        f = open(tempfile, 'w')
+        f.write(testdata)
+        f.close()
+        return tempfile
+
+    @staticmethod
+    def readFile(filename):
+        f = open(filename, 'r')
+        testdata = f.read()
+        f.close()
+        return testdata
 
 
-class LedgerFileInit(Redirector):
+class FileStuff(Redirector):
 
     def testBadFilename(self):
         """should fail with 'No such file or directory'"""
@@ -37,16 +55,16 @@ class LedgerFileInit(Redirector):
             ledgerfile.LedgerFile('bad.filename')
         except SystemExit:
             pass
-
         self.redirecterr.seek(0)
         actual = self.redirecterr.read()
         self.assertTrue(expected in actual)
 
+
+class FileParsingOnInit(Redirector):
+
     def testParsedFileUnchangedViaPrint(self):
         """file output after parsing should be identical to input file"""
-        f = open(testfile, 'r')
-        expected = f.read()
-        f.close()
+        expected = TestingFileHelper.readFile(testfile)
         ldgfile = ledgerfile.LedgerFile(testfile)
         ldgfile.printFile()
         self.redirect.seek(0)
@@ -54,38 +72,33 @@ class LedgerFileInit(Redirector):
 
     def testParsedFileUnchangedViaWrite(self):
         """file output after parsing should be identical to input file"""
-        tempfile = getTempFilename()
-        f = open(testfile, 'r')
-        expected = f.read()
-        f.close()
+        expected = TestingFileHelper.readFile(testfile)
+        tempfile = TestingFileHelper.getTempFilename()
         copyfile(testfile, tempfile)
         ldgfile = ledgerfile.LedgerFile(tempfile)
         ldgfile.writeFile()
-        f = open(tempfile, 'r')
-        actual = f.read()
-        f.close()
+        actual = TestingFileHelper.readFile(tempfile)
         remove(tempfile)
         self.assertEqual(expected, actual)
 
+
+class ThingCounting(unittest.TestCase):
+
     def testCountInitialNonTransaction(self):
         """counts initial non-transaction (probably a comment)"""
-        tempfile = getTempFilename()
         testdata = '''; blah
 ; blah blah blah
 2013/05/06 payee name
     expenses: misc
     liabilities: credit card  $-50
 '''
-        f = open(tempfile, 'w')
-        f.write(testdata)
-        f.close()
+        tempfile = TestingFileHelper.createTempFile(testdata)
         ldgfile = ledgerfile.LedgerFile(tempfile)
         remove(tempfile)
         self.assertEquals(2, ldgfile.thingCounter)
 
     def testCountInitialTransaction(self):
         """counts initial transaction"""
-        tempfile = getTempFilename()
         testdata = '''2013/05/06 payee name
     expenses: misc
     liabilities: credit card  $-50
@@ -93,78 +106,73 @@ class LedgerFileInit(Redirector):
 2013/05/06 payee name
     expenses: misc
     liabilities: credit card  $-50
+2013/02/30 invalid date (bonus test for thing date checking code coverage)
+    (will be lumped with previous; note that this is invalid ledger file...)
 '''
-        f = open(tempfile, 'w')
-        f.write(testdata)
-        f.close()
+        tempfile = TestingFileHelper.createTempFile(testdata)
         ldgfile = ledgerfile.LedgerFile(tempfile)
         remove(tempfile)
         self.assertEquals(2, ldgfile.thingCounter)
 
 
+class ThingDating(unittest.TestCase):
+
+    def testInitialNonTransactionDate(self):
+        """when 1st thing in file is a non-transaction, it has default date"""
+        tempfile = TestingFileHelper.createTempFile('blah\nblah blah blah')
+        ldgfile = ledgerfile.LedgerFile(tempfile)
+        ldgfile.sort()  # for now non-transaction dates are only populated
+                        # with sort; may have to revisit this..
+        remove(tempfile)
+        self.assertEqual(
+            ledgerfile.LedgerFile.STARTING_DATE,
+            ldgfile.getThings()[0].date
+        )
+
+    def testLaterNonTransactionDate(self):
+        """later non-transaction things inherit date of preceding thing"""
+        testdata = '''2013/05/06 payee name
+    expenses: misc
+    liabilities: credit card  $-1
+2013/05/07 payee name
+    expenses: misc
+    liabilities: credit card  $-2
+'''
+        thingLines = ['; blah blah blah', '; and so on...']
+        tempfile = TestingFileHelper.createTempFile(testdata)
+        ldgfile = ledgerfile.LedgerFile(tempfile)
+        ldgfile._addThingLines(thingLines)
+        ldgfile.sort()  # for now non-transaction dates are only populated
+                        # with sort; may have to revisit this..
+        remove(tempfile)
+        self.assertEqual(
+            ldgfile.getThings()[1].date,
+            ldgfile.getThings()[2].date
+        )
+
 class Sorting(unittest.TestCase):
 
     def testAlreadySortedFileUnchanged(self):
         """file output after sorting is identical to sorted input file"""
-        f = open(sortedfile, 'r')
-        expected = f.read()
-        f.close()
-        tempfile = getTempFilename()
+        expected = TestingFileHelper.readFile(sortedfile)
+        tempfile = TestingFileHelper.getTempFilename()
         copyfile(sortedfile, tempfile)
         ldgfile = ledgerfile.LedgerFile(tempfile)
         ldgfile.sort()
         ldgfile.writeFile()
-        f = open(tempfile, 'r')
-        actual = f.read()
+        actual = TestingFileHelper.readFile(tempfile)
         remove(tempfile)
         self.assertEqual(expected, actual)
 
     def testSorting(self):
         """test sorting"""
-        f = open(alpha_sortedfile, 'r')
-        expected = f.read()
-        f.close()
-        tempfile = getTempFilename()
+        expected = TestingFileHelper.readFile(alpha_sortedfile)
+        tempfile = TestingFileHelper.getTempFilename()
         copyfile(alpha_unsortedfile, tempfile)
         ldgfile = ledgerfile.LedgerFile(tempfile)
         ldgfile.sort()
         ldgfile.writeFile()
-        f = open(tempfile, 'r')
-        actual = f.read()
-        remove(tempfile)
-        self.assertEqual(expected, actual)
-
-class Misc(unittest.TestCase):
-
-    def testGetThings(self):
-        """retrieves data via getThings method"""
-        tempfile = getTempFilename()
-        # yes, the first line is an invalid date, making it not a transaction
-        # - when testing just test_ledgerfile, contributes to 100% test on
-        #   thing
-        expected = '''2013/02/30 payee name
-    expenses: misc
-    liabilities: credit card  $-38
-; blah blah blah
-2013/05/06 payee name
-    expenses: misc
-    liabilities: credit card  $-50
-2013/05/17  payee name
-    expenses: misc
-    liabilities: credit card  $-42
-'''
-        f = open(tempfile, 'w')
-        f.write(expected)
-        f.close()
-        ldgfile = ledgerfile.LedgerFile(tempfile)
-        things = ldgfile.getThings()
-        f = open(tempfile, 'r+')
-        for thing in things:
-            for line in thing.getLines():
-                f.write(line + '\n')
-        f.seek(0)
-        actual = f.read()
-        f.close()
+        actual = TestingFileHelper.readFile(tempfile)
         remove(tempfile)
         self.assertEqual(expected, actual)
 

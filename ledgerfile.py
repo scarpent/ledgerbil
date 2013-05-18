@@ -16,7 +16,7 @@ from thing import LedgerThing
 
 class LedgerFile():
 
-    startingDate = '1899/01/01'
+    STARTING_DATE = '1899/01/01'
 
     def __init__(self, filename):
         self.thingCounter = 0
@@ -44,41 +44,44 @@ class LedgerFile():
         currentLines = []
         for line in lines:
             if LedgerThing.isNewThing(line):
-                self.addThing(currentLines)
+                self._addThingLines(currentLines)
                 currentLines = []
 
             currentLines.append(line)
 
-        self.addThing(currentLines)
+        self._addThingLines(currentLines)
 
-    def addThing(self, lines):
+    def addThing(self, thing):
+        self.thingCounter += 1
+        self.getThings().append(thing)
+
+    def _addThingLines(self, lines):
         if lines:
-            self.thingCounter += 1
             thing = LedgerThing(lines, self.thingCounter)
-            self.things.append(thing)
+            self.addThing(thing)
 
     def getThings(self):
         return self.things
 
     def sort(self):
-        currentDate = self.startingDate
+        currentDate = self.STARTING_DATE
 
-        for thing in self.things:
+        for thing in self.getThings():
             if thing.date is None:
                 thing.date = currentDate
             else:
                 currentDate = thing.date
 
-        self.things.sort(key=attrgetter('date', 'thingNumber'))
+        self.getThings().sort(key=attrgetter('date', 'thingNumber'))
 
     def printFile(self):
-        for thing in self.things:
+        for thing in self.getThings():
             for line in thing.getLines():
                 print(line)
 
     def writeFile(self):
         self._openFile()
-        for thing in self.things:
+        for thing in self.getThings():
             for line in thing.getLines():
                 self.ledgerFile.write(line + '\n')
         self._closeFile()
