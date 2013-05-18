@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""unit test for ledgerfile.py"""
+"""unit test for py"""
 
 __author__ = 'scarpent'
 __license__ = 'gpl v3 or greater'
@@ -12,7 +12,7 @@ import inspect
 from shutil import copyfile
 from os import remove
 
-import ledgerfile
+from ledgerfile import LedgerFile
 from redirector import Redirector
 
 testdir = 'tests/files/'
@@ -52,7 +52,7 @@ class FileStuff(Redirector):
         """should fail with 'No such file or directory'"""
         expected = "error: [Errno 2] No such file or directory:"
         try:
-            ledgerfile.LedgerFile('bad.filename')
+            LedgerFile('bad.filename')
         except SystemExit:
             pass
         self.redirecterr.seek(0)
@@ -65,8 +65,8 @@ class FileParsingOnInit(Redirector):
     def testParsedFileUnchangedViaPrint(self):
         """file output after parsing should be identical to input file"""
         expected = TestingFileHelper.readFile(testfile)
-        ldgfile = ledgerfile.LedgerFile(testfile)
-        ldgfile.printFile()
+        ledgerfile = LedgerFile(testfile)
+        ledgerfile.printFile()
         self.redirect.seek(0)
         self.assertEqual(expected, self.redirect.read())
 
@@ -75,8 +75,8 @@ class FileParsingOnInit(Redirector):
         expected = TestingFileHelper.readFile(testfile)
         tempfile = TestingFileHelper.getTempFilename()
         copyfile(testfile, tempfile)
-        ldgfile = ledgerfile.LedgerFile(tempfile)
-        ldgfile.writeFile()
+        ledgerfile = LedgerFile(tempfile)
+        ledgerfile.writeFile()
         actual = TestingFileHelper.readFile(tempfile)
         remove(tempfile)
         self.assertEqual(expected, actual)
@@ -93,9 +93,9 @@ class ThingCounting(unittest.TestCase):
     liabilities: credit card  $-50
 '''
         tempfile = TestingFileHelper.createTempFile(testdata)
-        ldgfile = ledgerfile.LedgerFile(tempfile)
+        ledgerfile = LedgerFile(tempfile)
         remove(tempfile)
-        self.assertEquals(2, ldgfile.thingCounter)
+        self.assertEquals(2, ledgerfile.thingCounter)
 
     def testCountInitialTransaction(self):
         """counts initial transaction"""
@@ -110,9 +110,9 @@ class ThingCounting(unittest.TestCase):
     (will be lumped with previous; note that this is invalid ledger file...)
 '''
         tempfile = TestingFileHelper.createTempFile(testdata)
-        ldgfile = ledgerfile.LedgerFile(tempfile)
+        ledgerfile = LedgerFile(tempfile)
         remove(tempfile)
-        self.assertEquals(2, ldgfile.thingCounter)
+        self.assertEquals(2, ledgerfile.thingCounter)
 
 
 class ThingDating(unittest.TestCase):
@@ -120,13 +120,13 @@ class ThingDating(unittest.TestCase):
     def testInitialNonTransactionDate(self):
         """when 1st thing in file is a non-transaction, it has default date"""
         tempfile = TestingFileHelper.createTempFile('blah\nblah blah blah')
-        ldgfile = ledgerfile.LedgerFile(tempfile)
-        ldgfile.sort()  # for now non-transaction dates are only populated
+        ledgerfile = LedgerFile(tempfile)
+        ledgerfile.sort()  # for now non-transaction dates are only populated
                         # with sort; may have to revisit this..
         remove(tempfile)
         self.assertEqual(
-            ledgerfile.LedgerFile.STARTING_DATE,
-            ldgfile.getThings()[0].date
+            LedgerFile.STARTING_DATE,
+            ledgerfile.getThings()[0].date
         )
 
     def testLaterNonTransactionDate(self):
@@ -140,14 +140,14 @@ class ThingDating(unittest.TestCase):
 '''
         thingLines = ['; blah blah blah', '; and so on...']
         tempfile = TestingFileHelper.createTempFile(testdata)
-        ldgfile = ledgerfile.LedgerFile(tempfile)
-        ldgfile._addThingLines(thingLines)
-        ldgfile.sort()  # for now non-transaction dates are only populated
+        ledgerfile = LedgerFile(tempfile)
+        ledgerfile._addThingLines(thingLines)
+        ledgerfile.sort()  # for now non-transaction dates are only populated
                         # with sort; may have to revisit this..
         remove(tempfile)
         self.assertEqual(
-            ldgfile.getThings()[1].date,
-            ldgfile.getThings()[2].date
+            ledgerfile.getThings()[1].date,
+            ledgerfile.getThings()[2].date
         )
 
 
@@ -158,9 +158,9 @@ class Sorting(unittest.TestCase):
         expected = TestingFileHelper.readFile(sortedfile)
         tempfile = TestingFileHelper.getTempFilename()
         copyfile(sortedfile, tempfile)
-        ldgfile = ledgerfile.LedgerFile(tempfile)
-        ldgfile.sort()
-        ldgfile.writeFile()
+        ledgerfile = LedgerFile(tempfile)
+        ledgerfile.sort()
+        ledgerfile.writeFile()
         actual = TestingFileHelper.readFile(tempfile)
         remove(tempfile)
         self.assertEqual(expected, actual)
@@ -170,9 +170,9 @@ class Sorting(unittest.TestCase):
         expected = TestingFileHelper.readFile(alpha_sortedfile)
         tempfile = TestingFileHelper.getTempFilename()
         copyfile(alpha_unsortedfile, tempfile)
-        ldgfile = ledgerfile.LedgerFile(tempfile)
-        ldgfile.sort()
-        ldgfile.writeFile()
+        ledgerfile = LedgerFile(tempfile)
+        ledgerfile.sort()
+        ledgerfile.writeFile()
         actual = TestingFileHelper.readFile(tempfile)
         remove(tempfile)
         self.assertEqual(expected, actual)
