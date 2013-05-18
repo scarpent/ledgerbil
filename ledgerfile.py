@@ -74,4 +74,5 @@ class LedgerFile():
     def writeFile(self):
         self.ledgerFile.seek(0)
         for thing in self.things:
-                self.ledgerFile.writelines(thing.getLines())
+            for line in thing.getLines():
+                self.ledgerFile.write(line + '\n')
