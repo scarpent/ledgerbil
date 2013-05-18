@@ -30,6 +30,18 @@ def getTempFilename():
 
 class LedgerFileInit(Redirector):
 
+    def testBadFilename(self):
+        """should fail with 'No such file or directory'"""
+        expected = "error: [Errno 2] No such file or directory:"
+        try:
+            ledgerfile.LedgerFile('bad.filename')
+        except SystemExit:
+            pass
+
+        self.redirecterr.seek(0)
+        actual = self.redirecterr.read()
+        self.assertTrue(expected in actual)
+
     def testParsedFileUnchangedViaPrint(self):
         """file output after parsing should be identical to input file"""
         f = open(testfile, 'r')
@@ -119,6 +131,40 @@ class Sorting(unittest.TestCase):
         ldgfile.writeFile()
         f = open(tempfile, 'r')
         actual = f.read()
+        remove(tempfile)
+        self.assertEqual(expected, actual)
+
+class Misc(unittest.TestCase):
+
+    def testGetThings(self):
+        """retrieves data via getThings method"""
+        tempfile = getTempFilename()
+        # yes, the first line is an invalid date, making it not a transaction
+        # - when testing just test_ledgerfile, contributes to 100% test on
+        #   thing
+        expected = '''2013/02/30 payee name
+    expenses: misc
+    liabilities: credit card  $-38
+; blah blah blah
+2013/05/06 payee name
+    expenses: misc
+    liabilities: credit card  $-50
+2013/05/17  payee name
+    expenses: misc
+    liabilities: credit card  $-42
+'''
+        f = open(tempfile, 'w')
+        f.write(expected)
+        f.close()
+        ldgfile = ledgerfile.LedgerFile(tempfile)
+        things = ldgfile.getThings()
+        f = open(tempfile, 'r+')
+        for thing in things:
+            for line in thing.getLines():
+                f.write(line + '\n')
+        f.seek(0)
+        actual = f.read()
+        f.close()
         remove(tempfile)
         self.assertEqual(expected, actual)
 
