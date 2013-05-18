@@ -10,20 +10,23 @@ import unittest
 
 from thing import LedgerThing
 
+THING_NUMBER_ONE = 1
+
 
 class Constructor(unittest.TestCase):
 
-    def testInitialNonTransactionDate(self):
-        """when 1st thing in file is a non-transaction, it has default date"""
-        thing = LedgerThing(['blah', 'blah blah blah'])
-        # todo: check for none (also, not initial?)
-        self.assertEqual(ThingTester.START_DATE, thing.date)
+    def testNonTransactionDate(self):
+        """non-transactions initially have date = None"""
+        thing = LedgerThing(['blah', 'blah blah blah'], THING_NUMBER_ONE)
+        self.assertIsNone(thing.date)
 
-    def testLaterNonTransactionDate(self):
+    def testTransactionDate(self):
         """later non-transaction things inherit date of preceding thing"""
-        thingOne = LedgerThing(['2013/04/16 blah', '    ; something...'])
-        thingTwo = LedgerThing(['blah', 'blah blah blah'])
-        self.assertEqual(thingOne.date, thingTwo.date)
+        thing = LedgerThing(
+            ['2013/05/18 blah', '    ; something...'],
+            THING_NUMBER_ONE
+        )
+        self.assertEqual(thing.date, '2013/05/18')
 
 
 class GetLines(unittest.TestCase):
@@ -31,7 +34,7 @@ class GetLines(unittest.TestCase):
     def testGetLines(self):
         """lines can be entered and retrieved as is"""
         lines = ['abc\n', 'xyz\n']
-        thing = LedgerThing(lines)
+        thing = LedgerThing(lines, THING_NUMBER_ONE)
         self.assertEqual(lines, thing.getLines())
 
 

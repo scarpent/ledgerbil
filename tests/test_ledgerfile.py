@@ -150,6 +150,7 @@ class ThingDating(unittest.TestCase):
             ldgfile.getThings()[2].date
         )
 
+
 class Sorting(unittest.TestCase):
 
     def testAlreadySortedFileUnchanged(self):
