@@ -94,132 +94,34 @@ class Sorting(unittest.TestCase):
 
     def testAlreadySortedFileUnchanged(self):
         """file output after sorting is identical to sorted input file"""
-        tempfile = getTempFilename()
         f = open(sortedfile, 'r')
         expected = f.read()
         f.close()
+        tempfile = getTempFilename()
         copyfile(sortedfile, tempfile)
         ldgfile = ledgerfile.LedgerFile(tempfile)
         ldgfile.sort()
         ldgfile.writeFile()
         f = open(tempfile, 'r')
         actual = f.read()
-        f.close()
         remove(tempfile)
         self.assertEqual(expected, actual)
 
-#     def testSorting(self):
-#         """test sorting"""
-#         unsorted = [
-#             '; blah blah blah',
-#             '2013/05/11 payee name',
-#             '    expenses: misc',
-#             '    liabilities: credit card  $-110',
-#             '2013/05/05 payee name',
-#             '    expenses: misc',
-#             '    liabilities: credit card  $-50'
-#         ]
-#         expected = [
-#             '; blah blah blah',
-#             '2013/05/05 payee name',
-#             '    expenses: misc',
-#             '    liabilities: credit card  $-50',
-#             '2013/05/11 payee name',
-#             '    expenses: misc',
-#             '    liabilities: credit card  $-110'
-#         ]
-#         args = ArgTester()
-#         args.sort = True
-#         lbil = ledgerbil.Ledgerbil(args)
-#         lbil.parseLines(unsorted)
-#         lbil.sortThings()
-#         self.assertEqual(expected, lbil.getFileLines())
-#
-#
-# class MainBadInput(Redirector):
-#
-#     def testMainBadFilename(self):
-#         """main should fail with 'No such file or directory'"""
-#         expected = (
-#             "error: [Errno 2] No such file or directory: 'invalid.journal'\n"
-#         )
-#         sys.argv = [mainfile, '--file', 'invalid.journal']
-#         ledgerbil.main()
-#
-#         self.redirect.seek(0)
-#         self.assertEqual(expected, self.redirect.read())
-#
-#
-# class MainGoodInput(Redirector):
-#
-#     def testMainGoodFilename(self):
-#         """main should parse and print file, matching basic file read"""
-#         expected = open(testfile, 'r').read()
-#         sys.argv = [mainfile, '--file', testfile]
-#         ledgerbil.main()
-#
-#         self.redirect.seek(0)
-#         self.assertEqual(expected, self.redirect.read())
-#
-#
-# # consider alternatives for command line tests: TextTestRunner,
-# # if name == 'main': unittest.main(exit=False)
-# # see: http://stackoverflow.com/questions/79754/unittest-causing-sys-exit
-# class MainArguments(Redirector):
-#
-#     def testFileOptionIsRequired(self):
-#         """main should cause argparse error if file option not specified"""
-#         expected = 'ledgerbil.py: error: argument -f/--file is required'
-#         sys.argv = [mainfile]
-#         try:
-#             ledgerbil.main()
-#         except SystemExit:
-#             pass
-#
-#         self.redirecterr.seek(0)
-#         actual = self.redirecterr.read()
-#         self.assertTrue(expected in actual)
-#
-#     def testFileOptionAndFileBothRequired(self):
-#         """main should cause argparse error if file opt specified w/o file"""
-#         expected = ('ledgerbil.py: error: argument -f/--file: ' +
-#                     'expected one argument')
-#         sys.argv = [mainfile, '--file']
-#         try:
-#             ledgerbil.main()
-#         except SystemExit:
-#             pass
-#
-#         self.redirecterr.seek(0)
-#         actual = self.redirecterr.read()
-#         self.assertTrue(expected in actual)
-#
-#     def testSortingShortOption(self):
-#         """main should sort if -s specified (also tests --file long option)"""
-#         expected = open(alpha_sortedfile, 'r').read()
-#         sys.argv = [mainfile, '-s', '--file', alpha_unsortedfile]
-#         ledgerbil.main()
-#
-#         self.redirect.seek(0)
-#         self.assertEqual(expected, self.redirect.read())
-#
-#     def testSortingLongOption(self):
-#         """main should sort if --sort is specified (also tests -f short opt"""
-#         expected = open(alpha_sortedfile, 'r').read()
-#         sys.argv = [mainfile, '--sort', '-f', alpha_unsortedfile]
-#         ledgerbil.main()
-#
-#         self.redirect.seek(0)
-#         self.assertEqual(expected, self.redirect.read())
-#
-#     def testNoSorting(self):
-#         """file remains unsorted if sorting not specified"""
-#         expected = open(alpha_unsortedfile, 'r').read()
-#         sys.argv = [mainfile, '--file', alpha_unsortedfile]
-#         ledgerbil.main()
-#
-#         self.redirect.seek(0)
-#         self.assertEqual(expected, self.redirect.read())
+    def testSorting(self):
+        """test sorting"""
+        f = open(alpha_sortedfile, 'r')
+        expected = f.read()
+        f.close()
+        tempfile = getTempFilename()
+        copyfile(alpha_unsortedfile, tempfile)
+        ldgfile = ledgerfile.LedgerFile(tempfile)
+        ldgfile.sort()
+        ldgfile.writeFile()
+        f = open(tempfile, 'r')
+        actual = f.read()
+        remove(tempfile)
+        self.assertEqual(expected, actual)
+
 
 if __name__ == "__main__":
     unittest.main()         # pragma: no cover

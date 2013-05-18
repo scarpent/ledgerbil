@@ -21,19 +21,24 @@ class LedgerFile():
     def __init__(self, filename):
         self.thingCounter = 0
         self.things = []
+        self.filename = filename
 
-        self._openFile(filename)
         self._parseFile()
 
-    def _openFile(self, filename):
+    def _openFile(self):
         try:
-            self.ledgerFile = open(filename, 'r+')
+            self.ledgerFile = open(self.filename, 'r+')
         except IOError as e:
             sys.stderr.write('error: %s\n' % e)
             sys.exit(-1)
 
+    def _closeFile(self):
+        self.ledgerFile.close()
+
     def _parseFile(self):
+        self._openFile()
         self._parseLines(self.ledgerFile.read().splitlines())
+        self._closeFile()
 
     def _parseLines(self, lines):
         currentLines = []
@@ -72,7 +77,8 @@ class LedgerFile():
                 print(line)
 
     def writeFile(self):
-        self.ledgerFile.seek(0)
+        self._openFile()
         for thing in self.things:
             for line in thing.getLines():
                 self.ledgerFile.write(line + '\n')
+        self._closeFile()
