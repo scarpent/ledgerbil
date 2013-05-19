@@ -28,12 +28,18 @@ class ArgHandler():
         parser.add_argument(
             '-S', '--schedule-file',
             type=str, metavar='FILE',
-            help='file with scheduled transactions (to be added to -f ledger file)'
+            help=(
+                'file with scheduled transactions '
+                '(to be added to -f ledger file)'
+            )
         )
         parser.add_argument(
             '-p', '--preview-file',
             type=str, metavar='FILE',
-            help='file for previewed scheduled transactions (will be overwritten)'
+            help=(
+                'file for previewed scheduled transactions '
+                '(will be overwritten)'
+            )
         )
 
         return parser.parse_args()
