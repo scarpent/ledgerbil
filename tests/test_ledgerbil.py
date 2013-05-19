@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""unit test for ledgerbil.py"""
+"""unit tests for ledgerbil.py"""
 
 __author__ = 'scarpent'
 __license__ = 'gpl v3 or greater'
@@ -9,29 +9,18 @@ __email__ = 'scottc@movingtofreedom.org'
 import sys
 import unittest
 
-from StringIO import StringIO
-
 import ledgerbil
 
 from redirector import Redirector
-from thing import LedgerThing
-from argtester import ArgTester
-
-testdir = 'tests/files/'
-testfile = testdir + 'test.ledger'
-sortedfile = testdir + 'test-already-sorted.ledger'
-alpha_unsortedfile = testdir + 'test-alpha-unsorted.ledger'
-alpha_sortedfile = testdir + 'test-alpha-sorted.ledger'
-
-mainfile = 'ledgerbil.py'
+from filetester import FileTester as FT
 
 
 class MainGoodInput(Redirector):
 
     def testMainGoodFilename(self):
         """main should parse and print file, matching basic file read"""
-        expected = open(testfile, 'r').read()
-        sys.argv = [mainfile, '--file', testfile]
+        expected = open(FT.testfile, 'r').read()
+        sys.argv = [FT.mainfile, '--file', FT.testfile]
         ledgerbil.main()
 
         self.redirect.seek(0)
@@ -41,61 +30,61 @@ class MainGoodInput(Redirector):
 # consider alternatives for command line tests: TextTestRunner,
 # if name == 'main': unittest.main(exit=False)
 # see: http://stackoverflow.com/questions/79754/unittest-causing-sys-exit
-class MainArguments(Redirector):
-
-    def testFileOptionIsRequired(self):
-        """main should cause argparse error if file option not specified"""
-        expected = 'ledgerbil.py: error: argument -f/--file is required'
-        sys.argv = [mainfile]
-        try:
-            ledgerbil.main()
-        except SystemExit:
-            pass
-
-        self.redirecterr.seek(0)
-        actual = self.redirecterr.read()
-        self.assertTrue(expected in actual)
-
-    def testFileOptionAndFileBothRequired(self):
-        """main should cause argparse error if file opt specified w/o file"""
-        expected = ('ledgerbil.py: error: argument -f/--file: ' +
-                    'expected one argument')
-        sys.argv = [mainfile, '--file']
-        try:
-            ledgerbil.main()
-        except SystemExit:
-            pass
-
-        self.redirecterr.seek(0)
-        actual = self.redirecterr.read()
-        self.assertTrue(expected in actual)
-
-    def testSortingShortOption(self):
-        """main should sort if -s specified (also tests --file long option)"""
-        expected = open(alpha_sortedfile, 'r').read()
-        sys.argv = [mainfile, '-s', '--file', alpha_unsortedfile]
-        ledgerbil.main()
-
-        self.redirect.seek(0)
-        self.assertEqual(expected, self.redirect.read())
-
-    def testSortingLongOption(self):
-        """main should sort if --sort is specified (also tests -f short opt"""
-        expected = open(alpha_sortedfile, 'r').read()
-        sys.argv = [mainfile, '--sort', '-f', alpha_unsortedfile]
-        ledgerbil.main()
-
-        self.redirect.seek(0)
-        self.assertEqual(expected, self.redirect.read())
-
-    def testNoSorting(self):
-        """file remains unsorted if sorting not specified"""
-        expected = open(alpha_unsortedfile, 'r').read()
-        sys.argv = [mainfile, '--file', alpha_unsortedfile]
-        ledgerbil.main()
-
-        self.redirect.seek(0)
-        self.assertEqual(expected, self.redirect.read())
+# class MainArguments(Redirector):
+#
+#     def testFileOptionIsRequired(self):
+#         """main should cause argparse error if file option not specified"""
+#         expected = 'ledgerbil.py: error: argument -f/--file is required'
+#         sys.argv = [mainfile]
+#         try:
+#             ledgerbil.main()
+#         except SystemExit:
+#             pass
+#
+#         self.redirecterr.seek(0)
+#         actual = self.redirecterr.read()
+#         self.assertTrue(expected in actual)
+#
+#     def testFileOptionAndFileBothRequired(self):
+#         """main should cause argparse error if file opt specified w/o file"""
+#         expected = ('ledgerbil.py: error: argument -f/--file: ' +
+#                     'expected one argument')
+#         sys.argv = [mainfile, '--file']
+#         try:
+#             ledgerbil.main()
+#         except SystemExit:
+#             pass
+#
+#         self.redirecterr.seek(0)
+#         actual = self.redirecterr.read()
+#         self.assertTrue(expected in actual)
+#
+#     def testSortingShortOption(self):
+#         """main should sort if -s specified (also tests --file long option)"""
+#         expected = open(alpha_sortedfile, 'r').read()
+#         sys.argv = [mainfile, '-s', '--file', alpha_unsortedfile]
+#         ledgerbil.main()
+#
+#         self.redirect.seek(0)
+#         self.assertEqual(expected, self.redirect.read())
+#
+#     def testSortingLongOption(self):
+#         """main should sort if --sort is specified (also tests -f short opt"""
+#         expected = open(alpha_sortedfile, 'r').read()
+#         sys.argv = [mainfile, '--sort', '-f', alpha_unsortedfile]
+#         ledgerbil.main()
+#
+#         self.redirect.seek(0)
+#         self.assertEqual(expected, self.redirect.read())
+#
+#     def testNoSorting(self):
+#         """file remains unsorted if sorting not specified"""
+#         expected = open(alpha_unsortedfile, 'r').read()
+#         sys.argv = [mainfile, '--file', alpha_unsortedfile]
+#         ledgerbil.main()
+#
+#         self.redirect.seek(0)
+#         self.assertEqual(expected, self.redirect.read())
 
 if __name__ == "__main__":
     unittest.main()         # pragma: no cover
