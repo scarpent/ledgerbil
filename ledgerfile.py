@@ -51,14 +51,14 @@ class LedgerFile():
 
         self._addThingLines(currentLines)
 
-    def addThing(self, thing):
-        self.thingCounter += 1
-        self.getThings().append(thing)
-
     def _addThingLines(self, lines):
         if lines:
             thing = LedgerThing(lines, self.thingCounter)
             self.addThing(thing)
+
+    def addThing(self, thing):
+        self.thingCounter += 1
+        self.getThings().append(thing)
 
     def getThings(self):
         return self.things

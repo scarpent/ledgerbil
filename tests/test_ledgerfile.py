@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""unit test for py"""
+"""unit test for ledgerfile.py"""
 
 __author__ = 'scarpent'
 __license__ = 'gpl v3 or greater'
