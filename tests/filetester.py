@@ -6,8 +6,8 @@ __author__ = 'scarpent'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
-import inspect
-
+import inspect  # inspect.stack()[1][3] gives name of calling function
+from shutil import copyfile
 
 class FileTester():
 
@@ -22,16 +22,20 @@ class FileTester():
 
     @staticmethod
     def getTempFilename():
-        # gets the name of the calling function
         return FileTester.testdir + 'temp_' + inspect.stack()[1][3]
 
     @staticmethod
     def createTempFile(testdata):
-        # includes the name of the calling function
         tempfile = FileTester.testdir + 'temp_' + inspect.stack()[1][3]
         f = open(tempfile, 'w')
         f.write(testdata)
         f.close()
+        return tempfile
+
+    @staticmethod
+    def copyToTempFile(filename):
+        tempfile = FileTester.testdir + 'temp_' + inspect.stack()[1][3]
+        copyfile(filename, tempfile)
         return tempfile
 
     @staticmethod

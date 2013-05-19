@@ -6,8 +6,8 @@ __author__ = 'scarpent'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
-import sys
 import unittest
+import sys
 
 from redirector import Redirector
 from arghandler import ArgHandler

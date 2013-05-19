@@ -6,25 +6,25 @@ __author__ = 'scarpent'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
-import sys
 import unittest
+import sys
+from os import remove
 
 import ledgerbil
-
-from redirector import Redirector
 from filetester import FileTester as FT
 
 
-class MainGoodInput(Redirector):
+class MainGoodInput(unittest.TestCase):
 
     def testMainGoodFilename(self):
         """main should parse and print file, matching basic file read"""
-        expected = open(FT.testfile, 'r').read()
-        sys.argv = [FT.mainfile, '--file', FT.testfile]
+        expected = FT.readFile(FT.testfile)
+        tempfile = FT.copyToTempFile(FT.testfile)
+        sys.argv = [FT.mainfile, '--file', tempfile]
         ledgerbil.main()
-
-        self.redirect.seek(0)
-        self.assertEqual(expected, self.redirect.read())
+        actual = FT.readFile(tempfile)
+        remove(tempfile)
+        self.assertEqual(expected, actual)
 
 
 # consider alternatives for command line tests: TextTestRunner,

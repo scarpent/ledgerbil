@@ -7,7 +7,6 @@ __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
 import unittest
-from shutil import copyfile
 from os import remove
 
 from ledgerfile import LedgerFile
@@ -42,8 +41,7 @@ class FileParsingOnInit(Redirector):
     def testParsedFileUnchangedViaWrite(self):
         """file output after parsing should be identical to input file"""
         expected = FT.readFile(FT.testfile)
-        tempfile = FT.getTempFilename()
-        copyfile(FT.testfile, tempfile)
+        tempfile = FT.copyToTempFile(FT.testfile)
         ledgerfile = LedgerFile(tempfile)
         ledgerfile.writeFile()
         actual = FT.readFile(tempfile)
@@ -125,8 +123,7 @@ class Sorting(unittest.TestCase):
     def testAlreadySortedFileUnchanged(self):
         """file output after sorting is identical to sorted input file"""
         expected = FT.readFile(FT.sortedfile)
-        tempfile = FT.getTempFilename()
-        copyfile(FT.sortedfile, tempfile)
+        tempfile = FT.copyToTempFile(FT.sortedfile)
         ledgerfile = LedgerFile(tempfile)
         ledgerfile.sort()
         ledgerfile.writeFile()
@@ -137,8 +134,7 @@ class Sorting(unittest.TestCase):
     def testSorting(self):
         """test sorting"""
         expected = FT.readFile(FT.alpha_sortedfile)
-        tempfile = FT.getTempFilename()
-        copyfile(FT.alpha_unsortedfile, tempfile)
+        tempfile = FT.copyToTempFile(FT.alpha_unsortedfile)
         ledgerfile = LedgerFile(tempfile)
         ledgerfile.sort()
         ledgerfile.writeFile()

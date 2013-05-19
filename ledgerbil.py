@@ -25,7 +25,7 @@ class Ledgerbil():
         if self.args.sort:
             ledgerFile.sort()
 
-        ledgerFile.printFile()
+        ledgerFile.writeFile()
 
 def main():
     args = ArgHandler.getArgs()
