@@ -9,6 +9,7 @@ __email__ = 'scottc@movingtofreedom.org'
 import inspect  # inspect.stack()[1][3] gives name of calling function
 from shutil import copyfile
 
+
 class FileTester():
 
     testdir = 'tests/files/'
@@ -19,10 +20,6 @@ class FileTester():
     alpha_sortedfile = testdir + 'test-alpha-sorted.ledger'
 
     mainfile = 'ledgerbil.py'
-
-    @staticmethod
-    def getTempFilename():
-        return FileTester.testdir + 'temp_' + inspect.stack()[1][3]
 
     @staticmethod
     def createTempFile(testdata):
