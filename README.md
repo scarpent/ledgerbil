@@ -16,7 +16,7 @@ So far, **the program will sort an input file** by transaction date. (Woo hoo!) 
 
 I don't expect that there will be wide interest in this program, but if you *do* want to use it, that would be awesome. My first goal is to properly handle the subset of ledger-cli that I'm actually using, but I'm open to building it out if asked, and if I can manage it within the limitations of my time and skills.
 
-It's early and things may change widely as I find a path. There will be a way to specify an output file, but for now it just prints to stdout. Using argparse, here are all of the exciting features and options:
+Using argparse, here are all of the exciting features and options:
 
 ## --help
 
