@@ -29,7 +29,7 @@ Using argparse, here are all of the exciting features and options:
 
 ### --sort
 
-Ledgerbil understands a transaction as something that start with a date in the first position, like so:
+Ledgerbil understands a transaction as something that starts with a date in the first position, like so:
 
     2013/05/11 abc store
         expenses: leisure: games
@@ -38,3 +38,4 @@ Ledgerbil understands a transaction as something that start with a date in the f
 
 If there are comment lines or things it doesn't currently understand (e.g. lines starting with `payee` or `account`), it will glom these together with the nearest transaction that comes before, so that the ordering of things will be maintained accordingly. If these items occur before any dated transactions, they will be given a date in 1899 to (most likely) keep them before your other transactions.
 
+Ledgerbil will assume a properly formatted ledger file, although it won't necessarily enforce rules or report problems with an input file. It will be best to feed it files that run cleanly through ledger-cli.
