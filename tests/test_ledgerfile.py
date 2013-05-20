@@ -8,6 +8,7 @@ __email__ = 'scottc@movingtofreedom.org'
 
 import unittest
 from os import remove
+from os import chmod
 
 from ledgerfile import LedgerFile
 from redirector import Redirector
@@ -21,6 +22,23 @@ class FileStuff(Redirector):
         expected = "error: [Errno 2] No such file or directory:"
         try:
             LedgerFile('bad.filename')
+        except SystemExit:
+            pass
+        self.redirecterr.seek(0)
+        actual = self.redirecterr.read()
+        self.assertTrue(expected in actual)
+
+    # todo:
+    #       may have to revisit someday if some files are
+    #       reference only and not opened for writing
+    def testReadOnlyFile(self):
+        """should fail with 'Permission denied'"""
+        expected = "error: [Errno 13] Permission denied:"
+        chmod(FT.readonlyfile, 0444)
+        try:
+            # file is opened for reading and writing, causing an error
+            # immediately upon open if it is read only
+            LedgerFile(FT.readonlyfile)
         except SystemExit:
             pass
         self.redirecterr.seek(0)

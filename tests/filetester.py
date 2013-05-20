@@ -18,6 +18,7 @@ class FileTester():
     sortedfile = testdir + 'test-already-sorted.ledger'
     alpha_unsortedfile = testdir + 'test-alpha-unsorted.ledger'
     alpha_sortedfile = testdir + 'test-alpha-sorted.ledger'
+    readonlyfile = testdir + 'test-read-only.ledger'
 
     mainfile = 'ledgerbil.py'
 
