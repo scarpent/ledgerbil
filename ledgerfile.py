@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""ledger files: journal, schedule file, or preview file"""
+"""ledger file base class"""
 
 from __future__ import print_function
 

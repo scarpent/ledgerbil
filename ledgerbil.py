@@ -10,8 +10,9 @@ __email__ = 'scottc@movingtofreedom.org'
 
 import sys
 
-from ledgerfile import LedgerFile
 from arghandler import ArgHandler
+from ledgerfile import LedgerFile
+from schedulefile import ScheduleFile
 
 
 class Ledgerbil():
@@ -21,6 +22,11 @@ class Ledgerbil():
 
     def processFile(self):
         ledgerFile = LedgerFile(self.args.file)
+
+        if self.args.schedule_file:
+            scheduleFile = ScheduleFile(self.args.schedule_file)
+            print('Schedule file:')
+            scheduleFile.printFile()
 
         if self.args.sort:
             ledgerFile.sort()
