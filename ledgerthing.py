@@ -16,9 +16,9 @@ class LedgerThing(object):
 
     dateRegex = r'\d{4}([-/]\d\d){2}'
 
-    def __init__(self, lines, thingNumber):
+    def __init__(self, lines):
 
-        self.thingNumber = thingNumber
+        self.thingNumber = 0  # to be overridden by file's addThing method
         self.date = None
         self.rawlines = lines
 

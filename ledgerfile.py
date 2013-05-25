@@ -53,11 +53,13 @@ class LedgerFile(object):
 
     def _addThingLines(self, lines):
         if lines:
-            thing = LedgerThing(lines, self.thingCounter)
+            thing = LedgerThing(lines)
             self.addThing(thing)
 
     def addThing(self, thing):
         self.thingCounter += 1
+        # todo: a test for thing numbers
+        thing.thingNumber = self.thingCounter
         self.getThings().append(thing)
 
     def getThings(self):

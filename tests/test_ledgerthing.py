@@ -10,22 +10,17 @@ import unittest
 
 from ledgerthing import LedgerThing
 
-THING_NUMBER_ONE = 1
-
 
 class Constructor(unittest.TestCase):
 
     def testNonTransactionDate(self):
         """non-transactions initially have date = None"""
-        thing = LedgerThing(['blah', 'blah blah blah'], THING_NUMBER_ONE)
+        thing = LedgerThing(['blah', 'blah blah blah'])
         self.assertIsNone(thing.date)
 
     def testTransactionDate(self):
         """later non-transaction things inherit date of preceding thing"""
-        thing = LedgerThing(
-            ['2013/05/18 blah', '    ; something...'],
-            THING_NUMBER_ONE
-        )
+        thing = LedgerThing(['2013/05/18 blah', '    ; something...'])
         self.assertEqual(thing.date, '2013/05/18')
 
 
@@ -34,7 +29,7 @@ class GetLines(unittest.TestCase):
     def testGetLines(self):
         """lines can be entered and retrieved as is"""
         lines = ['abc\n', 'xyz\n']
-        thing = LedgerThing(lines, THING_NUMBER_ONE)
+        thing = LedgerThing(lines)
         self.assertEqual(lines, thing.getLines())
 
 
