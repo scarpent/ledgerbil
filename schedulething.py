@@ -28,7 +28,6 @@ class ScheduleThing(LedgerThing):
         $                                   # line end
         '''
 
-
     def __init__(self, lines):
         super(ScheduleThing, self).__init__(lines)
 

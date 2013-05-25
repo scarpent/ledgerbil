@@ -21,5 +21,5 @@ class ScheduleFile(LedgerFile):
 
     def _addThingLines(self, lines):
         if lines:
-            thing = ScheduleThing(lines, self.thingCounter)
+            thing = ScheduleThing(lines)
             self.addThing(thing)

@@ -11,6 +11,7 @@ from os import remove
 from os import chmod
 
 from ledgerfile import LedgerFile
+from ledgerthing import LedgerThing
 from redirector import Redirector
 from filetester import FileTester as FT
 
@@ -98,6 +99,32 @@ class ThingCounting(unittest.TestCase):
         ledgerfile = LedgerFile(tempfile)
         remove(tempfile)
         self.assertEquals(2, ledgerfile.thingCounter)
+
+    def testAssignedThingNumbers(self):
+        """thing numbers added in sequence starting at one"""
+        testdata = '''; blah
+; blah blah blah
+2013/05/06 payee name
+    expenses: misc
+    liabilities: credit card  $-50
+'''
+        tempfile = FT.createTempFile(testdata)
+        ledgerfile = LedgerFile(tempfile)
+        remove(tempfile)
+
+        thinglines = [
+            '2011/01/01 beezlebub',
+            '    assets: soul',
+            '    liabilities: credit card  $666',
+        ]
+        thing = LedgerThing(thinglines)
+        ledgerfile.addThing(thing)
+        expected = '123'
+        actual = ''
+        for thing in ledgerfile.getThings():
+            actual += str(thing.thingNumber)
+
+        self.assertEquals(actual, expected)
 
 
 class ThingDating(unittest.TestCase):

@@ -58,7 +58,6 @@ class LedgerFile(object):
 
     def addThing(self, thing):
         self.thingCounter += 1
-        # todo: a test for thing numbers
         thing.thingNumber = self.thingCounter
         self.getThings().append(thing)
 
