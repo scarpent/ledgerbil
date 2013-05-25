@@ -23,7 +23,6 @@ class LedgerThing(object):
         self.rawlines = lines
 
         if self.isTransactionStart(lines[0]):
-            # maybe will want to use same date regex here and in isT... method
             self.date = re.search(
                 r'^(%s)' % LedgerThing.dateRegex, lines[0]
             ).group(1)

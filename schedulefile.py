@@ -9,11 +9,17 @@ __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
 from ledgerfile import LedgerFile
+from schedulething import ScheduleThing
+
 
 class ScheduleFile(LedgerFile):
-    pass
 
-    # def __init__(self, filename):
-    #     super(ScheduleFile, self).__init__(filename)
-    #     print('Schedule file:')
-    #     self.printFile()
+    def __init__(self, filename):
+        super(ScheduleFile, self).__init__(filename)
+        print('Schedule file:')
+        self.printFile()
+
+    def _addThingLines(self, lines):
+        if lines:
+            thing = ScheduleThing(lines, self.thingCounter)
+            self.addThing(thing)

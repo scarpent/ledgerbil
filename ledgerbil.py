@@ -25,8 +25,6 @@ class Ledgerbil(object):
 
         if self.args.schedule_file:
             scheduleFile = ScheduleFile(self.args.schedule_file)
-            print('Schedule file:')
-            scheduleFile.printFile()
 
         if self.args.sort:
             ledgerFile.sort()

@@ -11,7 +11,7 @@ __email__ = 'scottc@movingtofreedom.org'
 import sys
 from operator import attrgetter
 
-from thing import LedgerThing
+from ledgerthing import LedgerThing
 
 
 class LedgerFile(object):

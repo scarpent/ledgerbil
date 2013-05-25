@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""unit test for thing.py"""
+"""unit test for ledgerthing.py"""
 
 __author__ = 'scarpent'
 __license__ = 'gpl v3 or greater'
@@ -8,7 +8,7 @@ __email__ = 'scottc@movingtofreedom.org'
 
 import unittest
 
-from thing import LedgerThing
+from ledgerthing import LedgerThing
 
 THING_NUMBER_ONE = 1
 
