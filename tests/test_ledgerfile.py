@@ -119,7 +119,7 @@ class ThingCounting(unittest.TestCase):
         ]
         thing = LedgerThing(thinglines)
         ledgerfile.addThing(thing)
-        expected = '123'
+        expected = '012'
         actual = ''
         for thing in ledgerfile.getThings():
             actual += str(thing.thingNumber)
