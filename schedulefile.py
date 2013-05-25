@@ -12,3 +12,8 @@ from ledgerfile import LedgerFile
 
 class ScheduleFile(LedgerFile):
     pass
+
+    # def __init__(self, filename):
+    #     super(ScheduleFile, self).__init__(filename)
+    #     print('Schedule file:')
+    #     self.printFile()

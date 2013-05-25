@@ -11,7 +11,7 @@ __email__ = 'scottc@movingtofreedom.org'
 import argparse
 
 
-class ArgHandler():
+class ArgHandler(object):
 
     @staticmethod
     def getArgs():

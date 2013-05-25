@@ -12,7 +12,7 @@ import re
 from dateutil.parser import parse
 
 
-class LedgerThing():
+class LedgerThing(object):
 
     dateRegex = r'\d{4}([-/]\d\d){2}'
 

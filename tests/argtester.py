@@ -1,3 +1,3 @@
-class ArgTester:
+class ArgTester(object):
 
     sort = False

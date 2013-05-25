@@ -10,7 +10,7 @@ import inspect  # inspect.stack()[1][3] gives name of calling function
 from shutil import copyfile
 
 
-class FileTester():
+class FileTester(object):
 
     testdir = 'tests/files/'
 

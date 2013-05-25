@@ -15,7 +15,7 @@ from ledgerfile import LedgerFile
 from schedulefile import ScheduleFile
 
 
-class Ledgerbil():
+class Ledgerbil(object):
 
     def __init__(self, args):
         self.args = args

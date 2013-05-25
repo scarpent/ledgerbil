@@ -14,7 +14,7 @@ from operator import attrgetter
 from thing import LedgerThing
 
 
-class LedgerFile():
+class LedgerFile(object):
 
     STARTING_DATE = '1899/01/01'
 
