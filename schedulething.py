@@ -8,7 +8,6 @@ __author__ = 'scarpent'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
-
 import re
 
 from ledgerthing import LedgerThing
@@ -19,9 +18,6 @@ class ScheduleThing(LedgerThing):
     firstThing = True
     enterDays = -1
     previewDays = -1
-
-    # individual schedule items (second line of thing)
-    scheduleThingRegex = r'\s*;;\s*schedule\s*'
 
     def __init__(self, lines):
         self.isAScheduleThing = False
