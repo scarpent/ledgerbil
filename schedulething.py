@@ -68,18 +68,16 @@ class ScheduleThing(LedgerThing):
 
     def handleThingConfig(self, line):
 
-        thingRegex = r'''(?x)                   # verbose mode
-            ^                                   # line start
-            \s*;;\s*schedule\s*                                  # required
-            ;\s*every\s+                        #
-            (\d+)                               # interval (e.g. 1)
-            \s+                                 #
-            (\S+)                               # interval uom (e.g. month)
-            \s*                                 #
-            (?:                                 # non-capturing
-                .*                              # optional whatever
-            )                                   #
-            $                                   # line end
+        thingRegex = r'''(?x)           # verbose mode
+            ^                           # line start
+            \s*;;\s*schedule\s*         # required
+            ;\s*every\s+                #
+            (\d+)                       # interval (e.g. 1)
+            \s+                         #
+            (\S+)                       # interval uom (e.g. month)
+            \s*                         #
+            (?:.*)                      # non-capturing, optional whatever
+            $                           # line end
             '''
 
         INTERVAL = 1
