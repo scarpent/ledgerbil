@@ -8,7 +8,7 @@
     a: checking up
 
 2013/01/12 lightning energy
-    ;; schedule ; every 1 month ; auto
+    a;; schedule ; every 1 month ; auto
     e: bills: electricity
     a: checking up                          $-75
 

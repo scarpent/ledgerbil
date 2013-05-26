@@ -25,17 +25,27 @@ class ScheduleThing(LedgerThing):
 
     def __init__(self, lines):
         self.isAScheduleThing = False
+        self.interval = -1
+        self.intervalUom = ''
 
         super(ScheduleThing, self).__init__(lines)
 
         if ScheduleThing.firstThing:
             self.handleFileConfig(lines[0])
             ScheduleThing.firstThing = False
+            return
 
         # todo: test single line thing, although would be invalid thing
         match = re.match(ScheduleThing.scheduleThingRegex, lines[1])
         if match:
             self.handleThingConfig(lines[1])
+
+            if self.isAScheduleThing:
+                print("it's a thing: interval = %s, uom = %s"
+                      % (self.interval, self.intervalUom))
+        else:
+            # todo: how to handle "not things"? stderr? exception?
+            print("it's not a thing")
 
     def handleFileConfig(self, line):
 
@@ -71,4 +81,26 @@ class ScheduleThing(LedgerThing):
 
     def handleThingConfig(self, line):
         self.isAScheduleThing = True
-        pass
+
+        thingRegex = r'''(?x)                   # verbose mode
+            ^                                   # line start
+            %s                                  # required
+            ;\s*every\s+                        #
+            (\d+)                               # interval (e.g. 1)
+            \s+                                 #
+            (\S+)                               # interval uom (e.g. month)
+            \s*                                 #
+            (?:                                 # non-capturing
+                .*                              # optional whatever
+            )                                   #
+            $                                   # line end
+            ''' % ScheduleThing.scheduleThingRegex
+
+        INTERVAL = 1
+        INTERVAL_UOM = 2
+
+        match = re.match(thingRegex, line)
+        if match:
+            ScheduleThing.isAScheduleThing = True
+            self.interval = match.group(INTERVAL)
+            self.intervalUom = match.group(INTERVAL_UOM)
