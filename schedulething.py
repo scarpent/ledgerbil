@@ -66,6 +66,9 @@ class ScheduleThing(LedgerThing):
         if match.group(PREVIEW_DAYS):
             ScheduleThing.previewDays = match.group(PREVIEW_DAYS)
 
+        print('\nSchedule file (enter days = %s, preview days = %s):\n'
+              % (ScheduleThing.enterDays, ScheduleThing.previewDays))
+
     def handleThingConfig(self, line):
 
         thingRegex = r'''(?x)           # verbose mode
