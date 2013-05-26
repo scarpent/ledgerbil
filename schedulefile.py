@@ -17,9 +17,6 @@ from schedulething import ScheduleThing
 class ScheduleFile(LedgerFile):
 
     def __init__(self, filename):
-        self.enterDays = -1
-        self.previewDays = -1
-
         super(ScheduleFile, self).__init__(filename)
 
         print('\nSchedule file (enter days = %s, preview days = %s):\n'
