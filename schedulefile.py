@@ -25,3 +25,12 @@ class ScheduleFile(LedgerFile):
         if lines:
             thing = ScheduleThing(lines)
             self.addThing(thing)
+
+    def run(self):
+        for thing in self.things:
+
+            if not thing.isAScheduleThing:
+                print('not a thing...')  # todo: temp for dev/debug
+                continue
+
+            print('is a thing! date = %s' % thing.date)

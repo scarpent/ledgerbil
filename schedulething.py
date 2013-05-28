@@ -8,6 +8,7 @@ __author__ = 'scarpent'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
+import sys
 import re
 
 from ledgerthing import LedgerThing
@@ -27,14 +28,18 @@ class ScheduleThing(LedgerThing):
         super(ScheduleThing, self).__init__(lines)
 
         if ScheduleThing.firstThing:
-            self.handleFileConfig(lines[0])
+            self._handleFileConfig(lines[0])
             ScheduleThing.firstThing = False
             return
 
         # todo: test single line thing? although would be invalid thing
-        self.handleThingConfig(lines[1])
+        self._handleThingConfig(lines[1])
 
-    def handleFileConfig(self, line):
+    # file level config looks like this:
+    # ;; scheduler ; enter N days ; preview N days
+    # enter and preview are both optional but if neither is included,
+    # nothing will happen
+    def _handleFileConfig(self, line):
 
         configRegex = r'''(?x)                  # verbose mode
             ^                                   # line start
@@ -69,7 +74,7 @@ class ScheduleThing(LedgerThing):
         print('\nSchedule file (enter days = %s, preview days = %s):\n'
               % (ScheduleThing.enterDays, ScheduleThing.previewDays))
 
-    def handleThingConfig(self, line):
+    def _handleThingConfig(self, line):
 
         thingRegex = r'''(?x)           # verbose mode
             ^                           # line start
@@ -91,9 +96,6 @@ class ScheduleThing(LedgerThing):
             self.isAScheduleThing = True
             self.interval = match.group(INTERVAL)
             self.intervalUom = match.group(INTERVAL_UOM)
-
-            print("it's a thing: interval = %s, uom = %s"
-                  % (self.interval, self.intervalUom))
         else:
-            # todo: how to handle "not things"? stderr? exception? log?
-            print("it's not a thing")
+            # todo: how to handle? stderr? exception? log? ignore?
+            sys.stderr.write("it's not a thing\n")
