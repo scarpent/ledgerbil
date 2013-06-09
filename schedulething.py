@@ -99,3 +99,7 @@ class ScheduleThing(LedgerThing):
         else:
             # todo: how to handle? stderr? exception? log? ignore?
             sys.stderr.write("it's not a thing\n")
+
+        # todo: take out schedule line and put it into var
+        # override thing getter to put it back in (standard raw lines
+        # will have it, but for adding to ledger, no

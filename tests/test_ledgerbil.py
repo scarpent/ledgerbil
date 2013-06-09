@@ -36,6 +36,7 @@ class MainBasicInput(unittest.TestCase):
         remove(tempfile)
         self.assertEqual(expected, actual)
 
+
 class Sorting(unittest.TestCase):
 
     def testMainSortOnSortedFile(self):
@@ -57,6 +58,13 @@ class Sorting(unittest.TestCase):
         actual = FT.readFile(tempfile)
         remove(tempfile)
         self.assertEqual(expected, actual)
+
+
+# class Scheduling(unittest.TestCase):
+#
+#     def testMainWithScheduleFileOption(self):
+#         """main should add scheduled items to ledger file"""
+
 
 if __name__ == "__main__":
     unittest.main()         # pragma: no cover

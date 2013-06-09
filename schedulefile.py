@@ -26,11 +26,19 @@ class ScheduleFile(LedgerFile):
             thing = ScheduleThing(lines)
             self.addThing(thing)
 
-    def run(self):
+    def run(self, ledgerFile):
         for thing in self.things:
 
             if not thing.isAScheduleThing:
                 print('not a thing...')  # todo: temp for dev/debug
                 continue
 
-            print('is a thing! date = %s' % thing.date)
+            print('a thing! date = %s' % thing.date)
+            print('adding it to ledger file')
+
+            # temp -- will have better ways to remove this
+            del thing.lines[1]
+
+            ledgerFile.addThing(thing)
+
+
