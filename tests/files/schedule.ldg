@@ -1,28 +1,24 @@
 ;; scheduler ; enter 7 days ; preview 30 days
 
 2013/04/15 abc paycheck
-    ;; schedule ; every 1 half-month ; auto
+    ;; schedule ; monthly ; 15, 30 ; ; auto
     i: wages: gross pay                     $-135.00
     e: taxes: social security               ($135 * 0.062)
     e: taxes: medicare                      ($135 * 0.0145)
     a: checking up
 
 2013/01/12 lightning energy
-    ;; schedule ; every 1 month ; auto
+    ;; schedule ; monthly ; 12th ; ; auto
     e: bills: electricity
     a: checking up                          $-75
 
 2013/05/04 haircuttery inc
-    ;; schedule ; every 5 weeks
+    ;; schedule ; weekly ; 4 ; 5    ; todo: handle day names or int values?
     e: misc: haircut
     a: checking up                          $-28
 
 2013/05/04 absolute insurance
-    ;; schedule ; every 6 months ; auto
+    ;; schedule ; monthly ; 15 ; 6 ; auto
     e: car: insurance
     l: credit card                          $-425
-    ;; temp ideas...
-    ;; schedule ; monthly ; 15th, EOM  # specify days in the month?
-    ;; schedule ; monthly ; 5th ; every 2 months # 5th of every 2nd month
-    ;; schedule ; weekly ;
 

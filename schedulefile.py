@@ -29,11 +29,13 @@ class ScheduleFile(LedgerFile):
     def run(self, ledgerFile):
         for thing in self.things:
 
-            if not thing.isAScheduleThing:
+            if not thing.isScheduleThing:
                 print('not a thing...')  # todo: temp for dev/debug
                 continue
 
             print('a thing! date = %s' % thing.date)
+            print('\tdays = %s, interval = %s, uom = %s'
+                  % (thing.days, thing.interval, thing.intervalUom))
             print('adding it to ledger file')
 
             # temp -- will have better ways to remove this

@@ -10,25 +10,3 @@
     e: leisure: games
     l: credit card                          $-10
 
-2013/01/12 lightning energy
-    e: bills: electricity
-    a: checking up                          $-75
-
-2013/04/15 abc paycheck
-    i: wages: gross pay                     $-135.00
-    e: taxes: social security               ($135 * 0.062)
-    e: taxes: medicare                      ($135 * 0.0145)
-    a: checking up
-
-2013/05/04 haircuttery inc
-    e: misc: haircut
-    a: checking up                          $-28
-
-2013/05/04 absolute insurance
-    e: car: insurance
-    l: credit card                          $-425
-    ;; temp ideas...
-    ;; schedule ; monthly ; 15th, EOM  # specify days in the month?
-    ;; schedule ; monthly ; 5th ; every 2 months # 5th of every 2nd month
-    ;; schedule ; weekly ;
-

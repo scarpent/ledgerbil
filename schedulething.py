@@ -21,9 +21,11 @@ class ScheduleThing(LedgerThing):
     previewDays = -1
 
     def __init__(self, lines):
-        self.isAScheduleThing = False
-        self.interval = -1
-        self.intervalUom = ''
+        self.isScheduleThing = False
+        self.intervalUom = ''           # e.g. month, week
+        self.days = ()                  # e.g. 5, 15, eom, eom30
+        self.interval = 1               # e.g. 1 = every month, 2 = every other
+        self.previewDate = None
 
         super(ScheduleThing, self).__init__(lines)
 
@@ -54,6 +56,7 @@ class ScheduleThing(LedgerThing):
             $                                   # line end
             '''
 
+        # capturing groups
         ENTER_DAYS = 1
         PREVIEW_DAYS = 2
 
@@ -76,29 +79,42 @@ class ScheduleThing(LedgerThing):
 
     def _handleThingConfig(self, line):
 
-        thingRegex = r'''(?x)           # verbose mode
+        thingRegex = r'''(?xi)          # verbose mode, ignore case
             ^                           # line start
             \s*;;\s*schedule\s*         # required
-            ;\s*every\s+                #
-            (\d+)                       # interval (e.g. 1)
-            \s+                         #
-            (\S+)                       # interval uom (e.g. month)
-            \s*                         #
-            (?:.*)                      # non-capturing, optional whatever
-            $                           # line end
+            ;\s*(week|month)(?:ly)?\s*  # interval uom
+            ;\s*([^;]+?)\s*             # days (to be parsed further, later)
+            (?:;[^;\d]*(\d+)[^;]*)?     # optional interval (default = 1)
+            (?:;.*)?                    # non-capturing, optional comment
+            (?:;\s*|$)                  # line end
             '''
 
+        # capturing groups
         INTERVAL = 1
-        INTERVAL_UOM = 2
+        DAYS = 2
+        INTERVAL_UOM = 3
 
         match = re.match(thingRegex, line)
         if match:
-            self.isAScheduleThing = True
             self.interval = match.group(INTERVAL)
             self.intervalUom = match.group(INTERVAL_UOM)
-        else:
+            if self.intervalUom is None:
+                self.intervalUom = 1
+
+            # for monthly: the day date; for weekly: the day name
+            # todo: parse that as day names, but for now, use ints
+            dayString = match.group(DAYS)
+            self.days = []
+            daysRegex = '(\d+|eom(?:\d+)?)'
+            for match in re.finditer(daysRegex, dayString):
+                self.isScheduleThing = True
+                self.days.append(match.groups()[0])
+
+            # todo: look for more than one eom and raise error?
+
+        if not self.isScheduleThing:
             # todo: how to handle? stderr? exception? log? ignore?
-            sys.stderr.write("it's not a thing\n")
+            sys.stderr.write("it's not a schedule thing\n")
 
         # todo: take out schedule line and put it into var
         # override thing getter to put it back in (standard raw lines
