@@ -20,7 +20,7 @@ class LedgerThing(object):
 
         self.thingNumber = 0  # to be overridden by file's addThing method
         self.date = None
-        self.rawlines = lines
+        self.lines = lines
 
         if self.isTransactionStart(lines[0]):
             self.date = re.search(
@@ -28,7 +28,7 @@ class LedgerThing(object):
             ).group(1)
 
     def getLines(self):
-        return self.rawlines
+        return self.lines
 
     @staticmethod
     def isNewThing(line):
