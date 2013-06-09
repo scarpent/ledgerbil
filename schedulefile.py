@@ -27,20 +27,20 @@ class ScheduleFile(LedgerFile):
             self.addThing(thing)
 
     def run(self, ledgerFile):
-        for thing in self.things:
+        for scheduleThing in self.things:
 
-            if not thing.isScheduleThing:
-                print('not a thing...')  # todo: temp for dev/debug
+            if not scheduleThing.isScheduleThing:
+                print('not a scheduleThing...')  # todo: temp for dev/debug
                 continue
 
-            print('a thing! date = %s' % thing.date)
+            print('a scheduleThing! date = %s' % scheduleThing.date)
             print('\tdays = %s, interval = %s, uom = %s'
-                  % (thing.days, thing.interval, thing.intervalUom))
+                  % (scheduleThing.days,
+                     scheduleThing.interval,
+                     scheduleThing.intervalUom))
+
             print('adding it to ledger file')
 
-            # temp -- will have better ways to remove this
-            del thing.lines[1]
-
-            ledgerFile.addThing(thing)
+            ledgerFile.addThings(scheduleThing.getScheduledEntries())
 
 

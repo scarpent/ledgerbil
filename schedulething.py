@@ -10,6 +10,9 @@ __email__ = 'scottc@movingtofreedom.org'
 
 import sys
 import re
+from copy import copy
+from datetime import datetime
+from datetime import timedelta
 
 from ledgerthing import LedgerThing
 
@@ -19,6 +22,9 @@ class ScheduleThing(LedgerThing):
     firstThing = True
     enterDays = -1
     previewDays = -1
+
+    entryBoundaryDate = None
+    previewBoundaryDate = None
 
     def __init__(self, lines):
         self.isScheduleThing = False
@@ -71,6 +77,10 @@ class ScheduleThing(LedgerThing):
         ScheduleThing.isValidScheduleFile = True
         if match.group(ENTER_DAYS):
             ScheduleThing.enterDays = match.group(ENTER_DAYS)
+            ScheduleThing.entryBoundaryDate = (
+                datetime.today()
+                + timedelta(days=int(ScheduleThing.enterDays))
+            )
         if match.group(PREVIEW_DAYS):
             ScheduleThing.previewDays = match.group(PREVIEW_DAYS)
 
@@ -96,7 +106,7 @@ class ScheduleThing(LedgerThing):
 
         match = re.match(thingRegex, line)
         if match:
-            self.interval = match.group(INTERVAL)
+            self.interval = match.group(INTERVAL).lower()
             self.intervalUom = match.group(INTERVAL_UOM)
             if self.intervalUom is None:
                 self.intervalUom = 1
@@ -119,3 +129,19 @@ class ScheduleThing(LedgerThing):
         # todo: take out schedule line and put it into var
         # override thing getter to put it back in (standard raw lines
         # will have it, but for adding to ledger, no
+
+    def getScheduledEntries(self):
+        entryLines = copy(self.lines)
+
+        entries =[]
+
+        entryLines[0] = re.sub(self.dateRegex, self.date, entryLines[0])
+        del entryLines[1]
+
+        scheduleDate = datetime.strptime(self.date, '%Y/%m/%d')
+
+        if scheduleDate <= self.entryBoundaryDate:
+            entries.append(LedgerThing(entryLines))
+            # advance date
+
+        return entries

@@ -57,10 +57,15 @@ class LedgerFile(object):
             self.addThing(thing)
 
     def addThing(self, thing):
-        thing.thingNumber = self.thingCounter
-        self.getThings().append(thing)
-        # increment after for a zero-based array
-        self.thingCounter += 1
+        things = [thing]
+        self.addThings(things)
+
+    def addThings(self, things):
+        for thing in things:
+            thing.thingNumber = self.thingCounter
+            self.getThings().append(thing)
+            # increment after for a zero-based array
+            self.thingCounter += 1
 
     def getThings(self):
         return self.things

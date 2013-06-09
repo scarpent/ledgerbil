@@ -1,4 +1,4 @@
-;; scheduler ; enter 7 days ; preview 30 days
+;; scheduler ; enter 1 days ; preview 30 days
 
 2013/04/15 abc paycheck
     ;; schedule ; monthly ; 15, 30 ; ; auto
@@ -17,7 +17,7 @@
     e: misc: haircut
     a: checking up                          $-28
 
-2013/05/04 absolute insurance
+2013/06/10 absolute insurance
     ;; schedule ; monthly ; 15 ; 6 ; auto
     e: car: insurance
     l: credit card                          $-425

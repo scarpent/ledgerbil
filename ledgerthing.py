@@ -14,7 +14,7 @@ from dateutil.parser import parse
 
 class LedgerThing(object):
 
-    dateRegex = r'\d{4}([-/]\d\d){2}'
+    dateRegex = r'^\d{4}([-/]\d\d){2}'
 
     def __init__(self, lines):
 
@@ -24,7 +24,7 @@ class LedgerThing(object):
 
         if self.isTransactionStart(lines[0]):
             self.date = re.search(
-                r'^(%s)' % LedgerThing.dateRegex, lines[0]
+                r'(%s)' % LedgerThing.dateRegex, lines[0]
             ).group(1)
 
     def getLines(self):
@@ -42,7 +42,7 @@ class LedgerThing(object):
     @staticmethod
     def isTransactionStart(line):
         # loose date-like check, pending refinement based on ledger spec
-        match = re.match(r'^(%s)\s+[^\s].*$' % LedgerThing.dateRegex, line)
+        match = re.match(r'(%s)\s+[^\s].*$' % LedgerThing.dateRegex, line)
         if match:
             try:
                 parse(match.group(1))  # verify it parses as date
