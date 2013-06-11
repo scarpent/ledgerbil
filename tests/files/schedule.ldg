@@ -1,6 +1,6 @@
-;; scheduler ; enter 1 days ; preview 30 days
+;; scheduler ; enter 7 days ; preview 30 days
 
-2013/04/15 abc paycheck
+2013/08/15 abc paycheck
     ;; schedule ; monthly ; 15, 30 ; ; auto
     i: wages: gross pay                     $-135.00
     e: taxes: social security               ($135 * 0.062)
@@ -12,12 +12,12 @@
     e: bills: electricity
     a: checking up                          $-75
 
-2013/05/04 haircuttery inc
+2013/07/04 haircuttery inc
     ;; schedule ; weekly ; 4 ; 5    ; todo: handle day names or int values?
     e: misc: haircut
     a: checking up                          $-28
 
-2013/06/10 absolute insurance
+2013/06/20 absolute insurance
     ;; schedule ; monthly ; 15 ; 6 ; auto
     e: car: insurance
     l: credit card                          $-425
