@@ -38,6 +38,7 @@ class ScheduleThing(LedgerThing):
         if ScheduleThing.firstThing:
             self._handleFileConfig(lines[0])
             ScheduleThing.firstThing = False
+            self.firstThing = True
             return
 
         # todo: test single line thing? although would be invalid thing

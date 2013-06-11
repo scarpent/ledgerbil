@@ -22,8 +22,11 @@ class Scheduler(object):
 
         for schedulething in self.schedulefile.things:
 
+            if schedulething.firstThing:
+                continue
+
             if not schedulething.isScheduleThing:
-                print('not a scheduleThing...')  # todo: temp for dev/debug
+                print('not a scheduleThing...')  # todo: handle with error
                 continue
 
             print('a scheduleThing! date = %s' % schedulething.date)

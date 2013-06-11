@@ -22,20 +22,19 @@ class Ledgerbil(object):
         self.args = args
 
     def processFile(self):
-        ledgerFile = LedgerFile(self.args.file)
+        ledgerfile = LedgerFile(self.args.file)
 
         if self.args.schedule_file:
-            scheduleFile = ScheduleFile(self.args.schedule_file)
-            scheduleFile.sort()
-            Scheduler.run()
-
-            # todo: Scheduler class to run the schedule stuff
+            schedulefile = ScheduleFile(self.args.schedule_file)
+            schedulefile.sort()
+            scheduler = Scheduler(ledgerfile, schedulefile)
+            scheduler.run()
 
 
         if self.args.sort:
-            ledgerFile.sort()
+            ledgerfile.sort()
 
-        ledgerFile.writeFile()
+        ledgerfile.writeFile()
 
 def main():
     args = ArgHandler.getArgs()

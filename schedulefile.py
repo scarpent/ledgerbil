@@ -14,13 +14,6 @@ from schedulething import ScheduleThing
 
 class ScheduleFile(LedgerFile):
 
-    # def __init__(self, filename):
-    #     super(ScheduleFile, self).__init__(filename)
-    #
-    #     print('\nSchedule file (enter days = %s, preview days = %s):\n'
-    #           % (ScheduleThing.enterDays, ScheduleThing.previewDays))
-    #     self.printFile()
-
     def _addThingLines(self, lines):
         if lines:
             thing = ScheduleThing(lines)
