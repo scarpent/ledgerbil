@@ -13,6 +13,7 @@ import sys
 from arghandler import ArgHandler
 from ledgerfile import LedgerFile
 from schedulefile import ScheduleFile
+from scheduler import Scheduler
 
 
 class Ledgerbil(object):
@@ -26,7 +27,9 @@ class Ledgerbil(object):
         if self.args.schedule_file:
             scheduleFile = ScheduleFile(self.args.schedule_file)
             scheduleFile.sort()
-            scheduleFile.run(ledgerFile)
+            Scheduler.run()
+
+            # todo: Scheduler class to run the schedule stuff
 
 
         if self.args.sort:
