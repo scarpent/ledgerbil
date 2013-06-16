@@ -13,6 +13,7 @@ import re
 from copy import copy
 from datetime import datetime
 from datetime import timedelta
+from calendar import monthrange
 
 from ledgerthing import LedgerThing
 
@@ -26,10 +27,15 @@ class ScheduleThing(LedgerThing):
     entryBoundaryDate = None
     previewBoundaryDate = None
 
+    INTERVAL_MONTH = 'month'
+    INTERVAL_WEEK = 'week'
+    EOM = 'eom'
+    EOM30 = 'eom30'
+
     def __init__(self, lines):
         self.isScheduleThing = False
         self.intervalUom = ''           # e.g. month, week
-        self.days = ()                  # e.g. 5, 15, eom, eom30
+        self.days = []                  # e.g. 5, 15, eom, eom30
         self.interval = 1               # e.g. 1 = every month, 2 = every other
         self.previewDate = None
 
@@ -109,19 +115,20 @@ class ScheduleThing(LedgerThing):
         if match:
             self.interval = match.group(INTERVAL).lower()
             self.intervalUom = match.group(INTERVAL_UOM)
-            if self.intervalUom is None:
+            if self.intervalUom is None or self.intervalUom < 1:
                 self.intervalUom = 1
 
             # for monthly: the day date; for weekly: the day name
             # todo: parse that as day names, but for now, use ints
-            dayString = match.group(DAYS)
+            dayString = match.group(DAYS).lower()
             self.days = []
             daysRegex = '(\d+|eom(?:\d+)?)'
             for match in re.finditer(daysRegex, dayString):
                 self.isScheduleThing = True
                 self.days.append(match.groups()[0])
-
+            self.days.sort()
             # todo: look for more than one eom and raise error?
+            # raise error if no days?
 
         if not self.isScheduleThing:
             # todo: how to handle? stderr? exception? log? ignore?
@@ -139,10 +146,49 @@ class ScheduleThing(LedgerThing):
         entryLines[0] = re.sub(self.dateRegex, self.date, entryLines[0])
         del entryLines[1]
 
-        scheduleDate = datetime.strptime(self.date, '%Y/%m/%d')
+        currentdate = datetime.strptime(self.date, '%Y/%m/%d')
 
-        if scheduleDate <= self.entryBoundaryDate:
+        if currentdate <= self.entryBoundaryDate:
             entries.append(LedgerThing(entryLines))
             # advance date
 
+
         return entries
+
+
+    def getNextDate(self, currentdate):
+        """
+        @type currentdate: datetime
+        """
+        if self.intervalUom == self.INTERVAL_MONTH:
+            # first see if more days to go in the current month
+            for day in self.days:
+                if day > currentdate.day:
+                    pass
+            # now advance the month
+
+
+    # knows how to handle "eom"
+    def getMonthDay(self, scheduleday, currentdate):
+        """
+        @type scheduleday: str
+        @type currentdate: datetime
+        """
+        if scheduleday.isdigit():
+            return int(scheduleday)
+
+        lastDayOfMonth = monthrange(currentdate.year, currentdate.month)[1]
+
+        # todo, maybe: option to move date if a weekend
+
+        if scheduleday == self.EOM:
+            return lastDayOfMonth
+
+        if scheduleday == '%s%s' % (self.EOM, '30'):
+            if lastDayOfMonth >= 30:
+                return 30
+            else:
+                return lastDayOfMonth # february
+
+    def getWeekDay(self):
+        pass
