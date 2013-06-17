@@ -1,6 +1,6 @@
 ;; scheduler ; enter 7 days ; preview 30 days
 
-2013/06/26 haircuttery inc
+2013/06/25 haircuttery inc
     ;; schedule ; weekly ; 4 ; 5    ; todo: handle day names or int values?
     e: misc: haircut
     a: checking up                          $-28

@@ -19,7 +19,7 @@ class GetMonthDay(unittest.TestCase):
 ;; schedule ; monthly ; 12th ; ; auto
 e: bills: electricity
 a: checking up                          $-75'''
-    ScheduleThing.firstThing = False
+    ScheduleThing.doFileConfig = False
     scheduleThing = ScheduleThing(scheduleLines)
 
     def testGetMonthDayNormal(self):

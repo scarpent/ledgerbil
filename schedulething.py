@@ -21,7 +21,7 @@ from ledgerthing import LedgerThing
 
 class ScheduleThing(LedgerThing):
 
-    firstThing = True
+    doFileConfig = True
     enterDays = -1
     previewDays = -1
 
@@ -37,6 +37,7 @@ class ScheduleThing(LedgerThing):
     EOM30 = 'eom30'
 
     def __init__(self, lines):
+        self.firstThing = False
         self.isScheduleThing = False
         self.intervalUom = ''           # e.g. month, week
         self.days = []                  # e.g. 5, 15, eom, eom30
@@ -45,9 +46,10 @@ class ScheduleThing(LedgerThing):
 
         super(ScheduleThing, self).__init__(lines)
 
-        if ScheduleThing.firstThing:
+        if ScheduleThing.doFileConfig:
             self._handleFileConfig(lines[ScheduleThing.LINE_FILE_CONFIG])
-            ScheduleThing.firstThing = False
+            self.firstThing = True
+            ScheduleThing.doFileConfig = False
             return
 
         # todo: test single line thing? although would be invalid thing
@@ -125,9 +127,11 @@ class ScheduleThing(LedgerThing):
             if self.interval < 1:
                 self.interval = 1
 
+            # todo: translate "yearly" into month uom and every 12 months
+
             # for monthly: the day date; for weekly: the day name
             # todo: parse that as day names, but for now, use ints
-            # todo: exception if no days? default?
+            # todo: if days not specified, default to thing day
             dayString = match.group(DAYS).lower()
             self.days = []
             daysRegex = '(\d+|eom(?:\d+)?)'
@@ -176,6 +180,13 @@ class ScheduleThing(LedgerThing):
 
             entries.append(LedgerThing(entryLines))
 
+            sys.stderr.write(
+                '\n%s\n%s\n' % (
+                    entryLines[ScheduleThing.LINE_DATE],
+                    self.lines[ScheduleThing.LINE_SCHEDULE]
+                    )
+            )
+
         return entries
 
 
@@ -202,7 +213,9 @@ class ScheduleThing(LedgerThing):
                     currentdate.month,
                     1) + relativedelta(months=self.interval)
 
-        return currentdate
+        # todo:
+        sys.stderr.write('\nunhandled interval uom; advancing scheduled date past entry boundery date\n')
+        return ScheduleThing.entryBoundaryDate + timedelta(days=1)
 
 
     # knows how to handle "eom"
