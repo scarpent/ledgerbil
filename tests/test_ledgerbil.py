@@ -49,7 +49,7 @@ class Sorting(unittest.TestCase):
         remove(tempfile)
         self.assertEqual(expected, actual)
 
-    def testMainSortortedNoOptions(self):
+    def testMainSortedNoOptions(self):
         """main should parse unsorted file and write sorted file"""
         expected = FT.readFile(FT.alpha_sortedfile)
         tempfile = FT.copyToTempFile(FT.alpha_unsortedfile)

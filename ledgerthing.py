@@ -10,24 +10,37 @@ __email__ = 'scottc@movingtofreedom.org'
 
 import re
 from dateutil.parser import parse
+from datetime import date
+from datetime import datetime
 
 
 class LedgerThing(object):
 
-    dateRegex = r'^\d{4}([-/]\d\d){2}'
+    DATE_REGEX = r'^\d{4}([-/]\d\d){2}'
+    DATE_FORMAT = '%Y/%m/%d'
 
     def __init__(self, lines):
 
         self.thingNumber = 0  # to be overridden by file's addThing method
-        self.date = None
+        self.thingDate = None
         self.lines = lines
+        self.isTransaction = False
 
         if self.isTransactionStart(lines[0]):
-            self.date = re.search(
-                r'(%s)' % LedgerThing.dateRegex, lines[0]
+            self.isTransaction = True
+            dateString = re.search(
+                r'(%s)' % self.DATE_REGEX,
+                lines[0]
             ).group(1)
+            self.thingDate = self.getDate(dateString)
 
     def getLines(self):
+        if self.isTransaction:
+            self.lines[0] = re.sub(
+                self.DATE_REGEX,
+                self.getDateString(self.thingDate),
+                self.lines[0]
+            )
         return self.lines
 
     @staticmethod
@@ -41,8 +54,8 @@ class LedgerThing(object):
 
     @staticmethod
     def isTransactionStart(line):
-        # loose date-like check, pending refinement based on ledger spec
-        match = re.match(r'(%s)\s+[^\s].*$' % LedgerThing.dateRegex, line)
+        # date check, pending refinement based on ledger spec
+        match = re.match(r'(%s)\s+[^\s].*$' % LedgerThing.DATE_REGEX, line)
         if match:
             try:
                 parse(match.group(1))  # verify it parses as date
@@ -51,3 +64,14 @@ class LedgerThing(object):
                 pass
 
         return False
+
+    @staticmethod
+    def getDateString(date):
+        """ @type date: date """
+        return date.strftime(LedgerThing.DATE_FORMAT)
+
+
+    @staticmethod
+    def getDate(dateString):
+        """ @type dateString: str """
+        return datetime.strptime(dateString, LedgerThing.DATE_FORMAT).date()

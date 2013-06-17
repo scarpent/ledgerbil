@@ -138,7 +138,7 @@ class ThingDating(unittest.TestCase):
         remove(tempfile)
         self.assertEqual(
             LedgerFile.STARTING_DATE,
-            ledgerfile.getThings()[0].date
+            ledgerfile.getThings()[0].thingDate
         )
 
     def testLaterNonTransactionDate(self):
@@ -158,8 +158,8 @@ class ThingDating(unittest.TestCase):
                         # with sort; may have to revisit this..
         remove(tempfile)
         self.assertEqual(
-            ledgerfile.getThings()[1].date,
-            ledgerfile.getThings()[2].date
+            ledgerfile.getThings()[1].thingDate,
+            ledgerfile.getThings()[2].thingDate
         )
 
 

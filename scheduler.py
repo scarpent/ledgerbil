@@ -29,7 +29,7 @@ class Scheduler(object):
                 print('not a scheduleThing...')  # todo: handle with error
                 continue
 
-            print('a scheduleThing! date = %s' % schedulething.date)
+            print('a scheduleThing! date = %s' % schedulething.thingDate)
             print('\tdays = %s, interval = %s, uom = %s'
                   % (schedulething.days,
                      schedulething.interval,

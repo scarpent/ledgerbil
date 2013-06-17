@@ -11,8 +11,9 @@ __email__ = 'scottc@movingtofreedom.org'
 import sys
 import re
 from copy import copy
-from datetime import datetime
+from datetime import date
 from datetime import timedelta
+from dateutil.relativedelta import relativedelta
 from calendar import monthrange
 
 from ledgerthing import LedgerThing
@@ -44,7 +45,6 @@ class ScheduleThing(LedgerThing):
         if ScheduleThing.firstThing:
             self._handleFileConfig(lines[0])
             ScheduleThing.firstThing = False
-            self.firstThing = True
             return
 
         # todo: test single line thing? although would be invalid thing
@@ -81,11 +81,11 @@ class ScheduleThing(LedgerThing):
                 % line
             )
 
-        ScheduleThing.isValidScheduleFile = True
+        self.isValidScheduleFile = True
         if match.group(ENTER_DAYS):
             ScheduleThing.enterDays = match.group(ENTER_DAYS)
             ScheduleThing.entryBoundaryDate = (
-                datetime.today()
+                date.today()
                 + timedelta(days=int(ScheduleThing.enterDays))
             )
         if match.group(PREVIEW_DAYS):
@@ -107,16 +107,16 @@ class ScheduleThing(LedgerThing):
             '''
 
         # capturing groups
-        INTERVAL = 1
+        INTERVAL_UOM = 1
         DAYS = 2
-        INTERVAL_UOM = 3
+        INTERVAL = 3
 
         match = re.match(thingRegex, line)
         if match:
-            self.interval = match.group(INTERVAL).lower()
-            self.intervalUom = match.group(INTERVAL_UOM)
-            if self.intervalUom is None or self.intervalUom < 1:
-                self.intervalUom = 1
+            self.intervalUom = match.group(INTERVAL_UOM).lower()
+            self.interval = match.group(INTERVAL)
+            if self.interval is None or self.interval < 1:
+                self.interval = 1
 
             # for monthly: the day date; for weekly: the day name
             # todo: parse that as day names, but for now, use ints
@@ -139,18 +139,29 @@ class ScheduleThing(LedgerThing):
         # will have it, but for adding to ledger, no
 
     def getScheduledEntries(self):
-        entryLines = copy(self.lines)
 
-        entries =[]
+        entries = []
 
-        entryLines[0] = re.sub(self.dateRegex, self.date, entryLines[0])
-        del entryLines[1]
+        while self.thingDate <= ScheduleThing.entryBoundaryDate:
 
-        currentdate = datetime.strptime(self.date, '%Y/%m/%d')
+            entryLines = copy(self.lines)
+            del entryLines[1]
+            entryLines[0] = re.sub(
+                self.DATE_REGEX,
+                self.getDateString(self.thingDate),
+                entryLines[0]
+            )
 
-        if currentdate <= self.entryBoundaryDate:
             entries.append(LedgerThing(entryLines))
-            # advance date
+            nextDate = self.getNextDate(self.thingDate)
+
+            # with proper programming of getNextDate, this shouldn't
+            #  happen, but we'll over-cautiously avoid infinite loop
+            if nextDate <= self.thingDate:
+                break
+
+            self.thingDate = nextDate
+
 
 
         return entries
@@ -158,21 +169,26 @@ class ScheduleThing(LedgerThing):
 
     def getNextDate(self, currentdate):
         """
-        @type currentdate: datetime
+        @type currentdate: date
         """
         if self.intervalUom == self.INTERVAL_MONTH:
             # first see if more days to go in the current month
-            for day in self.days:
-                if day > currentdate.day:
-                    pass
-            # now advance the month
+            for scheduleday in self.days:
+                scheduleday = self.getMonthDay(scheduleday, currentdate)
+                if scheduleday > currentdate.day:
+                    return date(
+                        currentdate.year,
+                        currentdate.month,
+                        scheduleday)
+
+        return currentdate
 
 
     # knows how to handle "eom"
     def getMonthDay(self, scheduleday, currentdate):
         """
         @type scheduleday: str
-        @type currentdate: datetime
+        @type currentdate: date
         """
         if scheduleday.isdigit():
             return int(scheduleday)

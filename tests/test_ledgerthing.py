@@ -8,6 +8,8 @@ __email__ = 'scottc@movingtofreedom.org'
 
 import unittest
 
+from datetime import date
+
 from ledgerthing import LedgerThing
 
 
@@ -16,12 +18,12 @@ class Constructor(unittest.TestCase):
     def testNonTransactionDate(self):
         """non-transactions initially have date = None"""
         thing = LedgerThing(['blah', 'blah blah blah'])
-        self.assertIsNone(thing.date)
+        self.assertIsNone(thing.thingDate)
 
     def testTransactionDate(self):
         """later non-transaction things inherit date of preceding thing"""
         thing = LedgerThing(['2013/05/18 blah', '    ; something...'])
-        self.assertEqual(thing.date, '2013/05/18')
+        self.assertEqual(thing.thingDate, date(2013, 5, 18))
 
 
 class GetLines(unittest.TestCase):

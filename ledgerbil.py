@@ -29,6 +29,8 @@ class Ledgerbil(object):
             schedulefile.sort()
             scheduler = Scheduler(ledgerfile, schedulefile)
             scheduler.run()
+            schedulefile.sort()
+            schedulefile.writeFile()
 
 
         if self.args.sort:

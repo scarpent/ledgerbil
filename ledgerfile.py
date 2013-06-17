@@ -9,6 +9,7 @@ __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
 import sys
+from datetime import date
 from operator import attrgetter
 
 from ledgerthing import LedgerThing
@@ -16,7 +17,7 @@ from ledgerthing import LedgerThing
 
 class LedgerFile(object):
 
-    STARTING_DATE = '1899/01/01'
+    STARTING_DATE = date(1899, 1, 1)
 
     def __init__(self, filename):
         self.thingCounter = 0
@@ -74,12 +75,12 @@ class LedgerFile(object):
         currentDate = self.STARTING_DATE
 
         for thing in self.getThings():
-            if thing.date is None:
-                thing.date = currentDate
+            if thing.thingDate is None:
+                thing.thingDate = currentDate
             else:
-                currentDate = thing.date
+                currentDate = thing.thingDate
 
-        self.getThings().sort(key=attrgetter('date', 'thingNumber'))
+        self.getThings().sort(key=attrgetter('thingDate', 'thingNumber'))
 
     # todo: add cmd line option for this, maybe (along with more unit tests)
     def printFile(self):
