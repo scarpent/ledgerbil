@@ -1,22 +1,42 @@
 ; starting comment
 
-2013/01/12 lightning energy
-    e: bills: electricity
-    a: checking up                          $-75
-
-2013/01/21 lightning energy
-    e: bills: electricity
-    a: checking up                          $-75
-
-2013/06/20 absolute insurance
+2012/12/15 absolute insurance
     e: car: insurance
     l: credit card                          $-425
 
-2013/01/21 lightning energy
+2013/03/21 lightning energy
     e: bills: electricity
     a: checking up                          $-75
 
-2013/06/20 absolute insurance
+2013/04/12 lightning energy
+    e: bills: electricity
+    a: checking up                          $-75
+
+2013/04/21 lightning energy
+    e: bills: electricity
+    a: checking up                          $-75
+
+2013/05/12 lightning energy
+    e: bills: electricity
+    a: checking up                          $-75
+
+2013/05/21 lightning energy
+    e: bills: electricity
+    a: checking up                          $-75
+
+2013/06/12 lightning energy
+    e: bills: electricity
+    a: checking up                          $-75
+
+2013/06/15 absolute insurance
     e: car: insurance
     l: credit card                          $-425
+
+2013/06/21 lightning energy
+    e: bills: electricity
+    a: checking up                          $-75
+
+2013/10/12 fribble frap
+    e: bills: fribbles
+    a: checking up                          $-100
 

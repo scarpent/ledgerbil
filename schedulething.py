@@ -28,6 +28,9 @@ class ScheduleThing(LedgerThing):
     entryBoundaryDate = None
     previewBoundaryDate = None
 
+    LINE_FILE_CONFIG = 0
+    LINE_DATE = 0
+    LINE_SCHEDULE = 1
     INTERVAL_MONTH = 'month'
     INTERVAL_WEEK = 'week'
     EOM = 'eom'
@@ -43,12 +46,12 @@ class ScheduleThing(LedgerThing):
         super(ScheduleThing, self).__init__(lines)
 
         if ScheduleThing.firstThing:
-            self._handleFileConfig(lines[0])
+            self._handleFileConfig(lines[ScheduleThing.LINE_FILE_CONFIG])
             ScheduleThing.firstThing = False
             return
 
         # todo: test single line thing? although would be invalid thing
-        self._handleThingConfig(lines[1])
+        self._handleThingConfig(lines[ScheduleThing.LINE_SCHEDULE])
 
     # file level config looks like this:
     # ;; scheduler ; enter N days ; preview N days
@@ -114,18 +117,27 @@ class ScheduleThing(LedgerThing):
         match = re.match(thingRegex, line)
         if match:
             self.intervalUom = match.group(INTERVAL_UOM).lower()
-            self.interval = match.group(INTERVAL)
-            if self.interval is None or self.interval < 1:
+            try:
+                self.interval = int(match.group(INTERVAL))
+            except:
+                self.interval = 1
+
+            if self.interval < 1:
                 self.interval = 1
 
             # for monthly: the day date; for weekly: the day name
             # todo: parse that as day names, but for now, use ints
+            # todo: exception if no days? default?
             dayString = match.group(DAYS).lower()
             self.days = []
             daysRegex = '(\d+|eom(?:\d+)?)'
             for match in re.finditer(daysRegex, dayString):
                 self.isScheduleThing = True
-                self.days.append(match.groups()[0])
+                # convert to ints where possible so will sort out correctly
+                try:
+                    self.days.append(int(match.groups()[0]))
+                except:
+                    self.days.append(match.groups()[0])
             self.days.sort()
             # todo: look for more than one eom and raise error?
             # raise error if no days?
@@ -142,27 +154,27 @@ class ScheduleThing(LedgerThing):
 
         entries = []
 
-        while self.thingDate <= ScheduleThing.entryBoundaryDate:
+        # we want to include the date from the file as the next date, *if*
+        # it's a valid schedule day, so we'll back up to give it a chance
+        # to be discovered as the "nextDate"
+        self.thingDate = self.thingDate - timedelta(days=1)
+
+        while True:
+
+            self.thingDate = self.getNextDate(self.thingDate)
+
+            if self.thingDate > ScheduleThing.entryBoundaryDate:
+                break
 
             entryLines = copy(self.lines)
-            del entryLines[1]
-            entryLines[0] = re.sub(
+            del entryLines[ScheduleThing.LINE_SCHEDULE]
+            entryLines[ScheduleThing.LINE_DATE] = re.sub(
                 self.DATE_REGEX,
                 self.getDateString(self.thingDate),
-                entryLines[0]
+                entryLines[ScheduleThing.LINE_DATE]
             )
 
             entries.append(LedgerThing(entryLines))
-            nextDate = self.getNextDate(self.thingDate)
-
-            # with proper programming of getNextDate, this shouldn't
-            #  happen, but we'll over-cautiously avoid infinite loop
-            if nextDate <= self.thingDate:
-                break
-
-            self.thingDate = nextDate
-
-
 
         return entries
 
@@ -171,15 +183,24 @@ class ScheduleThing(LedgerThing):
         """
         @type currentdate: date
         """
-        if self.intervalUom == self.INTERVAL_MONTH:
+        if self.intervalUom == ScheduleThing.INTERVAL_MONTH:
+            # add day so we can compare with >=
+            # also assures that we always get a future date
+            currentdate = currentdate + timedelta(days=1)
             # first see if more days to go in the current month
-            for scheduleday in self.days:
-                scheduleday = self.getMonthDay(scheduleday, currentdate)
-                if scheduleday > currentdate.day:
-                    return date(
-                        currentdate.year,
-                        currentdate.month,
-                        scheduleday)
+            # advance month at end of loop
+            while True:
+                for scheduleday in self.days:
+                    scheduleday = self.getMonthDay(scheduleday, currentdate)
+                    if scheduleday >= currentdate.day:
+                        return date(
+                            currentdate.year,
+                            currentdate.month,
+                            scheduleday)
+                currentdate = date(
+                    currentdate.year,
+                    currentdate.month,
+                    1) + relativedelta(months=self.interval)
 
         return currentdate
 
@@ -190,7 +211,7 @@ class ScheduleThing(LedgerThing):
         @type scheduleday: str
         @type currentdate: date
         """
-        if scheduleday.isdigit():
+        if str(scheduleday).isdigit():
             return int(scheduleday)
 
         lastDayOfMonth = monthrange(currentdate.year, currentdate.month)[1]
