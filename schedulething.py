@@ -126,7 +126,7 @@ class ScheduleThing(LedgerThing):
                 self.interval = 1
 
             if self.interval < 1:
-                self.interval = 1
+                self.interval = 1  # interval must not be less than one
 
             # todo: translate "yearly" into month uom and every 12 months
 
@@ -146,7 +146,7 @@ class ScheduleThing(LedgerThing):
                     self.days.append(match.groups()[0])
             self.days.sort()
             # todo: look for more than one eom and raise error?
-            # raise error if no days?
+            # todo: if no days, use day of thing date
 
         if not self.isScheduleThing:
             # todo: how to handle? stderr? exception? log? ignore?
@@ -160,52 +160,45 @@ class ScheduleThing(LedgerThing):
 
         entries = []
 
-        # we want to include the date from the file as the next date, *if*
-        # it's a valid schedule day, so we'll back up to give it a chance
-        # to be discovered as the "nextDate"
-        self.thingDate = self.thingDate - timedelta(days=1)
+        if self.thingDate <= ScheduleThing.entryBoundaryDate:
+            entries.append(self._getEntryThing())
 
         while True:
-
             self.thingDate = self._getNextDate(self.thingDate)
 
             if self.thingDate > ScheduleThing.entryBoundaryDate:
                 break
 
-            entryLines = copy(self.lines)
-            del entryLines[ScheduleThing.LINE_SCHEDULE]
-            entryLines[ScheduleThing.LINE_DATE] = re.sub(
-                self.DATE_REGEX,
-                self.getDateString(self.thingDate),
-                entryLines[ScheduleThing.LINE_DATE]
-            )
-
-            entries.append(LedgerThing(entryLines))
-
-            print(
-                '\n%s\n%s\n' % (
-                    entryLines[ScheduleThing.LINE_DATE],
-                    self.lines[ScheduleThing.LINE_SCHEDULE]
-                    )
-            )
+            entries.append(self._getEntryThing())
 
         return entries
 
+    def _getEntryThing(self):
+        entryLines = copy(self.lines)
+        del entryLines[ScheduleThing.LINE_SCHEDULE]
+        entryLines[ScheduleThing.LINE_DATE] = re.sub(
+            self.DATE_REGEX,
+            self.getDateString(self.thingDate),
+            entryLines[ScheduleThing.LINE_DATE]
+        )
+        print(
+            '\n%s\n%s\n' % (
+                entryLines[ScheduleThing.LINE_DATE],
+                self.lines[ScheduleThing.LINE_SCHEDULE]
+            )
+        )
+        return LedgerThing(entryLines)
 
     def _getNextDate(self, currentdate):
         """
         @type currentdate: date
         """
         if self.intervalUom == ScheduleThing.INTERVAL_MONTH:
-            # add day so we can compare with >=
-            # also assures that we always get a future date
-            currentdate = currentdate + timedelta(days=1)
-            # first see if more days to go in the current month
-            # advance month at end of loop
+
             while True:
                 for scheduleday in self.days:
                     scheduleday = self._getMonthDay(scheduleday, currentdate)
-                    if scheduleday >= currentdate.day:
+                    if scheduleday > currentdate.day:
                         return date(
                             currentdate.year,
                             currentdate.month,

@@ -9,6 +9,8 @@ __email__ = 'scottc@movingtofreedom.org'
 import unittest
 
 from datetime import datetime
+from datetime import date
+from datetime import timedelta
 
 from schedulething import ScheduleThing
 from ledgerthing import LedgerThing
@@ -34,6 +36,21 @@ class GetNextDate(unittest.TestCase):
 
         scheduleThing = ScheduleThing(scheduleLines)
         expectedNextDate = LedgerThing.getDate('2013/06/30')
+
+        self.assertEqual(
+            expectedNextDate,
+            scheduleThing._getNextDate(scheduleThing.thingDate)
+        )
+
+    def testGetNextDateMonthlyThisMonthEomOnTheDay(self):
+
+        scheduleLines = [
+            '2013/06/30 lightning energy',
+            '    ;; schedule ; monthly ; eom ; ; auto',
+            ]
+
+        scheduleThing = ScheduleThing(scheduleLines)
+        expectedNextDate = LedgerThing.getDate('2013/07/31')
 
         self.assertEqual(
             expectedNextDate,
@@ -154,6 +171,21 @@ class GetNextDate(unittest.TestCase):
 
         scheduleThing = ScheduleThing(scheduleLines)
         expectedNextDate = LedgerThing.getDate('2013/09/15')
+
+        self.assertEqual(
+            expectedNextDate,
+            scheduleThing._getNextDate(scheduleThing.thingDate)
+        )
+
+    def testGetNextDateMonthlyInterval12eom(self):
+
+        scheduleLines = [
+            '2011/02/28 lightning energy',
+            '    ;; schedule ; month ; eom ; 12 ; auto',
+            ]
+
+        scheduleThing = ScheduleThing(scheduleLines)
+        expectedNextDate = LedgerThing.getDate('2012/02/29')
 
         self.assertEqual(
             expectedNextDate,
