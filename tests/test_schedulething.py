@@ -177,7 +177,7 @@ class GetNextDate(unittest.TestCase):
             scheduleThing._getNextDate(scheduleThing.thingDate)
         )
 
-    def testGetNextDateMonthlyInterval12eom(self):
+    def testGetNextDateMonthlyInterval12eomLeapOne(self):
 
         scheduleLines = [
             '2011/02/28 lightning energy',
@@ -191,6 +191,36 @@ class GetNextDate(unittest.TestCase):
             expectedNextDate,
             scheduleThing._getNextDate(scheduleThing.thingDate)
         )
+
+    def testGetNextDateMonthlyInterval12eomLeapTwo(self):
+
+        scheduleLines = [
+            '2012/02/29 lightning energy',
+            '    ;; schedule ; month ; eom ; 12 ; auto',
+            ]
+
+        scheduleThing = ScheduleThing(scheduleLines)
+        expectedNextDate = LedgerThing.getDate('2013/02/28')
+
+        self.assertEqual(
+            expectedNextDate,
+            scheduleThing._getNextDate(scheduleThing.thingDate)
+        )
+
+    # def testGetNextDateMonthlyTooMany(self):
+    #
+    #     scheduleLines = [
+    #         '2013/01/30 lightning energy',
+    #         '    ;; schedule ; month ; 30th ; 1 ; auto',
+    #         ]
+    #
+    #     scheduleThing = ScheduleThing(scheduleLines)
+    #     expectedNextDate = LedgerThing.getDate('2013/02/28')
+    #
+    #     self.assertEqual(
+    #         expectedNextDate,
+    #         scheduleThing._getNextDate(scheduleThing.thingDate)
+    #     )
 
 
 class GetWeekDay(unittest.TestCase):

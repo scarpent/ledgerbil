@@ -147,6 +147,8 @@ class ScheduleThing(LedgerThing):
             self.days.sort()
             # todo: look for more than one eom and raise error?
             # todo: if no days, use day of thing date
+            # todo: validation if a date is picked that is too
+            #       large for some months (maybe force eom for 28-31???
 
         if not self.isScheduleThing:
             # todo: how to handle? stderr? exception? log? ignore?
@@ -204,6 +206,7 @@ class ScheduleThing(LedgerThing):
                             currentdate.month,
                             scheduleday)
 
+                # advance to next month (by specified interval)
                 currentdate = date(
                     currentdate.year,
                     currentdate.month,
