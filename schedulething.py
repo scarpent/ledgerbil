@@ -31,8 +31,10 @@ class ScheduleThing(LedgerThing):
     LINE_FILE_CONFIG = 0
     LINE_DATE = 0
     LINE_SCHEDULE = 1
-    INTERVAL_MONTH = 'month'
     INTERVAL_WEEK = 'week'
+    INTERVAL_MONTH = 'month'
+    INTERVAL_YEAR = 'year'
+    # one time schedule
     EOM = 'eom'
     EOM30 = 'eom30'
 
@@ -52,7 +54,6 @@ class ScheduleThing(LedgerThing):
             ScheduleThing.doFileConfig = False
             return
 
-        # todo: test single line thing? although would be invalid thing
         self._handleThingConfig(lines[ScheduleThing.LINE_SCHEDULE])
 
     # file level config looks like this:
@@ -105,7 +106,7 @@ class ScheduleThing(LedgerThing):
             ^                           # line start
             \s*;;\s*schedule\s*         # required
             ;\s*(week|month)(?:ly)?\s*  # interval uom
-            ;\s*([^;]+?)\s*             # days (to be parsed further, later)
+            ;\s*([^;]+?)\s*             # days (to be parsed further)
             (?:;[^;\d]*(\d+)[^;]*)?     # optional interval (default = 1)
             (?:;.*)?                    # non-capturing, optional comment
             (?:;\s*|$)                  # line end
@@ -132,6 +133,7 @@ class ScheduleThing(LedgerThing):
             # for monthly: the day date; for weekly: the day name
             # todo: parse that as day names, but for now, use ints
             # todo: if days not specified, default to thing day
+            # (if day < 1, consider an inactive thing)
             dayString = match.group(DAYS).lower()
             self.days = []
             daysRegex = '(\d+|eom(?:\d+)?)'
@@ -165,7 +167,7 @@ class ScheduleThing(LedgerThing):
 
         while True:
 
-            self.thingDate = self.getNextDate(self.thingDate)
+            self.thingDate = self._getNextDate(self.thingDate)
 
             if self.thingDate > ScheduleThing.entryBoundaryDate:
                 break
@@ -180,7 +182,7 @@ class ScheduleThing(LedgerThing):
 
             entries.append(LedgerThing(entryLines))
 
-            sys.stderr.write(
+            print(
                 '\n%s\n%s\n' % (
                     entryLines[ScheduleThing.LINE_DATE],
                     self.lines[ScheduleThing.LINE_SCHEDULE]
@@ -190,7 +192,7 @@ class ScheduleThing(LedgerThing):
         return entries
 
 
-    def getNextDate(self, currentdate):
+    def _getNextDate(self, currentdate):
         """
         @type currentdate: date
         """
@@ -202,12 +204,13 @@ class ScheduleThing(LedgerThing):
             # advance month at end of loop
             while True:
                 for scheduleday in self.days:
-                    scheduleday = self.getMonthDay(scheduleday, currentdate)
+                    scheduleday = self._getMonthDay(scheduleday, currentdate)
                     if scheduleday >= currentdate.day:
                         return date(
                             currentdate.year,
                             currentdate.month,
                             scheduleday)
+
                 currentdate = date(
                     currentdate.year,
                     currentdate.month,
@@ -219,7 +222,7 @@ class ScheduleThing(LedgerThing):
 
 
     # knows how to handle "eom"
-    def getMonthDay(self, scheduleday, currentdate):
+    def _getMonthDay(self, scheduleday, currentdate):
         """
         @type scheduleday: str
         @type currentdate: date
@@ -240,5 +243,5 @@ class ScheduleThing(LedgerThing):
             else:
                 return lastDayOfMonth # february
 
-    def getWeekDay(self):
-        pass
+    def _getWeekDay(self):
+        return -1

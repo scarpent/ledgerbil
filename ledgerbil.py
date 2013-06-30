@@ -32,7 +32,6 @@ class Ledgerbil(object):
             schedulefile.sort()
             schedulefile.writeFile()
 
-
         if self.args.sort:
             ledgerfile.sort()
 
