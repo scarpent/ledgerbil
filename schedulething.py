@@ -216,7 +216,7 @@ class ScheduleThing(LedgerThing):
                     currentdate.month,
                     1) + relativedelta(months=self.interval)
 
-        # todo:
+        # todo: maybe can assume is valid if thing initialized successfully
         sys.stderr.write('\nunhandled interval uom; advancing scheduled date past entry boundery date\n')
         return ScheduleThing.entryBoundaryDate + timedelta(days=1)
 
