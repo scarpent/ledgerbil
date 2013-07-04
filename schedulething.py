@@ -176,6 +176,9 @@ class ScheduleThing(LedgerThing):
         return entries
 
     def _getEntryThing(self):
+        """
+        @rtype: LedgerThing
+        """
         entryLines = copy(self.lines)
         del entryLines[ScheduleThing.LINE_SCHEDULE]
         entryLines[ScheduleThing.LINE_DATE] = re.sub(
@@ -191,29 +194,35 @@ class ScheduleThing(LedgerThing):
         )
         return LedgerThing(entryLines)
 
-    def _getNextDate(self, currentdate):
+    def _getNextDate(self, previousdate):
         """
-        @type currentdate: date
+        @type previousdate: date
+        @rtype: date
         """
         if self.intervalUom == ScheduleThing.INTERVAL_MONTH:
 
-            while True:
-                for scheduleday in self.days:
-                    scheduleday = self._getMonthDay(scheduleday, currentdate)
-                    if scheduleday > currentdate.day:
-                        return date(
-                            currentdate.year,
-                            currentdate.month,
-                            scheduleday)
+            # first see if any scheduled days remaining in same month
+            for scheduleday in self.days:
+                scheduleday = self._getMonthDay(scheduleday, previousdate)
+                # compare with greater so we don't keep matching the same
+                if scheduleday > previousdate.day:
+                    return date(
+                        previousdate.year,
+                        previousdate.month,
+                        scheduleday)
 
-                # advance to next month (by specified interval)
-                currentdate = date(
-                    currentdate.year,
-                    currentdate.month,
-                    1) + relativedelta(months=self.interval)
+            # advance to next month (by specified interval)
+
+            nextmonth = previousdate + relativedelta(months=self.interval)
+
+            return date(
+                nextmonth.year,
+                nextmonth.month,
+                self._getMonthDay(self.days[0], nextmonth)
+            )
 
         # todo: maybe can assume is valid if thing initialized successfully
-        sys.stderr.write('\nunhandled interval uom; advancing scheduled date past entry boundery date\n')
+        sys.stderr.write('\nunhandled interval uom; advancing scheduled date past entry boundary date\n')
         return ScheduleThing.entryBoundaryDate + timedelta(days=1)
 
 

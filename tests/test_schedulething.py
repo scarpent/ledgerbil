@@ -117,6 +117,21 @@ class GetNextDate(unittest.TestCase):
             scheduleThing._getNextDate(scheduleThing.thingDate)
         )
 
+    def testGetNextDateMonthlyNextMonthFirst(self):
+
+        scheduleLines = [
+            '2013/06/28 lightning energy',
+            '    ;; schedule ; monthly ; 1st',
+            ]
+
+        scheduleThing = ScheduleThing(scheduleLines)
+        expectedNextDate = LedgerThing.getDate('2013/07/01')
+
+        self.assertEqual(
+            expectedNextDate,
+            scheduleThing._getNextDate(scheduleThing.thingDate)
+        )
+
     def testGetNextDateMonthlyMultipleDaysThisMonth(self):
 
         scheduleLines = [
