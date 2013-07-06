@@ -35,6 +35,8 @@ class ScheduleThing(LedgerThing):
     LINE_SCHEDULE = 1
     INTERVAL_WEEK = 'week'
     INTERVAL_MONTH = 'month'
+    INTERVAL_BIMONTHLY = 'bimonthly'
+    INTERVAL_QUARTER = 'quarter'
     INTERVAL_YEAR = 'year'
     # one time schedule
     EOM = 'eom'
@@ -72,8 +74,8 @@ class ScheduleThing(LedgerThing):
             (?:                                 # non-capturing
                 ;\s*preview\s+(\d+)\s+days?\s*  # days to "preview" trans
             )?                                  # optional
-            (?:\s*;\s*)?                        # optional ending semi-colon
-            $                                   # line end
+            (?:\s*;.*)?                         # optional ending semi-colon
+            $                                   # line end     \ and comment
             '''
 
         # capturing groups
@@ -88,22 +90,26 @@ class ScheduleThing(LedgerThing):
                 % line
             )
 
-        self.isValidScheduleFile = True
         if match.group(ENTER_DAYS):
             ScheduleThing.enterDays = int(match.group(ENTER_DAYS))
 
             if ScheduleThing.enterDays < 1:
                 ScheduleThing.enterDays = ScheduleThing.NO_DAYS
 
-            ScheduleThing.entryBoundaryDate = (
-                date.today()
-                + timedelta(days=ScheduleThing.enterDays)
-            )
+        ScheduleThing.entryBoundaryDate = (
+            date.today()
+            + timedelta(days=ScheduleThing.enterDays)
+        )
         if match.group(PREVIEW_DAYS):
             ScheduleThing.previewDays = int(match.group(PREVIEW_DAYS))
 
             if ScheduleThing.previewDays <= ScheduleThing.enterDays:
                 ScheduleThing.previewDays = ScheduleThing.NO_DAYS
+
+        ScheduleThing.previewBoundaryDate = (
+            date.today()
+            + timedelta(days=ScheduleThing.previewDays)
+        )
 
         print('\nSchedule file (enter days = %s, preview days = %s):\n'
               % (ScheduleThing.enterDays, ScheduleThing.previewDays))
