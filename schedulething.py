@@ -100,6 +100,7 @@ class ScheduleThing(LedgerThing):
             date.today()
             + timedelta(days=ScheduleThing.enterDays)
         )
+
         if match.group(PREVIEW_DAYS):
             ScheduleThing.previewDays = int(match.group(PREVIEW_DAYS))
 
@@ -248,11 +249,6 @@ class ScheduleThing(LedgerThing):
                 nextmonth.month,
                 self._getMonthDay(self.days[0], nextmonth)
             )
-
-        # todo: maybe can assume is valid if thing initialized successfully
-        sys.stderr.write('\nunhandled interval uom; advancing scheduled date past entry boundary date\n')
-        return ScheduleThing.entryBoundaryDate + timedelta(days=1)
-
 
     # knows how to handle "eom"
     def _getMonthDay(self, scheduleday, currentdate):
