@@ -26,16 +26,15 @@ class Ledgerbil(object):
 
         if self.args.schedule_file:
             schedulefile = ScheduleFile(self.args.schedule_file)
-            schedulefile.sort()
             scheduler = Scheduler(ledgerfile, schedulefile)
             scheduler.run()
-            schedulefile.sort()
-            schedulefile.writeFile()
 
         if self.args.sort:
             ledgerfile.sort()
 
         ledgerfile.writeFile()
+        if self.args.schedule_file:
+            schedulefile.writeFile()
 
 def main():
     args = ArgHandler.getArgs()

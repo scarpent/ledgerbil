@@ -22,8 +22,10 @@ from ledgerthing import LedgerThing
 class ScheduleThing(LedgerThing):
 
     doFileConfig = True
-    enterDays = -1
-    previewDays = -1
+
+    NO_DAYS = 0
+    enterDays = NO_DAYS
+    previewDays = NO_DAYS
 
     entryBoundaryDate = None
     previewBoundaryDate = None
@@ -58,8 +60,7 @@ class ScheduleThing(LedgerThing):
 
     # file level config looks like this:
     # ;; scheduler ; enter N days ; preview N days
-    # enter and preview are both optional but if neither is included,
-    # nothing will happen
+    # enter and preview are both optional
     def _handleFileConfig(self, line):
 
         configRegex = r'''(?x)                  # verbose mode
@@ -89,13 +90,20 @@ class ScheduleThing(LedgerThing):
 
         self.isValidScheduleFile = True
         if match.group(ENTER_DAYS):
-            ScheduleThing.enterDays = match.group(ENTER_DAYS)
+            ScheduleThing.enterDays = int(match.group(ENTER_DAYS))
+
+            if ScheduleThing.enterDays < 1:
+                ScheduleThing.enterDays = ScheduleThing.NO_DAYS
+
             ScheduleThing.entryBoundaryDate = (
                 date.today()
-                + timedelta(days=int(ScheduleThing.enterDays))
+                + timedelta(days=ScheduleThing.enterDays)
             )
         if match.group(PREVIEW_DAYS):
-            ScheduleThing.previewDays = match.group(PREVIEW_DAYS)
+            ScheduleThing.previewDays = int(match.group(PREVIEW_DAYS))
+
+            if ScheduleThing.previewDays <= ScheduleThing.enterDays:
+                ScheduleThing.previewDays = ScheduleThing.NO_DAYS
 
         print('\nSchedule file (enter days = %s, preview days = %s):\n'
               % (ScheduleThing.enterDays, ScheduleThing.previewDays))
@@ -141,9 +149,23 @@ class ScheduleThing(LedgerThing):
                 self.isScheduleThing = True
                 # convert to ints where possible so will sort out correctly
                 try:
-                    self.days.append(int(match.groups()[0]))
+                    theday = int(match.groups()[0])
+
+                    if theday == 29 or theday == 30:
+                        sys.stderr.write(
+                            'Using eom30 for schedule day %s\n' % theday
+                        )
+                        theday = ScheduleThing.EOM30
+                    elif theday > 30:
+                        sys.stderr.write(
+                            'Using eom for schedule day %s\n' % theday
+                        )
+                        theday = ScheduleThing.EOM
                 except:
-                    self.days.append(match.groups()[0])
+                    theday = match.groups()[0]
+
+                self.days.append(theday)
+
             self.days.sort()
             # todo: look for more than one eom and raise error?
             # todo: if no days, use day of thing date
@@ -231,6 +253,7 @@ class ScheduleThing(LedgerThing):
         """
         @type scheduleday: str
         @type currentdate: date
+        @rtype: int
         """
         if str(scheduleday).isdigit():
             return int(scheduleday)

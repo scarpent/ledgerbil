@@ -10,6 +10,8 @@ __email__ = 'scottc@movingtofreedom.org'
 
 import sys
 
+from schedulething import ScheduleThing
+
 class Scheduler(object):
 
     def __init__(self, ledgerfile, schedulefile):
@@ -17,6 +19,11 @@ class Scheduler(object):
         self.schedulefile = schedulefile
 
     def run(self):
+
+        self.schedulefile.sort()
+
+        if ScheduleThing.enterDays == ScheduleThing.NO_DAYS:
+            return
 
         for schedulething in self.schedulefile.things:
 
@@ -29,5 +36,7 @@ class Scheduler(object):
                 continue
 
             self.ledgerfile.addThings(schedulething.getScheduledEntries())
+
+        self.schedulefile.sort()
 
 

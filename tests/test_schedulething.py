@@ -16,11 +16,6 @@ from schedulething import ScheduleThing
 from ledgerthing import LedgerThing
 
 
-scheduleLinesTest = [
-    '2013/06/29 lightning energy',
-    '    ;; schedule ; monthly ; 12th ; ; auto'
-]
-
 class GetNextDate(unittest.TestCase):
 
     scheduleLineFileConfig = [';; scheduler ; enter 7 days ; preview 30 days']
@@ -222,23 +217,58 @@ class GetNextDate(unittest.TestCase):
             scheduleThing._getNextDate(scheduleThing.thingDate)
         )
 
-    # def testGetNextDateMonthlyTooMany(self):
-    #
-    #     scheduleLines = [
-    #         '2013/01/30 lightning energy',
-    #         '    ;; schedule ; month ; 30th ; 1 ; auto',
-    #         ]
-    #
-    #     scheduleThing = ScheduleThing(scheduleLines)
-    #     expectedNextDate = LedgerThing.getDate('2013/02/28')
-    #
-    #     self.assertEqual(
-    #         expectedNextDate,
-    #         scheduleThing._getNextDate(scheduleThing.thingDate)
-    #     )
+    def testGetNextDateMonthlyTooMany29(self):
+
+        scheduleLines = [
+            '2013/01/31 lightning energy',
+            '    ;; schedule ; month ; 29th ; 1 ; auto',
+            ]
+
+        scheduleThing = ScheduleThing(scheduleLines)
+        expectedNextDate = LedgerThing.getDate('2013/02/28')
+
+        self.assertEqual(
+            expectedNextDate,
+            scheduleThing._getNextDate(scheduleThing.thingDate)
+        )
+
+    def testGetNextDateMonthlyTooMany30(self):
+
+        scheduleLines = [
+            '2013/01/30 lightning energy',
+            '    ;; schedule ; month ; 30th ; 1 ; auto',
+            ]
+
+        scheduleThing = ScheduleThing(scheduleLines)
+        expectedNextDate = LedgerThing.getDate('2013/02/28')
+
+        self.assertEqual(
+            expectedNextDate,
+            scheduleThing._getNextDate(scheduleThing.thingDate)
+        )
+
+    def testGetNextDateMonthlyTooMany70(self):
+
+        scheduleLines = [
+            '2013/07/15 lightning energy',
+            '    ;; schedule ; month ; 70th ; 1 ; auto',
+            ]
+
+        scheduleThing = ScheduleThing(scheduleLines)
+        expectedNextDate = LedgerThing.getDate('2013/07/31')
+
+        self.assertEqual(
+            expectedNextDate,
+            scheduleThing._getNextDate(scheduleThing.thingDate)
+        )
 
 
 class GetWeekDay(unittest.TestCase):
+
+    scheduleLinesTest = [
+        '2013/06/29 lightning energy',
+        '    ;; schedule ; monthly ; 12th ; ; auto'
+    ]
 
     ScheduleThing.doFileConfig = False
     scheduleThing = ScheduleThing(scheduleLinesTest)
@@ -248,6 +278,11 @@ class GetWeekDay(unittest.TestCase):
 
 
 class GetMonthDay(unittest.TestCase):
+
+    scheduleLinesTest = [
+        '2013/06/29 lightning energy',
+        '    ;; schedule ; monthly ; 12th ; ; auto'
+    ]
 
     ScheduleThing.doFileConfig = False
     scheduleThing = ScheduleThing(scheduleLinesTest)
