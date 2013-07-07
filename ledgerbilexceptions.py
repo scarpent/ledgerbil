@@ -9,13 +9,13 @@ __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
 
-class LdgScheduleFileConfigError(BaseException):
+class LdgScheduleFileConfigError(Exception):
     pass
 
 
-class LdgScheduleThingParametersError(BaseException):
+class LdgScheduleThingParametersError(Exception):
     pass
 
 
-class LdgScheduleThingLabelError(BaseException):
+class LdgScheduleThingLabelError(Exception):
     pass
