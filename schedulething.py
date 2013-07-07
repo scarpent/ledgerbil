@@ -151,7 +151,7 @@ class ScheduleThing(LedgerThing):
             # (if day < 1, consider an inactive thing)
             dayString = match.group(DAYS).lower()
             self.days = []
-            daysRegex = '(\d+|eom(?:\d+)?)'
+            daysRegex = '(\d+|eom(?:\d\d?)?)'
             for match in re.finditer(daysRegex, dayString):
                 self.isScheduleThing = True
                 # convert to ints where possible so will sort out correctly

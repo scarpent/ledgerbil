@@ -16,6 +16,40 @@ from schedulething import ScheduleThing
 from ledgerthing import LedgerThing
 
 
+class HandleThingConfig(unittest.TestCase):
+
+    def setUp(self):
+        scheduleLineFileConfig = [';; scheduler ; enter 7 days ; preview 30 days']
+        ScheduleThing.doFileConfig = True
+        ScheduleThing(scheduleLineFileConfig)
+
+    def getExpectedConfig(self, intervaluom, days, interval):
+        return '%s | %s | %s' % (intervaluom, days, interval)
+
+    def getActualConfig(self, schedulething):
+        return (
+            '%s | %s | %s' % (
+                schedulething.intervalUom,
+                schedulething.days,
+                schedulething.interval
+            )
+        )
+
+    def testHandleThingConfig(self):
+
+        schedulelines = [
+            '2013/06/05 lightning energy',
+            '    ;; schedule ; monthly ; eom30 2 15 ; 3 ; auto',
+        ]
+        schedulething = ScheduleThing(schedulelines)
+        self.assertEqual(
+            self.getExpectedConfig(
+                ScheduleThing.INTERVAL_MONTH, [2, 15, 'eom30'], 3
+            ),
+            self.getActualConfig(schedulething)
+        )
+
+
 class HandleFileConfig(unittest.TestCase):
 
     # to do, maybe have this like redirector, to be included different places
@@ -41,18 +75,18 @@ class HandleFileConfig(unittest.TestCase):
         )
 
     def getActualConfig(self, schedulething):
-            return (
-                '%s | %s | %s | %s' % (
-                    schedulething.enterDays,
-                    schedulething.previewDays,
-                    LedgerThing.getDateString(
-                        schedulething.entryBoundaryDate
-                    ),
-                    LedgerThing.getDateString(
-                        schedulething.previewBoundaryDate
-                    )
+        return (
+            '%s | %s | %s | %s' % (
+                schedulething.enterDays,
+                schedulething.previewDays,
+                LedgerThing.getDateString(
+                    schedulething.entryBoundaryDate
+                ),
+                LedgerThing.getDateString(
+                    schedulething.previewBoundaryDate
                 )
             )
+        )
 
     def testBasicFileConfig(self):
         scheduleLineFileConfig = [
@@ -114,6 +148,16 @@ class HandleFileConfig(unittest.TestCase):
             self.getActualConfig(schedulething)
         )
 
+    def testFileConfigPreviewEqualsEnter(self):
+        scheduleLineFileConfig = [
+            ';;   scheduler   ; enter 50 day    ; preview 50 day ; comment'
+        ]
+        schedulething = ScheduleThing(scheduleLineFileConfig)
+        self.assertEqual(
+            self.getExpectedConfig(50, ScheduleThing.NO_DAYS),
+            self.getActualConfig(schedulething)
+        )
+
     def testFileConfigEnterLessThanOne(self):
         scheduleLineFileConfig = [
             ';;   scheduler   ; enter 0 day    ; preview 90 day ; comment'
@@ -127,9 +171,10 @@ class HandleFileConfig(unittest.TestCase):
 
 class GetNextDate(unittest.TestCase):
 
-    scheduleLineFileConfig = [';; scheduler ; enter 7 days ; preview 30 days']
-    ScheduleThing.doFileConfig = True
-    ScheduleThing(scheduleLineFileConfig)
+    def setUp(self):
+        scheduleLineFileConfig = [';; scheduler ; enter 7 days ; preview 30 days']
+        ScheduleThing.doFileConfig = True
+        ScheduleThing(scheduleLineFileConfig)
 
     def testGetNextDateMonthlyThisMonthEom(self):
 
@@ -374,13 +419,14 @@ class GetNextDate(unittest.TestCase):
 
 class GetWeekDay(unittest.TestCase):
 
-    scheduleLinesTest = [
-        '2013/06/29 lightning energy',
-        '    ;; schedule ; monthly ; 12th ; ; auto'
-    ]
+    def setUp(self):
+        scheduleLinesTest = [
+            '2013/06/29 lightning energy',
+            '    ;; schedule ; monthly ; 12th ; ; auto'
+        ]
 
-    ScheduleThing.doFileConfig = False
-    scheduleThing = ScheduleThing(scheduleLinesTest)
+        ScheduleThing.doFileConfig = False
+        self.scheduleThing = ScheduleThing(scheduleLinesTest)
 
     def testGetWeekDay(self):
         self.assertEqual(-1, self.scheduleThing._getWeekDay())
@@ -388,13 +434,14 @@ class GetWeekDay(unittest.TestCase):
 
 class GetMonthDay(unittest.TestCase):
 
-    scheduleLinesTest = [
-        '2013/06/29 lightning energy',
-        '    ;; schedule ; monthly ; 12th ; ; auto'
-    ]
+    def setUp(self):
+        scheduleLinesTest = [
+            '2013/06/29 lightning energy',
+            '    ;; schedule ; monthly ; 12th ; ; auto'
+        ]
 
-    ScheduleThing.doFileConfig = False
-    scheduleThing = ScheduleThing(scheduleLinesTest)
+        ScheduleThing.doFileConfig = False
+        self.scheduleThing = ScheduleThing(scheduleLinesTest)
 
     def testGetMonthDayNormal(self):
         """normal day is returned as the same day number"""
