@@ -55,7 +55,7 @@ class HandleThingConfig(unittest.TestCase):
             '2013/06/05 lightning energy',
             '    ;; schedule',
             ]
-        with self.assertRaises(LdgNotEnoughParametersError):
+        with self.assertRaises(LdgScheduleThingParametersError):
             ScheduleThing(schedulelines)
 
     def testScheduleLabelNotRight(self):
@@ -65,7 +65,7 @@ class HandleThingConfig(unittest.TestCase):
             #'    ;; scheduled ; monthly ; eom30 2 15 ; 3 ; auto',
             '    ;; scheduble ; monthly',
         ]
-        with self.assertRaises(Exception):
+        with self.assertRaises(LdgScheduleThingLabelError):
             ScheduleThing(schedulelines)
 
 class HandleFileConfig(unittest.TestCase):
@@ -120,7 +120,7 @@ class HandleFileConfig(unittest.TestCase):
             scheduleLineFileConfig = [
                 ';; shceduler ; enter 7 days ; preview 30 days'
             ]
-            with self.assertRaises(Exception):
+            with self.assertRaises(LdgScheduleFileConfigError):
                 ScheduleThing(scheduleLineFileConfig)
 
     def testFileConfigNoPreview(self):

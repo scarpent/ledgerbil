@@ -84,7 +84,7 @@ class ScheduleThing(LedgerThing):
 
         match = re.match(configRegex, line)
         if not match:
-            raise Exception(
+            raise LdgScheduleFileConfigError(
                 'Invalid schedule file config:\n%s\nExpected:\n'
                 ';; scheduler ; enter N days ; preview N days'
                 % line
@@ -131,13 +131,13 @@ class ScheduleThing(LedgerThing):
         configitems = [x.strip() for x in line.split(ScheduleThing.SEPARATOR)]
 
         if len(configitems) < 4:
-            raise LdgNotEnoughParametersError(
+            raise LdgScheduleThingParametersError(
                 'Invalid schedule thing config:\n%s\nNot enough parameters'
                 % line
             )
 
         if configitems[CFG_LABEL].lower() != ScheduleThing.THING_CONFIG_LABEL:
-            raise Exception(
+            raise LdgScheduleThingLabelError(
                 'Invalid schedule thing config:\n%s\n"%s" label not found '
                 'in expected place.\n'
                 % (line, ScheduleThing.THING_CONFIG_LABEL),
