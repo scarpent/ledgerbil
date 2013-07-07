@@ -17,6 +17,7 @@ from dateutil.relativedelta import relativedelta
 from calendar import monthrange
 
 from ledgerthing import LedgerThing
+from ledgerbilexceptions import *
 
 
 class ScheduleThing(LedgerThing):
@@ -35,17 +36,16 @@ class ScheduleThing(LedgerThing):
     LINE_SCHEDULE = 1
     INTERVAL_WEEK = 'week'
     INTERVAL_MONTH = 'month'
-    INTERVAL_BIMONTHLY = 'bimonthly'
-    INTERVAL_QUARTER = 'quarter'
-    INTERVAL_YEAR = 'year'
-    # one time schedule
+    # todo: one time schedule
     EOM = 'eom'
     EOM30 = 'eom30'
+    SEPARATOR = ';'
+    THING_CONFIG_LABEL = 'schedule'
 
     def __init__(self, lines):
         self.firstThing = False
         self.isScheduleThing = False
-        self.intervalUom = ''           # e.g. month, week
+        self.intervalUom = ''           # month or week
         self.days = []                  # e.g. 5, 15, eom, eom30
         self.interval = 1               # e.g. 1 = every month, 2 = every other
         self.previewDate = None
@@ -116,6 +116,57 @@ class ScheduleThing(LedgerThing):
               % (ScheduleThing.enterDays, ScheduleThing.previewDays))
 
     def _handleThingConfig(self, line):
+        """
+        @type line: string
+        """
+
+        CFG_LABEL = 2
+        INTERVAL_UOM = 3
+        # DAYS = 4
+        # INTERVAL = 5
+
+        # ';; schedule ; monthly ; 12th 21st eom; 3 ; auto'
+        #        -->
+        # ['', '', 'schedule', 'monthly', '12th 21st eom', '3', 'auto']
+        configitems = [x.strip() for x in line.split(ScheduleThing.SEPARATOR)]
+
+        if len(configitems) < 4:
+            raise LdgNotEnoughParametersError(
+                'Invalid schedule thing config:\n%s\nNot enough parameters'
+                % line
+            )
+
+        if configitems[CFG_LABEL].lower() != ScheduleThing.THING_CONFIG_LABEL:
+            raise Exception(
+                'Invalid schedule thing config:\n%s\n"%s" label not found '
+                'in expected place.\n'
+                % (line, ScheduleThing.THING_CONFIG_LABEL),
+            )
+
+        intervalUomRegex = '(week|month|bimonth|quarter|biannual|year)(?:ly)?'
+
+        match = re.match(intervalUomRegex, configitems[INTERVAL_UOM])
+        if not match:
+            raise Exception(
+                'Invalid schedule thing config:\n%s\nInterval UOM "%s"'
+                'not recognized. Supported UOMs: week(ly), month(ly),'
+                'bimonth(ly), quarter(ly), biannual(ly), year(ly).'
+                % (line, configitems[INTERVAL_UOM])
+            )
+
+        # if match:
+        #     self.intervalUom = match.group(INTERVAL_UOM).lower()
+        #     try:
+        #         self.interval = int(match.group(INTERVAL))
+        #     except:
+        #         self.interval = 1
+        #
+        #     if self.interval < 1:
+        #         self.interval = 1  # interval must not be less than one
+        #
+        #         # todo: translate "yearly" into month uom and every 12 months
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         thingRegex = r'''(?xi)          # verbose mode, ignore case
             ^                           # line start

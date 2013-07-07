@@ -14,7 +14,7 @@ from dateutil.relativedelta import relativedelta
 
 from schedulething import ScheduleThing
 from ledgerthing import LedgerThing
-
+from ledgerbilexceptions import *
 
 class HandleThingConfig(unittest.TestCase):
 
@@ -35,7 +35,7 @@ class HandleThingConfig(unittest.TestCase):
             )
         )
 
-    def testHandleThingConfig(self):
+    def testBasicThingConfig(self):
 
         schedulelines = [
             '2013/06/05 lightning energy',
@@ -49,6 +49,24 @@ class HandleThingConfig(unittest.TestCase):
             self.getActualConfig(schedulething)
         )
 
+    def testNotEnoughParameters(self):
+
+        schedulelines = [
+            '2013/06/05 lightning energy',
+            '    ;; schedule',
+            ]
+        with self.assertRaises(LdgNotEnoughParametersError):
+            ScheduleThing(schedulelines)
+
+    def testScheduleLabelNotRight(self):
+
+        schedulelines = [
+            '2013/06/05 lightning energy',
+            #'    ;; scheduled ; monthly ; eom30 2 15 ; 3 ; auto',
+            '    ;; scheduble ; monthly',
+        ]
+        with self.assertRaises(Exception):
+            ScheduleThing(schedulelines)
 
 class HandleFileConfig(unittest.TestCase):
 
