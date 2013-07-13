@@ -12,9 +12,139 @@ from datetime import datetime
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
+
 from schedulething import ScheduleThing
 from ledgerthing import LedgerThing
 from ledgerbilexceptions import *
+
+
+class GetScheduledEntries(unittest.TestCase):
+
+    def setUp(self):
+        scheduleLineFileConfig = [
+            ';; scheduler ; enter 7 days ; preview 30 days'
+        ]
+        ScheduleThing.doFileConfig = True
+        ScheduleThing(scheduleLineFileConfig)
+
+    def testOneEntryCount(self):
+        schedulelines = [
+            '2013/06/13 lightning energy',
+            '    ;; schedule ; monthly',
+            '    blah blah blah',
+        ]
+        schedulething = ScheduleThing(schedulelines)
+        schedulething.thingDate = date.today()
+
+        expected = 1
+        actual = len(schedulething.getScheduledEntries())
+
+        self.assertEqual(expected, actual)
+
+    def testOneEntryNextDate(self):
+        schedulelines = [
+            '2013/06/13 lightning energy',
+            '    ;; schedule ; monthly',
+            '    blah blah blah',
+        ]
+        schedulething = ScheduleThing(schedulelines)
+        schedulething.thingDate = date.today()
+        schedulething.getScheduledEntries()
+
+        expected = date.today() + relativedelta(months=1)
+        actual = schedulething.thingDate
+
+        self.assertEqual(expected, actual)
+
+    def testOneEntryContent(self):
+        todaysdate = date.today()
+        schedulelines = [
+            '2013/06/13 lightning energy',
+            '    ;; schedule ; monthly',
+            '    blah blah blah',
+        ]
+        schedulething = ScheduleThing(schedulelines)
+        schedulething.thingDate = todaysdate
+
+        expected = [
+            '%s lightning energy' % LedgerThing.getDateString(todaysdate),
+            '    blah blah blah',
+        ]
+
+        actual = schedulething.getScheduledEntries()[0].getLines()
+
+        self.assertEqual(expected, actual)
+
+    def testTwoEntriesCount(self):
+        schedulelines = [
+            '2013/06/13 lightning energy',
+            '    ;; schedule ; monthly',
+            '    blah blah blah',
+        ]
+        schedulething = ScheduleThing(schedulelines)
+        schedulething.thingDate = date.today() - relativedelta(months=1)
+
+        expected = 2
+        actual = len(schedulething.getScheduledEntries())
+
+        self.assertEqual(expected, actual)
+
+    def testTwoEntriesNextDate(self):
+        schedulelines = [
+            '2013/06/13 lightning energy',
+            '    ;; schedule ; yearly',
+            '    blah blah blah',
+            ]
+        schedulething = ScheduleThing(schedulelines)
+        schedulething.thingDate = date.today() - relativedelta(years=1)
+        schedulething.getScheduledEntries()
+
+        expected = date.today() + relativedelta(years=1)
+        actual = schedulething.thingDate
+
+        self.assertEqual(expected, actual)
+
+    def testNoEntries(self):
+        schedulelines = [
+            '2013/06/13 lightning energy',
+            '    ;; schedule ; monthly',
+            '    blah blah blah',
+        ]
+        schedulething = ScheduleThing(schedulelines)
+        schedulething.thingDate = date.today() + relativedelta(months=2)
+
+        expected = 0
+        actual = len(schedulething.getScheduledEntries())
+
+        self.assertEqual(expected, actual)
+
+
+class GetEntryThing(unittest.TestCase):
+
+    def setUp(self):
+        scheduleLineFileConfig = [
+            ';; scheduler ; enter 7 days ; preview 30 days'
+        ]
+        ScheduleThing.doFileConfig = True
+        ScheduleThing(scheduleLineFileConfig)
+
+    def testBasicEntry(self):
+        schedulelines = [
+            '2013/06/13 lightning energy',
+            '    ;; schedule ; monthly',
+            '    blah blah blah',
+        ]
+        schedulething = ScheduleThing(schedulelines)
+        schedulething.thingDate = date(2013, 07, 01)
+
+        expected = [
+            '2013/07/01 lightning energy',
+            '    blah blah blah',
+        ]
+
+        actual = schedulething._getEntryThing().getLines()
+
+        self.assertEqual(expected, actual)
 
 
 class HandleThingConfig(unittest.TestCase):
@@ -81,7 +211,7 @@ class HandleThingConfig(unittest.TestCase):
         schedulelines = [
             '2013/06/05 lightning energy',
             '    ;; schedule ; monthly ; 15 eom30 ;   ; auto',
-            ]
+        ]
         schedulething = ScheduleThing(schedulelines)
         self.assertEqual(
             self.getExpectedConfig(
@@ -94,7 +224,7 @@ class HandleThingConfig(unittest.TestCase):
         schedulelines = [
             '2013/06/05 lightning energy',
             '    ;; schedule ; monthly ; 15 eom30',
-            ]
+        ]
         schedulething = ScheduleThing(schedulelines)
         self.assertEqual(
             self.getExpectedConfig(
@@ -107,7 +237,7 @@ class HandleThingConfig(unittest.TestCase):
         schedulelines = [
             '2013/06/27 lightning energy',
             '    ;; schedule ; monthly ;  ;  2 ',
-            ]
+        ]
         schedulething = ScheduleThing(schedulelines)
         self.assertEqual(
             self.getExpectedConfig(
@@ -120,7 +250,7 @@ class HandleThingConfig(unittest.TestCase):
         schedulelines = [
             '2013/06/13 lightning energy',
             '    ;; schedule ; monthly',
-            ]
+        ]
         schedulething = ScheduleThing(schedulelines)
         self.assertEqual(
             self.getExpectedConfig(
@@ -133,7 +263,7 @@ class HandleThingConfig(unittest.TestCase):
         schedulelines = [
             '2013/06/13 lightning energy',
             '    ;; schedule ; bimonthly',
-            ]
+        ]
         schedulething = ScheduleThing(schedulelines)
         self.assertEqual(
             self.getExpectedConfig(
@@ -146,7 +276,7 @@ class HandleThingConfig(unittest.TestCase):
         schedulelines = [
             '2013/06/13 lightning energy',
             '    ;; schedule ; quarterly ; 6th ; 3',
-            ]
+        ]
         schedulething = ScheduleThing(schedulelines)
         self.assertEqual(
             self.getExpectedConfig(
@@ -159,7 +289,7 @@ class HandleThingConfig(unittest.TestCase):
         schedulelines = [
             '2013/06/13 lightning energy',
             '    ;; schedule ; biannually ; 9th',
-            ]
+        ]
         schedulething = ScheduleThing(schedulelines)
         self.assertEqual(
             self.getExpectedConfig(
@@ -172,7 +302,7 @@ class HandleThingConfig(unittest.TestCase):
         schedulelines = [
             '2013/06/22 lightning energy',
             '    ;; schedule ; yearly ; ; 5',
-            ]
+        ]
         schedulething = ScheduleThing(schedulelines)
         self.assertEqual(
             self.getExpectedConfig(

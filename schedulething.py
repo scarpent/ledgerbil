@@ -12,7 +12,6 @@ import sys
 import re
 from copy import copy
 from datetime import date
-from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 from calendar import monthrange
 
@@ -97,7 +96,7 @@ class ScheduleThing(LedgerThing):
                 ScheduleThing.enterDays = ScheduleThing.NO_DAYS
 
         ScheduleThing.entryBoundaryDate = (
-            date.today() + timedelta(days=ScheduleThing.enterDays)
+            date.today() + relativedelta(days=ScheduleThing.enterDays)
         )
 
         if match.group(PREVIEW_DAYS):
@@ -107,7 +106,7 @@ class ScheduleThing(LedgerThing):
                 ScheduleThing.previewDays = ScheduleThing.NO_DAYS
 
         ScheduleThing.previewBoundaryDate = (
-            date.today() + timedelta(days=ScheduleThing.previewDays)
+            date.today() + relativedelta(days=ScheduleThing.previewDays)
         )
 
         print('\nSchedule file (enter days = %s, preview days = %s):\n'
@@ -189,7 +188,6 @@ class ScheduleThing(LedgerThing):
 
         # todo: for monthly: the day date; for weekly: the day name
         # todo: parse that as day names, but for now, use ints
-        # todo: if days not specified, default to thing day
         # (if day < 1, consider an inactive thing)
         dayString = configitems[DAYS].lower()
         self.days = []
@@ -227,8 +225,10 @@ class ScheduleThing(LedgerThing):
 
         entries = []
 
-        if self.thingDate <= ScheduleThing.entryBoundaryDate:
-            entries.append(self._getEntryThing())
+        if self.thingDate > ScheduleThing.entryBoundaryDate:
+            return entries
+
+        entries.append(self._getEntryThing())
 
         while True:
             self.thingDate = self._getNextDate(self.thingDate)
