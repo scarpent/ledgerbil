@@ -225,11 +225,16 @@ class ScheduleThing(LedgerThing):
 
         entries = []
 
+        print("incoming getScheduledEntries --------------------------")
+        print('thing date: %s' % self.thingDate)
+
         if self.thingDate <= ScheduleThing.entryBoundaryDate:
             entries.append(self._getEntryThing())
 
         while True:
             self.thingDate = self._getNextDate(self.thingDate)
+
+            print('next date: %s' % self.thingDate)
 
             if self.thingDate > ScheduleThing.entryBoundaryDate:
                 break
