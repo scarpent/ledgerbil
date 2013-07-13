@@ -225,10 +225,8 @@ class ScheduleThing(LedgerThing):
 
         entries = []
 
-        if self.thingDate > ScheduleThing.entryBoundaryDate:
-            return entries
-
-        entries.append(self._getEntryThing())
+        if self.thingDate <= ScheduleThing.entryBoundaryDate:
+            entries.append(self._getEntryThing())
 
         while True:
             self.thingDate = self._getNextDate(self.thingDate)
