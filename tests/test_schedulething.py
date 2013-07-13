@@ -91,7 +91,7 @@ class GetScheduledEntries(unittest.TestCase):
 
     def testTwoEntriesNextDate(self):
         schedulelines = [
-            '2013/06/13 lightning energy',
+            '2013/07/13 lightning energy',
             '    ;; schedule ; yearly',
             '    blah blah blah',
             ]
@@ -104,7 +104,7 @@ class GetScheduledEntries(unittest.TestCase):
 
         self.assertEqual(expected, actual)
 
-    def testNoEntries(self):
+    def testNoEntriesCount(self):
         schedulelines = [
             '2013/06/13 lightning energy',
             '    ;; schedule ; monthly',
@@ -118,7 +118,22 @@ class GetScheduledEntries(unittest.TestCase):
 
         self.assertEqual(expected, actual)
 
+    def testNoEntriesNextDate(self):
+        schedulelines = [
+            '2013/06/13 lightning energy',
+            '    ;; schedule ; monthly',
+            '    blah blah blah',
+            ]
+        schedulething = ScheduleThing(schedulelines)
+        schedulething.thingDate = date.today() + relativedelta(months=2)
+        schedulething.getScheduledEntries()
 
+        expected = date.today() + relativedelta(months=2)
+        actual = schedulething.thingDate
+
+        self.assertEqual(expected, actual)
+#
+#
 class GetEntryThing(unittest.TestCase):
 
     def setUp(self):
