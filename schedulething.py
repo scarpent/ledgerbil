@@ -195,7 +195,6 @@ class ScheduleThing(LedgerThing):
         self.days = []
         daysRegex = '(\d+|eom(?:\d\d?)?)'
         for match in re.finditer(daysRegex, dayString):
-            self.isScheduleThing = True
             # convert to ints where possible so will sort out correctly
             try:
                 theday = int(match.groups()[0])
@@ -217,13 +216,8 @@ class ScheduleThing(LedgerThing):
 
         self.days.sort()
         # todo: look for more than one eom and raise error?
-        # todo: if no days, use day of thing date
         # todo: validation if a date is picked that is too
         #       large for some months (maybe force eom for 28-31???
-
-        if not self.isScheduleThing:
-            # todo: how to handle? stderr? exception? log? ignore?
-            sys.stderr.write("it's not a schedule thing\n")
 
         # todo: take out schedule line and put it into var
         # override thing getter to put it back in (standard raw lines

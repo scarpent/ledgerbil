@@ -39,6 +39,7 @@ class HandleThingConfig(unittest.TestCase):
         )
 
     def testBasicThingConfig(self):
+        # also tests sorting of days
         schedulelines = [
             '2013/06/05 lightning energy',
             '    ;; schedule ; monthly ; eom30 2 15 ; 3 ; auto',
@@ -75,6 +76,110 @@ class HandleThingConfig(unittest.TestCase):
         ]
         with self.assertRaises(LdgScheduleUnrecognizedIntervalUom):
             ScheduleThing(schedulelines)
+
+    def testIntervalEmpty(self):
+        schedulelines = [
+            '2013/06/05 lightning energy',
+            '    ;; schedule ; monthly ; 15 eom30 ;   ; auto',
+            ]
+        schedulething = ScheduleThing(schedulelines)
+        self.assertEqual(
+            self.getExpectedConfig(
+                ScheduleThing.INTERVAL_MONTH, [15, 'eom30'], 1
+            ),
+            self.getActualConfig(schedulething)
+        )
+
+    def testIntervalNotGiven(self):
+        schedulelines = [
+            '2013/06/05 lightning energy',
+            '    ;; schedule ; monthly ; 15 eom30',
+            ]
+        schedulething = ScheduleThing(schedulelines)
+        self.assertEqual(
+            self.getExpectedConfig(
+                ScheduleThing.INTERVAL_MONTH, [15, 'eom30'], 1
+            ),
+            self.getActualConfig(schedulething)
+        )
+
+    def testDaysEmpty(self):
+        schedulelines = [
+            '2013/06/27 lightning energy',
+            '    ;; schedule ; monthly ;  ;  2 ',
+            ]
+        schedulething = ScheduleThing(schedulelines)
+        self.assertEqual(
+            self.getExpectedConfig(
+                ScheduleThing.INTERVAL_MONTH, [27], 2
+            ),
+            self.getActualConfig(schedulething)
+        )
+
+    def testNoDaysAndNoInterval(self):
+        schedulelines = [
+            '2013/06/13 lightning energy',
+            '    ;; schedule ; monthly',
+            ]
+        schedulething = ScheduleThing(schedulelines)
+        self.assertEqual(
+            self.getExpectedConfig(
+                ScheduleThing.INTERVAL_MONTH, [13], 1
+            ),
+            self.getActualConfig(schedulething)
+        )
+
+    def testBimonthly(self):
+        schedulelines = [
+            '2013/06/13 lightning energy',
+            '    ;; schedule ; bimonthly',
+            ]
+        schedulething = ScheduleThing(schedulelines)
+        self.assertEqual(
+            self.getExpectedConfig(
+                ScheduleThing.INTERVAL_MONTH, [13], 2
+            ),
+            self.getActualConfig(schedulething)
+        )
+
+    def testQuarterly(self):
+        schedulelines = [
+            '2013/06/13 lightning energy',
+            '    ;; schedule ; quarterly ; 6th ; 3',
+            ]
+        schedulething = ScheduleThing(schedulelines)
+        self.assertEqual(
+            self.getExpectedConfig(
+                ScheduleThing.INTERVAL_MONTH, [6], 9
+            ),
+            self.getActualConfig(schedulething)
+        )
+
+    def testBiannually(self):
+        schedulelines = [
+            '2013/06/13 lightning energy',
+            '    ;; schedule ; biannually ; 9th',
+            ]
+        schedulething = ScheduleThing(schedulelines)
+        self.assertEqual(
+            self.getExpectedConfig(
+                ScheduleThing.INTERVAL_MONTH, [9], 6
+            ),
+            self.getActualConfig(schedulething)
+        )
+
+    def testYearly(self):
+        schedulelines = [
+            '2013/06/22 lightning energy',
+            '    ;; schedule ; yearly ; ; 5',
+            ]
+        schedulething = ScheduleThing(schedulelines)
+        self.assertEqual(
+            self.getExpectedConfig(
+                ScheduleThing.INTERVAL_MONTH, [22], 60
+            ),
+            self.getActualConfig(schedulething)
+        )
 
 
 class HandleFileConfig(unittest.TestCase):
