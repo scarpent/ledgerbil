@@ -25,14 +25,11 @@ class Scheduler(object):
         if ScheduleThing.enterDays == ScheduleThing.NO_DAYS:
             return
 
+        # todo: test for invalid schedule things (should blow up)
+
         for schedulething in self.schedulefile.things:
 
             if schedulething.firstThing:
-                continue
-
-            if not schedulething.isScheduleThing:
-                sys.stderr.write('ERROR: not a scheduleThing!\n')
-                # todo: handle with error
                 continue
 
             self.ledgerfile.addThings(schedulething.getScheduledEntries())
