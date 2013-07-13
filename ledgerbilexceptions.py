@@ -19,3 +19,7 @@ class LdgScheduleThingParametersError(Exception):
 
 class LdgScheduleThingLabelError(Exception):
     pass
+
+
+class LdgScheduleUnrecognizedIntervalUom(Exception):
+    pass

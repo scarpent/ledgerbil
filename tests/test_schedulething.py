@@ -16,10 +16,13 @@ from schedulething import ScheduleThing
 from ledgerthing import LedgerThing
 from ledgerbilexceptions import *
 
+
 class HandleThingConfig(unittest.TestCase):
 
     def setUp(self):
-        scheduleLineFileConfig = [';; scheduler ; enter 7 days ; preview 30 days']
+        scheduleLineFileConfig = [
+            ';; scheduler ; enter 7 days ; preview 30 days'
+        ]
         ScheduleThing.doFileConfig = True
         ScheduleThing(scheduleLineFileConfig)
 
@@ -36,7 +39,6 @@ class HandleThingConfig(unittest.TestCase):
         )
 
     def testBasicThingConfig(self):
-
         schedulelines = [
             '2013/06/05 lightning energy',
             '    ;; schedule ; monthly ; eom30 2 15 ; 3 ; auto',
@@ -50,16 +52,14 @@ class HandleThingConfig(unittest.TestCase):
         )
 
     def testNotEnoughParameters(self):
-
         schedulelines = [
             '2013/06/05 lightning energy',
             '    ;; schedule',
-            ]
+        ]
         with self.assertRaises(LdgScheduleThingParametersError):
             ScheduleThing(schedulelines)
 
     def testScheduleLabelNotRight(self):
-
         schedulelines = [
             '2013/06/05 lightning energy',
             #'    ;; scheduled ; monthly ; eom30 2 15 ; 3 ; auto',
@@ -67,6 +67,15 @@ class HandleThingConfig(unittest.TestCase):
         ]
         with self.assertRaises(LdgScheduleThingLabelError):
             ScheduleThing(schedulelines)
+
+    def testScheduleUnrecognizedIntervalUOM(self):
+        schedulelines = [
+            '2013/06/05 lightning energy',
+            '    ;; schedule ; lunarly ; eom30 2 15 ; every 3 months ; auto',
+        ]
+        with self.assertRaises(LdgScheduleUnrecognizedIntervalUom):
+            ScheduleThing(schedulelines)
+
 
 class HandleFileConfig(unittest.TestCase):
 
@@ -117,15 +126,15 @@ class HandleFileConfig(unittest.TestCase):
         )
 
     def testInvalidFileConfig(self):
-            scheduleLineFileConfig = [
-                ';; shceduler ; enter 7 days ; preview 30 days'
-            ]
-            with self.assertRaises(LdgScheduleFileConfigError):
-                ScheduleThing(scheduleLineFileConfig)
+        scheduleLineFileConfig = [
+            ';; shceduler ; enter 7 days ; preview 30 days'
+        ]
+        with self.assertRaises(LdgScheduleFileConfigError):
+            ScheduleThing(scheduleLineFileConfig)
 
     def testFileConfigNoPreview(self):
         scheduleLineFileConfig = [
-                ';;scheduler;enter 7 days;;'
+            ';;scheduler;enter 7 days;;'
         ]
         schedulething = ScheduleThing(scheduleLineFileConfig)
         self.assertEqual(
@@ -190,12 +199,13 @@ class HandleFileConfig(unittest.TestCase):
 class GetNextDate(unittest.TestCase):
 
     def setUp(self):
-        scheduleLineFileConfig = [';; scheduler ; enter 7 days ; preview 30 days']
+        scheduleLineFileConfig = [
+            ';; scheduler ; enter 7 days ; preview 30 days'
+        ]
         ScheduleThing.doFileConfig = True
         ScheduleThing(scheduleLineFileConfig)
 
     def testGetNextDateMonthlyThisMonthEom(self):
-
         scheduleLines = [
             '2013/06/05 lightning energy',
             '    ;; schedule ; monthly ; eom ; ; auto',
@@ -210,7 +220,6 @@ class GetNextDate(unittest.TestCase):
         )
 
     def testGetNextDateMonthlyThisMonthEomOnTheDay(self):
-
         scheduleLines = [
             '2013/06/30 lightning energy',
             '    ;; schedule ; monthly ; eom ; ; auto',
@@ -225,7 +234,6 @@ class GetNextDate(unittest.TestCase):
         )
 
     def testGetNextDateMonthlyNextMonthEom30(self):
-
         scheduleLines = [
             '2013/07/30 lightning energy',
             '    ;; schedule ; monthly ; eom30 ; ; auto',
@@ -240,7 +248,6 @@ class GetNextDate(unittest.TestCase):
         )
 
     def testGetNextDateMonthlyThisMonth(self):
-
         scheduleLines = [
             '2013/06/05 lightning energy',
             '    ;; schedule ; monthly ; 12th ; ; auto',
@@ -255,7 +262,6 @@ class GetNextDate(unittest.TestCase):
         )
 
     def testGetNextDateMonthlyNextMonth(self):
-
         scheduleLines = [
             '2013/06/17 lightning energy',
             '    ;; schedule ; monthly ; 12th ; ; auto',
@@ -270,7 +276,6 @@ class GetNextDate(unittest.TestCase):
         )
 
     def testGetNextDateMonthlyNextMonthAgain(self):
-
         scheduleLines = [
             '2013/06/12 lightning energy',
             '    ;; schedule ; monthly ; 12th ; ; auto',
@@ -285,7 +290,6 @@ class GetNextDate(unittest.TestCase):
         )
 
     def testGetNextDateMonthlyNextMonthFirst(self):
-
         scheduleLines = [
             '2013/06/28 lightning energy',
             '    ;; schedule ; monthly ; 1st',
@@ -300,7 +304,6 @@ class GetNextDate(unittest.TestCase):
         )
 
     def testGetNextDateMonthlyMultipleDaysThisMonth(self):
-
         scheduleLines = [
             '2013/06/05 lightning energy',
             '    ;; schedule ; monthly ; 7th, 12th ; ; auto',
@@ -315,7 +318,6 @@ class GetNextDate(unittest.TestCase):
         )
 
     def testGetNextDateMonthlyMultipleDaysThisMonthAgain(self):
-
         scheduleLines = [
             '2013/06/08 lightning energy',
             '    ;; schedule ; monthly ; 7th, 12th'
@@ -330,7 +332,6 @@ class GetNextDate(unittest.TestCase):
         )
 
     def testGetNextDateMonthlyMultipleDaysNextMonth(self):
-
         scheduleLines = [
             '2013/06/27 lightning energy',
             '    ;; schedule ; monthly ; 7th, 27th ; ; auto',
@@ -345,10 +346,9 @@ class GetNextDate(unittest.TestCase):
         )
 
     def testGetNextDateMonthlyInterval3(self):
-
         scheduleLines = [
             '2013/06/15 lightning energy',
-            '    ;; schedule ; month ; 15th ; 3 ; auto',
+            '    ;; schedule ; monthly ; 15th ; 3 ; auto',
         ]
 
         scheduleThing = ScheduleThing(scheduleLines)
@@ -363,7 +363,7 @@ class GetNextDate(unittest.TestCase):
 
         scheduleLines = [
             '2011/02/28 lightning energy',
-            '    ;; schedule ; month ; eom ; 12 ; auto',
+            '    ;; schedule ; monthly ; eom ; 12 ; auto',
         ]
 
         scheduleThing = ScheduleThing(scheduleLines)
@@ -378,7 +378,7 @@ class GetNextDate(unittest.TestCase):
 
         scheduleLines = [
             '2012/02/29 lightning energy',
-            '    ;; schedule ; month ; eom ; 12 ; auto',
+            '    ;; schedule ; monthly ; eom ; 12 ; auto',
         ]
 
         scheduleThing = ScheduleThing(scheduleLines)
@@ -393,7 +393,7 @@ class GetNextDate(unittest.TestCase):
 
         scheduleLines = [
             '2013/01/31 lightning energy',
-            '    ;; schedule ; month ; 29th ; 1 ; auto',
+            '    ;; schedule ; monthly ; 29th ; 1 ; auto',
         ]
 
         scheduleThing = ScheduleThing(scheduleLines)
@@ -408,7 +408,7 @@ class GetNextDate(unittest.TestCase):
 
         scheduleLines = [
             '2013/01/30 lightning energy',
-            '    ;; schedule ; month ; 30th ; 1 ; auto',
+            '    ;; schedule ; monthly ; 30th ; 1 ; auto',
         ]
 
         scheduleThing = ScheduleThing(scheduleLines)
@@ -423,7 +423,7 @@ class GetNextDate(unittest.TestCase):
 
         scheduleLines = [
             '2013/07/15 lightning energy',
-            '    ;; schedule ; month ; 70th ; 1 ; auto',
+            '    ;; schedule ; monthly ; 70th ; 1 ; auto',
         ]
 
         scheduleThing = ScheduleThing(scheduleLines)

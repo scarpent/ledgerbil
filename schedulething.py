@@ -34,8 +34,8 @@ class ScheduleThing(LedgerThing):
     LINE_FILE_CONFIG = 0
     LINE_DATE = 0
     LINE_SCHEDULE = 1
-    INTERVAL_WEEK = 'week'
-    INTERVAL_MONTH = 'month'
+    INTERVAL_WEEK = 'weekly'
+    INTERVAL_MONTH = 'monthly'
     # todo: one time schedule
     EOM = 'eom'
     EOM30 = 'eom30'
@@ -97,8 +97,7 @@ class ScheduleThing(LedgerThing):
                 ScheduleThing.enterDays = ScheduleThing.NO_DAYS
 
         ScheduleThing.entryBoundaryDate = (
-            date.today()
-            + timedelta(days=ScheduleThing.enterDays)
+            date.today() + timedelta(days=ScheduleThing.enterDays)
         )
 
         if match.group(PREVIEW_DAYS):
@@ -108,8 +107,7 @@ class ScheduleThing(LedgerThing):
                 ScheduleThing.previewDays = ScheduleThing.NO_DAYS
 
         ScheduleThing.previewBoundaryDate = (
-            date.today()
-            + timedelta(days=ScheduleThing.previewDays)
+            date.today() + timedelta(days=ScheduleThing.previewDays)
         )
 
         print('\nSchedule file (enter days = %s, preview days = %s):\n'
@@ -120,10 +118,10 @@ class ScheduleThing(LedgerThing):
         @type line: string
         """
 
-        CFG_LABEL = 2
-        INTERVAL_UOM = 3
-        # DAYS = 4
-        # INTERVAL = 5
+        CFG_LABEL = 0
+        INTERVAL_UOM = 1
+        DAYS = 2
+        INTERVAL = 3
 
         # ';; schedule ; monthly ; 12th 21st eom; 3 ; auto'
         #        -->
@@ -136,6 +134,10 @@ class ScheduleThing(LedgerThing):
                 % line
             )
 
+        del configitems[0:2]  # remove empty strings from opening ;;
+
+        # now: ['schedule', 'monthly', '12th 21st eom', '3', 'auto']
+
         if configitems[CFG_LABEL].lower() != ScheduleThing.THING_CONFIG_LABEL:
             raise LdgScheduleThingLabelError(
                 'Invalid schedule thing config:\n%s\n"%s" label not found '
@@ -143,92 +145,81 @@ class ScheduleThing(LedgerThing):
                 % (line, ScheduleThing.THING_CONFIG_LABEL),
             )
 
-        intervalUomRegex = '(week|month|bimonth|quarter|biannual|year)(?:ly)?'
+        intervalUomRegex = '((week|month|bimonth|quarter|biannual|year)(ly))'
 
         match = re.match(intervalUomRegex, configitems[INTERVAL_UOM])
         if not match:
-            raise Exception(
+            raise LdgScheduleUnrecognizedIntervalUom(
                 'Invalid schedule thing config:\n%s\nInterval UOM "%s"'
-                'not recognized. Supported UOMs: week(ly), month(ly),'
-                'bimonth(ly), quarter(ly), biannual(ly), year(ly).'
+                'not recognized. Supported UOMs: weekly, monthly,'
+                'bimonthly, quarterly, biannually, yearly.'
                 % (line, configitems[INTERVAL_UOM])
             )
 
-        # if match:
-        #     self.intervalUom = match.group(INTERVAL_UOM).lower()
-        #     try:
-        #         self.interval = int(match.group(INTERVAL))
-        #     except:
-        #         self.interval = 1
-        #
-        #     if self.interval < 1:
-        #         self.interval = 1  # interval must not be less than one
-        #
-        #         # todo: translate "yearly" into month uom and every 12 months
+        intervaluom = match.group(1).lower()
 
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # schedule must have minimum two items; now let's make sure optional
+        # fields are referenceable
 
-        thingRegex = r'''(?xi)          # verbose mode, ignore case
-            ^                           # line start
-            \s*;;\s*schedule\s*         # required
-            ;\s*(week|month)(?:ly)?\s*  # interval uom
-            ;\s*([^;]+?)\s*             # days (to be parsed further)
-            (?:;[^;\d]*(\d+)[^;]*)?     # optional interval (default = 1)
-            (?:;.*)?                    # non-capturing, optional comment
-            (?:;\s*|$)                  # line end
-            '''
+        for x in range(len(configitems), 4):
+            configitems.append('')
 
-        # capturing groups
-        INTERVAL_UOM = 1
-        DAYS = 2
-        INTERVAL = 3
+        if not configitems[DAYS].strip():
+            configitems[DAYS] = str(self.thingDate.day)
 
-        match = re.match(thingRegex, line)
+        match = re.match('''[^\d]*(\d+).*''', configitems[INTERVAL])
+        interval = 1
         if match:
-            self.intervalUom = match.group(INTERVAL_UOM).lower()
+            interval = int(match.group(1))
+
+        if intervaluom == 'bimonthly':
+            interval *= 2
+        elif intervaluom == 'quarterly':
+            interval *= 3
+        elif intervaluom == 'biannually':
+            interval *= 6
+        elif intervaluom == 'yearly':
+            interval *= 12
+
+        if intervaluom != ScheduleThing.INTERVAL_WEEK:
+            intervaluom = ScheduleThing.INTERVAL_MONTH
+
+        self.interval = interval
+        self.intervalUom = intervaluom
+
+        # todo: for monthly: the day date; for weekly: the day name
+        # todo: parse that as day names, but for now, use ints
+        # todo: if days not specified, default to thing day
+        # (if day < 1, consider an inactive thing)
+        dayString = configitems[DAYS].lower()
+        self.days = []
+        daysRegex = '(\d+|eom(?:\d\d?)?)'
+        for match in re.finditer(daysRegex, dayString):
+            self.isScheduleThing = True
+            # convert to ints where possible so will sort out correctly
             try:
-                self.interval = int(match.group(INTERVAL))
+                theday = int(match.groups()[0])
+
+                if theday == 29 or theday == 30:
+                    sys.stderr.write(
+                        'Using eom30 for schedule day %s\n' % theday
+                    )
+                    theday = ScheduleThing.EOM30
+                elif theday > 30:
+                    sys.stderr.write(
+                        'Using eom for schedule day %s\n' % theday
+                    )
+                    theday = ScheduleThing.EOM
             except:
-                self.interval = 1
+                theday = match.groups()[0]
 
-            if self.interval < 1:
-                self.interval = 1  # interval must not be less than one
+            self.days.append(theday)
 
-            # todo: translate "yearly" into month uom and every 12 months
-
-            # for monthly: the day date; for weekly: the day name
-            # todo: parse that as day names, but for now, use ints
-            # todo: if days not specified, default to thing day
-            # (if day < 1, consider an inactive thing)
-            dayString = match.group(DAYS).lower()
-            self.days = []
-            daysRegex = '(\d+|eom(?:\d\d?)?)'
-            for match in re.finditer(daysRegex, dayString):
-                self.isScheduleThing = True
-                # convert to ints where possible so will sort out correctly
-                try:
-                    theday = int(match.groups()[0])
-
-                    if theday == 29 or theday == 30:
-                        sys.stderr.write(
-                            'Using eom30 for schedule day %s\n' % theday
-                        )
-                        theday = ScheduleThing.EOM30
-                    elif theday > 30:
-                        sys.stderr.write(
-                            'Using eom for schedule day %s\n' % theday
-                        )
-                        theday = ScheduleThing.EOM
-                except:
-                    theday = match.groups()[0]
-
-                self.days.append(theday)
-
-            self.days.sort()
-            # todo: look for more than one eom and raise error?
-            # todo: if no days, use day of thing date
-            # todo: validation if a date is picked that is too
-            #       large for some months (maybe force eom for 28-31???
+        self.days.sort()
+        # todo: look for more than one eom and raise error?
+        # todo: if no days, use day of thing date
+        # todo: validation if a date is picked that is too
+        #       large for some months (maybe force eom for 28-31???
 
         if not self.isScheduleThing:
             # todo: how to handle? stderr? exception? log? ignore?
