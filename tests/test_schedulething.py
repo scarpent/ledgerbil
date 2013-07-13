@@ -94,7 +94,7 @@ class GetScheduledEntries(unittest.TestCase):
             '2013/07/13 lightning energy',
             '    ;; schedule ; yearly',
             '    blah blah blah',
-            ]
+        ]
         schedulething = ScheduleThing(schedulelines)
         schedulething.thingDate = date.today() - relativedelta(years=1)
         schedulething.getScheduledEntries()
@@ -123,7 +123,7 @@ class GetScheduledEntries(unittest.TestCase):
             '2013/06/13 lightning energy',
             '    ;; schedule ; monthly',
             '    blah blah blah',
-            ]
+        ]
         schedulething = ScheduleThing(schedulelines)
         schedulething.thingDate = date.today() + relativedelta(months=2)
         schedulething.getScheduledEntries()
@@ -132,8 +132,8 @@ class GetScheduledEntries(unittest.TestCase):
         actual = schedulething.thingDate
 
         self.assertEqual(expected, actual)
-#
-#
+
+
 class GetEntryThing(unittest.TestCase):
 
     def setUp(self):
