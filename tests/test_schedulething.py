@@ -63,13 +63,13 @@ class GetScheduledEntries(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def testOneEntryNextDate(self):
+        testdate = LedgerThing.getDateString(date.today())
         schedulelines = [
-            '2013/06/13 lightning energy',
+            '%s lightning energy' % testdate,
             '    ;; schedule ; monthly',
             '    blah blah blah',
         ]
         schedulething = ScheduleThing(schedulelines)
-        schedulething.thingDate = date.today()
         schedulething.getScheduledEntries()
 
         expected = date.today() + relativedelta(months=1)
@@ -111,8 +111,9 @@ class GetScheduledEntries(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def testTwoEntriesNextDate(self):
+        testdate = LedgerThing.getDateString(date.today())
         schedulelines = [
-            '2013/07/13 lightning energy',
+            '%s lightning energy' % testdate,
             '    ;; schedule ; yearly',
             '    blah blah blah',
         ]
@@ -155,13 +156,13 @@ class GetScheduledEntries(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def testBimonthlyNextDate(self):
+        testdate = LedgerThing.getDateString(date.today())
         schedulelines = [
-            '2013/06/13 lightning energy',
+            '%s lightning energy' % testdate,
             '    ;; schedule ; bimonthly',
             '    blah blah blah',
         ]
         schedulething = ScheduleThing(schedulelines)
-        schedulething.thingDate = date.today()
         schedulething.getScheduledEntries()
 
         expected = date.today() + relativedelta(months=2)
@@ -170,13 +171,13 @@ class GetScheduledEntries(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def testQuarterlyNextDate(self):
+        testdate = LedgerThing.getDateString(date.today())
         schedulelines = [
-            '2013/06/13 lightning energy',
+            '%s lightning energy' % testdate,
             '    ;; schedule ; quarterly',
             '    blah blah blah',
         ]
         schedulething = ScheduleThing(schedulelines)
-        schedulething.thingDate = date.today()
         schedulething.getScheduledEntries()
 
         expected = date.today() + relativedelta(months=3)
@@ -185,13 +186,13 @@ class GetScheduledEntries(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def testBiannuallyNextDate(self):
+        testdate = LedgerThing.getDateString(date.today())
         schedulelines = [
-            '2013/06/13 lightning energy',
+            '%s lightning energy' % testdate,
             '    ;; schedule ; biannually',
             '    blah blah blah',
         ]
         schedulething = ScheduleThing(schedulelines)
-        schedulething.thingDate = date.today()
         schedulething.getScheduledEntries()
 
         expected = date.today() + relativedelta(months=6)
@@ -200,13 +201,13 @@ class GetScheduledEntries(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def testYearlyNextDate(self):
+        testdate = LedgerThing.getDateString(date.today())
         schedulelines = [
-            '2013/06/13 lightning energy',
+            '%s lightning energy' % testdate,
             '    ;; schedule ; yearly',
             '    blah blah blah',
         ]
         schedulething = ScheduleThing(schedulelines)
-        schedulething.thingDate = date.today()
         schedulething.getScheduledEntries()
 
         expected = date.today() + relativedelta(months=12)
