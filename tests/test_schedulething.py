@@ -18,6 +18,27 @@ from ledgerthing import LedgerThing
 from ledgerbilexceptions import *
 
 
+class GetSafeDate(unittest.TestCase):
+
+    def setUp(self):
+        scheduleLinesTest = [
+            '2013/06/29 lightning energy',
+            '    ;; schedule ; monthly ; 12th ; ; auto'
+        ]
+        ScheduleThing.doFileConfig = False
+        self.scheduleThing = ScheduleThing(scheduleLinesTest)
+
+    def testDateIsFine(self):
+        expected = date(2013, 8, 31)
+        actual = self.scheduleThing._getSafeDate(expected, 31)
+        self.assertEqual(expected, actual)
+
+    def testDayIsTooMany(self):
+        expected = date(2013, 8, 31)
+        actual = self.scheduleThing._getSafeDate(date(2013, 8, 31), 99)
+        self.assertEqual(expected, actual)
+
+
 class GetScheduledEntries(unittest.TestCase):
 
     def setUp(self):
@@ -129,6 +150,66 @@ class GetScheduledEntries(unittest.TestCase):
         schedulething.getScheduledEntries()
 
         expected = date.today() + relativedelta(months=2)
+        actual = schedulething.thingDate
+
+        self.assertEqual(expected, actual)
+
+    def testBimonthlyNextDate(self):
+        schedulelines = [
+            '2013/06/13 lightning energy',
+            '    ;; schedule ; bimonthly',
+            '    blah blah blah',
+        ]
+        schedulething = ScheduleThing(schedulelines)
+        schedulething.thingDate = date.today()
+        schedulething.getScheduledEntries()
+
+        expected = date.today() + relativedelta(months=2)
+        actual = schedulething.thingDate
+
+        self.assertEqual(expected, actual)
+
+    def testQuarterlyNextDate(self):
+        schedulelines = [
+            '2013/06/13 lightning energy',
+            '    ;; schedule ; quarterly',
+            '    blah blah blah',
+        ]
+        schedulething = ScheduleThing(schedulelines)
+        schedulething.thingDate = date.today()
+        schedulething.getScheduledEntries()
+
+        expected = date.today() + relativedelta(months=3)
+        actual = schedulething.thingDate
+
+        self.assertEqual(expected, actual)
+
+    def testBiannuallyNextDate(self):
+        schedulelines = [
+            '2013/06/13 lightning energy',
+            '    ;; schedule ; biannually',
+            '    blah blah blah',
+        ]
+        schedulething = ScheduleThing(schedulelines)
+        schedulething.thingDate = date.today()
+        schedulething.getScheduledEntries()
+
+        expected = date.today() + relativedelta(months=6)
+        actual = schedulething.thingDate
+
+        self.assertEqual(expected, actual)
+
+    def testYearlyNextDate(self):
+        schedulelines = [
+            '2013/06/13 lightning energy',
+            '    ;; schedule ; yearly',
+            '    blah blah blah',
+        ]
+        schedulething = ScheduleThing(schedulelines)
+        schedulething.thingDate = date.today()
+        schedulething.getScheduledEntries()
+
+        expected = date.today() + relativedelta(months=12)
         actual = schedulething.thingDate
 
         self.assertEqual(expected, actual)

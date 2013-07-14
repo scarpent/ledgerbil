@@ -196,18 +196,7 @@ class ScheduleThing(LedgerThing):
             # convert to ints where possible so will sort out correctly
             try:
                 theday = int(match.groups()[0])
-
-                if theday == 29 or theday == 30:
-                    sys.stderr.write(
-                        'Using eom30 for schedule day %s\n' % theday
-                    )
-                    theday = ScheduleThing.EOM30
-                elif theday > 30:
-                    sys.stderr.write(
-                        'Using eom for schedule day %s\n' % theday
-                    )
-                    theday = ScheduleThing.EOM
-            except:
+            except ValueError:
                 theday = match.groups()[0]
 
             self.days.append(theday)
@@ -271,19 +260,27 @@ class ScheduleThing(LedgerThing):
                 scheduleday = self._getMonthDay(scheduleday, previousdate)
                 # compare with greater so we don't keep matching the same
                 if scheduleday > previousdate.day:
-                    return date(
-                        previousdate.year,
-                        previousdate.month,
-                        scheduleday)
+                    return self._getSafeDate(previousdate, scheduleday)
 
             # advance to next month (by specified interval)
 
-            nextmonth = previousdate + relativedelta(months=self.interval)
+            nextdate = previousdate + relativedelta(months=self.interval)
 
+            return self._getSafeDate(
+                nextdate,
+                self._getMonthDay(self.days[0], nextdate)
+            )
+
+    # handle situations like 8/31 -> 9/31 (back up to 9/30)
+    def _getSafeDate(self, thedate, theday):
+        try:
+            return date(thedate.year, thedate.month, theday)
+        except ValueError:
+            # day is out of range for month, so we'll get the last day of month
             return date(
-                nextmonth.year,
-                nextmonth.month,
-                self._getMonthDay(self.days[0], nextmonth)
+                thedate.year,
+                thedate.month,
+                monthrange(thedate.year, thedate.month)[1]
             )
 
     # knows how to handle "eom"
@@ -307,7 +304,7 @@ class ScheduleThing(LedgerThing):
             if lastDayOfMonth >= 30:
                 return 30
             else:
-                return lastDayOfMonth # february
+                return lastDayOfMonth  # february
 
     def _getWeekDay(self):
         return -1
