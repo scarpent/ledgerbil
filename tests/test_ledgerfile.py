@@ -6,7 +6,7 @@ __author__ = 'scarpent'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
-import unittest
+from unittest import TestCase
 from os import remove
 from os import chmod
 
@@ -68,7 +68,7 @@ class FileParsingOnInit(Redirector):
         self.assertEqual(expected, actual)
 
 
-class ThingCounting(unittest.TestCase):
+class ThingCounting(TestCase):
 
     def testCountInitialNonTransaction(self):
         """counts initial non-transaction (probably a comment)"""
@@ -127,7 +127,7 @@ class ThingCounting(unittest.TestCase):
         self.assertEquals(actual, expected)
 
 
-class ThingDating(unittest.TestCase):
+class ThingDating(TestCase):
 
     def testInitialNonTransactionDate(self):
         """when 1st thing in file is a non-transaction, it has default date"""
@@ -163,7 +163,7 @@ class ThingDating(unittest.TestCase):
         )
 
 
-class Sorting(unittest.TestCase):
+class Sorting(TestCase):
 
     def testAlreadySortedFileUnchanged(self):
         """file output after sorting is identical to sorted input file"""

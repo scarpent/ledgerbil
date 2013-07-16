@@ -8,7 +8,6 @@ __author__ = 'scarpent'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
-import sys
 import re
 from copy import copy
 from datetime import date

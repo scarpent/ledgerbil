@@ -6,7 +6,7 @@ __author__ = 'scarpent'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
-import unittest
+from unittest import TestCase
 import sys
 from os import remove
 
@@ -14,7 +14,7 @@ import ledgerbil
 from filetester import FileTester as FT
 
 
-class MainBasicInput(unittest.TestCase):
+class MainBasicInput(TestCase):
 
     def testMainNoOptionsOnSortedFile(self):
         """main should parse and write sorted file unchanged"""
@@ -37,7 +37,7 @@ class MainBasicInput(unittest.TestCase):
         self.assertEqual(expected, actual)
 
 
-class Sorting(unittest.TestCase):
+class Sorting(TestCase):
 
     def testMainSortOnSortedFile(self):
         """main should parse and write sorted file unchanged"""
@@ -62,7 +62,7 @@ class Sorting(unittest.TestCase):
 
 # todo: test for date stuff
 
-# class Scheduling(unittest.TestCase):
+# class Scheduling(TestCase):
 #
 #     def testMainWithScheduleFileOption(self):
 #         """main should add scheduled items to ledger file"""

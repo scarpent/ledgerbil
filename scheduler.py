@@ -8,9 +8,8 @@ __author__ = 'scarpent'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
-import sys
-
 from schedulething import ScheduleThing
+
 
 class Scheduler(object):
 
@@ -35,5 +34,3 @@ class Scheduler(object):
             self.ledgerfile.addThings(schedulething.getScheduledEntries())
 
         self.schedulefile.sort()
-
-

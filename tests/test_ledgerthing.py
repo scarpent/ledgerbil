@@ -6,14 +6,14 @@ __author__ = 'scarpent'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
-import unittest
+from unittest import TestCase
 
 from datetime import date
 
 from ledgerthing import LedgerThing
 
 
-class Constructor(unittest.TestCase):
+class Constructor(TestCase):
 
     def testNonTransactionDate(self):
         """non-transactions initially have date = None"""
@@ -26,7 +26,7 @@ class Constructor(unittest.TestCase):
         self.assertEqual(thing.thingDate, date(2013, 5, 18))
 
 
-class GetLines(unittest.TestCase):
+class GetLines(TestCase):
 
     def testGetLines(self):
         """lines can be entered and retrieved as is"""
@@ -35,7 +35,7 @@ class GetLines(unittest.TestCase):
         self.assertEqual(lines, thing.getLines())
 
 
-class isNewThing(unittest.TestCase):
+class isNewThing(TestCase):
 
     def testIsNewThing(self):
         """should be recognized as a new ledger 'thing' """
@@ -48,7 +48,7 @@ class isNewThing(unittest.TestCase):
         self.assertFalse(LedgerThing.isNewThing(line))
 
 
-class isTransactionStart(unittest.TestCase):
+class isTransactionStart(TestCase):
 
     def testValidTransactionStart(self):
         """date recognized as the start of a transaction (return true)"""

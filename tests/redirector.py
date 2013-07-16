@@ -6,12 +6,12 @@ __author__ = 'scarpent'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
-import unittest
+from unittest import TestCase
 import sys
 
 from StringIO import StringIO
 
-class Redirector(unittest.TestCase):
+class Redirector(TestCase):
 
     def setUp(self):
         super(Redirector, self).setUp()

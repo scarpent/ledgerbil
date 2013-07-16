@@ -6,7 +6,7 @@ __author__ = 'scarpent'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
-import unittest
+from unittest import TestCase
 
 from datetime import datetime
 from datetime import date
@@ -18,7 +18,7 @@ from ledgerthing import LedgerThing
 from ledgerbilexceptions import *
 
 
-class GetSafeDate(unittest.TestCase):
+class GetSafeDate(TestCase):
 
     def setUp(self):
         scheduleLinesTest = [
@@ -39,7 +39,7 @@ class GetSafeDate(unittest.TestCase):
         self.assertEqual(expected, actual)
 
 
-class GetScheduledEntries(unittest.TestCase):
+class GetScheduledEntries(TestCase):
 
     def setUp(self):
         scheduleLineFileConfig = [
@@ -216,7 +216,7 @@ class GetScheduledEntries(unittest.TestCase):
         self.assertEqual(expected, actual)
 
 
-class GetEntryThing(unittest.TestCase):
+class GetEntryThing(TestCase):
 
     def setUp(self):
         scheduleLineFileConfig = [
@@ -244,7 +244,7 @@ class GetEntryThing(unittest.TestCase):
         self.assertEqual(expected, actual)
 
 
-class HandleThingConfig(unittest.TestCase):
+class HandleThingConfig(TestCase):
 
     def setUp(self):
         scheduleLineFileConfig = [
@@ -409,7 +409,7 @@ class HandleThingConfig(unittest.TestCase):
         )
 
 
-class HandleFileConfig(unittest.TestCase):
+class HandleFileConfig(TestCase):
 
     # to do, maybe have this like redirector, to be included different places
     def setUp(self):
@@ -528,7 +528,7 @@ class HandleFileConfig(unittest.TestCase):
         )
 
 
-class GetNextDate(unittest.TestCase):
+class GetNextDate(TestCase):
 
     def setUp(self):
         scheduleLineFileConfig = [
@@ -767,7 +767,7 @@ class GetNextDate(unittest.TestCase):
         )
 
 
-class GetWeekDay(unittest.TestCase):
+class GetWeekDay(TestCase):
 
     def setUp(self):
         scheduleLinesTest = [
@@ -782,7 +782,7 @@ class GetWeekDay(unittest.TestCase):
         self.assertEqual(-1, self.scheduleThing._getWeekDay())
 
 
-class GetMonthDay(unittest.TestCase):
+class GetMonthDay(TestCase):
 
     def setUp(self):
         scheduleLinesTest = [
