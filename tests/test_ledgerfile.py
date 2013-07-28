@@ -13,7 +13,7 @@ from os import chmod
 from ledgerfile import LedgerFile
 from ledgerthing import LedgerThing
 from redirector import Redirector
-from filetester import FileTester as FT
+from filetester import FileTester
 
 
 class FileStuff(Redirector):
@@ -35,11 +35,11 @@ class FileStuff(Redirector):
     def testReadOnlyFile(self):
         """should fail with 'Permission denied'"""
         expected = "error: [Errno 13] Permission denied:"
-        chmod(FT.readonlyfile, 0444)
+        chmod(FileTester.readonlyfile, 0444)
         try:
             # file is opened for reading and writing, causing an error
             # immediately upon open if it is read only
-            LedgerFile(FT.readonlyfile)
+            LedgerFile(FileTester.readonlyfile)
         except SystemExit:
             pass
         self.redirecterr.seek(0)
@@ -51,19 +51,19 @@ class FileParsingOnInit(Redirector):
 
     def testParsedFileUnchangedViaPrint(self):
         """file output after parsing should be identical to input file"""
-        expected = FT.readFile(FT.testfile)
-        ledgerfile = LedgerFile(FT.testfile)
+        expected = FileTester.readFile(FileTester.testfile)
+        ledgerfile = LedgerFile(FileTester.testfile)
         ledgerfile.printFile()
         self.redirect.seek(0)
         self.assertEqual(expected, self.redirect.read())
 
     def testParsedFileUnchangedViaWrite(self):
         """file output after parsing should be identical to input file"""
-        expected = FT.readFile(FT.testfile)
-        tempfile = FT.copyToTempFile(FT.testfile)
+        expected = FileTester.readFile(FileTester.testfile)
+        tempfile = FileTester.copyToTempFile(FileTester.testfile)
         ledgerfile = LedgerFile(tempfile)
         ledgerfile.writeFile()
-        actual = FT.readFile(tempfile)
+        actual = FileTester.readFile(tempfile)
         remove(tempfile)
         self.assertEqual(expected, actual)
 
@@ -78,7 +78,7 @@ class ThingCounting(TestCase):
     expenses: misc
     liabilities: credit card  $-50
 '''
-        tempfile = FT.createTempFile(testdata)
+        tempfile = FileTester.createTempFile(testdata)
         ledgerfile = LedgerFile(tempfile)
         remove(tempfile)
         self.assertEquals(2, ledgerfile.thingCounter)
@@ -95,7 +95,7 @@ class ThingCounting(TestCase):
 2013/02/30 invalid date (bonus test for thing date checking code coverage)
     (will be lumped with previous; note that this is invalid ledger file...)
 '''
-        tempfile = FT.createTempFile(testdata)
+        tempfile = FileTester.createTempFile(testdata)
         ledgerfile = LedgerFile(tempfile)
         remove(tempfile)
         self.assertEquals(2, ledgerfile.thingCounter)
@@ -108,7 +108,7 @@ class ThingCounting(TestCase):
     expenses: misc
     liabilities: credit card  $-50
 '''
-        tempfile = FT.createTempFile(testdata)
+        tempfile = FileTester.createTempFile(testdata)
         ledgerfile = LedgerFile(tempfile)
         remove(tempfile)
 
@@ -131,7 +131,7 @@ class ThingDating(TestCase):
 
     def testInitialNonTransactionDate(self):
         """when 1st thing in file is a non-transaction, it has default date"""
-        tempfile = FT.createTempFile('blah\nblah blah blah')
+        tempfile = FileTester.createTempFile('blah\nblah blah blah')
         ledgerfile = LedgerFile(tempfile)
         ledgerfile.sort()  # for now non-transaction dates are only populated
                         # with sort; may have to revisit this..
@@ -151,7 +151,7 @@ class ThingDating(TestCase):
     liabilities: credit card  $-2
 '''
         thingLines = ['; blah blah blah', '; and so on...']
-        tempfile = FT.createTempFile(testdata)
+        tempfile = FileTester.createTempFile(testdata)
         ledgerfile = LedgerFile(tempfile)
         ledgerfile._addThingLines(thingLines)
         ledgerfile.sort()  # for now non-transaction dates are only populated
@@ -167,26 +167,23 @@ class Sorting(TestCase):
 
     def testAlreadySortedFileUnchanged(self):
         """file output after sorting is identical to sorted input file"""
-        expected = FT.readFile(FT.sortedfile)
-        tempfile = FT.copyToTempFile(FT.sortedfile)
+        expected = FileTester.readFile(FileTester.sortedfile)
+        tempfile = FileTester.copyToTempFile(FileTester.sortedfile)
         ledgerfile = LedgerFile(tempfile)
         ledgerfile.sort()
         ledgerfile.writeFile()
-        actual = FT.readFile(tempfile)
+        actual = FileTester.readFile(tempfile)
         remove(tempfile)
         self.assertEqual(expected, actual)
 
     def testSorting(self):
         """test sorting"""
-        expected = FT.readFile(FT.alpha_sortedfile)
-        tempfile = FT.copyToTempFile(FT.alpha_unsortedfile)
+        expected = FileTester.readFile(FileTester.alpha_sortedfile)
+        tempfile = FileTester.copyToTempFile(FileTester.alpha_unsortedfile)
         ledgerfile = LedgerFile(tempfile)
         ledgerfile.sort()
         ledgerfile.writeFile()
-        actual = FT.readFile(tempfile)
+        actual = FileTester.readFile(tempfile)
         remove(tempfile)
         self.assertEqual(expected, actual)
 
-
-if __name__ == "__main__":
-    unittest.main()         # pragma: no cover
