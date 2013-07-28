@@ -143,14 +143,16 @@ class ScheduleThing(LedgerThing):
                 % (line, ScheduleThing.THING_CONFIG_LABEL),
             )
 
-        intervalUomRegex = '((week|month|bimonth|quarter|biannual|year)(ly))'
+        intervalUomRegex = (
+            '(weekly|monthly|bimonthly|quarterly|biannual|yearly)'
+        )
 
         match = re.match(intervalUomRegex, configitems[INTERVAL_UOM])
         if not match:
             raise LdgScheduleUnrecognizedIntervalUom(
                 'Invalid schedule thing config:\n%s\nInterval UOM "%s"'
                 'not recognized. Supported UOMs: weekly, monthly,'
-                'bimonthly, quarterly, biannually, yearly.'
+                'bimonthly, quarterly, biannual, yearly.'
                 % (line, configitems[INTERVAL_UOM])
             )
 
@@ -174,7 +176,7 @@ class ScheduleThing(LedgerThing):
             interval *= 2
         elif intervaluom == 'quarterly':
             interval *= 3
-        elif intervaluom == 'biannually':
+        elif intervaluom == 'biannual':
             interval *= 6
         elif intervaluom == 'yearly':
             interval *= 12

@@ -1,0 +1,17 @@
+;; scheduler ; enter 7 days
+
+FIRST_DATE lightning energy
+    ;; schedule ; bimonthly
+    e: bills: electricity
+    a: checking up                          $-75
+
+SECOND_DATE haircuttery inc
+    ;; schedule ; quarterly
+    e: misc: haircut
+    a: checking up                          $-28
+
+THIRD_DATE absolute insurance
+    ;; schedule ; biannual
+    e: car: insurance
+    l: credit card                          $-425
+

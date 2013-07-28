@@ -186,4 +186,3 @@ class Sorting(TestCase):
         actual = FileTester.readFile(tempfile)
         remove(tempfile)
         self.assertEqual(expected, actual)
-

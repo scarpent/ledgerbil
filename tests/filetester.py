@@ -20,6 +20,10 @@ class FileTester(object):
     alpha_sortedfile = testdir + 'test-alpha-sorted.ledger'
     readonlyfile = testdir + 'test-read-only.ledger'
 
+    testschedulefile = testdir + 'test-schedule.ldg'
+    testschedulefileafter = testdir + 'test-schedule-after.ldg'
+    testschedulefileledger = testdir + 'test-schedule.ledger'
+
     mainfile = 'ledgerbil.py'
 
     @staticmethod
@@ -42,3 +46,11 @@ class FileTester(object):
         testdata = f.read()
         f.close()
         return testdata
+
+    @staticmethod
+    def writeToTempFile(filename, testdata):
+        tempfile = filename + '_temp'
+        f = open(tempfile, 'w')
+        f.write(testdata)
+        f.close()
+        return tempfile

@@ -19,10 +19,10 @@ class Scheduler(object):
 
     def run(self):
 
-        self.schedulefile.sort()
-
         if ScheduleThing.enterDays == ScheduleThing.NO_DAYS:
             return
+
+        self.schedulefile.sort()
 
         # todo: test for invalid schedule things (should blow up)
 

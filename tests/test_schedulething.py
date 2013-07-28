@@ -185,11 +185,11 @@ class GetScheduledEntries(TestCase):
 
         self.assertEqual(expected, actual)
 
-    def testBiannuallyNextDate(self):
+    def testBiannualNextDate(self):
         testdate = LedgerThing.getDateString(date.today())
         schedulelines = [
             '%s lightning energy' % testdate,
-            '    ;; schedule ; biannually',
+            '    ;; schedule ; biannual',
             '    blah blah blah',
         ]
         schedulething = ScheduleThing(schedulelines)
@@ -382,10 +382,10 @@ class HandleThingConfig(TestCase):
             self.getActualConfig(schedulething)
         )
 
-    def testBiannually(self):
+    def testBiannual(self):
         schedulelines = [
             '2013/06/13 lightning energy',
-            '    ;; schedule ; biannually ; 9th',
+            '    ;; schedule ; biannual ; 9th',
         ]
         schedulething = ScheduleThing(schedulelines)
         self.assertEqual(
