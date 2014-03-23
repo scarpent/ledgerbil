@@ -1,23 +1,23 @@
 ;; scheduler ; enter 7 days ; preview 30 days
 
-2013/06/25 haircuttery inc
-    ;; schedule ; weekly ; 4 ; 5    ; todo: handle day names or int values?
+2014/02/15 haircuttery inc
+    ;; schedule ; weekly ;; 5    ; todo: handle day names or int values?
     e: misc: haircut
     a: checking up                          $-28
 
-2013/07/12 lightning energy
+2014/02/15 lightning energy
     ;; schedule ; monthly ; 12th 21st; ; auto
     e: bills: electricity
     a: checking up                          $-75
 
-2013/08/15 abc paycheck
+2014/02/15 abc paycheck
     ;; schedule ; monthly ; 15, 30 ; ; auto
     i: wages: gross pay                     $-135.00
     e: taxes: social security               ($135 * 0.062)
     e: taxes: medicare                      ($135 * 0.0145)
     a: checking up
 
-2013/12/15 absolute insurance
+2014/02/15 absolute insurance
     ;; schedule ; monthly ; 15 ; 6 ; auto
     e: car: insurance
     l: credit card                          $-425

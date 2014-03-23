@@ -209,7 +209,7 @@ class ScheduleThing(LedgerThing):
 
         # todo: take out schedule line and put it into var
         # override thing getter to put it back in (standard raw lines
-        # will have it, but for adding to ledger, no
+        # will have it, but for adding to ledger, no)
 
     def getScheduledEntries(self):
 
@@ -272,12 +272,19 @@ class ScheduleThing(LedgerThing):
                 self._getMonthDay(self.days[0], nextdate)
             )
 
+        if self.intervalUom == ScheduleThing.INTERVAL_WEEK:
+            # todo: handle day of week stuff
+            # for now this will work fine for basic once a week or once every N weeks stuff!
+            # todo: unit tests
+            return previousdate + relativedelta(weeks=self.interval)
+
     # handle situations like 8/31 -> 9/31 (back up to 9/30)
     def _getSafeDate(self, thedate, theday):
         try:
             return date(thedate.year, thedate.month, theday)
         except ValueError:
             # day is out of range for month, so we'll get the last day of month
+            # (may be unlikely now that we check lastDayOfMonth in _getMonthDay)
             return date(
                 thedate.year,
                 thedate.month,
@@ -291,10 +298,18 @@ class ScheduleThing(LedgerThing):
         @type currentdate: date
         @rtype: int
         """
-        if str(scheduleday).isdigit():
-            return int(scheduleday)
 
         lastDayOfMonth = monthrange(currentdate.year, currentdate.month)[1]
+
+        # todo: create a monthly test case with days = 15, 30, and run it through February
+        #       was seeing a bug where 30 would continually be greater than the safe date of 28
+        #       and we'd get stuck repeating 2/28 for the entry (normally would be using
+        #       eom now for end of month stuff, but should still be able to handle...
+        if str(scheduleday).isdigit():
+            if int(scheduleday) > lastDayOfMonth:
+                return lastDayOfMonth
+            else:
+                return int(scheduleday)
 
         # todo, maybe: option to move date if a weekend
 
