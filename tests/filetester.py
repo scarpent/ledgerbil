@@ -23,6 +23,7 @@ class FileTester(object):
     testschedulefile = testdir + 'test-schedule.ldg'
     testschedulefileafter = testdir + 'test-schedule-after.ldg'
     testschedulefileledger = testdir + 'test-schedule.ledger'
+    testschedulefile_enterdays_lessthan1 = testdir + 'test-schedule-enter-days-lt1.ldg'
 
     mainfile = 'ledgerbil.py'
 

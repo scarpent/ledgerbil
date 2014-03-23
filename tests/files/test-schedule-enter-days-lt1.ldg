@@ -1,0 +1,17 @@
+;; scheduler ; enter 0 days
+
+2014/03/23 absolute insurance
+    ;; schedule ; biannual
+    e: car: insurance
+    l: credit card                          $-425
+
+2014/03/23 haircuttery inc
+    ;; schedule ; quarterly
+    e: misc: haircut
+    a: checking up                          $-28
+
+2014/03/23 lightning energy
+    ;; schedule ; bimonthly
+    e: bills: electricity
+    a: checking up                          $-75
+
