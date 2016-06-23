@@ -79,11 +79,6 @@ to do: documenting of this thing
 
 ### license
 
-For some odd reason, I haven't decided on a license for ledgerbil yet,
-but it will surely be a free software license, and include the standard:
-
-THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+GPL v3 or greater
 
 
