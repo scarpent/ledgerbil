@@ -2,40 +2,88 @@
 
 A small rodent-like program for working with ledger-cli journals.
 
-Hi! I'm a personal finance enthusiast. Keeping all my numbers organized and analyzable has always been a soothing and reassuring activity for me. I used Microsoft Money from 1995 to 2007, KMyMoney from 2007 to 2012, and now I've switched once again to "Ledger."
-
-I hope this will be my last money program. It's wonderful:
+Hi. I'm a personal finance enthusiast. Keeping my records organized
+and analyzable has always been a soothing and reassuring activity for
+me. I used Microsoft Money from 1995 to 2007, KMyMoney from 2008 to
+2012, and Ledger from 2013 to this very moment. Ledger is nifty:
 
 http://www.ledger-cli.org/
 
-But it only *reads* financial data from a journal. You have to provide your own tools for working with the file. At a minimum, all you need is a text editor. I'm using Sublime Text to manage my journal, and with syntax highlighting and regular expressions, it handles the job well.
+It's strictly a reporting tool. From the web site: "Ledger never creates
+or modifies your data. Your entries are kept in a text file that you
+maintain, and you can rest assured, no automated tool will ever change
+that data."
 
-But I'd like to automate the handling of recurring transactions, with a **scheduler**, and it might be nice to have a tool to speed up statement **reconciliations**, and so on. I imagine it will be fun to do all this myself, using python. I'll be taking my time at it since I can manage indefinitely with just Sublime Text.
+That is, no automated tool within the Ledger program itself. But you can
+create or find tools to help with various data entry and reconciliation
+chores.
 
-So far, **the program will sort an input file** by transaction date. (Woo hoo!) I intend to go overboard with unit testing. If ledger-cli is my "forever money program," then I want to be able to trust the tools I build to work with it.
+At a minimum, all you really need is a text editor. I'm using Sublime
+Text to manage my journal, and with syntax highlighting and regular
+expressions, it handles the job well.
 
-I don't expect that there will be wide interest in this program, but if you *do* want to use it, that would be awesome. My first goal is to properly handle the subset of ledger-cli that I'm actually using, but I'm open to building it out if asked, and if I can manage it within the limitations of my time and skills.
+But! We desire to use the power of software to make our lives easier.
+(We're deluded that way.)
 
-Using argparse, here are all of the exciting features and options:
+I first wanted to automate the entry of recurring transactions, and
+this is ledgerbil's main function at the moment.
+
+Ledgerbil can also sort a file by transaction date.
+
+I'm rather narrow-mindedly focusing on supporting the subset of
+ledger-cli that I'm actually using, and that is reflected in my
+transactional journal file. (And in the included unit tests.)
+
+Ledgerbil will assume a properly formatted ledger file, although it
+won't necessarily enforce rules or report problems with an input file.
+It will be best to feed it files that run cleanly through ledger-cli.
+
+Here is the current state of --help, which reflects the current state
+of exciting features:
 
 ## --help
 
-    usage: ledgerbil.py [-h] -f FILE [-s]
+    usage: ledgerbil.py [-h] -f FILE [-s] [-S FILE] [-p FILE]
 
     optional arguments:
       -h, --help            show this help message and exit
       -f FILE, --file FILE  ledger file to be processed
       -s, --sort            sort the file by transaction date
+      -S FILE, --schedule-file FILE
+                            file with scheduled transactions (to be added to -f
+                            ledger file)
+      -p FILE, --preview-file FILE
+                            file for previewed scheduled transactions (will be
+                            overwritten)
 
 ### --sort
 
-Ledgerbil understands a transaction as something that starts with a date in the first position, like so:
+Ledgerbil understands a transaction as something that starts with a date
+in the first position, like so:
 
     2013/05/11 abc store
         expenses: leisure: games
         liabilities: credit card                $-12.34
 
 
-If there are comment lines or things it doesn't currently understand (e.g. lines starting with `payee` or `account`), it will glom these together with the nearest transaction that comes before, so that the ordering of things will be maintained accordingly. If these items occur before any dated transactions, they will be given a date in 1899 to (most likely) keep them before your other transactions.
+If there are comment lines or things it doesn't currently understand
+(e.g. lines starting with `payee` or `account`), it will glom these
+together with the nearest transaction that comes before, so that the
+ordering of things will be maintained accordingly. If these items occur
+before any dated transactions, they will be given a date in 1899 to
+(most likely) keep them before your other transactions.
 
-Ledgerbil will assume a properly formatted ledger file, although it won't necessarily enforce rules or report problems with an input file. It will be best to feed it files that run cleanly through ledger-cli.
+### --schedule-file
+
+to do: documenting of this thing
+
+### license
+
+For some odd reason, I haven't decided on a license for ledgerbil yet,
+but it will surely be a free software license, and include the standard:
+
+THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+
+
