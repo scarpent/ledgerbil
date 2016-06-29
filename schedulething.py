@@ -45,15 +45,17 @@ class ScheduleThing(LedgerThing):
     def __init__(self, lines):
         self.firstThing = False
         self.isScheduleThing = False
-        self.intervalUom = ''           # month or week
-        self.days = []                  # e.g. 5, 15, eom, eom30
-        self.interval = 1               # e.g. 1 = every month, 2 = every other
+        self.intervalUom = ''    # month or week
+        self.days = []           # e.g. 5, 15, eom, eom30
+        self.interval = 1        # e.g. 1 = every month, 2 = every other
         self.previewDate = None
 
         super(ScheduleThing, self).__init__(lines)
 
         if ScheduleThing.doFileConfig:
-            self._handleFileConfig(lines[ScheduleThing.LINE_FILE_CONFIG])
+            self._handleFileConfig(
+                lines[ScheduleThing.LINE_FILE_CONFIG]
+            )
             self.firstThing = True
             ScheduleThing.doFileConfig = False
             return
@@ -275,9 +277,8 @@ class ScheduleThing(LedgerThing):
             )
 
         if self.intervalUom == ScheduleThing.INTERVAL_WEEK:
-            # todo: handle day of week stuff
-            # for now this will work fine for basic once a week or once every N weeks stuff!
-            # todo: unit tests
+            # todo: handle day of week stuff, for now this will work
+            # fine for basic once a week or once every N weeks stuff
             return previousdate + relativedelta(weeks=self.interval)
 
     # handle situations like 8/31 -> 9/31 (back up to 9/30)

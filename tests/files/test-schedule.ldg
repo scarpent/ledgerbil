@@ -5,6 +5,11 @@ TEST_DATE absolute insurance
     e: car: insurance
     l: credit card                          $-425
 
+TEST_DATE bananas unlimited
+    ;; schedule ; weekly ;; every 6 weeks
+    e: food: groceries
+    l: credit card                          $-5
+
 TEST_DATE haircuttery inc
     ;; schedule ; quarterly
     e: misc: haircut

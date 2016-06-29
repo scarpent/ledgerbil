@@ -50,13 +50,16 @@ class SchedulerRun(ScheduleThingTester):
             FileTester.testschedulefileafter
         )
         schedulefile_expected = schedulefileafterdata.replace(
-            'FIRST_DATE',
+            'WEEKLY_DATE',
+            LedgerThing.getDateString(testdate + relativedelta(weeks=12))
+        ).replace(
+            'BIMONTHLY_DATE',
             LedgerThing.getDateString(testdate + relativedelta(months=2))
         ).replace(
-            'SECOND_DATE',
+            'QUARTERLY_DATE',
             LedgerThing.getDateString(testdate + relativedelta(months=3))
         ).replace(
-            'THIRD_DATE',
+            'BIANNUAL_DATE',
             LedgerThing.getDateString(testdate + relativedelta(months=6))
         )
 
