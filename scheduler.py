@@ -1,14 +1,15 @@
 #!/usr/bin/python
 
-"""scheduler"""
+"""scheduler runner"""
 
 from __future__ import print_function
+
+from schedulething import ScheduleThing
+
 
 __author__ = 'scarpent'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
-
-from schedulething import ScheduleThing
 
 
 class Scheduler(object):
@@ -31,6 +32,8 @@ class Scheduler(object):
             if schedulething.firstThing:
                 continue
 
-            self.ledgerfile.addThings(schedulething.getScheduledEntries())
+            self.ledgerfile.addThings(
+                schedulething.getScheduledEntries()
+            )
 
         self.schedulefile.sort()

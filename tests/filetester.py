@@ -2,12 +2,14 @@
 
 """unit test for ledgerfile.py"""
 
+import inspect  # inspect.stack()[1][3] gives name of calling function
+
+from shutil import copyfile
+
+
 __author__ = 'scarpent'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
-
-import inspect  # inspect.stack()[1][3] gives name of calling function
-from shutil import copyfile
 
 
 class FileTester(object):

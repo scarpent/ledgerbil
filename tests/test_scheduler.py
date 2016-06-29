@@ -2,21 +2,21 @@
 
 """unit test for scheduler.py"""
 
-__author__ = 'scarpent'
-__license__ = 'gpl v3 or greater'
-__email__ = 'scottc@movingtofreedom.org'
-
-from schedulething_tester import ScheduleThingTester
 from os import remove
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
-from scheduler import Scheduler
-from schedulefile import ScheduleFile
+from filetester import FileTester
 from ledgerfile import LedgerFile
 from ledgerthing import LedgerThing
+from schedulefile import ScheduleFile
+from scheduler import Scheduler
+from schedulething_tester import ScheduleThingTester
 
-from filetester import FileTester
+
+__author__ = 'scarpent'
+__license__ = 'gpl v3 or greater'
+__email__ = 'scottc@movingtofreedom.org'
 
 
 class SchedulerRun(ScheduleThingTester):
@@ -71,7 +71,9 @@ class SchedulerRun(ScheduleThingTester):
         )
 
     def testRunEnterDaysLessThanOne(self):
-        schedulefiledata = FileTester.readFile(FileTester.testschedulefile_enterdays_lessthan1)
+        schedulefiledata = FileTester.readFile(
+            FileTester.testschedulefile_enterdays_lessthan1
+        )
         tempschedulefile = FileTester.writeToTempFile(
             FileTester.testschedulefile_enterdays_lessthan1,
             schedulefiledata
@@ -88,10 +90,14 @@ class SchedulerRun(ScheduleThingTester):
         schedulefile.writeFile()
 
         schedulefile_actual = FileTester.readFile(tempschedulefile)
-        schedulefile_expected = FileTester.readFile(FileTester.testschedulefile_enterdays_lessthan1)
+        schedulefile_expected = FileTester.readFile(
+            FileTester.testschedulefile_enterdays_lessthan1
+        )
 
         remove(templedgerfile)
         remove(tempschedulefile)
+
+        # todo: check ledger file also?
 
         self.assertEqual(
             schedulefile_expected,
