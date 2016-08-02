@@ -51,7 +51,7 @@ class SchedulerRun(ScheduleThingTester):
         )
         schedulefile_expected = schedulefileafterdata.replace(
             'WEEKLY_DATE',
-            LedgerThing.getDateString(testdate + relativedelta(weeks=12))
+            LedgerThing.getDateString(testdate + relativedelta(weeks=6))
         ).replace(
             'BIMONTHLY_DATE',
             LedgerThing.getDateString(testdate + relativedelta(months=2))
