@@ -26,10 +26,8 @@ class ScheduleThing(LedgerThing):
 
     NO_DAYS = 0
     enterDays = NO_DAYS
-    previewDays = NO_DAYS
 
     entryBoundaryDate = None
-    previewBoundaryDate = None
 
     LINE_FILE_CONFIG = 0
     LINE_DATE = 0
@@ -48,7 +46,6 @@ class ScheduleThing(LedgerThing):
         self.intervalUom = ''    # month or week
         self.days = []           # e.g. 5, 15, eom, eom30
         self.interval = 1        # e.g. 1 = every month, 2 = every other
-        self.previewDate = None
 
         super(ScheduleThing, self).__init__(lines)
 
@@ -63,8 +60,8 @@ class ScheduleThing(LedgerThing):
         self._handleThingConfig(lines[ScheduleThing.LINE_SCHEDULE])
 
     # file level config looks like this:
-    # ;; scheduler ; enter N days ; preview N days
-    # enter and preview are both optional
+    # ;; scheduler ; enter N days
+    # enter is optional
     def _handleFileConfig(self, line):
 
         configRegex = r'''(?x)                  # verbose mode
@@ -73,22 +70,18 @@ class ScheduleThing(LedgerThing):
             (?:                                 # non-capturing
                 ;\s*enter\s+(\d+)\s+days?\s*    # days ahead to enter trans
             )?                                  # optional
-            (?:                                 # non-capturing
-                ;\s*preview\s+(\d+)\s+days?\s*  # days to "preview" trans
-            )?                                  # optional
             (?:\s*;.*)?                         # optional ending semi-colon
             $                                   # line end     \ and comment
             '''
 
         # capturing groups
         ENTER_DAYS = 1
-        PREVIEW_DAYS = 2
 
         match = re.match(configRegex, line)
         if not match:
             raise LdgScheduleFileConfigError(
                 'Invalid schedule file config:\n%s\nExpected:\n'
-                ';; scheduler ; enter N days ; preview N days'
+                ';; scheduler ; enter N days'
                 % line
             )
 
@@ -102,18 +95,9 @@ class ScheduleThing(LedgerThing):
             date.today() + relativedelta(days=ScheduleThing.enterDays)
         )
 
-        if match.group(PREVIEW_DAYS):
-            ScheduleThing.previewDays = int(match.group(PREVIEW_DAYS))
-
-            if ScheduleThing.previewDays <= ScheduleThing.enterDays:
-                ScheduleThing.previewDays = ScheduleThing.NO_DAYS
-
-        ScheduleThing.previewBoundaryDate = (
-            date.today() + relativedelta(days=ScheduleThing.previewDays)
-        )
-
-        print('\nSchedule file (enter days = %s, preview days = %s):\n'
-              % (ScheduleThing.enterDays, ScheduleThing.previewDays))
+        print('\nSchedule file (enter days = {days}):\n'.format(
+            days=ScheduleThing.enterDays
+        ))
 
     def _handleThingConfig(self, line):
         """

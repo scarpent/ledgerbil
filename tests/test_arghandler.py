@@ -91,31 +91,6 @@ class Arguments(Redirector):
         actual = self.redirecterr.read()
         self.assertTrue(expected in actual)
 
-    def testPreviewFileShortOption(self):
-        """should set parse args 'schedule-file' var"""
-        args = ArgHandler.getArgs(['-f', filename, '-p', filename])
-        self.assertTrue(args.preview_file)
-
-    def testPreviewFileLongOption(self):
-        """should set parse args 'schedule-file' var"""
-        args = ArgHandler.getArgs([
-            '--file', filename,
-            '--preview-file', filename,
-        ])
-        self.assertTrue(args.preview_file)
-
-    def testPreviewFilenameRequiredWithPreviewOption(self):
-        """should cause argparse error if sched file opt specified w/o file"""
-        expected = 'error: argument -p/--preview-file: expected one argument'
-        try:
-            ArgHandler.getArgs(['--file', filename, '--preview-file'])
-        except SystemExit:
-            pass
-
-        self.redirecterr.seek(0)
-        actual = self.redirecterr.read()
-        self.assertTrue(expected in actual)
-
 
 if __name__ == "__main__":
     unittest.main()         # pragma: no cover

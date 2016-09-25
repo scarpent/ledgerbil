@@ -18,7 +18,4 @@ class ScheduleThingTester(Redirector):
         super(ScheduleThingTester, self).setUp()
         ScheduleThing.doFileConfig = True
         ScheduleThing.enterDays = ScheduleThing.NO_DAYS
-        ScheduleThing.previewDays = ScheduleThing.NO_DAYS
         ScheduleThing.entryBoundaryDate = None
-        ScheduleThing.previewBoundaryDate = None
-

@@ -45,7 +45,7 @@ class GetScheduledEntries(Redirector):
     def setUp(self):
         super(GetScheduledEntries, self).setUp()
         scheduleLineFileConfig = [
-            ';; scheduler ; enter 7 days ; preview 30 days'
+            ';; scheduler ; enter 7 days'
         ]
         ScheduleThing.doFileConfig = True
         ScheduleThing(scheduleLineFileConfig)
@@ -228,7 +228,7 @@ class GetEntryThing(Redirector):
     def setUp(self):
         super(GetEntryThing, self).setUp()
         scheduleLineFileConfig = [
-            ';; scheduler ; enter 7 days ; preview 30 days'
+            ';; scheduler ; enter 7 days'
         ]
         ScheduleThing.doFileConfig = True
         ScheduleThing(scheduleLineFileConfig)
@@ -257,7 +257,7 @@ class HandleThingConfig(Redirector):
     def setUp(self):
         super(HandleThingConfig, self).setUp()
         scheduleLineFileConfig = [
-            ';; scheduler ; enter 7 days ; preview 30 days'
+            ';; scheduler ; enter 7 days'
         ]
         ScheduleThing.doFileConfig = True
         ScheduleThing(scheduleLineFileConfig)
@@ -424,68 +424,58 @@ class HandleFileConfig(Redirector):
         super(HandleFileConfig, self).setUp()
         ScheduleThing.doFileConfig = True
         ScheduleThing.enterDays = ScheduleThing.NO_DAYS
-        ScheduleThing.previewDays = ScheduleThing.NO_DAYS
         ScheduleThing.entryBoundaryDate = None
-        ScheduleThing.previewBoundaryDate = None
 
-    def getExpectedConfig(self, enterdays, previewdays):
+    def getExpectedConfig(self, enterdays):
         return (
-            '%s | %s | %s | %s' % (
+            '%s | %s' % (
                 enterdays,
-                previewdays,
                 LedgerThing.getDateString(
                     date.today() + relativedelta(days=enterdays)
-                ),
-                LedgerThing.getDateString(
-                    date.today() + relativedelta(days=previewdays)
                 )
             )
         )
 
     def getActualConfig(self, schedulething):
         return (
-            '%s | %s | %s | %s' % (
+            '%s | %s' % (
                 schedulething.enterDays,
-                schedulething.previewDays,
                 LedgerThing.getDateString(
                     schedulething.entryBoundaryDate
-                ),
-                LedgerThing.getDateString(
-                    schedulething.previewBoundaryDate
                 )
             )
         )
 
     def testBasicFileConfig(self):
         scheduleLineFileConfig = [
-            ';; scheduler ; enter 7 days ; preview 30 days'
+            ';; scheduler ; enter 7 days'
         ]
         schedulething = ScheduleThing(scheduleLineFileConfig)
         self.assertEqual(
-            self.getExpectedConfig(7, 30),
+            self.getExpectedConfig(7),
             self.getActualConfig(schedulething)
         )
 
     def testInvalidFileConfig(self):
         scheduleLineFileConfig = [
-            ';; shceduler ; enter 7 days ; preview 30 days'
+            ';; shceduler ; enter 7 days'
         ]
         with self.assertRaises(LdgScheduleFileConfigError):
             ScheduleThing(scheduleLineFileConfig)
 
-    def testFileConfigNoPreview(self):
+    def testFileConfig(self):
         scheduleLineFileConfig = [
             ';;scheduler;enter 7 days;;'
         ]
         schedulething = ScheduleThing(scheduleLineFileConfig)
         self.assertEqual(
-            self.getExpectedConfig(7, ScheduleThing.NO_DAYS),
+            self.getExpectedConfig(7),
             self.getActualConfig(schedulething)
         )
 
     def testFileConfigNoEnter(self):
         scheduleLineFileConfig = [
-            ';;scheduler;preview 60 days;;'
+            ';;scheduler;;'
         ]
         schedulething = ScheduleThing(scheduleLineFileConfig)
         self.assertEqual(
@@ -493,46 +483,25 @@ class HandleFileConfig(Redirector):
             self.getActualConfig(schedulething)
         )
 
-    def testFileConfigNoEnterNoPreview(self):
+    def testFileConfigNoEnter(self):
         scheduleLineFileConfig = [
             ';;scheduler'
         ]
         schedulething = ScheduleThing(scheduleLineFileConfig)
         self.assertEqual(
             self.getExpectedConfig(
-                ScheduleThing.NO_DAYS,
                 ScheduleThing.NO_DAYS
             ),
             self.getActualConfig(schedulething)
         )
 
-    def testFileConfigPreviewLessThanEnter(self):
-        scheduleLineFileConfig = [
-            ';;   scheduler   ; enter 40 day    ; preview 30 day ; comment'
-        ]
-        schedulething = ScheduleThing(scheduleLineFileConfig)
-        self.assertEqual(
-            self.getExpectedConfig(40, ScheduleThing.NO_DAYS),
-            self.getActualConfig(schedulething)
-        )
-
-    def testFileConfigPreviewEqualsEnter(self):
-        scheduleLineFileConfig = [
-            ';;   scheduler   ; enter 50 day    ; preview 50 day ; comment'
-        ]
-        schedulething = ScheduleThing(scheduleLineFileConfig)
-        self.assertEqual(
-            self.getExpectedConfig(50, ScheduleThing.NO_DAYS),
-            self.getActualConfig(schedulething)
-        )
-
     def testFileConfigEnterLessThanOne(self):
         scheduleLineFileConfig = [
-            ';;   scheduler   ; enter 0 day    ; preview 90 day ; comment'
+            ';;   scheduler   ; enter 0 day ; comment'
         ]
         schedulething = ScheduleThing(scheduleLineFileConfig)
         self.assertEqual(
-            self.getExpectedConfig(ScheduleThing.NO_DAYS, 90),
+            self.getExpectedConfig(ScheduleThing.NO_DAYS),
             self.getActualConfig(schedulething)
         )
 
@@ -542,7 +511,7 @@ class GetNextDate(Redirector):
     def setUp(self):
         super(GetNextDate, self).setUp()
         scheduleLineFileConfig = [
-            ';; scheduler ; enter 7 days ; preview 30 days'
+            ';; scheduler ; enter 7 days'
         ]
         ScheduleThing.doFileConfig = True
         ScheduleThing(scheduleLineFileConfig)

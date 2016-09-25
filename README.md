@@ -52,9 +52,6 @@ of exciting features:
       -S FILE, --schedule-file FILE
                             file with scheduled transactions (to be added to -f
                             ledger file)
-      -p FILE, --preview-file FILE
-                            file for previewed scheduled transactions (will be
-                            overwritten)
 
 ### --sort
 
