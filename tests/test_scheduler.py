@@ -21,21 +21,37 @@ __email__ = 'scottc@movingtofreedom.org'
 
 class SchedulerRun(ScheduleThingTester):
 
-    def testRun(self):
-        schedulefiledata = FileTester.readFile(FileTester.testschedulefile)
-        lastmonth = date.today() - relativedelta(months=1)
-        testdate = date(lastmonth.year, lastmonth.month, 15)
-        schedulefiledata = schedulefiledata.replace(
-            'TEST_DATE',
-            LedgerThing.getDateString(testdate)
+    @staticmethod
+    def get_schedule_file(the_date, schedule, enter_days=7):
+        return (
+            ';; scheduler ; enter {enter_days} days\n'
+            '\n'
+            '{date} bananas unlimited\n'
+            '    ;; schedule ; {schedule}\n'
+            '    e: misc\n'
+            '    l: credit card                     $-50\n'.format(
+                date=the_date,
+                schedule=schedule,
+                enter_days=enter_days
+            )
+        )
+
+    def run_it(self, before_date, after_date, schedule, enter_days=7):
+        schedulefiledata = self.get_schedule_file(
+            LedgerThing.getDateString(before_date),
+            schedule,
+            enter_days
         )
         tempschedulefile = FileTester.writeToTempFile(
-            FileTester.testschedulefile,
+            'run_it_schedule_file',
             schedulefiledata
         )
         schedulefile = ScheduleFile(tempschedulefile)
 
-        templedgerfile = FileTester.createTempFile('')
+        templedgerfile = FileTester.writeToTempFile(
+            'run_it_ledger_file',
+            ''
+        )
         ledgerfile = LedgerFile(templedgerfile)
 
         scheduler = Scheduler(ledgerfile, schedulefile)
@@ -46,31 +62,55 @@ class SchedulerRun(ScheduleThingTester):
 
         schedulefile_actual = FileTester.readFile(tempschedulefile)
 
-        schedulefileafterdata = FileTester.readFile(
-            FileTester.testschedulefileafter
-        )
-        schedulefile_expected = schedulefileafterdata.replace(
-            'WEEKLY_DATE',
-            LedgerThing.getDateString(testdate + relativedelta(weeks=6))
-        ).replace(
-            'BIMONTHLY_DATE',
-            LedgerThing.getDateString(testdate + relativedelta(months=2))
-        ).replace(
-            'QUARTERLY_DATE',
-            LedgerThing.getDateString(testdate + relativedelta(months=3))
-        ).replace(
-            'BIANNUAL_DATE',
-            LedgerThing.getDateString(testdate + relativedelta(months=6))
+        schedulefile_expected = self.get_schedule_file(
+            LedgerThing.getDateString(after_date),
+            schedule,
+            enter_days
         )
 
         remove(templedgerfile)
         remove(tempschedulefile)
 
-        # todo: check ledger file also?
-
         self.assertEqual(
             schedulefile_expected,
             schedulefile_actual
+        )
+
+    def test_weekly(self):
+        self.run_it(
+            date.today() - relativedelta(days=7),
+            date.today() + relativedelta(days=21),
+            'weekly ;; every 2 weeks'
+        )
+
+    def test_bimonthly(self):
+        lastmonth = date.today() - relativedelta(months=1)
+        testdate = date(lastmonth.year, lastmonth.month, 15)
+
+        self.run_it(
+            testdate,
+            testdate + relativedelta(months=2),
+            'bimonthly'
+        )
+
+    def test_quarterly(self):
+        lastmonth = date.today() - relativedelta(months=1)
+        testdate = date(lastmonth.year, lastmonth.month, 15)
+
+        self.run_it(
+            testdate,
+            testdate + relativedelta(months=3),
+            'quarterly'
+        )
+
+    def test_biannual(self):
+        lastmonth = date.today() - relativedelta(months=1)
+        testdate = date(lastmonth.year, lastmonth.month, 15)
+
+        self.run_it(
+            testdate,
+            testdate + relativedelta(months=6),
+            'biannual'
         )
 
     def testRunEnterDaysLessThanOne(self):
