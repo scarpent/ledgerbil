@@ -43,7 +43,7 @@ of exciting features:
 
 ## --help
 
-    usage: ledgerbil.py [-h] -f FILE [-s] [-S FILE] [-p FILE]
+    usage: ledgerbil.py [-h] -f FILE [-s] [-S FILE]
 
     optional arguments:
       -h, --help            show this help message and exit
