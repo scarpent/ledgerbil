@@ -479,19 +479,7 @@ class HandleFileConfig(Redirector):
         ]
         schedulething = ScheduleThing(scheduleLineFileConfig)
         self.assertEqual(
-            self.getExpectedConfig(ScheduleThing.NO_DAYS, 60),
-            self.getActualConfig(schedulething)
-        )
-
-    def testFileConfigNoEnter(self):
-        scheduleLineFileConfig = [
-            ';;scheduler'
-        ]
-        schedulething = ScheduleThing(scheduleLineFileConfig)
-        self.assertEqual(
-            self.getExpectedConfig(
-                ScheduleThing.NO_DAYS
-            ),
+            self.getExpectedConfig(ScheduleThing.NO_DAYS),
             self.getActualConfig(schedulething)
         )
 
