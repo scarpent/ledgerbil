@@ -44,13 +44,13 @@ class SchedulerRun(ScheduleThingTester):
             enter_days
         )
         tempschedulefile = FileTester.writeToTempFile(
-            'run_it_schedule_file',
+            FileTester.testdir + 'run_it_schedule_file',
             schedulefiledata
         )
         schedulefile = ScheduleFile(tempschedulefile)
 
         templedgerfile = FileTester.writeToTempFile(
-            'run_it_ledger_file',
+            FileTester.testdir + 'run_it_ledger_file',
             ''
         )
         ledgerfile = LedgerFile(templedgerfile)
@@ -72,10 +72,7 @@ class SchedulerRun(ScheduleThingTester):
         os.remove(templedgerfile)
         os.remove(tempschedulefile)
 
-        self.assertEqual(
-            schedulefile_expected,
-            schedulefile_actual
-        )
+        self.assertEqual(schedulefile_expected, schedulefile_actual)
 
     def test_weekly(self):
         self.run_it(

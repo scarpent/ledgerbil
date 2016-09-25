@@ -13,6 +13,7 @@ import ledgerbil
 
 from filetester import FileTester as FT
 from ledgerthing import LedgerThing
+from redirector import Redirector
 
 
 __author__ = 'scarpent'
@@ -60,6 +61,77 @@ class Sorting(TestCase):
         actual = FT.readFile(tempfile)
         os.remove(tempfile)
         self.assertEqual(expected, actual)
+
+
+class Scheduler(Redirector):
+
+    @staticmethod
+    def get_schedule_file(the_date, schedule, enter_days=7):
+        return (
+            ';; scheduler ; enter {enter_days} days\n'
+            '\n'
+            '{date} bananas unlimited\n'
+            '    ;; schedule ; {schedule}\n'
+            '    e: misc\n'
+            '    l: credit card                     $-50\n'.format(
+                date=the_date,
+                schedule=schedule,
+                enter_days=enter_days
+            )
+        )
+
+    @staticmethod
+    def get_ledger_file(the_date):
+        return (
+            '{date} bananas unlimited\n'
+            '    e: misc\n'
+            '    l: credit card                     $-50\n'.format(
+                date=the_date
+            )
+        )
+
+    def test_scheduler(self):
+        lastmonth = date.today() - relativedelta(months=1)
+        testdate = date(lastmonth.year, lastmonth.month, 15)
+        schedule = 'monthly ;; every 2 months'
+
+        schedulefiledata = self.get_schedule_file(
+            LedgerThing.getDateString(testdate),
+            schedule
+        )
+        tempschedulefile = FT.writeToTempFile(
+            FT.testdir + 'test_scheduler_schedule_file',
+            schedulefiledata
+        )
+
+        templedgerfile = FT.writeToTempFile(
+            FT.testdir + 'test_scheduler_ledger_file',
+            ''
+        )
+
+        ledgerbil.main([
+            '--file', templedgerfile,
+            '--schedule-file', tempschedulefile,
+        ])
+
+        schedulefile_actual = FT.readFile(tempschedulefile)
+        schedulefile_expected = self.get_schedule_file(
+            LedgerThing.getDateString(
+                testdate + relativedelta(months=2)
+            ),
+            schedule
+        )
+
+        ledgerfile_actual = FT.readFile(templedgerfile)
+        ledgerfile_expected = self.get_ledger_file(
+            LedgerThing.getDateString(testdate)
+        )
+
+        os.remove(tempschedulefile)
+        os.remove(templedgerfile)
+
+        self.assertEqual(schedulefile_expected, schedulefile_actual)
+        self.assertEqual(ledgerfile_expected, ledgerfile_actual)
 
 
 if __name__ == "__main__":
