@@ -12,15 +12,16 @@ from datetime import datetime
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
-
+from redirector import Redirector
 from schedulething import ScheduleThing
 from ledgerthing import LedgerThing
 from ledgerbilexceptions import *
 
 
-class GetSafeDate(TestCase):
+class GetSafeDate(Redirector):
 
     def setUp(self):
+        super(GetSafeDate, self).setUp()
         scheduleLinesTest = [
             '2013/06/29 lightning energy',
             '    ;; schedule ; monthly ; 12th ; ; auto'
@@ -39,9 +40,10 @@ class GetSafeDate(TestCase):
         self.assertEqual(expected, actual)
 
 
-class GetScheduledEntries(TestCase):
+class GetScheduledEntries(Redirector):
 
     def setUp(self):
+        super(GetScheduledEntries, self).setUp()
         scheduleLineFileConfig = [
             ';; scheduler ; enter 7 days ; preview 30 days'
         ]
@@ -221,9 +223,10 @@ class GetScheduledEntries(TestCase):
         self.assertEqual(expected, actual)
 
 
-class GetEntryThing(TestCase):
+class GetEntryThing(Redirector):
 
     def setUp(self):
+        super(GetEntryThing, self).setUp()
         scheduleLineFileConfig = [
             ';; scheduler ; enter 7 days ; preview 30 days'
         ]
@@ -249,9 +252,10 @@ class GetEntryThing(TestCase):
         self.assertEqual(expected, actual)
 
 
-class HandleThingConfig(TestCase):
+class HandleThingConfig(Redirector):
 
     def setUp(self):
+        super(HandleThingConfig, self).setUp()
         scheduleLineFileConfig = [
             ';; scheduler ; enter 7 days ; preview 30 days'
         ]
@@ -414,10 +418,10 @@ class HandleThingConfig(TestCase):
         )
 
 
-class HandleFileConfig(TestCase):
+class HandleFileConfig(Redirector):
 
-    # to do, maybe have this like redirector, to be included different places
     def setUp(self):
+        super(HandleFileConfig, self).setUp()
         ScheduleThing.doFileConfig = True
         ScheduleThing.enterDays = ScheduleThing.NO_DAYS
         ScheduleThing.previewDays = ScheduleThing.NO_DAYS
@@ -533,9 +537,10 @@ class HandleFileConfig(TestCase):
         )
 
 
-class GetNextDate(TestCase):
+class GetNextDate(Redirector):
 
     def setUp(self):
+        super(GetNextDate, self).setUp()
         scheduleLineFileConfig = [
             ';; scheduler ; enter 7 days ; preview 30 days'
         ]
@@ -787,9 +792,10 @@ class GetWeekDay(TestCase):
         self.assertEqual(-1, self.scheduleThing._getWeekDay())
 
 
-class GetMonthDay(TestCase):
+class GetMonthDay(Redirector):
 
     def setUp(self):
+        super(GetMonthDay, self).setUp()
         scheduleLinesTest = [
             '2013/06/29 lightning energy',
             '    ;; schedule ; monthly ; 12th ; ; auto'

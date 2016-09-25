@@ -140,8 +140,6 @@ class SchedulerRun(ScheduleThingTester):
         remove(templedgerfile)
         remove(tempschedulefile)
 
-        # todo: check ledger file also?
-
         self.assertEqual(
             schedulefile_expected,
             schedulefile_actual
