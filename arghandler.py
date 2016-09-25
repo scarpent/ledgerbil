@@ -14,7 +14,7 @@ import argparse
 class ArgHandler(object):
 
     @staticmethod
-    def getArgs():
+    def getArgs(args):
         parser = argparse.ArgumentParser()
 
         parser.add_argument(
@@ -42,4 +42,4 @@ class ArgHandler(object):
             )
         )
 
-        return parser.parse_args()
+        return parser.parse_args(args)

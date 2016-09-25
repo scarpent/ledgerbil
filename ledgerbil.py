@@ -36,8 +36,12 @@ class Ledgerbil(object):
         if self.args.schedule_file:
             schedulefile.writeFile()
 
-def main():
-    args = ArgHandler.getArgs()
+def main(argv=None):
+
+    if argv is None:
+        argv = sys.argv[1:]  # pragma: no cover
+
+    args = ArgHandler.getArgs(argv)
     ledgerbil = Ledgerbil(args)
     ledgerbil.processFile()
 

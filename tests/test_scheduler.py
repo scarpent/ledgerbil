@@ -2,7 +2,8 @@
 
 """unit test for scheduler.py"""
 
-from os import remove
+import os
+
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
@@ -68,8 +69,8 @@ class SchedulerRun(ScheduleThingTester):
             enter_days
         )
 
-        remove(templedgerfile)
-        remove(tempschedulefile)
+        os.remove(templedgerfile)
+        os.remove(tempschedulefile)
 
         self.assertEqual(
             schedulefile_expected,
@@ -137,8 +138,8 @@ class SchedulerRun(ScheduleThingTester):
             FileTester.testschedulefile_enterdays_lessthan1
         )
 
-        remove(templedgerfile)
-        remove(tempschedulefile)
+        os.remove(templedgerfile)
+        os.remove(tempschedulefile)
 
         self.assertEqual(
             schedulefile_expected,
