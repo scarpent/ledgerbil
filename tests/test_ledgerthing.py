@@ -2,15 +2,16 @@
 
 """unit test for ledgerthing.py"""
 
-__author__ = 'scarpent'
-__license__ = 'gpl v3 or greater'
-__email__ = 'scottc@movingtofreedom.org'
-
 from unittest import TestCase
 
 from datetime import date
 
 from ledgerthing import LedgerThing
+
+
+__author__ = 'scarpent'
+__license__ = 'gpl v3 or greater'
+__email__ = 'scottc@movingtofreedom.org'
 
 
 class Constructor(TestCase):
@@ -99,6 +100,3 @@ class isTransactionStart(TestCase):
         """valid date but invalid (for ledger) date fmt should return false"""
         line = '2013/06/1 abc store'
         self.assertFalse(LedgerThing.isTransactionStart(line))
-
-if __name__ == "__main__":
-    unittest.main()         # pragma: no cover

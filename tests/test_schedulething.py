@@ -2,9 +2,6 @@
 
 """unit test for schedulething.py"""
 
-__author__ = 'scarpent'
-__license__ = 'gpl v3 or greater'
-__email__ = 'scottc@movingtofreedom.org'
 
 from unittest import TestCase
 
@@ -16,6 +13,11 @@ from redirector import Redirector
 from schedulething import ScheduleThing
 from ledgerthing import LedgerThing
 from ledgerbilexceptions import *
+
+
+__author__ = 'scarpent'
+__license__ = 'gpl v3 or greater'
+__email__ = 'scottc@movingtofreedom.org'
 
 
 class GetSafeDate(Redirector):

@@ -90,7 +90,3 @@ class Arguments(Redirector):
         self.redirecterr.seek(0)
         actual = self.redirecterr.read()
         self.assertTrue(expected in actual)
-
-
-if __name__ == "__main__":
-    unittest.main()         # pragma: no cover

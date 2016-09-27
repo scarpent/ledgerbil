@@ -3,7 +3,6 @@
 """unit tests for ledgerbil.py"""
 
 import os
-import sys
 
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -132,7 +131,3 @@ class Scheduler(Redirector):
 
         self.assertEqual(schedulefile_expected, schedulefile_actual)
         self.assertEqual(ledgerfile_expected, ledgerfile_actual)
-
-
-if __name__ == "__main__":
-    unittest.main()         # pragma: no cover

@@ -25,8 +25,6 @@ class Scheduler(object):
 
         self.schedulefile.sort()
 
-        # todo: test for invalid schedule things (should blow up)
-
         for schedulething in self.schedulefile.things:
 
             if schedulething.firstThing:

@@ -2,10 +2,6 @@
 
 """unit test for ledgerfile.py"""
 
-__author__ = 'scarpent'
-__license__ = 'gpl v3 or greater'
-__email__ = 'scottc@movingtofreedom.org'
-
 from unittest import TestCase
 from os import remove
 from os import chmod
@@ -14,6 +10,11 @@ from ledgerfile import LedgerFile
 from ledgerthing import LedgerThing
 from redirector import Redirector
 from filetester import FileTester
+
+
+__author__ = 'scarpent'
+__license__ = 'gpl v3 or greater'
+__email__ = 'scottc@movingtofreedom.org'
 
 
 class FileStuff(Redirector):
