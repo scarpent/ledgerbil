@@ -22,31 +22,32 @@ class Ledgerbil(object):
     def __init__(self, args):
         self.args = args
 
-    def processFile(self):
+    def process_file(self):
         ledgerfile = LedgerFile(self.args.file)
 
         if self.args.schedule_file:
-            schedulefile = ScheduleFile(self.args.schedule_file)
-            scheduler = Scheduler(ledgerfile, schedulefile)
+            schedule_file = ScheduleFile(self.args.schedule_file)
+            scheduler = Scheduler(ledgerfile, schedule_file)
             scheduler.run()
+            schedule_file.write_file()
 
         if self.args.sort:
             ledgerfile.sort()
 
-        ledgerfile.writeFile()
-        if self.args.schedule_file:
-            schedulefile.writeFile()
+        ledgerfile.write_file()
+
 
 def main(argv=None):
 
     if argv is None:
         argv = sys.argv[1:]  # pragma: no cover
 
-    args = ArgHandler.getArgs(argv)
+    args = ArgHandler.get_args(argv)
     ledgerbil = Ledgerbil(args)
-    ledgerbil.processFile()
+    ledgerbil.process_file()
 
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())        # pragma: no cover

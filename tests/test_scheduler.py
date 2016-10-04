@@ -58,8 +58,8 @@ class SchedulerRun(ScheduleThingTester):
         scheduler = Scheduler(ledgerfile, schedulefile)
         scheduler.run()
 
-        ledgerfile.writeFile()
-        schedulefile.writeFile()
+        ledgerfile.write_file()
+        schedulefile.write_file()
 
         schedulefile_actual = FileTester.readFile(tempschedulefile)
 
@@ -127,8 +127,8 @@ class SchedulerRun(ScheduleThingTester):
         scheduler = Scheduler(ledgerfile, schedulefile)
         scheduler.run()
 
-        ledgerfile.writeFile()
-        schedulefile.writeFile()
+        ledgerfile.write_file()
+        schedulefile.write_file()
 
         schedulefile_actual = FileTester.readFile(tempschedulefile)
         schedulefile_expected = FileTester.readFile(

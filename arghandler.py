@@ -4,26 +4,29 @@
 
 from __future__ import print_function
 
+import argparse
+
+
 __author__ = 'scarpent'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
-
-import argparse
 
 
 class ArgHandler(object):
 
     @staticmethod
-    def getArgs(args):
+    def get_args(args):
         parser = argparse.ArgumentParser()
 
         parser.add_argument(
             '-f', '--file',
-            type=str, required=True, help='ledger file to be processed'
+            type=str, required=True,
+            help='ledger file to be processed'
         )
         parser.add_argument(
             '-s', '--sort',
-            help='sort the file by transaction date', action='store_true'
+            action='store_true',
+            help='sort the file by transaction date'
         )
         parser.add_argument(
             '-S', '--schedule-file',

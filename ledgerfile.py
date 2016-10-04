@@ -82,13 +82,12 @@ class LedgerFile(object):
 
         self.getThings().sort(key=attrgetter('thingDate', 'thingNumber'))
 
-    # todo: add cmd line option for this, maybe (along with more unit tests)
     def printFile(self):
         for thing in self.getThings():
             for line in thing.getLines():
                 print(line)
 
-    def writeFile(self):
+    def write_file(self):
         self._openFile()
         for thing in self.getThings():
             for line in thing.getLines():
