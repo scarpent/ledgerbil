@@ -6,10 +6,10 @@ from __future__ import print_function
 
 import re
 
+from calendar import monthrange
 from copy import copy
 from datetime import date
 from dateutil.relativedelta import relativedelta
-from calendar import monthrange
 
 from ledgerthing import LedgerThing
 from ledgerbilexceptions import *
@@ -22,12 +22,12 @@ __email__ = 'scottc@movingtofreedom.org'
 
 class ScheduleThing(LedgerThing):
 
-    doFileConfig = True
+    do_file_config = True
 
     NO_DAYS = 0
-    enterDays = NO_DAYS
+    enter_days = NO_DAYS
 
-    entryBoundaryDate = None
+    entry_boundary_date = None
 
     LINE_FILE_CONFIG = 0
     LINE_DATE = 0
@@ -41,43 +41,44 @@ class ScheduleThing(LedgerThing):
     THING_CONFIG_LABEL = 'schedule'
 
     def __init__(self, lines):
-        self.firstThing = False
-        self.isScheduleThing = False
-        self.intervalUom = ''    # month or week
+        self.first_thing = False
+        self.is_schedule_thing = False
+        self.interval_uom = ''   # month or week
         self.days = []           # e.g. 5, 15, eom, eom30
         self.interval = 1        # e.g. 1 = every month, 2 = every other
 
         super(ScheduleThing, self).__init__(lines)
 
-        if ScheduleThing.doFileConfig:
-            self._handleFileConfig(
+        if ScheduleThing.do_file_config:
+            self._handle_file_config(
                 lines[ScheduleThing.LINE_FILE_CONFIG]
             )
-            self.firstThing = True
-            ScheduleThing.doFileConfig = False
+            self.first_thing = True
+            ScheduleThing.do_file_config = False
             return
 
-        self._handleThingConfig(lines[ScheduleThing.LINE_SCHEDULE])
+        self._handle_thing_config(lines[ScheduleThing.LINE_SCHEDULE])
 
     # file level config looks like this:
     # ;; scheduler ; enter N days
     # enter is optional
-    def _handleFileConfig(self, line):
+    @staticmethod
+    def _handle_file_config(line):
 
-        configRegex = r'''(?x)                  # verbose mode
-            ^                                   # line start
-            \s*;;\s*scheduler\s*                # required
-            (?:                                 # non-capturing
-                ;\s*enter\s+(\d+)\s+days?\s*    # days ahead to enter trans
-            )?                                  # optional
-            (?:\s*;.*)?                         # optional ending semi-colon
-            $                                   # line end     \ and comment
+        config_regex = r'''(?x)               # verbose mode
+            ^                                 # line start
+            \s*;;\s*scheduler\s*              # required
+            (?:                               # non-capturing
+                ;\s*enter\s+(\d+)\s+days?\s*  # days ahead to enter tran
+            )?                                # optional
+            (?:\s*;.*)?                       # optional end semi-colon
+            $                                 # line end
             '''
 
         # capturing groups
-        ENTER_DAYS = 1
+        enter_days_idx = 1
 
-        match = re.match(configRegex, line)
+        match = re.match(config_regex, line)
         if not match:
             raise LdgScheduleFileConfigError(
                 'Invalid schedule file config:\n%s\nExpected:\n'
@@ -85,77 +86,88 @@ class ScheduleThing(LedgerThing):
                 % line
             )
 
-        if match.group(ENTER_DAYS):
-            ScheduleThing.enterDays = int(match.group(ENTER_DAYS))
+        if match.group(enter_days_idx):
+            ScheduleThing.enter_days = int(match.group(enter_days_idx))
 
-            if ScheduleThing.enterDays < 1:
-                ScheduleThing.enterDays = ScheduleThing.NO_DAYS
+            if ScheduleThing.enter_days < 1:
+                ScheduleThing.enter_days = ScheduleThing.NO_DAYS
 
-        ScheduleThing.entryBoundaryDate = (
-            date.today() + relativedelta(days=ScheduleThing.enterDays)
+        ScheduleThing.entry_boundary_date = (
+            date.today() + relativedelta(days=ScheduleThing.enter_days)
         )
 
         print('\nSchedule file (enter days = {days}):\n'.format(
-            days=ScheduleThing.enterDays
+            days=ScheduleThing.enter_days
         ))
 
-    def _handleThingConfig(self, line):
+    def _handle_thing_config(self, line):
         """
         @type line: string
         """
 
-        CFG_LABEL = 0
-        INTERVAL_UOM = 1
-        DAYS = 2
-        INTERVAL = 3
+        cfg_label_idx = 0
+        interval_uom_idx = 1
+        days_idx = 2
+        interval_idx = 3
 
         # ';; schedule ; monthly ; 12th 21st eom; 3 ; auto'
         #        -->
         # ['', '', 'schedule', 'monthly', '12th 21st eom', '3', 'auto']
-        configitems = [x.strip() for x in line.split(ScheduleThing.SEPARATOR)]
+        configitems = [
+            x.strip() for x in line.split(ScheduleThing.SEPARATOR)
+        ]
 
         if len(configitems) < 4:
             raise LdgScheduleThingParametersError(
-                'Invalid schedule thing config:\n%s\nNot enough parameters'
-                % line
+                'Invalid schedule thing config:\n{}\n'
+                'Not enough parameters'.format(line)
             )
 
         del configitems[0:2]  # remove empty strings from opening ;;
 
         # now: ['schedule', 'monthly', '12th 21st eom', '3', 'auto']
 
-        if configitems[CFG_LABEL].lower() != ScheduleThing.THING_CONFIG_LABEL:
+        if configitems[cfg_label_idx].lower() != \
+                ScheduleThing.THING_CONFIG_LABEL:
             raise LdgScheduleThingLabelError(
-                'Invalid schedule thing config:\n%s\n"%s" label not found '
-                'in expected place.\n'
-                % (line, ScheduleThing.THING_CONFIG_LABEL),
+                'Invalid schedule thing config:\n{line}\n"{label}" '
+                'label not found in expected place.\n'.format(
+                    line=line,
+                    label=ScheduleThing.THING_CONFIG_LABEL
+                )
             )
 
-        intervalUomRegex = (
+        interval_uom_regex = (
             '(weekly|monthly|bimonthly|quarterly|biannual|yearly)'
         )
 
-        match = re.match(intervalUomRegex, configitems[INTERVAL_UOM])
+        match = re.match(
+            interval_uom_regex,
+            configitems[interval_uom_idx]
+        )
         if not match:
             raise LdgScheduleUnrecognizedIntervalUom(
-                'Invalid schedule thing config:\n%s\nInterval UOM "%s"'
-                'not recognized. Supported UOMs: weekly, monthly,'
-                'bimonthly, quarterly, biannual, yearly.'
-                % (line, configitems[INTERVAL_UOM])
+                'Invalid schedule thing config:\n{line}\nInterval UOM '
+                '"{uom}" not recognized. Supported UOMs: '
+                'weekly, monthly, bimonthly, quarterly, biannual, '
+                'yearly.'.format(
+                    line=line,
+                    uom=configitems[interval_uom_idx]
+                )
             )
 
         intervaluom = match.group(1).lower()
 
-        # schedule must have minimum two items; now let's make sure optional
-        # fields are referenceable
+        # schedule must have minimum two items; now let's make sure
+        # optional fields are referenceable
 
         for x in range(len(configitems), 4):
             configitems.append('')
 
-        if not configitems[DAYS].strip():
-            configitems[DAYS] = str(self.thingDate.day)
+        if not configitems[days_idx].strip():
+            configitems[days_idx] = str(self.thingDate.day)
 
-        match = re.match('''[^\d]*(\d+).*''', configitems[INTERVAL])
+        match = re.match('''[^\d]*(\d+).*''', configitems[interval_idx])
         interval = 1
         if match:
             interval = int(match.group(1))
@@ -173,15 +185,15 @@ class ScheduleThing(LedgerThing):
             intervaluom = ScheduleThing.INTERVAL_MONTH
 
         self.interval = interval
-        self.intervalUom = intervaluom
+        self.interval_uom = intervaluom
 
         # todo: for monthly: the day date; for weekly: the day name
         # todo: parse that as day names, but for now, use ints
         # (if day < 1, consider an inactive thing)
-        dayString = configitems[DAYS].lower()
+        day_string = configitems[days_idx].lower()
         self.days = []
-        daysRegex = '(\d+|eom(?:\d\d?)?)'
-        for match in re.finditer(daysRegex, dayString):
+        days_regex = '(\d+|eom(?:\d\d?)?)'
+        for match in re.finditer(days_regex, day_string):
             # convert to ints where possible so will sort out correctly
             try:
                 theday = int(match.groups()[0])
@@ -199,79 +211,89 @@ class ScheduleThing(LedgerThing):
         # override thing getter to put it back in (standard raw lines
         # will have it, but for adding to ledger, no)
 
-    def getScheduledEntries(self):
+    def get_scheduled_entries(self):
 
         entries = []
 
-        if self.thingDate > ScheduleThing.entryBoundaryDate:
+        if self.thingDate > ScheduleThing.entry_boundary_date:
             return entries
 
-        entries.append(self._getEntryThing())
+        entries.append(self._get_entry_thing())
 
         while True:
-            self.thingDate = self._getNextDate(self.thingDate)
+            self.thingDate = self._get_next_date(self.thingDate)
 
-            if self.thingDate > ScheduleThing.entryBoundaryDate:
+            if self.thingDate > ScheduleThing.entry_boundary_date:
                 break
 
-            entries.append(self._getEntryThing())
+            entries.append(self._get_entry_thing())
 
         return entries
 
-    def _getEntryThing(self):
+    def _get_entry_thing(self):
         """
         @rtype: LedgerThing
         """
-        entryLines = copy(self.lines)
-        del entryLines[ScheduleThing.LINE_SCHEDULE]
-        entryLines[ScheduleThing.LINE_DATE] = re.sub(
+        entry_lines = copy(self.lines)
+        del entry_lines[ScheduleThing.LINE_SCHEDULE]
+        entry_lines[ScheduleThing.LINE_DATE] = re.sub(
             self.DATE_REGEX,
-            self.getDateString(self.thingDate),
-            entryLines[ScheduleThing.LINE_DATE]
+            self.get_date_string(self.thingDate),
+            entry_lines[ScheduleThing.LINE_DATE]
         )
         print(
             '\n%s\n%s\n' % (
-                entryLines[ScheduleThing.LINE_DATE],
+                entry_lines[ScheduleThing.LINE_DATE],
                 self.lines[ScheduleThing.LINE_SCHEDULE]
             )
         )
-        return LedgerThing(entryLines)
+        return LedgerThing(entry_lines)
 
-    def _getNextDate(self, previousdate):
+    def _get_next_date(self, previousdate):
         """
         @type previousdate: date
         @rtype: date
         """
-        if self.intervalUom == ScheduleThing.INTERVAL_MONTH:
+        if self.interval_uom == ScheduleThing.INTERVAL_MONTH:
 
             # first see if any scheduled days remaining in same month
             for scheduleday in self.days:
-                scheduleday = self._getMonthDay(scheduleday, previousdate)
-                # compare with greater so we don't keep matching the same
+                scheduleday = self._get_month_day(
+                    scheduleday,
+                    previousdate
+                )
+                # compare with greater so we don't keep matching same
                 if scheduleday > previousdate.day:
-                    return self._getSafeDate(previousdate, scheduleday)
+                    return self._get_safe_date(
+                        previousdate,
+                        scheduleday
+                    )
 
             # advance to next month (by specified interval)
 
-            nextdate = previousdate + relativedelta(months=self.interval)
-
-            return self._getSafeDate(
-                nextdate,
-                self._getMonthDay(self.days[0], nextdate)
+            nextdate = previousdate + relativedelta(
+                months=self.interval
             )
 
-        if self.intervalUom == ScheduleThing.INTERVAL_WEEK:
+            return self._get_safe_date(
+                nextdate,
+                self._get_month_day(self.days[0], nextdate)
+            )
+
+        if self.interval_uom == ScheduleThing.INTERVAL_WEEK:
             # todo: handle day of week stuff, for now this will work
             # fine for basic once a week or once every N weeks stuff
             return previousdate + relativedelta(weeks=self.interval)
 
     # handle situations like 8/31 -> 9/31 (back up to 9/30)
-    def _getSafeDate(self, thedate, theday):
+    @staticmethod
+    def _get_safe_date(thedate, theday):
         try:
             return date(thedate.year, thedate.month, theday)
         except ValueError:
-            # day is out of range for month, so we'll get the last day of month
-            # (may be unlikely now that we check lastDayOfMonth in _getMonthDay)
+            # day is out of range for month, so we'll get the last day
+            # of month (may be unlikely now that we check lastDayOfMonth
+            # in _getMonthDay)
             return date(
                 thedate.year,
                 thedate.month,
@@ -279,35 +301,41 @@ class ScheduleThing(LedgerThing):
             )
 
     # knows how to handle "eom"
-    def _getMonthDay(self, scheduleday, currentdate):
+    def _get_month_day(self, scheduleday, currentdate):
         """
         @type scheduleday: str
         @type currentdate: date
         @rtype: int
         """
 
-        lastDayOfMonth = monthrange(currentdate.year, currentdate.month)[1]
+        last_day_of_month = monthrange(
+            currentdate.year,
+            currentdate.month
+        )[1]
 
-        # todo: create a monthly test case with days = 15, 30, and run it through February
-        #       was seeing a bug where 30 would continually be greater than the safe date of 28
-        #       and we'd get stuck repeating 2/28 for the entry (normally would be using
-        #       eom now for end of month stuff, but should still be able to handle...
+        # todo: create a monthly test case with days = 15, 30, and run
+        # it through February was seeing a bug where 30 would
+        # continually be greater than the safe date of 28 and we'd get
+        # stuck repeating 2/28 for the entry (normally would be using
+        # eom now for end of month stuff, but should still be able to
+        # handle)
         if str(scheduleday).isdigit():
-            if int(scheduleday) > lastDayOfMonth:
-                return lastDayOfMonth
+            if int(scheduleday) > last_day_of_month:
+                return last_day_of_month
             else:
                 return int(scheduleday)
 
         # todo, maybe: option to move date if a weekend
 
         if scheduleday == self.EOM:
-            return lastDayOfMonth
+            return last_day_of_month
 
         if scheduleday == '%s%s' % (self.EOM, '30'):
-            if lastDayOfMonth >= 30:
+            if last_day_of_month >= 30:
                 return 30
             else:
-                return lastDayOfMonth  # february
+                return last_day_of_month  # february
 
-    def _getWeekDay(self):
+    @staticmethod
+    def _get_week_day():
         return -1

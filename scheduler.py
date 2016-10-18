@@ -20,18 +20,18 @@ class Scheduler(object):
 
     def run(self):
 
-        if ScheduleThing.enterDays == ScheduleThing.NO_DAYS:
+        if ScheduleThing.enter_days == ScheduleThing.NO_DAYS:
             return
 
         self.schedulefile.sort()
 
         for schedulething in self.schedulefile.things:
 
-            if schedulething.firstThing:
+            if schedulething.first_thing:
                 continue
 
-            self.ledgerfile.addThings(
-                schedulething.getScheduledEntries()
+            self.ledgerfile.add_things(
+                schedulething.get_scheduled_entries()
             )
 
         self.schedulefile.sort()

@@ -54,7 +54,7 @@ class FileParsingOnInit(Redirector):
         """file output after parsing should be identical to input"""
         expected = FileTester.read_file(FileTester.testfile)
         ledgerfile = LedgerFile(FileTester.testfile)
-        ledgerfile.printFile()
+        ledgerfile.print_file()
         self.redirect.seek(0)
         self.assertEqual(expected, self.redirect.read())
 
@@ -119,10 +119,10 @@ class ThingCounting(TestCase):
             '    liabilities: credit card  $666',
         ]
         thing = LedgerThing(thinglines)
-        ledgerfile.addThing(thing)
+        ledgerfile.add_thing(thing)
         expected = '012'
         actual = ''
-        for thing in ledgerfile.getThings():
+        for thing in ledgerfile.get_things():
             actual += str(thing.thingNumber)
 
         self.assertEquals(actual, expected)
@@ -139,7 +139,7 @@ class ThingDating(TestCase):
         remove(tempfile)
         self.assertEqual(
             LedgerFile.STARTING_DATE,
-            ledgerfile.getThings()[0].thingDate
+            ledgerfile.get_things()[0].thingDate
         )
 
     def test_later_non_transaction_date(self):
@@ -154,13 +154,13 @@ class ThingDating(TestCase):
         thing_lines = ['; blah blah blah', '; and so on...']
         tempfile = FileTester.create_temp_file(testdata)
         ledgerfile = LedgerFile(tempfile)
-        ledgerfile._addThingLines(thing_lines)
+        ledgerfile._add_thing_lines(thing_lines)
         # non-transaction dates are only populated with sort
         ledgerfile.sort()
         remove(tempfile)
         self.assertEqual(
-            ledgerfile.getThings()[1].thingDate,
-            ledgerfile.getThings()[2].thingDate
+            ledgerfile.get_things()[1].thingDate,
+            ledgerfile.get_things()[2].thingDate
         )
 
 

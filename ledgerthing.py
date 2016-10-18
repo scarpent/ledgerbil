@@ -4,14 +4,16 @@
 
 from __future__ import print_function
 
+import re
+
+from datetime import date
+from datetime import datetime
+from dateutil.parser import parse
+
+
 __author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
-
-import re
-from dateutil.parser import parse
-from datetime import date
-from datetime import datetime
 
 
 class LedgerThing(object):
@@ -21,41 +23,44 @@ class LedgerThing(object):
 
     def __init__(self, lines):
 
-        self.thingNumber = 0  # to be overridden by file's addThing method
+        self.thingNumber = 0
         self.thingDate = None
         self.lines = lines
         self.isTransaction = False
 
-        if self.isTransactionStart(lines[0]):
+        if self.is_transaction_start(lines[0]):
             self.isTransaction = True
-            dateString = re.search(
+            date_string = re.search(
                 r'(%s)' % self.DATE_REGEX,
                 lines[0]
             ).group(1)
-            self.thingDate = self.getDate(dateString)
+            self.thingDate = self.get_date(date_string)
 
-    def getLines(self):
+    def get_lines(self):
         if self.isTransaction:
             self.lines[0] = re.sub(
                 self.DATE_REGEX,
-                self.getDateString(self.thingDate),
+                self.get_date_string(self.thingDate),
                 self.lines[0]
             )
         return self.lines
 
     @staticmethod
-    def isNewThing(line):
+    def is_new_thing(line):
         # for now we're looking for dates as the start of transactions
         # later: payees, accounts, aliases, etc
-        if LedgerThing.isTransactionStart(line):
+        if LedgerThing.is_transaction_start(line):
             return True
 
         return False
 
     @staticmethod
-    def isTransactionStart(line):
+    def is_transaction_start(line):
         # date check, pending refinement based on ledger spec
-        match = re.match(r'(%s)\s+[^\s].*$' % LedgerThing.DATE_REGEX, line)
+        match = re.match(
+            r'({})\s+[^\s].*$'.format(LedgerThing.DATE_REGEX),
+            line
+        )
         if match:
             try:
                 parse(match.group(1))  # verify it parses as date
@@ -66,12 +71,14 @@ class LedgerThing(object):
         return False
 
     @staticmethod
-    def getDateString(date):
-        """ @type date: date """
-        return date.strftime(LedgerThing.DATE_FORMAT)
-
+    def get_date_string(the_date):
+        """ @type the_date: date """
+        return the_date.strftime(LedgerThing.DATE_FORMAT)
 
     @staticmethod
-    def getDate(dateString):
-        """ @type dateString: str """
-        return datetime.strptime(dateString, LedgerThing.DATE_FORMAT).date()
+    def get_date(date_string):
+        """ @type date_string: str """
+        return datetime.strptime(
+            date_string,
+            LedgerThing.DATE_FORMAT
+        ).date()

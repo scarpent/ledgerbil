@@ -4,15 +4,17 @@
 
 from __future__ import print_function
 
-__author__ = 'Scott Carpenter'
-__license__ = 'gpl v3 or greater'
-__email__ = 'scottc@movingtofreedom.org'
-
 import sys
+
 from datetime import date
 from operator import attrgetter
 
 from ledgerthing import LedgerThing
+
+
+__author__ = 'Scott Carpenter'
+__license__ = 'gpl v3 or greater'
+__email__ = 'scottc@movingtofreedom.org'
 
 
 class LedgerFile(object):
@@ -24,72 +26,74 @@ class LedgerFile(object):
         self.things = []
         self.filename = filename
 
-        self._parseFile()
+        self._parse_file()
 
-    def _openFile(self):
+    def _open_file(self):
         try:
-            self.ledgerFile = open(self.filename, 'r+')
+            self.ledger_file = open(self.filename, 'r+')
         except IOError as e:
             sys.stderr.write('error: %s\n' % e)
             sys.exit(-1)
 
-    def _closeFile(self):
-        self.ledgerFile.close()
+    def _close_file(self):
+        self.ledger_file.close()
 
-    def _parseFile(self):
-        self._openFile()
-        self._parseLines(self.ledgerFile.read().splitlines())
-        self._closeFile()
+    def _parse_file(self):
+        self._open_file()
+        self._parse_lines(self.ledger_file.read().splitlines())
+        self._close_file()
 
-    def _parseLines(self, lines):
-        currentLines = []
+    def _parse_lines(self, lines):
+        current_lines = []
         for line in lines:
-            if LedgerThing.isNewThing(line):
-                self._addThingLines(currentLines)
-                currentLines = []
+            if LedgerThing.is_new_thing(line):
+                self._add_thing_lines(current_lines)
+                current_lines = []
 
-            currentLines.append(line)
+            current_lines.append(line)
 
-        self._addThingLines(currentLines)
+        self._add_thing_lines(current_lines)
 
-    def _addThingLines(self, lines):
+    def _add_thing_lines(self, lines):
         if lines:
             thing = LedgerThing(lines)
-            self.addThing(thing)
+            self.add_thing(thing)
 
-    def addThing(self, thing):
+    def add_thing(self, thing):
         things = [thing]
-        self.addThings(things)
+        self.add_things(things)
 
-    def addThings(self, things):
+    def add_things(self, things):
         for thing in things:
             thing.thingNumber = self.thingCounter
-            self.getThings().append(thing)
+            self.get_things().append(thing)
             # increment after for a zero-based array
             self.thingCounter += 1
 
-    def getThings(self):
+    def get_things(self):
         return self.things
 
     def sort(self):
-        currentDate = self.STARTING_DATE
+        current_date = self.STARTING_DATE
 
-        for thing in self.getThings():
+        for thing in self.get_things():
             if thing.thingDate is None:
-                thing.thingDate = currentDate
+                thing.thingDate = current_date
             else:
-                currentDate = thing.thingDate
+                current_date = thing.thingDate
 
-        self.getThings().sort(key=attrgetter('thingDate', 'thingNumber'))
+        self.get_things().sort(
+            key=attrgetter('thingDate', 'thingNumber')
+        )
 
-    def printFile(self):
-        for thing in self.getThings():
-            for line in thing.getLines():
+    def print_file(self):
+        for thing in self.get_things():
+            for line in thing.get_lines():
                 print(line)
 
     def write_file(self):
-        self._openFile()
-        for thing in self.getThings():
-            for line in thing.getLines():
-                self.ledgerFile.write(line + '\n')
-        self._closeFile()
+        self._open_file()
+        for thing in self.get_things():
+            for line in thing.get_lines():
+                self.ledger_file.write(line + '\n')
+        self._close_file()

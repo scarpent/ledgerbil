@@ -15,6 +15,6 @@ class ScheduleThingTester(Redirector):
 
     def setUp(self):
         super(ScheduleThingTester, self).setUp()
-        ScheduleThing.doFileConfig = True
-        ScheduleThing.enterDays = ScheduleThing.NO_DAYS
-        ScheduleThing.entryBoundaryDate = None
+        ScheduleThing.do_file_config = True
+        ScheduleThing.enter_days = ScheduleThing.NO_DAYS
+        ScheduleThing.entry_boundary_date = None

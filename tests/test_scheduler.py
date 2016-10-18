@@ -39,7 +39,7 @@ class SchedulerRun(ScheduleThingTester):
 
     def run_it(self, before_date, after_date, schedule, enter_days=7):
         schedulefiledata = self.get_schedule_file(
-            LedgerThing.getDateString(before_date),
+            LedgerThing.get_date_string(before_date),
             schedule,
             enter_days
         )
@@ -64,7 +64,7 @@ class SchedulerRun(ScheduleThingTester):
         schedulefile_actual = FileTester.read_file(tempschedulefile)
 
         schedulefile_expected = self.get_schedule_file(
-            LedgerThing.getDateString(after_date),
+            LedgerThing.get_date_string(after_date),
             schedule,
             enter_days
         )
