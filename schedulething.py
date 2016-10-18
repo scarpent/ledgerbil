@@ -313,12 +313,6 @@ class ScheduleThing(LedgerThing):
             currentdate.month
         )[1]
 
-        # todo: create a monthly test case with days = 15, 30, and run
-        # it through February was seeing a bug where 30 would
-        # continually be greater than the safe date of 28 and we'd get
-        # stuck repeating 2/28 for the entry (normally would be using
-        # eom now for end of month stuff, but should still be able to
-        # handle)
         if str(scheduleday).isdigit():
             if int(scheduleday) > last_day_of_month:
                 return last_day_of_month

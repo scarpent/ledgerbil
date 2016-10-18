@@ -2,7 +2,6 @@
 
 """unit test for schedule_thing.py"""
 
-
 from unittest import TestCase
 
 from datetime import datetime
@@ -38,7 +37,10 @@ class GetSafeDate(Redirector):
 
     def test_day_is_too_many(self):
         expected = date(2013, 8, 31)
-        actual = self.schedule_thing._get_safe_date(date(2013, 8, 31), 99)
+        actual = self.schedule_thing._get_safe_date(
+            date(2013, 8, 31),
+            99
+        )
         self.assertEqual(expected, actual)
 
 
@@ -769,15 +771,22 @@ class GetMonthDay(Redirector):
 
     def test_get_month_day_normal(self):
         """normal day is returned as the same day number"""
-        testdate = datetime.strptime('2013/06/16', '%Y/%m/%d')
+        testdate = datetime(2013, 6, 16)
         self.assertEqual(
             5,
             self.schedule_thing._get_month_day('5', testdate)
         )
 
+    def test_get_month_day_february_30(self):
+        testdate = datetime(2016, 2, 16)
+        self.assertEqual(
+            29,
+            self.schedule_thing._get_month_day('30', testdate)
+        )
+
     def test_get_month_day_june_eom(self):
         """eom for a 30-day month is 30"""
-        testdate = datetime.strptime('2013/06/16', '%Y/%m/%d')
+        testdate = datetime(2013, 6, 16)
         self.assertEqual(
             30,
             self.schedule_thing._get_month_day(
@@ -788,7 +797,7 @@ class GetMonthDay(Redirector):
 
     def test_get_month_day_july_eom(self):
         """eom for a 31-day month is 31"""
-        testdate = datetime.strptime('2013/07/01', '%Y/%m/%d')
+        testdate = datetime(2013, 7, 1)
         self.assertEqual(
             31,
             self.schedule_thing._get_month_day(
@@ -799,7 +808,7 @@ class GetMonthDay(Redirector):
 
     def test_get_month_day_february_eom(self):
         """eom for a non-leap year february is 28"""
-        testdate = datetime.strptime('2013/02/05', '%Y/%m/%d')
+        testdate = datetime(2013, 2, 5)
         self.assertEqual(
             28,
             self.schedule_thing._get_month_day(
@@ -810,7 +819,7 @@ class GetMonthDay(Redirector):
 
     def test_get_month_day_leap_february_eom(self):
         """eom for a leap year february is 29"""
-        testdate = datetime.strptime('2012/02/05', '%Y/%m/%d')
+        testdate = datetime(2012, 2, 5)
         self.assertEqual(
             29,
             self.schedule_thing._get_month_day(
@@ -821,7 +830,7 @@ class GetMonthDay(Redirector):
 
     def test_get_month_day_june_eom30(self):
         """eom30 for a 30-day month is 30"""
-        testdate = datetime.strptime('2013/06/16', '%Y/%m/%d')
+        testdate = datetime(2013, 6, 16)
         self.assertEqual(
             30,
             self.schedule_thing._get_month_day(
@@ -832,7 +841,7 @@ class GetMonthDay(Redirector):
 
     def test_get_month_day_july_eom30(self):
         """eom30 for a 31-day month is 30"""
-        testdate = datetime.strptime('2013/07/01', '%Y/%m/%d')
+        testdate = datetime(2013, 7, 1)
         self.assertEqual(
             30,
             self.schedule_thing._get_month_day(
@@ -843,7 +852,7 @@ class GetMonthDay(Redirector):
 
     def test_get_month_day_february_eom30(self):
         """eom30 for a non-leap year february is 28"""
-        testdate = datetime.strptime('2013/02/05', '%Y/%m/%d')
+        testdate = datetime(2013, 2, 5)
         self.assertEqual(
             28,
             self.schedule_thing._get_month_day(
@@ -854,7 +863,7 @@ class GetMonthDay(Redirector):
 
     def test_get_month_day_leap_february_eom30(self):
         """eom for a leap year february is 29"""
-        testdate = datetime.strptime('2012/02/05', '%Y/%m/%d')
+        testdate = datetime(2012, 2, 5)
         self.assertEqual(
             29,
             self.schedule_thing._get_month_day(
