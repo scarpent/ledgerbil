@@ -12,7 +12,7 @@ from schedulefile import ScheduleFile
 from scheduler import Scheduler
 
 
-__author__ = 'scarpent'
+__author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 

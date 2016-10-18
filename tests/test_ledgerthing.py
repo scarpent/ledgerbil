@@ -9,94 +9,94 @@ from datetime import date
 from ledgerthing import LedgerThing
 
 
-__author__ = 'scarpent'
+__author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
 
 class Constructor(TestCase):
 
-    def testNonTransactionDate(self):
+    def test_non_transaction_date(self):
         """non-transactions initially have date = None"""
         thing = LedgerThing(['blah', 'blah blah blah'])
         self.assertIsNone(thing.thingDate)
 
-    def testTransactionDate(self):
-        """later non-transaction things inherit date of preceding thing"""
+    def test_transaction_date(self):
+        """later non-transaction things inherit preceding thing date"""
         thing = LedgerThing(['2013/05/18 blah', '    ; something...'])
         self.assertEqual(thing.thingDate, date(2013, 5, 18))
 
 
 class GetLines(TestCase):
 
-    def testGetLines(self):
+    def test_get_lines(self):
         """lines can be entered and retrieved as is"""
         lines = ['abc\n', 'xyz\n']
         thing = LedgerThing(lines)
         self.assertEqual(lines, thing.getLines())
 
 
-class isNewThing(TestCase):
+class IsNewThing(TestCase):
 
-    def testIsNewThing(self):
+    def test_is_new_thing(self):
         """should be recognized as a new ledger 'thing' """
         line = '2013/04/15 abc store'
         self.assertTrue(LedgerThing.isNewThing(line))
 
-    def testIsNotThing(self):
+    def test_is_not_thing(self):
         """should not be a new thing"""
         line = ''
         self.assertFalse(LedgerThing.isNewThing(line))
 
 
-class isTransactionStart(TestCase):
+class IsTransactionStart(TestCase):
 
-    def testValidTransactionStart(self):
-        """date recognized as the start of a transaction (return true)"""
+    def test_valid_transaction_start(self):
+        """date recognized as the start of a transaction"""
         line = '2013/04/14 abc store'
         self.assertTrue(LedgerThing.isTransactionStart(line))
 
-    def testValidTransactionStartWithTabs(self):
-        """date recognized as the start of a transaction (return true)"""
+    def test_valid_transaction_start_with_tabs(self):
+        """date recognized as the start of a transaction"""
         line = '2013/04/14\t\tabc store'
         self.assertTrue(LedgerThing.isTransactionStart(line))
 
-    def testLeadingWhiteSpace(self):
+    def test_leading_white_space(self):
         """leading whitespace should return false"""
         line = '    2013/04/14 abc store'
         self.assertFalse(LedgerThing.isTransactionStart(line))
 
-    def testDateOnly(self):
+    def test_date_only(self):
         """date only should return false"""
         line = '2013/04/14 '
         self.assertFalse(LedgerThing.isTransactionStart(line))
 
-    def testEmptyLine(self):
+    def test_empty_line(self):
         """empty line should return false"""
         line = ''
         self.assertFalse(LedgerThing.isTransactionStart(line))
 
-    def testNewline(self):
+    def test_newline(self):
         """newline should return false"""
         line = '\n'
         self.assertFalse(LedgerThing.isTransactionStart(line))
 
-    def testWhitespace(self):
+    def test_whitespace(self):
         """whitespace should return false"""
         line = '            \t    '
         self.assertFalse(LedgerThing.isTransactionStart(line))
 
-    def testInvalidDate(self):
+    def test_invalid_date(self):
         """invalid date should return false"""
         line = '2013/02/30 abc store'
         self.assertFalse(LedgerThing.isTransactionStart(line))
 
-    def testInvalidDateFormatMonth(self):
-        """valid date but invalid (for ledger) date fmt should return false"""
+    def test_invalid_date_format_month(self):
+        """valid date but invalid (for ledger) date fmt returns false"""
         line = '2013/5/12 abc store'
         self.assertFalse(LedgerThing.isTransactionStart(line))
 
-    def testInvalidDateFormatDay(self):
-        """valid date but invalid (for ledger) date fmt should return false"""
+    def test_invalid_date_format_day(self):
+        """valid date but invalid (for ledger) date fmt returns false"""
         line = '2013/06/1 abc store'
         self.assertFalse(LedgerThing.isTransactionStart(line))

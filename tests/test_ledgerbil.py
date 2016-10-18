@@ -10,54 +10,55 @@ from unittest import TestCase
 
 import ledgerbil
 
+# noinspection PyPep8Naming
 from filetester import FileTester as FT
 from ledgerthing import LedgerThing
 from redirector import Redirector
 
 
-__author__ = 'scarpent'
+__author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
 
 class MainBasicInput(TestCase):
 
-    def testMainNoOptionsOnSortedFile(self):
+    def test_main_no_options_on_sorted_file(self):
         """main should parse and write sorted file unchanged"""
-        expected = FT.readFile(FT.alpha_sortedfile)
-        tempfile = FT.copyToTempFile(FT.alpha_sortedfile)
+        expected = FT.read_file(FT.alpha_sortedfile)
+        tempfile = FT.copy_to_temp_file(FT.alpha_sortedfile)
         ledgerbil.main(['--file', tempfile])
-        actual = FT.readFile(tempfile)
+        actual = FT.read_file(tempfile)
         os.remove(tempfile)
         self.assertEqual(expected, actual)
 
-    def testMainNoOptionsOnUnsortedFile(self):
+    def test_main_no_options_on_unsorted_file(self):
         """main should parse and write unsorted file unchanged"""
-        expected = FT.readFile(FT.alpha_unsortedfile)
-        tempfile = FT.copyToTempFile(FT.alpha_unsortedfile)
+        expected = FT.read_file(FT.alpha_unsortedfile)
+        tempfile = FT.copy_to_temp_file(FT.alpha_unsortedfile)
         ledgerbil.main(['--file', tempfile])
-        actual = FT.readFile(tempfile)
+        actual = FT.read_file(tempfile)
         os.remove(tempfile)
         self.assertEqual(expected, actual)
 
 
 class Sorting(TestCase):
 
-    def testMainSortOnSortedFile(self):
+    def test_main_sort_on_sorted_file(self):
         """main should parse and write sorted file unchanged"""
-        expected = FT.readFile(FT.alpha_sortedfile)
-        tempfile = FT.copyToTempFile(FT.alpha_sortedfile)
+        expected = FT.read_file(FT.alpha_sortedfile)
+        tempfile = FT.copy_to_temp_file(FT.alpha_sortedfile)
         ledgerbil.main(['--file', tempfile, '--sort'])
-        actual = FT.readFile(tempfile)
+        actual = FT.read_file(tempfile)
         os.remove(tempfile)
         self.assertEqual(expected, actual)
 
-    def testMainSortedNoOptions(self):
+    def test_main_sorted_no_options(self):
         """main should parse unsorted file and write sorted file"""
-        expected = FT.readFile(FT.alpha_sortedfile)
-        tempfile = FT.copyToTempFile(FT.alpha_unsortedfile)
+        expected = FT.read_file(FT.alpha_sortedfile)
+        tempfile = FT.copy_to_temp_file(FT.alpha_unsortedfile)
         ledgerbil.main(['--file', tempfile, '--sort'])
-        actual = FT.readFile(tempfile)
+        actual = FT.read_file(tempfile)
         os.remove(tempfile)
         self.assertEqual(expected, actual)
 
@@ -98,12 +99,12 @@ class Scheduler(Redirector):
             LedgerThing.getDateString(testdate),
             schedule
         )
-        tempschedulefile = FT.writeToTempFile(
+        tempschedulefile = FT.write_to_temp_file(
             FT.testdir + 'test_scheduler_schedule_file',
             schedulefiledata
         )
 
-        templedgerfile = FT.writeToTempFile(
+        templedgerfile = FT.write_to_temp_file(
             FT.testdir + 'test_scheduler_ledger_file',
             ''
         )
@@ -113,7 +114,7 @@ class Scheduler(Redirector):
             '--schedule-file', tempschedulefile,
         ])
 
-        schedulefile_actual = FT.readFile(tempschedulefile)
+        schedulefile_actual = FT.read_file(tempschedulefile)
         schedulefile_expected = self.get_schedule_file(
             LedgerThing.getDateString(
                 testdate + relativedelta(months=2)
@@ -121,7 +122,7 @@ class Scheduler(Redirector):
             schedule
         )
 
-        ledgerfile_actual = FT.readFile(templedgerfile)
+        ledgerfile_actual = FT.read_file(templedgerfile)
         ledgerfile_expected = self.get_ledger_file(
             LedgerThing.getDateString(testdate)
         )

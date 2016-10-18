@@ -15,7 +15,7 @@ from scheduler import Scheduler
 from schedulething_tester import ScheduleThingTester
 
 
-__author__ = 'scarpent'
+__author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
@@ -43,13 +43,13 @@ class SchedulerRun(ScheduleThingTester):
             schedule,
             enter_days
         )
-        tempschedulefile = FileTester.writeToTempFile(
+        tempschedulefile = FileTester.write_to_temp_file(
             FileTester.testdir + 'run_it_schedule_file',
             schedulefiledata
         )
         schedulefile = ScheduleFile(tempschedulefile)
 
-        templedgerfile = FileTester.writeToTempFile(
+        templedgerfile = FileTester.write_to_temp_file(
             FileTester.testdir + 'run_it_ledger_file',
             ''
         )
@@ -61,7 +61,7 @@ class SchedulerRun(ScheduleThingTester):
         ledgerfile.write_file()
         schedulefile.write_file()
 
-        schedulefile_actual = FileTester.readFile(tempschedulefile)
+        schedulefile_actual = FileTester.read_file(tempschedulefile)
 
         schedulefile_expected = self.get_schedule_file(
             LedgerThing.getDateString(after_date),
@@ -112,16 +112,16 @@ class SchedulerRun(ScheduleThingTester):
         )
 
     def testRunEnterDaysLessThanOne(self):
-        schedulefiledata = FileTester.readFile(
-            FileTester.testschedulefile_enterdays_lessthan1
+        schedulefiledata = FileTester.read_file(
+            FileTester.test_enter_lessthan1
         )
-        tempschedulefile = FileTester.writeToTempFile(
-            FileTester.testschedulefile_enterdays_lessthan1,
+        tempschedulefile = FileTester.write_to_temp_file(
+            FileTester.test_enter_lessthan1,
             schedulefiledata
         )
         schedulefile = ScheduleFile(tempschedulefile)
 
-        templedgerfile = FileTester.createTempFile('')
+        templedgerfile = FileTester.create_temp_file('')
         ledgerfile = LedgerFile(templedgerfile)
 
         scheduler = Scheduler(ledgerfile, schedulefile)
@@ -130,9 +130,9 @@ class SchedulerRun(ScheduleThingTester):
         ledgerfile.write_file()
         schedulefile.write_file()
 
-        schedulefile_actual = FileTester.readFile(tempschedulefile)
-        schedulefile_expected = FileTester.readFile(
-            FileTester.testschedulefile_enterdays_lessthan1
+        schedulefile_actual = FileTester.read_file(tempschedulefile)
+        schedulefile_expected = FileTester.read_file(
+            FileTester.test_enter_lessthan1
         )
 
         os.remove(templedgerfile)

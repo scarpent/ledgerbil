@@ -2,13 +2,11 @@
 
 """unit test for ledgerbil.py"""
 
-import unittest
-
 from redirector import Redirector
 from arghandler import ArgHandler
 
 
-__author__ = 'scarpent'
+__author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
@@ -17,17 +15,17 @@ filename = 'dummy.ldg'
 
 class Arguments(Redirector):
 
-    def testFileShortOption(self):
+    def test_file_short_option(self):
         """should set parse args 'file' var"""
         args = ArgHandler.get_args(['-f', filename])
         self.assertTrue(args.file)
 
-    def testFileLongOption(self):
+    def test_file_long_option(self):
         """should set parse args 'file' var"""
         args = ArgHandler.get_args(['--file', filename])
         self.assertTrue(args.file)
 
-    def testFileOptionIsRequired(self):
+    def test_file_option_is_required(self):
         """should cause argparse error if file option not specified"""
         expected = 'error: argument -f/--file is required'
         try:
@@ -39,7 +37,7 @@ class Arguments(Redirector):
         actual = self.redirecterr.read()
         self.assertTrue(expected in actual)
 
-    def testFileOptionAndFilenameBothRequired(self):
+    def test_file_option_and_filename_both_required(self):
         """should cause argparse error if file opt specified w/o file"""
         expected = 'error: argument -f/--file: expected one argument'
         try:
@@ -51,27 +49,27 @@ class Arguments(Redirector):
         actual = self.redirecterr.read()
         self.assertTrue(expected in actual)
 
-    def testSortShortOption(self):
+    def test_sort_short_option(self):
         """should set parse args 'sort' var"""
         args = ArgHandler.get_args(['-f', filename, '-s'])
         self.assertTrue(args.sort)
 
-    def testSortLongOption(self):
+    def test_sort_long_option(self):
         """should set parse args 'sort' var"""
         args = ArgHandler.get_args(['--file', filename, '--sort'])
         self.assertTrue(args.sort)
 
-    def testNoSortingOption(self):
+    def test_no_sorting_option(self):
         """should not set parse args 'sort' var"""
         args = ArgHandler.get_args(['--file', filename])
         self.assertFalse(args.sort)
 
-    def testScheduleFileShortOption(self):
+    def test_schedule_file_short_option(self):
         """should set parse args 'schedule-file' var"""
         args = ArgHandler.get_args(['-f', filename, '-S', filename])
         self.assertTrue(args.schedule_file)
 
-    def testScheduleFileLongOption(self):
+    def test_schedule_file_long_option(self):
         """should set parse args 'schedule-file' var"""
         args = ArgHandler.get_args([
             '--file', filename,
@@ -79,9 +77,11 @@ class Arguments(Redirector):
         ])
         self.assertTrue(args.schedule_file)
 
-    def testScheduleFilenameRequiredWithScheduleOption(self):
-        """should cause argparse error if sched file opt specified w/o file"""
-        expected = 'error: argument -S/--schedule-file: expected one argument'
+    def test_schedule_filename_required_with_schedule_option(self):
+        """argparse error if sched file opt specified w/o file"""
+        expected = (
+            'error: argument -S/--schedule-file: expected one argument'
+        )
         try:
             ArgHandler.get_args(['--file', filename, '--schedule-file'])
         except SystemExit:

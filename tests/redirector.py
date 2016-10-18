@@ -2,14 +2,17 @@
 
 """supports unit testing by capturing streams"""
 
-__author__ = 'scarpent'
-__license__ = 'gpl v3 or greater'
-__email__ = 'scottc@movingtofreedom.org'
-
 from unittest import TestCase
 import sys
 
+# noinspection PyCompatibility
 from StringIO import StringIO
+
+
+__author__ = 'Scott Carpenter'
+__license__ = 'gpl v3 or greater'
+__email__ = 'scottc@movingtofreedom.org'
+
 
 class Redirector(TestCase):
 

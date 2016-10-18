@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""unit test for schedulething.py"""
+"""unit test for schedule_thing.py"""
 
 
 from unittest import TestCase
@@ -15,7 +15,7 @@ from ledgerthing import LedgerThing
 from ledgerbilexceptions import *
 
 
-__author__ = 'scarpent'
+__author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
@@ -24,21 +24,21 @@ class GetSafeDate(Redirector):
 
     def setUp(self):
         super(GetSafeDate, self).setUp()
-        scheduleLinesTest = [
+        schedule_lines_test = [
             '2013/06/29 lightning energy',
             '    ;; schedule ; monthly ; 12th ; ; auto'
         ]
         ScheduleThing.doFileConfig = False
-        self.scheduleThing = ScheduleThing(scheduleLinesTest)
+        self.schedule_thing = ScheduleThing(schedule_lines_test)
 
-    def testDateIsFine(self):
+    def test_date_is_fine(self):
         expected = date(2013, 8, 31)
-        actual = self.scheduleThing._getSafeDate(expected, 31)
+        actual = self.schedule_thing._getSafeDate(expected, 31)
         self.assertEqual(expected, actual)
 
-    def testDayIsTooMany(self):
+    def test_day_is_too_many(self):
         expected = date(2013, 8, 31)
-        actual = self.scheduleThing._getSafeDate(date(2013, 8, 31), 99)
+        actual = self.schedule_thing._getSafeDate(date(2013, 8, 31), 99)
         self.assertEqual(expected, actual)
 
 
@@ -46,181 +46,181 @@ class GetScheduledEntries(Redirector):
 
     def setUp(self):
         super(GetScheduledEntries, self).setUp()
-        scheduleLineFileConfig = [
+        schedule_line_file_config = [
             ';; scheduler ; enter 7 days'
         ]
         ScheduleThing.doFileConfig = True
-        ScheduleThing(scheduleLineFileConfig)
+        ScheduleThing(schedule_line_file_config)
 
-    def testOneEntryCount(self):
+    def test_one_entry_count(self):
         testdate = LedgerThing.getDateString(date.today())
-        schedulelines = [
+        schedule_lines = [
             '{date} lightning energy'.format(date=testdate),
             '    ;; schedule ; monthly',
             '    blah blah blah',
         ]
-        schedulething = ScheduleThing(schedulelines)
+        schedule_thing = ScheduleThing(schedule_lines)
 
         expected = 1
-        actual = len(schedulething.getScheduledEntries())
+        actual = len(schedule_thing.getScheduledEntries())
 
         self.assertEqual(expected, actual)
 
-    def testOneEntryNextDate(self):
+    def test_one_entry_next_date(self):
         testdate = LedgerThing.getDateString(date.today())
-        schedulelines = [
+        schedule_lines = [
             '{date} lightning energy'.format(date=testdate),
             '    ;; schedule ; monthly',
             '    blah blah blah',
         ]
-        schedulething = ScheduleThing(schedulelines)
-        schedulething.getScheduledEntries()
+        schedule_thing = ScheduleThing(schedule_lines)
+        schedule_thing.getScheduledEntries()
 
         expected = date.today() + relativedelta(months=1)
-        actual = schedulething.thingDate
+        actual = schedule_thing.thingDate
 
         self.assertEqual(expected, actual)
 
-    def testOneEntryContent(self):
+    def test_one_entry_content(self):
         testdate = LedgerThing.getDateString(date.today())
-        schedulelines = [
+        schedule_lines = [
             '{date} lightning energy'.format(date=testdate),
             '    ;; schedule ; monthly',
             '    blah blah blah',
         ]
-        schedulething = ScheduleThing(schedulelines)
+        schedule_thing = ScheduleThing(schedule_lines)
 
         expected = [
             '{date} lightning energy'.format(date=testdate),
             '    blah blah blah',
         ]
 
-        actual = schedulething.getScheduledEntries()[0].getLines()
+        actual = schedule_thing.getScheduledEntries()[0].getLines()
 
         self.assertEqual(expected, actual)
 
-    def testTwoEntriesCount(self):
+    def test_two_entries_count(self):
         testdate = LedgerThing.getDateString(
             date.today() - relativedelta(months=1)
         )
-        schedulelines = [
+        schedule_lines = [
             '{date} lightning energy'.format(date=testdate),
             '    ;; schedule ; monthly',
             '    blah blah blah',
         ]
-        schedulething = ScheduleThing(schedulelines)
+        schedule_thing = ScheduleThing(schedule_lines)
 
         expected = 2
-        actual = len(schedulething.getScheduledEntries())
+        actual = len(schedule_thing.getScheduledEntries())
 
         self.assertEqual(expected, actual)
 
-    def testTwoEntriesNextDate(self):
+    def test_two_entries_next_date(self):
         testdate = LedgerThing.getDateString(date.today())
-        schedulelines = [
+        schedule_lines = [
             '{date} lightning energy'.format(date=testdate),
             '    ;; schedule ; yearly',
             '    blah blah blah',
         ]
-        schedulething = ScheduleThing(schedulelines)
-        schedulething.thingDate = date.today() - relativedelta(years=1)
-        schedulething.getScheduledEntries()
+        schedule_thing = ScheduleThing(schedule_lines)
+        schedule_thing.thingDate = date.today() - relativedelta(years=1)
+        schedule_thing.getScheduledEntries()
 
         expected = date.today() + relativedelta(years=1)
-        actual = schedulething.thingDate
+        actual = schedule_thing.thingDate
 
         self.assertEqual(expected, actual)
 
-    def testNoEntriesCount(self):
+    def test_no_entries_count(self):
         testdate = LedgerThing.getDateString(
             date.today() + relativedelta(months=2)
         )
-        schedulelines = [
+        schedule_lines = [
             '{date} lightning energy'.format(date=testdate),
             '    ;; schedule ; monthly',
             '    blah blah blah',
         ]
-        schedulething = ScheduleThing(schedulelines)
+        schedule_thing = ScheduleThing(schedule_lines)
 
         expected = 0
-        actual = len(schedulething.getScheduledEntries())
+        actual = len(schedule_thing.getScheduledEntries())
 
         self.assertEqual(expected, actual)
 
-    def testNoEntriesNextDate(self):
+    def test_no_entries_next_date(self):
         testdate = LedgerThing.getDateString(
             date.today() + relativedelta(months=2)
         )
-        schedulelines = [
+        schedule_lines = [
             '{date} lightning energy'.format(date=testdate),
             '    ;; schedule ; monthly',
             '    blah blah blah',
         ]
-        schedulething = ScheduleThing(schedulelines)
-        schedulething.getScheduledEntries()
+        schedule_thing = ScheduleThing(schedule_lines)
+        schedule_thing.getScheduledEntries()
 
         expected = date.today() + relativedelta(months=2)
-        actual = schedulething.thingDate
+        actual = schedule_thing.thingDate
 
         self.assertEqual(expected, actual)
 
-    def testBimonthlyNextDate(self):
+    def test_bimonthly_next_date(self):
         testdate = LedgerThing.getDateString(date.today())
-        schedulelines = [
+        schedule_lines = [
             '{date} lightning energy'.format(date=testdate),
             '    ;; schedule ; bimonthly',
             '    blah blah blah',
         ]
-        schedulething = ScheduleThing(schedulelines)
-        schedulething.getScheduledEntries()
+        schedule_thing = ScheduleThing(schedule_lines)
+        schedule_thing.getScheduledEntries()
 
         expected = date.today() + relativedelta(months=2)
-        actual = schedulething.thingDate
+        actual = schedule_thing.thingDate
 
         self.assertEqual(expected, actual)
 
-    def testQuarterlyNextDate(self):
+    def test_quarterly_next_date(self):
         testdate = LedgerThing.getDateString(date.today())
-        schedulelines = [
+        schedule_lines = [
             '{date} lightning energy'.format(date=testdate),
             '    ;; schedule ; quarterly',
             '    blah blah blah',
         ]
-        schedulething = ScheduleThing(schedulelines)
-        schedulething.getScheduledEntries()
+        schedule_thing = ScheduleThing(schedule_lines)
+        schedule_thing.getScheduledEntries()
 
         expected = date.today() + relativedelta(months=3)
-        actual = schedulething.thingDate
+        actual = schedule_thing.thingDate
 
         self.assertEqual(expected, actual)
 
-    def testBiannualNextDate(self):
+    def test_biannual_next_date(self):
         testdate = LedgerThing.getDateString(date.today())
-        schedulelines = [
+        schedule_lines = [
             '{date} lightning energy'.format(date=testdate),
             '    ;; schedule ; biannual',
             '    blah blah blah',
         ]
-        schedulething = ScheduleThing(schedulelines)
-        schedulething.getScheduledEntries()
+        schedule_thing = ScheduleThing(schedule_lines)
+        schedule_thing.getScheduledEntries()
 
         expected = date.today() + relativedelta(months=6)
-        actual = schedulething.thingDate
+        actual = schedule_thing.thingDate
 
         self.assertEqual(expected, actual)
 
-    def testYearlyNextDate(self):
+    def test_yearly_next_date(self):
         testdate = LedgerThing.getDateString(date.today())
-        schedulelines = [
+        schedule_lines = [
             '{date} lightning energy'.format(date=testdate),
             '    ;; schedule ; yearly',
             '    blah blah blah',
         ]
-        schedulething = ScheduleThing(schedulelines)
-        schedulething.getScheduledEntries()
+        schedule_thing = ScheduleThing(schedule_lines)
+        schedule_thing.getScheduledEntries()
 
         expected = date.today() + relativedelta(months=12)
-        actual = schedulething.thingDate
+        actual = schedule_thing.thingDate
 
         self.assertEqual(expected, actual)
 
@@ -229,27 +229,27 @@ class GetEntryThing(Redirector):
 
     def setUp(self):
         super(GetEntryThing, self).setUp()
-        scheduleLineFileConfig = [
+        schedule_line_file_config = [
             ';; scheduler ; enter 7 days'
         ]
         ScheduleThing.doFileConfig = True
-        ScheduleThing(scheduleLineFileConfig)
+        ScheduleThing(schedule_line_file_config)
 
-    def testBasicEntry(self):
-        schedulelines = [
+    def test_basic_entry(self):
+        schedule_lines = [
             '2013/06/13 lightning energy',
             '    ;; schedule ; monthly',
             '    blah blah blah',
         ]
-        schedulething = ScheduleThing(schedulelines)
-        schedulething.thingDate = date(2013, 07, 01)
+        schedule_thing = ScheduleThing(schedule_lines)
+        schedule_thing.thingDate = date(2013, 7, 1)
 
         expected = [
             '2013/07/01 lightning energy',
             '    blah blah blah',
         ]
 
-        actual = schedulething._getEntryThing().getLines()
+        actual = schedule_thing._getEntryThing().getLines()
 
         self.assertEqual(expected, actual)
 
@@ -258,165 +258,167 @@ class HandleThingConfig(Redirector):
 
     def setUp(self):
         super(HandleThingConfig, self).setUp()
-        scheduleLineFileConfig = [
+        schedule_line_file_config = [
             ';; scheduler ; enter 7 days'
         ]
         ScheduleThing.doFileConfig = True
-        ScheduleThing(scheduleLineFileConfig)
+        ScheduleThing(schedule_line_file_config)
 
-    def getExpectedConfig(self, intervaluom, days, interval):
+    @staticmethod
+    def get_expected_config(intervaluom, days, interval):
         return '%s | %s | %s' % (intervaluom, days, interval)
 
-    def getActualConfig(self, schedulething):
+    @staticmethod
+    def get_actual_config(schedule_thing):
         return (
             '%s | %s | %s' % (
-                schedulething.intervalUom,
-                schedulething.days,
-                schedulething.interval
+                schedule_thing.intervalUom,
+                schedule_thing.days,
+                schedule_thing.interval
             )
         )
 
-    def testBasicThingConfig(self):
+    def test_basic_thing_config(self):
         # also tests sorting of days
-        schedulelines = [
+        schedule_lines = [
             '2013/06/05 lightning energy',
             '    ;; schedule ; monthly ; eom30 2 15 ; 3 ; auto',
         ]
-        schedulething = ScheduleThing(schedulelines)
+        schedule_thing = ScheduleThing(schedule_lines)
         self.assertEqual(
-            self.getExpectedConfig(
+            self.get_expected_config(
                 ScheduleThing.INTERVAL_MONTH, [2, 15, 'eom30'], 3
             ),
-            self.getActualConfig(schedulething)
+            self.get_actual_config(schedule_thing)
         )
 
-    def testNotEnoughParameters(self):
-        schedulelines = [
+    def test_not_enough_parameters(self):
+        schedule_lines = [
             '2013/06/05 lightning energy',
             '    ;; schedule',
         ]
         with self.assertRaises(LdgScheduleThingParametersError):
-            ScheduleThing(schedulelines)
+            ScheduleThing(schedule_lines)
 
-    def testScheduleLabelNotRight(self):
-        schedulelines = [
+    def test_schedule_label_not_right(self):
+        schedule_lines = [
             '2013/06/05 lightning energy',
-            #'    ;; scheduled ; monthly ; eom30 2 15 ; 3 ; auto',
             '    ;; scheduble ; monthly',
         ]
         with self.assertRaises(LdgScheduleThingLabelError):
-            ScheduleThing(schedulelines)
+            ScheduleThing(schedule_lines)
 
-    def testScheduleUnrecognizedIntervalUOM(self):
-        schedulelines = [
+    def test_schedule_unrecognized_interval_uom(self):
+        schedule_lines = [
             '2013/06/05 lightning energy',
-            '    ;; schedule ; lunarly ; eom30 2 15 ; every 3 months ; auto',
+            '    ;; schedule ; lunarly ; eom30 2 15 ; every 3 months '
+            '; auto',
         ]
         with self.assertRaises(LdgScheduleUnrecognizedIntervalUom):
-            ScheduleThing(schedulelines)
+            ScheduleThing(schedule_lines)
 
-    def testIntervalEmpty(self):
-        schedulelines = [
+    def test_interval_empty(self):
+        schedule_lines = [
             '2013/06/05 lightning energy',
             '    ;; schedule ; monthly ; 15 eom30 ;   ; auto',
         ]
-        schedulething = ScheduleThing(schedulelines)
+        schedule_thing = ScheduleThing(schedule_lines)
         self.assertEqual(
-            self.getExpectedConfig(
+            self.get_expected_config(
                 ScheduleThing.INTERVAL_MONTH, [15, 'eom30'], 1
             ),
-            self.getActualConfig(schedulething)
+            self.get_actual_config(schedule_thing)
         )
 
-    def testIntervalNotGiven(self):
-        schedulelines = [
+    def test_interval_not_given(self):
+        schedule_lines = [
             '2013/06/05 lightning energy',
             '    ;; schedule ; monthly ; 15 eom30',
         ]
-        schedulething = ScheduleThing(schedulelines)
+        schedule_thing = ScheduleThing(schedule_lines)
         self.assertEqual(
-            self.getExpectedConfig(
+            self.get_expected_config(
                 ScheduleThing.INTERVAL_MONTH, [15, 'eom30'], 1
             ),
-            self.getActualConfig(schedulething)
+            self.get_actual_config(schedule_thing)
         )
 
-    def testDaysEmpty(self):
-        schedulelines = [
+    def test_days_empty(self):
+        schedule_lines = [
             '2013/06/27 lightning energy',
             '    ;; schedule ; monthly ;  ;  2 ',
         ]
-        schedulething = ScheduleThing(schedulelines)
+        schedule_thing = ScheduleThing(schedule_lines)
         self.assertEqual(
-            self.getExpectedConfig(
+            self.get_expected_config(
                 ScheduleThing.INTERVAL_MONTH, [27], 2
             ),
-            self.getActualConfig(schedulething)
+            self.get_actual_config(schedule_thing)
         )
 
-    def testNoDaysAndNoInterval(self):
-        schedulelines = [
+    def test_no_days_and_no_interval(self):
+        schedule_lines = [
             '2013/06/13 lightning energy',
             '    ;; schedule ; monthly',
         ]
-        schedulething = ScheduleThing(schedulelines)
+        schedule_thing = ScheduleThing(schedule_lines)
         self.assertEqual(
-            self.getExpectedConfig(
+            self.get_expected_config(
                 ScheduleThing.INTERVAL_MONTH, [13], 1
             ),
-            self.getActualConfig(schedulething)
+            self.get_actual_config(schedule_thing)
         )
 
-    def testBimonthly(self):
-        schedulelines = [
+    def test_bimonthly(self):
+        schedule_lines = [
             '2013/06/13 lightning energy',
             '    ;; schedule ; bimonthly',
         ]
-        schedulething = ScheduleThing(schedulelines)
+        schedule_thing = ScheduleThing(schedule_lines)
         self.assertEqual(
-            self.getExpectedConfig(
+            self.get_expected_config(
                 ScheduleThing.INTERVAL_MONTH, [13], 2
             ),
-            self.getActualConfig(schedulething)
+            self.get_actual_config(schedule_thing)
         )
 
-    def testQuarterly(self):
-        schedulelines = [
+    def test_quarterly(self):
+        schedule_lines = [
             '2013/06/13 lightning energy',
             '    ;; schedule ; quarterly ; 6th ; 3',
         ]
-        schedulething = ScheduleThing(schedulelines)
+        schedule_thing = ScheduleThing(schedule_lines)
         self.assertEqual(
-            self.getExpectedConfig(
+            self.get_expected_config(
                 ScheduleThing.INTERVAL_MONTH, [6], 9
             ),
-            self.getActualConfig(schedulething)
+            self.get_actual_config(schedule_thing)
         )
 
-    def testBiannual(self):
-        schedulelines = [
+    def test_biannual(self):
+        schedule_lines = [
             '2013/06/13 lightning energy',
             '    ;; schedule ; biannual ; 9th',
         ]
-        schedulething = ScheduleThing(schedulelines)
+        schedule_thing = ScheduleThing(schedule_lines)
         self.assertEqual(
-            self.getExpectedConfig(
+            self.get_expected_config(
                 ScheduleThing.INTERVAL_MONTH, [9], 6
             ),
-            self.getActualConfig(schedulething)
+            self.get_actual_config(schedule_thing)
         )
 
-    def testYearly(self):
-        schedulelines = [
+    def test_yearly(self):
+        schedule_lines = [
             '2013/06/22 lightning energy',
             '    ;; schedule ; yearly ; ; 5',
         ]
-        schedulething = ScheduleThing(schedulelines)
+        schedule_thing = ScheduleThing(schedule_lines)
         self.assertEqual(
-            self.getExpectedConfig(
+            self.get_expected_config(
                 ScheduleThing.INTERVAL_MONTH, [22], 60
             ),
-            self.getActualConfig(schedulething)
+            self.get_actual_config(schedule_thing)
         )
 
 
@@ -428,7 +430,8 @@ class HandleFileConfig(Redirector):
         ScheduleThing.enterDays = ScheduleThing.NO_DAYS
         ScheduleThing.entryBoundaryDate = None
 
-    def getExpectedConfig(self, enterdays):
+    @staticmethod
+    def get_expected_config(enterdays):
         return (
             '%s | %s' % (
                 enterdays,
@@ -438,61 +441,62 @@ class HandleFileConfig(Redirector):
             )
         )
 
-    def getActualConfig(self, schedulething):
+    @staticmethod
+    def get_actual_config(schedule_thing):
         return (
             '%s | %s' % (
-                schedulething.enterDays,
+                schedule_thing.enterDays,
                 LedgerThing.getDateString(
-                    schedulething.entryBoundaryDate
+                    schedule_thing.entryBoundaryDate
                 )
             )
         )
 
-    def testBasicFileConfig(self):
-        scheduleLineFileConfig = [
+    def test_basic_file_config(self):
+        schedule_line_file_config = [
             ';; scheduler ; enter 7 days'
         ]
-        schedulething = ScheduleThing(scheduleLineFileConfig)
+        schedule_thing = ScheduleThing(schedule_line_file_config)
         self.assertEqual(
-            self.getExpectedConfig(7),
-            self.getActualConfig(schedulething)
+            self.get_expected_config(7),
+            self.get_actual_config(schedule_thing)
         )
 
-    def testInvalidFileConfig(self):
-        scheduleLineFileConfig = [
+    def test_invalid_file_config(self):
+        schedule_line_file_config = [
             ';; shceduler ; enter 7 days'
         ]
         with self.assertRaises(LdgScheduleFileConfigError):
-            ScheduleThing(scheduleLineFileConfig)
+            ScheduleThing(schedule_line_file_config)
 
-    def testFileConfig(self):
-        scheduleLineFileConfig = [
+    def test_file_config(self):
+        schedule_line_file_config = [
             ';;scheduler;enter 7 days;;'
         ]
-        schedulething = ScheduleThing(scheduleLineFileConfig)
+        schedule_thing = ScheduleThing(schedule_line_file_config)
         self.assertEqual(
-            self.getExpectedConfig(7),
-            self.getActualConfig(schedulething)
+            self.get_expected_config(7),
+            self.get_actual_config(schedule_thing)
         )
 
-    def testFileConfigNoEnter(self):
-        scheduleLineFileConfig = [
+    def test_file_config_no_enter(self):
+        schedule_line_file_config = [
             ';;scheduler;;'
         ]
-        schedulething = ScheduleThing(scheduleLineFileConfig)
+        schedule_thing = ScheduleThing(schedule_line_file_config)
         self.assertEqual(
-            self.getExpectedConfig(ScheduleThing.NO_DAYS),
-            self.getActualConfig(schedulething)
+            self.get_expected_config(ScheduleThing.NO_DAYS),
+            self.get_actual_config(schedule_thing)
         )
 
-    def testFileConfigEnterLessThanOne(self):
-        scheduleLineFileConfig = [
+    def test_file_config_enter_less_than_one(self):
+        schedule_line_file_config = [
             ';;   scheduler   ; enter 0 day ; comment'
         ]
-        schedulething = ScheduleThing(scheduleLineFileConfig)
+        schedule_thing = ScheduleThing(schedule_line_file_config)
         self.assertEqual(
-            self.getExpectedConfig(ScheduleThing.NO_DAYS),
-            self.getActualConfig(schedulething)
+            self.get_expected_config(ScheduleThing.NO_DAYS),
+            self.get_actual_config(schedule_thing)
         )
 
 
@@ -500,334 +504,361 @@ class GetNextDate(Redirector):
 
     def setUp(self):
         super(GetNextDate, self).setUp()
-        scheduleLineFileConfig = [
+        schedule_line_file_config = [
             ';; scheduler ; enter 7 days'
         ]
         ScheduleThing.doFileConfig = True
-        ScheduleThing(scheduleLineFileConfig)
+        ScheduleThing(schedule_line_file_config)
 
-    def testGetNextDateMonthlyThisMonthEom(self):
-        scheduleLines = [
+    def test_get_next_date_monthly_this_month_eom(self):
+        schedule_lines = [
             '2013/06/05 lightning energy',
             '    ;; schedule ; monthly ; eom ; ; auto',
         ]
 
-        scheduleThing = ScheduleThing(scheduleLines)
-        expectedNextDate = LedgerThing.getDate('2013/06/30')
+        schedule_thing = ScheduleThing(schedule_lines)
+        expected_next_date = LedgerThing.getDate('2013/06/30')
 
         self.assertEqual(
-            expectedNextDate,
-            scheduleThing._getNextDate(scheduleThing.thingDate)
+            expected_next_date,
+            schedule_thing._getNextDate(schedule_thing.thingDate)
         )
 
-    def testGetNextDateMonthlyThisMonthEomOnTheDay(self):
-        scheduleLines = [
+    def test_get_next_date_monthly_this_month_eom_on_the_day(self):
+        schedule_lines = [
             '2013/06/30 lightning energy',
             '    ;; schedule ; monthly ; eom ; ; auto',
         ]
 
-        scheduleThing = ScheduleThing(scheduleLines)
-        expectedNextDate = LedgerThing.getDate('2013/07/31')
+        schedule_thing = ScheduleThing(schedule_lines)
+        expected_next_date = LedgerThing.getDate('2013/07/31')
 
         self.assertEqual(
-            expectedNextDate,
-            scheduleThing._getNextDate(scheduleThing.thingDate)
+            expected_next_date,
+            schedule_thing._getNextDate(schedule_thing.thingDate)
         )
 
-    def testGetNextDateMonthlyNextMonthEom30(self):
-        scheduleLines = [
+    def test_get_next_date_monthly_next_month_eom30(self):
+        schedule_lines = [
             '2013/07/30 lightning energy',
             '    ;; schedule ; monthly ; eom30 ; ; auto',
         ]
 
-        scheduleThing = ScheduleThing(scheduleLines)
-        expectedNextDate = LedgerThing.getDate('2013/08/30')
+        schedule_thing = ScheduleThing(schedule_lines)
+        expected_next_date = LedgerThing.getDate('2013/08/30')
 
         self.assertEqual(
-            expectedNextDate,
-            scheduleThing._getNextDate(scheduleThing.thingDate)
+            expected_next_date,
+            schedule_thing._getNextDate(schedule_thing.thingDate)
         )
 
-    def testGetNextDateMonthlyThisMonth(self):
-        scheduleLines = [
+    def test_get_next_date_monthly_this_month(self):
+        schedule_lines = [
             '2013/06/05 lightning energy',
             '    ;; schedule ; monthly ; 12th ; ; auto',
         ]
 
-        scheduleThing = ScheduleThing(scheduleLines)
-        expectedNextDate = LedgerThing.getDate('2013/06/12')
+        schedule_thing = ScheduleThing(schedule_lines)
+        expected_next_date = LedgerThing.getDate('2013/06/12')
 
         self.assertEqual(
-            expectedNextDate,
-            scheduleThing._getNextDate(scheduleThing.thingDate)
+            expected_next_date,
+            schedule_thing._getNextDate(schedule_thing.thingDate)
         )
 
-    def testGetNextDateMonthlyNextMonth(self):
-        scheduleLines = [
+    def test_get_next_date_monthly_next_month(self):
+        schedule_lines = [
             '2013/06/17 lightning energy',
             '    ;; schedule ; monthly ; 12th ; ; auto',
         ]
 
-        scheduleThing = ScheduleThing(scheduleLines)
-        expectedNextDate = LedgerThing.getDate('2013/07/12')
+        schedule_thing = ScheduleThing(schedule_lines)
+        expected_next_date = LedgerThing.getDate('2013/07/12')
 
         self.assertEqual(
-            expectedNextDate,
-            scheduleThing._getNextDate(scheduleThing.thingDate)
+            expected_next_date,
+            schedule_thing._getNextDate(schedule_thing.thingDate)
         )
 
-    def testGetNextDateMonthlyNextMonthAgain(self):
-        scheduleLines = [
+    def test_get_next_date_monthly_next_month_again(self):
+        schedule_lines = [
             '2013/06/12 lightning energy',
             '    ;; schedule ; monthly ; 12th ; ; auto',
         ]
 
-        scheduleThing = ScheduleThing(scheduleLines)
-        expectedNextDate = LedgerThing.getDate('2013/07/12')
+        schedule_thing = ScheduleThing(schedule_lines)
+        expected_next_date = LedgerThing.getDate('2013/07/12')
 
         self.assertEqual(
-            expectedNextDate,
-            scheduleThing._getNextDate(scheduleThing.thingDate)
+            expected_next_date,
+            schedule_thing._getNextDate(schedule_thing.thingDate)
         )
 
-    def testGetNextDateMonthlyNextMonthFirst(self):
-        scheduleLines = [
+    def test_get_next_date_monthly_next_month_first(self):
+        schedule_lines = [
             '2013/06/28 lightning energy',
             '    ;; schedule ; monthly ; 1st',
         ]
 
-        scheduleThing = ScheduleThing(scheduleLines)
-        expectedNextDate = LedgerThing.getDate('2013/07/01')
+        schedule_thing = ScheduleThing(schedule_lines)
+        expected_next_date = LedgerThing.getDate('2013/07/01')
 
         self.assertEqual(
-            expectedNextDate,
-            scheduleThing._getNextDate(scheduleThing.thingDate)
+            expected_next_date,
+            schedule_thing._getNextDate(schedule_thing.thingDate)
         )
 
-    def testGetNextDateMonthlyMultipleDaysThisMonth(self):
-        scheduleLines = [
+    def test_get_next_date_monthly_multiple_days_this_month(self):
+        schedule_lines = [
             '2013/06/05 lightning energy',
             '    ;; schedule ; monthly ; 7th, 12th ; ; auto',
         ]
 
-        scheduleThing = ScheduleThing(scheduleLines)
-        expectedNextDate = LedgerThing.getDate('2013/06/07')
+        schedule_thing = ScheduleThing(schedule_lines)
+        expected_next_date = LedgerThing.getDate('2013/06/07')
 
         self.assertEqual(
-            expectedNextDate,
-            scheduleThing._getNextDate(scheduleThing.thingDate)
+            expected_next_date,
+            schedule_thing._getNextDate(schedule_thing.thingDate)
         )
 
-    def testGetNextDateMonthlyMultipleDaysThisMonthAgain(self):
-        scheduleLines = [
+    def test_get_next_date_monthly_multiple_days_this_month_again(self):
+        schedule_lines = [
             '2013/06/08 lightning energy',
             '    ;; schedule ; monthly ; 7th, 12th'
         ]
 
-        scheduleThing = ScheduleThing(scheduleLines)
-        expectedNextDate = LedgerThing.getDate('2013/06/12')
+        schedule_thing = ScheduleThing(schedule_lines)
+        expected_next_date = LedgerThing.getDate('2013/06/12')
 
         self.assertEqual(
-            expectedNextDate,
-            scheduleThing._getNextDate(scheduleThing.thingDate)
+            expected_next_date,
+            schedule_thing._getNextDate(schedule_thing.thingDate)
         )
 
-    def testGetNextDateMonthlyMultipleDaysNextMonth(self):
-        scheduleLines = [
+    def test_get_next_date_monthly_multiple_days_next_month(self):
+        schedule_lines = [
             '2013/06/27 lightning energy',
             '    ;; schedule ; monthly ; 7th, 27th ; ; auto',
         ]
 
-        scheduleThing = ScheduleThing(scheduleLines)
-        expectedNextDate = LedgerThing.getDate('2013/07/07')
+        schedule_thing = ScheduleThing(schedule_lines)
+        expected_next_date = LedgerThing.getDate('2013/07/07')
 
         self.assertEqual(
-            expectedNextDate,
-            scheduleThing._getNextDate(scheduleThing.thingDate)
+            expected_next_date,
+            schedule_thing._getNextDate(schedule_thing.thingDate)
         )
 
-    def testGetNextDateMonthlyInterval3(self):
-        scheduleLines = [
+    def test_get_next_date_monthly_interval3(self):
+        schedule_lines = [
             '2013/06/15 lightning energy',
             '    ;; schedule ; monthly ; 15th ; 3 ; auto',
         ]
 
-        scheduleThing = ScheduleThing(scheduleLines)
-        expectedNextDate = LedgerThing.getDate('2013/09/15')
+        schedule_thing = ScheduleThing(schedule_lines)
+        expected_next_date = LedgerThing.getDate('2013/09/15')
 
         self.assertEqual(
-            expectedNextDate,
-            scheduleThing._getNextDate(scheduleThing.thingDate)
+            expected_next_date,
+            schedule_thing._getNextDate(schedule_thing.thingDate)
         )
 
-    def testGetNextDateMonthlyInterval12eomLeapOne(self):
+    def test_get_next_date_monthly_interval12eom_leap_one(self):
 
-        scheduleLines = [
+        schedule_lines = [
             '2011/02/28 lightning energy',
             '    ;; schedule ; monthly ; eom ; 12 ; auto',
         ]
 
-        scheduleThing = ScheduleThing(scheduleLines)
-        expectedNextDate = LedgerThing.getDate('2012/02/29')
+        schedule_thing = ScheduleThing(schedule_lines)
+        expected_next_date = LedgerThing.getDate('2012/02/29')
 
         self.assertEqual(
-            expectedNextDate,
-            scheduleThing._getNextDate(scheduleThing.thingDate)
+            expected_next_date,
+            schedule_thing._getNextDate(schedule_thing.thingDate)
         )
 
-    def testGetNextDateMonthlyInterval12eomLeapTwo(self):
+    def test_get_next_date_monthly_interval12eom_leap_two(self):
 
-        scheduleLines = [
+        schedule_lines = [
             '2012/02/29 lightning energy',
             '    ;; schedule ; monthly ; eom ; 12 ; auto',
         ]
 
-        scheduleThing = ScheduleThing(scheduleLines)
-        expectedNextDate = LedgerThing.getDate('2013/02/28')
+        schedule_thing = ScheduleThing(schedule_lines)
+        expected_next_date = LedgerThing.getDate('2013/02/28')
 
         self.assertEqual(
-            expectedNextDate,
-            scheduleThing._getNextDate(scheduleThing.thingDate)
+            expected_next_date,
+            schedule_thing._getNextDate(schedule_thing.thingDate)
         )
 
-    def testGetNextDateMonthlyTooMany29(self):
+    def test_get_next_date_monthly_too_many29(self):
 
-        scheduleLines = [
+        schedule_lines = [
             '2013/01/31 lightning energy',
             '    ;; schedule ; monthly ; 29th ; 1 ; auto',
         ]
 
-        scheduleThing = ScheduleThing(scheduleLines)
-        expectedNextDate = LedgerThing.getDate('2013/02/28')
+        schedule_thing = ScheduleThing(schedule_lines)
+        expected_next_date = LedgerThing.getDate('2013/02/28')
 
         self.assertEqual(
-            expectedNextDate,
-            scheduleThing._getNextDate(scheduleThing.thingDate)
+            expected_next_date,
+            schedule_thing._getNextDate(schedule_thing.thingDate)
         )
 
-    def testGetNextDateMonthlyTooMany30(self):
+    def test_get_next_date_monthly_too_many30(self):
 
-        scheduleLines = [
+        schedule_lines = [
             '2013/01/30 lightning energy',
             '    ;; schedule ; monthly ; 30th ; 1 ; auto',
         ]
 
-        scheduleThing = ScheduleThing(scheduleLines)
-        expectedNextDate = LedgerThing.getDate('2013/02/28')
+        schedule_thing = ScheduleThing(schedule_lines)
+        expected_next_date = LedgerThing.getDate('2013/02/28')
 
         self.assertEqual(
-            expectedNextDate,
-            scheduleThing._getNextDate(scheduleThing.thingDate)
+            expected_next_date,
+            schedule_thing._getNextDate(schedule_thing.thingDate)
         )
 
-    def testGetNextDateMonthlyTooMany70(self):
+    def test_get_next_date_monthly_too_many70(self):
 
-        scheduleLines = [
+        schedule_lines = [
             '2013/07/15 lightning energy',
             '    ;; schedule ; monthly ; 70th ; 1 ; auto',
         ]
 
-        scheduleThing = ScheduleThing(scheduleLines)
-        expectedNextDate = LedgerThing.getDate('2013/07/31')
+        schedule_thing = ScheduleThing(schedule_lines)
+        expected_next_date = LedgerThing.getDate('2013/07/31')
 
         self.assertEqual(
-            expectedNextDate,
-            scheduleThing._getNextDate(scheduleThing.thingDate)
+            expected_next_date,
+            schedule_thing._getNextDate(schedule_thing.thingDate)
         )
 
 
 class GetWeekDay(TestCase):
 
     def setUp(self):
-        scheduleLinesTest = [
+        schedule_lines_test = [
             '2013/06/29 lightning energy',
             '    ;; schedule ; monthly ; 12th ; ; auto'
         ]
 
         ScheduleThing.doFileConfig = False
-        self.scheduleThing = ScheduleThing(scheduleLinesTest)
+        self.schedule_thing = ScheduleThing(schedule_lines_test)
 
-    def testGetWeekDay(self):
-        self.assertEqual(-1, self.scheduleThing._getWeekDay())
+    def test_get_week_day(self):
+        self.assertEqual(-1, self.schedule_thing._getWeekDay())
 
 
 class GetMonthDay(Redirector):
 
     def setUp(self):
         super(GetMonthDay, self).setUp()
-        scheduleLinesTest = [
+        schedule_lines_test = [
             '2013/06/29 lightning energy',
             '    ;; schedule ; monthly ; 12th ; ; auto'
         ]
 
         ScheduleThing.doFileConfig = False
-        self.scheduleThing = ScheduleThing(scheduleLinesTest)
+        self.schedule_thing = ScheduleThing(schedule_lines_test)
 
-    def testGetMonthDayNormal(self):
+    def test_get_month_day_normal(self):
         """normal day is returned as the same day number"""
         testdate = datetime.strptime('2013/06/16', '%Y/%m/%d')
-        self.assertEqual(5, self.scheduleThing._getMonthDay('5', testdate))
+        self.assertEqual(
+            5,
+            self.schedule_thing._getMonthDay('5', testdate)
+        )
 
-    def testGetMonthDayJuneEom(self):
+    def test_get_month_day_june_eom(self):
         """eom for a 30-day month is 30"""
         testdate = datetime.strptime('2013/06/16', '%Y/%m/%d')
         self.assertEqual(
             30,
-            self.scheduleThing._getMonthDay(ScheduleThing.EOM, testdate)
+            self.schedule_thing._getMonthDay(
+                ScheduleThing.EOM,
+                testdate
+            )
         )
 
-    def testGetMonthDayJulyEom(self):
+    def test_get_month_day_july_eom(self):
         """eom for a 31-day month is 31"""
         testdate = datetime.strptime('2013/07/01', '%Y/%m/%d')
         self.assertEqual(
             31,
-            self.scheduleThing._getMonthDay(ScheduleThing.EOM, testdate)
+            self.schedule_thing._getMonthDay(
+                ScheduleThing.EOM,
+                testdate
+            )
         )
 
-    def testGetMonthDayFebruaryEom(self):
+    def test_get_month_day_february_eom(self):
         """eom for a non-leap year february is 28"""
         testdate = datetime.strptime('2013/02/05', '%Y/%m/%d')
         self.assertEqual(
             28,
-            self.scheduleThing._getMonthDay(ScheduleThing.EOM, testdate)
+            self.schedule_thing._getMonthDay(
+                ScheduleThing.EOM,
+                testdate
+            )
         )
 
-    def testGetMonthDayLeapFebruaryEom(self):
+    def test_get_month_day_leap_february_eom(self):
         """eom for a leap year february is 29"""
         testdate = datetime.strptime('2012/02/05', '%Y/%m/%d')
         self.assertEqual(
             29,
-            self.scheduleThing._getMonthDay(ScheduleThing.EOM, testdate)
+            self.schedule_thing._getMonthDay(
+                ScheduleThing.EOM,
+                testdate
+            )
         )
 
-    def testGetMonthDayJuneEom30(self):
+    def test_get_month_day_june_eom30(self):
         """eom30 for a 30-day month is 30"""
         testdate = datetime.strptime('2013/06/16', '%Y/%m/%d')
         self.assertEqual(
             30,
-            self.scheduleThing._getMonthDay(ScheduleThing.EOM30, testdate)
+            self.schedule_thing._getMonthDay(
+                ScheduleThing.EOM30,
+                testdate
+            )
         )
 
-    def testGetMonthDayJulyEom30(self):
+    def test_get_month_day_july_eom30(self):
         """eom30 for a 31-day month is 30"""
         testdate = datetime.strptime('2013/07/01', '%Y/%m/%d')
         self.assertEqual(
             30,
-            self.scheduleThing._getMonthDay(ScheduleThing.EOM30, testdate)
+            self.schedule_thing._getMonthDay(
+                ScheduleThing.EOM30,
+                testdate
+            )
         )
 
-    def testGetMonthDayFebruaryEom30(self):
+    def test_get_month_day_february_eom30(self):
         """eom30 for a non-leap year february is 28"""
         testdate = datetime.strptime('2013/02/05', '%Y/%m/%d')
         self.assertEqual(
             28,
-            self.scheduleThing._getMonthDay(ScheduleThing.EOM30, testdate)
+            self.schedule_thing._getMonthDay(
+                ScheduleThing.EOM30,
+                testdate
+            )
         )
 
-    def testGetMonthDayLeapFebruaryEom30(self):
+    def test_get_month_day_leap_february_eom30(self):
         """eom for a leap year february is 29"""
         testdate = datetime.strptime('2012/02/05', '%Y/%m/%d')
         self.assertEqual(
             29,
-            self.scheduleThing._getMonthDay(ScheduleThing.EOM30, testdate)
+            self.schedule_thing._getMonthDay(
+                ScheduleThing.EOM30,
+                testdate
+            )
         )
