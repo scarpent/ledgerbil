@@ -34,7 +34,6 @@ class ScheduleThing(LedgerThing):
     LINE_SCHEDULE = 1
     INTERVAL_WEEK = 'weekly'
     INTERVAL_MONTH = 'monthly'
-    # todo: one time schedule
     EOM = 'eom'
     EOM30 = 'eom30'
     SEPARATOR = ';'
@@ -187,9 +186,6 @@ class ScheduleThing(LedgerThing):
         self.interval = interval
         self.interval_uom = intervaluom
 
-        # todo: for monthly: the day date; for weekly: the day name
-        # todo: parse that as day names, but for now, use ints
-        # (if day < 1, consider an inactive thing)
         day_string = configitems[days_idx].lower()
         self.days = []
         days_regex = '(\d+|eom(?:\d\d?)?)'
@@ -203,13 +199,6 @@ class ScheduleThing(LedgerThing):
             self.days.append(theday)
 
         self.days.sort()
-        # todo: look for more than one eom and raise error?
-        # todo: validation if a date is picked that is too
-        #       large for some months (maybe force eom for 28-31???
-
-        # todo: take out schedule line and put it into var
-        # override thing getter to put it back in (standard raw lines
-        # will have it, but for adding to ledger, no)
 
     def get_scheduled_entries(self):
 
@@ -281,8 +270,6 @@ class ScheduleThing(LedgerThing):
             )
 
         if self.interval_uom == ScheduleThing.INTERVAL_WEEK:
-            # todo: handle day of week stuff, for now this will work
-            # fine for basic once a week or once every N weeks stuff
             return previousdate + relativedelta(weeks=self.interval)
 
     # handle situations like 8/31 -> 9/31 (back up to 9/30)
@@ -318,8 +305,6 @@ class ScheduleThing(LedgerThing):
                 return last_day_of_month
             else:
                 return int(scheduleday)
-
-        # todo, maybe: option to move date if a weekend
 
         if scheduleday == self.EOM:
             return last_day_of_month
