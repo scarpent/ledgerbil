@@ -164,7 +164,7 @@ class ScheduleThing(LedgerThing):
             configitems.append('')
 
         if not configitems[days_idx].strip():
-            configitems[days_idx] = str(self.thingDate.day)
+            configitems[days_idx] = str(self.thing_date.day)
 
         match = re.match('''[^\d]*(\d+).*''', configitems[interval_idx])
         interval = 1
@@ -204,15 +204,15 @@ class ScheduleThing(LedgerThing):
 
         entries = []
 
-        if self.thingDate > ScheduleThing.entry_boundary_date:
+        if self.thing_date > ScheduleThing.entry_boundary_date:
             return entries
 
         entries.append(self._get_entry_thing())
 
         while True:
-            self.thingDate = self._get_next_date(self.thingDate)
+            self.thing_date = self._get_next_date(self.thing_date)
 
-            if self.thingDate > ScheduleThing.entry_boundary_date:
+            if self.thing_date > ScheduleThing.entry_boundary_date:
                 break
 
             entries.append(self._get_entry_thing())
@@ -227,7 +227,7 @@ class ScheduleThing(LedgerThing):
         del entry_lines[ScheduleThing.LINE_SCHEDULE]
         entry_lines[ScheduleThing.LINE_DATE] = re.sub(
             self.DATE_REGEX,
-            self.get_date_string(self.thingDate),
+            self.get_date_string(self.thing_date),
             entry_lines[ScheduleThing.LINE_DATE]
         )
         print(

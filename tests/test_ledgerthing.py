@@ -19,12 +19,12 @@ class Constructor(TestCase):
     def test_non_transaction_date(self):
         """non-transactions initially have date = None"""
         thing = LedgerThing(['blah', 'blah blah blah'])
-        self.assertIsNone(thing.thingDate)
+        self.assertIsNone(thing.thing_date)
 
     def test_transaction_date(self):
         """later non-transaction things inherit preceding thing date"""
         thing = LedgerThing(['2013/05/18 blah', '    ; something...'])
-        self.assertEqual(thing.thingDate, date(2013, 5, 18))
+        self.assertEqual(thing.thing_date, date(2013, 5, 18))
 
 
 class GetLines(TestCase):

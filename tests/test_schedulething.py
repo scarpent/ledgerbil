@@ -79,7 +79,7 @@ class GetScheduledEntries(Redirector):
         schedule_thing.get_scheduled_entries()
 
         expected = date.today() + relativedelta(months=1)
-        actual = schedule_thing.thingDate
+        actual = schedule_thing.thing_date
 
         self.assertEqual(expected, actual)
 
@@ -125,11 +125,13 @@ class GetScheduledEntries(Redirector):
             '    blah blah blah',
         ]
         schedule_thing = ScheduleThing(schedule_lines)
-        schedule_thing.thingDate = date.today() - relativedelta(years=1)
+        schedule_thing.thing_date = date.today() - relativedelta(
+            years=1
+        )
         schedule_thing.get_scheduled_entries()
 
         expected = date.today() + relativedelta(years=1)
-        actual = schedule_thing.thingDate
+        actual = schedule_thing.thing_date
 
         self.assertEqual(expected, actual)
 
@@ -162,7 +164,7 @@ class GetScheduledEntries(Redirector):
         schedule_thing.get_scheduled_entries()
 
         expected = date.today() + relativedelta(months=2)
-        actual = schedule_thing.thingDate
+        actual = schedule_thing.thing_date
 
         self.assertEqual(expected, actual)
 
@@ -177,7 +179,7 @@ class GetScheduledEntries(Redirector):
         schedule_thing.get_scheduled_entries()
 
         expected = date.today() + relativedelta(months=2)
-        actual = schedule_thing.thingDate
+        actual = schedule_thing.thing_date
 
         self.assertEqual(expected, actual)
 
@@ -192,7 +194,7 @@ class GetScheduledEntries(Redirector):
         schedule_thing.get_scheduled_entries()
 
         expected = date.today() + relativedelta(months=3)
-        actual = schedule_thing.thingDate
+        actual = schedule_thing.thing_date
 
         self.assertEqual(expected, actual)
 
@@ -207,7 +209,7 @@ class GetScheduledEntries(Redirector):
         schedule_thing.get_scheduled_entries()
 
         expected = date.today() + relativedelta(months=6)
-        actual = schedule_thing.thingDate
+        actual = schedule_thing.thing_date
 
         self.assertEqual(expected, actual)
 
@@ -222,7 +224,7 @@ class GetScheduledEntries(Redirector):
         schedule_thing.get_scheduled_entries()
 
         expected = date.today() + relativedelta(months=12)
-        actual = schedule_thing.thingDate
+        actual = schedule_thing.thing_date
 
         self.assertEqual(expected, actual)
 
@@ -244,7 +246,7 @@ class GetEntryThing(Redirector):
             '    blah blah blah',
         ]
         schedule_thing = ScheduleThing(schedule_lines)
-        schedule_thing.thingDate = date(2013, 7, 1)
+        schedule_thing.thing_date = date(2013, 7, 1)
 
         expected = [
             '2013/07/01 lightning energy',
@@ -523,7 +525,7 @@ class GetNextDate(Redirector):
 
         self.assertEqual(
             expected_next_date,
-            schedule_thing._get_next_date(schedule_thing.thingDate)
+            schedule_thing._get_next_date(schedule_thing.thing_date)
         )
 
     def test_get_next_date_monthly_this_month_eom_on_the_day(self):
@@ -537,7 +539,7 @@ class GetNextDate(Redirector):
 
         self.assertEqual(
             expected_next_date,
-            schedule_thing._get_next_date(schedule_thing.thingDate)
+            schedule_thing._get_next_date(schedule_thing.thing_date)
         )
 
     def test_get_next_date_monthly_next_month_eom30(self):
@@ -551,7 +553,7 @@ class GetNextDate(Redirector):
 
         self.assertEqual(
             expected_next_date,
-            schedule_thing._get_next_date(schedule_thing.thingDate)
+            schedule_thing._get_next_date(schedule_thing.thing_date)
         )
 
     def test_get_next_date_monthly_this_month(self):
@@ -565,7 +567,7 @@ class GetNextDate(Redirector):
 
         self.assertEqual(
             expected_next_date,
-            schedule_thing._get_next_date(schedule_thing.thingDate)
+            schedule_thing._get_next_date(schedule_thing.thing_date)
         )
 
     def test_get_next_date_monthly_next_month(self):
@@ -579,7 +581,7 @@ class GetNextDate(Redirector):
 
         self.assertEqual(
             expected_next_date,
-            schedule_thing._get_next_date(schedule_thing.thingDate)
+            schedule_thing._get_next_date(schedule_thing.thing_date)
         )
 
     def test_get_next_date_monthly_next_month_again(self):
@@ -593,7 +595,7 @@ class GetNextDate(Redirector):
 
         self.assertEqual(
             expected_next_date,
-            schedule_thing._get_next_date(schedule_thing.thingDate)
+            schedule_thing._get_next_date(schedule_thing.thing_date)
         )
 
     def test_get_next_date_monthly_next_month_first(self):
@@ -607,7 +609,7 @@ class GetNextDate(Redirector):
 
         self.assertEqual(
             expected_next_date,
-            schedule_thing._get_next_date(schedule_thing.thingDate)
+            schedule_thing._get_next_date(schedule_thing.thing_date)
         )
 
     def test_get_next_date_monthly_multiple_days_this_month(self):
@@ -621,7 +623,7 @@ class GetNextDate(Redirector):
 
         self.assertEqual(
             expected_next_date,
-            schedule_thing._get_next_date(schedule_thing.thingDate)
+            schedule_thing._get_next_date(schedule_thing.thing_date)
         )
 
     def test_get_next_date_monthly_multiple_days_this_month_again(self):
@@ -635,7 +637,7 @@ class GetNextDate(Redirector):
 
         self.assertEqual(
             expected_next_date,
-            schedule_thing._get_next_date(schedule_thing.thingDate)
+            schedule_thing._get_next_date(schedule_thing.thing_date)
         )
 
     def test_get_next_date_monthly_multiple_days_next_month(self):
@@ -649,7 +651,7 @@ class GetNextDate(Redirector):
 
         self.assertEqual(
             expected_next_date,
-            schedule_thing._get_next_date(schedule_thing.thingDate)
+            schedule_thing._get_next_date(schedule_thing.thing_date)
         )
 
     def test_get_next_date_monthly_interval3(self):
@@ -663,7 +665,7 @@ class GetNextDate(Redirector):
 
         self.assertEqual(
             expected_next_date,
-            schedule_thing._get_next_date(schedule_thing.thingDate)
+            schedule_thing._get_next_date(schedule_thing.thing_date)
         )
 
     def test_get_next_date_monthly_interval12eom_leap_one(self):
@@ -678,7 +680,7 @@ class GetNextDate(Redirector):
 
         self.assertEqual(
             expected_next_date,
-            schedule_thing._get_next_date(schedule_thing.thingDate)
+            schedule_thing._get_next_date(schedule_thing.thing_date)
         )
 
     def test_get_next_date_monthly_interval12eom_leap_two(self):
@@ -693,7 +695,7 @@ class GetNextDate(Redirector):
 
         self.assertEqual(
             expected_next_date,
-            schedule_thing._get_next_date(schedule_thing.thingDate)
+            schedule_thing._get_next_date(schedule_thing.thing_date)
         )
 
     def test_get_next_date_monthly_too_many29(self):
@@ -708,7 +710,7 @@ class GetNextDate(Redirector):
 
         self.assertEqual(
             expected_next_date,
-            schedule_thing._get_next_date(schedule_thing.thingDate)
+            schedule_thing._get_next_date(schedule_thing.thing_date)
         )
 
     def test_get_next_date_monthly_too_many30(self):
@@ -723,7 +725,7 @@ class GetNextDate(Redirector):
 
         self.assertEqual(
             expected_next_date,
-            schedule_thing._get_next_date(schedule_thing.thingDate)
+            schedule_thing._get_next_date(schedule_thing.thing_date)
         )
 
     def test_get_next_date_monthly_too_many70(self):
@@ -738,7 +740,7 @@ class GetNextDate(Redirector):
 
         self.assertEqual(
             expected_next_date,
-            schedule_thing._get_next_date(schedule_thing.thingDate)
+            schedule_thing._get_next_date(schedule_thing.thing_date)
         )
 
 
