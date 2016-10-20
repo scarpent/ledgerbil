@@ -8,7 +8,7 @@ from datetime import datetime
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
-from redirector import Redirector
+from helpers import Redirector
 from schedulething import ScheduleThing
 from ledgerthing import LedgerThing
 from ledgerbilexceptions import *

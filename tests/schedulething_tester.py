@@ -2,7 +2,7 @@
 
 """initializes ScheduleThing class for testing"""
 
-from redirector import Redirector
+from helpers import Redirector
 from schedulething import ScheduleThing
 
 

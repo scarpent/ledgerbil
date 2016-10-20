@@ -8,7 +8,7 @@ from os import chmod
 
 from ledgerfile import LedgerFile
 from ledgerthing import LedgerThing
-from redirector import Redirector
+from helpers import Redirector
 from filetester import FileTester
 
 

@@ -2,7 +2,7 @@
 
 """unit test for ledgerbil.py"""
 
-from redirector import Redirector
+from helpers import Redirector
 from arghandler import ArgHandler
 
 

@@ -13,7 +13,7 @@ import ledgerbil
 # noinspection PyPep8Naming
 from filetester import FileTester as FT
 from ledgerthing import LedgerThing
-from redirector import Redirector
+from helpers import Redirector
 
 
 __author__ = 'Scott Carpenter'
