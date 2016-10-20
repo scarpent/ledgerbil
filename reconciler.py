@@ -10,20 +10,9 @@ __email__ = 'scottc@movingtofreedom.org'
 
 class Reconciler(object):
 
-    def __init__(self, ledgerfile):
+    def __init__(self, ledgerfile, account):
         self.ledgerfile = ledgerfile
+        self.account = account
 
     def run(self):
-
-        self.schedulefile.sort()
-
-        for schedulething in self.schedulefile.things:
-
-            if schedulething.first_thing:
-                continue
-
-            self.ledgerfile.add_things(
-                schedulething.get_scheduled_entries()
-            )
-
-        self.schedulefile.sort()
+        print('todo: reconcile ' + self.account)

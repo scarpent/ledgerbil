@@ -8,6 +8,7 @@ import sys
 
 from arghandler import ArgHandler
 from ledgerfile import LedgerFile
+from reconciler import Reconciler
 from schedulefile import ScheduleFile
 from scheduler import Scheduler
 
@@ -35,7 +36,8 @@ class Ledgerbil(object):
             ledgerfile.sort()
 
         if self.args.reconcile:
-            print('todo: reconciler')
+            reconciler = Reconciler(ledgerfile, self.args.reconcile)
+            reconciler.run()
 
         ledgerfile.write_file()
 
