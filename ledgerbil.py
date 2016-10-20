@@ -34,6 +34,9 @@ class Ledgerbil(object):
         if self.args.sort:
             ledgerfile.sort()
 
+        if self.args.reconcile:
+            print('todo: reconciler')
+
         ledgerfile.write_file()
 
 

@@ -37,6 +37,11 @@ class ArgHandler(object):
             help='sort the file by transaction date'
         )
         parser.add_argument(
+            '-r', '--reconcile',
+            type=str, metavar='ACCT',
+            help='reconcile the specified account'
+        )
+        parser.add_argument(
             '-S', '--schedule-file',
             type=str, metavar='FILE',
             help=(
