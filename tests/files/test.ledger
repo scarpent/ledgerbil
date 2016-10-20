@@ -163,11 +163,11 @@ account expenses: taxes: state
     e: food: work
     a: checking up                          $752.61
 
-!comment
+comment
     This is a block comment with
     multiple lines
 2020/12/31 el guapo
     e: food: alcohol                        $11
     e: food: dining out
     l: credit card                          $-42.23
-!end comment
+end comment
