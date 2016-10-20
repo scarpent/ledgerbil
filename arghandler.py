@@ -16,7 +16,15 @@ class ArgHandler(object):
 
     @staticmethod
     def get_args(args):
-        parser = argparse.ArgumentParser()
+        parser = argparse.ArgumentParser(
+            prog='ledgerbil.py',
+            formatter_class=(
+                lambda prog: argparse.HelpFormatter(
+                    prog,
+                    max_help_position=36
+                )
+            )
+        )
 
         parser.add_argument(
             '-f', '--file',
