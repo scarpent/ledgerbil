@@ -23,24 +23,24 @@ class LedgerThing(object):
 
     def __init__(self, lines):
 
-        self.thingNumber = 0
-        self.thingDate = None
+        self.thing_number = 0
+        self.thing_date = None
         self.lines = lines
-        self.isTransaction = False
+        self.is_transaction = False
 
         if self.is_transaction_start(lines[0]):
-            self.isTransaction = True
+            self.is_transaction = True
             date_string = re.search(
                 r'(%s)' % self.DATE_REGEX,
                 lines[0]
             ).group(1)
-            self.thingDate = self.get_date(date_string)
+            self.thing_date = self.get_date(date_string)
 
     def get_lines(self):
-        if self.isTransaction:
+        if self.is_transaction:
             self.lines[0] = re.sub(
                 self.DATE_REGEX,
-                self.get_date_string(self.thingDate),
+                self.get_date_string(self.thing_date),
                 self.lines[0]
             )
         return self.lines

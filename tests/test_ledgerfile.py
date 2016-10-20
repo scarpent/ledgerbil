@@ -82,7 +82,7 @@ class ThingCounting(TestCase):
         tempfile = FileTester.create_temp_file(testdata)
         ledgerfile = LedgerFile(tempfile)
         remove(tempfile)
-        self.assertEquals(2, ledgerfile.thingCounter)
+        self.assertEquals(2, ledgerfile.thing_counter)
 
     def test_count_initial_transaction(self):
         """counts initial transaction"""
@@ -99,7 +99,7 @@ class ThingCounting(TestCase):
         tempfile = FileTester.create_temp_file(testdata)
         ledgerfile = LedgerFile(tempfile)
         remove(tempfile)
-        self.assertEquals(2, ledgerfile.thingCounter)
+        self.assertEquals(2, ledgerfile.thing_counter)
 
     def test_assigned_thing_numbers(self):
         """thing numbers added in sequence starting at one"""
@@ -123,7 +123,7 @@ class ThingCounting(TestCase):
         expected = '012'
         actual = ''
         for thing in ledgerfile.get_things():
-            actual += str(thing.thingNumber)
+            actual += str(thing.thing_number)
 
         self.assertEquals(actual, expected)
 
@@ -139,7 +139,7 @@ class ThingDating(TestCase):
         remove(tempfile)
         self.assertEqual(
             LedgerFile.STARTING_DATE,
-            ledgerfile.get_things()[0].thingDate
+            ledgerfile.get_things()[0].thing_date
         )
 
     def test_later_non_transaction_date(self):
@@ -159,8 +159,8 @@ class ThingDating(TestCase):
         ledgerfile.sort()
         remove(tempfile)
         self.assertEqual(
-            ledgerfile.get_things()[1].thingDate,
-            ledgerfile.get_things()[2].thingDate
+            ledgerfile.get_things()[1].thing_date,
+            ledgerfile.get_things()[2].thing_date
         )
 
 

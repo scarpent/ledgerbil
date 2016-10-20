@@ -22,7 +22,7 @@ class LedgerFile(object):
     STARTING_DATE = date(1899, 1, 1)
 
     def __init__(self, filename):
-        self.thingCounter = 0
+        self.thing_counter = 0
         self.things = []
         self.filename = filename
 
@@ -65,10 +65,10 @@ class LedgerFile(object):
 
     def add_things(self, things):
         for thing in things:
-            thing.thingNumber = self.thingCounter
+            thing.thing_number = self.thing_counter
             self.get_things().append(thing)
             # increment after for a zero-based array
-            self.thingCounter += 1
+            self.thing_counter += 1
 
     def get_things(self):
         return self.things
@@ -77,13 +77,13 @@ class LedgerFile(object):
         current_date = self.STARTING_DATE
 
         for thing in self.get_things():
-            if thing.thingDate is None:
-                thing.thingDate = current_date
+            if thing.thing_date is None:
+                thing.thing_date = current_date
             else:
-                current_date = thing.thingDate
+                current_date = thing.thing_date
 
         self.get_things().sort(
-            key=attrgetter('thingDate', 'thingNumber')
+            key=attrgetter('thing_date', 'thing_number')
         )
 
     def print_file(self):
