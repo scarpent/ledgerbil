@@ -10,17 +10,21 @@ __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
 
-class LdgScheduleFileConfigError(Exception):
+class LdgException(Exception):
     pass
 
 
-class LdgScheduleThingParametersError(Exception):
+class LdgScheduleFileConfigError(LdgException):
     pass
 
 
-class LdgScheduleThingLabelError(Exception):
+class LdgScheduleThingParametersError(LdgException):
     pass
 
 
-class LdgScheduleUnrecognizedIntervalUom(Exception):
+class LdgScheduleThingLabelError(LdgException):
+    pass
+
+
+class LdgScheduleUnrecognizedIntervalUom(LdgException):
     pass

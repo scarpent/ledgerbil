@@ -7,6 +7,7 @@ from unittest import TestCase
 from datetime import date
 
 from ledgerthing import LedgerThing
+from ledgerthing import UNSPECIFIED_PAYEE
 
 
 __author__ = 'Scott Carpenter'
@@ -22,9 +23,49 @@ class Constructor(TestCase):
         self.assertIsNone(thing.thing_date)
 
     def test_transaction_date(self):
-        """later non-transaction things inherit preceding thing date"""
         thing = LedgerThing(['2013/05/18 blah', '    ; something...'])
         self.assertEqual(thing.thing_date, date(2013, 5, 18))
+
+    def verify_top_line(self, line, the_date, code, payee):
+        thing = LedgerThing([line])
+        self.assertEqual(thing.thing_date, the_date)
+        if code is None:
+            self.assertIsNone(thing.transaction_code)
+        else:
+            self.assertEqual(code, thing.transaction_code)
+        self.assertEqual(payee, thing.payee)
+
+    def test_top_line(self):
+        self.verify_top_line(
+            '2016/10/20',
+            date(2016, 10, 20), None, UNSPECIFIED_PAYEE
+        )
+        self.verify_top_line(
+            '2016/10/20 someone',
+            date(2016, 10, 20), None, 'someone'
+        )
+        self.verify_top_line(
+            '2016/10/20 someone           ; some comment',
+            date(2016, 10, 20), None, 'someone'
+        )
+        self.verify_top_line(
+            '2016/02/04 (123)',
+            date(2016, 2, 4), '123', UNSPECIFIED_PAYEE
+        )
+        self.verify_top_line(
+            '2016/02/04 (123) someone',
+            date(2016, 2, 4), '123', 'someone'
+        )
+        self.verify_top_line(
+            '2001/04/11 (abc)                 ; yah',
+            date(2001, 4, 11), 'abc', UNSPECIFIED_PAYEE
+        )
+        self.verify_top_line(
+            '2001/04/11 (abc) someone        ; yah',
+            date(2001, 4, 11), 'abc', 'someone'
+        )
+        self.verify_top_line('2001/04/11(abc)', None, None, None)
+        self.verify_top_line('2001/04/11someone', None, None, None)
 
 
 class GetLines(TestCase):
@@ -67,9 +108,10 @@ class IsTransactionStart(TestCase):
         self.assertFalse(LedgerThing.is_transaction_start(line))
 
     def test_date_only(self):
-        """date only should return false"""
         line = '2013/04/14 '
-        self.assertFalse(LedgerThing.is_transaction_start(line))
+        self.assertTrue(LedgerThing.is_transaction_start(line))
+        line = '2013/04/14'
+        self.assertTrue(LedgerThing.is_transaction_start(line))
 
     def test_empty_line(self):
         """empty line should return false"""
@@ -100,3 +142,23 @@ class IsTransactionStart(TestCase):
         """valid date but invalid (for ledger) date fmt returns false"""
         line = '2013/06/1 abc store'
         self.assertFalse(LedgerThing.is_transaction_start(line))
+
+    def test_transaction_code(self):
+        self.assertTrue(
+            LedgerThing.is_transaction_start('2016/10/20 (123) store')
+        )
+        self.assertTrue(
+            LedgerThing.is_transaction_start('2016/10/20 (abc)store')
+        )
+        self.assertTrue(
+            LedgerThing.is_transaction_start('2016/10/20 (123)')
+        )
+        self.assertTrue(
+            LedgerThing.is_transaction_start('2016/10/20 (123)   ; xyz')
+        )
+        self.assertFalse(
+            LedgerThing.is_transaction_start('2016/10/20(123)')
+        )
+        self.assertFalse(
+            LedgerThing.is_transaction_start('2016/10/20someone')
+        )

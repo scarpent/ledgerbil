@@ -65,6 +65,10 @@ account expenses
     e: bills: electricity
     a: checking up                          $-75
 
+2016/10/20
+    e: misc
+    a: checking up                          $-10
+
 2013/01/15 abc paycheck
     i: wages: gross pay                     $-135
     e: taxes: social security               ($135*0.062)
