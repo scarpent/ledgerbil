@@ -25,6 +25,8 @@ class LedgerThing(object):
 
         self.thing_number = 0
         self.thing_date = None
+        self.payee = None
+        self.transaction_code = None  # e.g. check number
         self.lines = lines
         self.is_transaction = False
 
@@ -47,12 +49,10 @@ class LedgerThing(object):
 
     @staticmethod
     def is_new_thing(line):
-        # for now we're looking for dates as the start of transactions
-        # later: payees, accounts, aliases, etc
         if LedgerThing.is_transaction_start(line):
             return True
-
-        return False
+        else:
+            return False
 
     @staticmethod
     def is_transaction_start(line):
