@@ -6,11 +6,17 @@ from __future__ import print_function
 import ast
 import operator as op
 
+from datetime import date
+from datetime import datetime
+from dateutil.parser import parse
+
 
 __author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
+
+DATE_FORMAT = '%Y/%m/%d'
 
 # supported operators
 operators = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
@@ -34,3 +40,21 @@ def _eval(node):
         return operators[type(node.op)](_eval(node.operand))
     else:
         raise TypeError(node)
+
+
+def get_date_string(the_date):
+    """ @type the_date: date """
+    return the_date.strftime(DATE_FORMAT)
+
+
+def get_date(date_string):
+    """ @type date_string: str """
+    return datetime.strptime(date_string, DATE_FORMAT).date()
+
+
+def is_valid_date(date_string):
+    try:
+        parse(date_string)
+        return True
+    except ValueError:
+        return False

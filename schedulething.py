@@ -227,7 +227,7 @@ class ScheduleThing(LedgerThing):
         del entry_lines[ScheduleThing.LINE_SCHEDULE]
         entry_lines[ScheduleThing.LINE_DATE] = re.sub(
             self.DATE_REGEX,
-            self.get_date_string(self.thing_date),
+            self.get_date_string(),
             entry_lines[ScheduleThing.LINE_DATE]
         )
         print(

@@ -9,10 +9,10 @@ from dateutil.relativedelta import relativedelta
 from unittest import TestCase
 
 import ledgerbil
+import util
 
 # noinspection PyPep8Naming
 from filetester import FileTester as FT
-from ledgerthing import LedgerThing
 from helpers import Redirector
 
 
@@ -96,7 +96,7 @@ class Scheduler(Redirector):
         schedule = 'monthly ;; every 2 months'
 
         schedulefiledata = self.get_schedule_file(
-            LedgerThing.get_date_string(testdate),
+            util.get_date_string(testdate),
             schedule
         )
         tempschedulefile = FT.write_to_temp_file(
@@ -116,7 +116,7 @@ class Scheduler(Redirector):
 
         schedulefile_actual = FT.read_file(tempschedulefile)
         schedulefile_expected = self.get_schedule_file(
-            LedgerThing.get_date_string(
+            util.get_date_string(
                 testdate + relativedelta(months=2)
             ),
             schedule
@@ -124,7 +124,7 @@ class Scheduler(Redirector):
 
         ledgerfile_actual = FT.read_file(templedgerfile)
         ledgerfile_expected = self.get_ledger_file(
-            LedgerThing.get_date_string(testdate)
+            util.get_date_string(testdate)
         )
 
         os.remove(tempschedulefile)

@@ -7,9 +7,10 @@ import os
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
+import util
+
 from filetester import FileTester
 from ledgerfile import LedgerFile
-from ledgerthing import LedgerThing
 from schedulefile import ScheduleFile
 from scheduler import Scheduler
 from schedulething_tester import ScheduleThingTester
@@ -39,7 +40,7 @@ class SchedulerRun(ScheduleThingTester):
 
     def run_it(self, before_date, after_date, schedule, enter_days=7):
         schedulefiledata = self.get_schedule_file(
-            LedgerThing.get_date_string(before_date),
+            util.get_date_string(before_date),
             schedule,
             enter_days
         )
@@ -64,7 +65,7 @@ class SchedulerRun(ScheduleThingTester):
         schedulefile_actual = FileTester.read_file(tempschedulefile)
 
         schedulefile_expected = self.get_schedule_file(
-            LedgerThing.get_date_string(after_date),
+            util.get_date_string(after_date),
             schedule,
             enter_days
         )

@@ -6,9 +6,7 @@ from __future__ import print_function
 
 import re
 
-from datetime import date
-from datetime import datetime
-from dateutil.parser import parse
+import util
 
 
 __author__ = 'Scott Carpenter'
@@ -22,7 +20,6 @@ UNSPECIFIED_PAYEE = '<Unspecified payee>'
 class LedgerThing(object):
 
     DATE_REGEX = r'^\d{4}(?:[-/]\d\d){2}(?=(?:\s|$))'
-    DATE_FORMAT = '%Y/%m/%d'
     # date (optional number) payee  ; optional comment
     TOP_LINE_REGEX = re.compile(
         r'(' + DATE_REGEX +
@@ -50,7 +47,7 @@ class LedgerThing(object):
             m = re.match(LedgerThing.TOP_LINE_REGEX, lines[0])
 
             # date can be modified
-            self.thing_date = self.get_date(m.groups()[0])
+            self.thing_date = util.get_date(m.groups()[0])
 
             # payee and transaction code are read-only
             if m.groups()[1] is not None:
@@ -64,7 +61,7 @@ class LedgerThing(object):
         if self.is_transaction:
             self.lines[0] = re.sub(
                 self.DATE_REGEX,
-                self.get_date_string(self.thing_date),
+                self.get_date_string(),
                 self.lines[0]
             )
         return self.lines
@@ -82,23 +79,9 @@ class LedgerThing(object):
     def is_transaction_start(line):
         match = re.match(LedgerThing.TOP_LINE_REGEX, line)
         if match:
-            try:
-                parse(match.groups()[0])  # verify it parses as date
-                return True
-            except ValueError:
-                pass
+            return util.is_valid_date(match.groups()[0])
+        else:
+            return False
 
-        return False
-
-    @staticmethod
-    def get_date_string(the_date):
-        """ @type the_date: date """
-        return the_date.strftime(LedgerThing.DATE_FORMAT)
-
-    @staticmethod
-    def get_date(date_string):
-        """ @type date_string: str """
-        return datetime.strptime(
-            date_string,
-            LedgerThing.DATE_FORMAT
-        ).date()
+    def get_date_string(self):
+        return util.get_date_string(self.thing_date)
