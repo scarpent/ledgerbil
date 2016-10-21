@@ -80,68 +80,62 @@ class GetLines(TestCase):
 class IsNewThing(TestCase):
 
     def test_is_new_thing(self):
-        """should be recognized as a new ledger 'thing' """
-        line = '2013/04/15 abc store'
-        self.assertTrue(LedgerThing.is_new_thing(line))
+        self.assertTrue(LedgerThing.is_new_thing('2013/04/15 ab store'))
 
     def test_is_not_thing(self):
-        """should not be a new thing"""
-        line = ''
-        self.assertFalse(LedgerThing.is_new_thing(line))
+        self.assertFalse(LedgerThing.is_new_thing(''))
 
 
 class IsTransactionStart(TestCase):
 
     def test_valid_transaction_start(self):
         """date recognized as the start of a transaction"""
-        line = '2013/04/14 abc store'
-        self.assertTrue(LedgerThing.is_transaction_start(line))
+        self.assertTrue(
+            LedgerThing.is_transaction_start('2013/04/14 abc store')
+        )
 
     def test_valid_transaction_start_with_tabs(self):
         """date recognized as the start of a transaction"""
-        line = '2013/04/14\t\tabc store'
-        self.assertTrue(LedgerThing.is_transaction_start(line))
+        self.assertTrue(
+            LedgerThing.is_transaction_start('2013/04/14\t\tabc store')
+        )
 
     def test_leading_white_space(self):
         """leading whitespace should return false"""
-        line = '    2013/04/14 abc store'
-        self.assertFalse(LedgerThing.is_transaction_start(line))
+        self.assertFalse(
+            LedgerThing.is_transaction_start('    2013/04/14 abc store')
+        )
 
     def test_date_only(self):
-        line = '2013/04/14 '
-        self.assertTrue(LedgerThing.is_transaction_start(line))
-        line = '2013/04/14'
-        self.assertTrue(LedgerThing.is_transaction_start(line))
+        self.assertTrue(LedgerThing.is_transaction_start('2013/04/14 '))
+        self.assertTrue(LedgerThing.is_transaction_start('2013/04/14'))
 
     def test_empty_line(self):
-        """empty line should return false"""
-        line = ''
-        self.assertFalse(LedgerThing.is_transaction_start(line))
+        self.assertFalse(LedgerThing.is_transaction_start(''))
 
     def test_newline(self):
-        """newline should return false"""
         line = '\n'
-        self.assertFalse(LedgerThing.is_transaction_start(line))
+        self.assertFalse(
+            LedgerThing.is_transaction_start(line)
+        )
 
     def test_whitespace(self):
-        """whitespace should return false"""
-        line = '            \t    '
-        self.assertFalse(LedgerThing.is_transaction_start(line))
+        self.assertFalse(
+            LedgerThing.is_transaction_start('            \t    ')
+        )
 
     def test_invalid_date(self):
-        """invalid date should return false"""
-        line = '2013/02/30 abc store'
-        self.assertFalse(LedgerThing.is_transaction_start(line))
+        self.assertFalse(
+            LedgerThing.is_transaction_start('2013/02/30 abc store')
+        )
 
-    def test_invalid_date_format_month(self):
-        """valid date but invalid (for ledger) date fmt returns false"""
-        line = '2013/5/12 abc store'
-        self.assertFalse(LedgerThing.is_transaction_start(line))
-
-    def test_invalid_date_format_day(self):
-        """valid date but invalid (for ledger) date fmt returns false"""
-        line = '2013/06/1 abc store'
-        self.assertFalse(LedgerThing.is_transaction_start(line))
+    def test_invalid_date_formats(self):
+        self.assertFalse(
+            LedgerThing.is_transaction_start('2013/5/12 abc store')
+        )
+        self.assertFalse(
+            LedgerThing.is_transaction_start('2013/06/1 abc store')
+        )
 
     def test_transaction_code(self):
         self.assertTrue(

@@ -15,6 +15,7 @@ __author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
+
 UNSPECIFIED_PAYEE = '<Unspecified payee>'
 
 
@@ -63,6 +64,8 @@ class LedgerThing(object):
 
     @staticmethod
     def is_new_thing(line):
+        # currently, is_new_thing == is_transaction_start, but this
+        # could change in future
         if LedgerThing.is_transaction_start(line):
             return True
         else:
