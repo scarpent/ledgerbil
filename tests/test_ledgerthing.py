@@ -38,15 +38,15 @@ class Constructor(TestCase):
     def test_top_line(self):
         self.verify_top_line(
             '2016/10/20',
-            date(2016, 10, 20), None, UNSPECIFIED_PAYEE
+            date(2016, 10, 20), '', UNSPECIFIED_PAYEE
         )
         self.verify_top_line(
             '2016/10/20 someone',
-            date(2016, 10, 20), None, 'someone'
+            date(2016, 10, 20), '', 'someone'
         )
         self.verify_top_line(
             '2016/10/20 someone           ; some comment',
-            date(2016, 10, 20), None, 'someone'
+            date(2016, 10, 20), '', 'someone'
         )
         self.verify_top_line(
             '2016/02/04 (123)',
@@ -64,8 +64,8 @@ class Constructor(TestCase):
             '2001/04/11 (abc) someone        ; yah',
             date(2001, 4, 11), 'abc', 'someone'
         )
-        self.verify_top_line('2001/04/11(abc)', None, None, None)
-        self.verify_top_line('2001/04/11someone', None, None, None)
+        self.verify_top_line('2001/04/11(abc)', None, '', None)
+        self.verify_top_line('2001/04/11someone', None, '', None)
 
 
 class GetLines(TestCase):

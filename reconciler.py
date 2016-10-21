@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+from __future__ import division
 from __future__ import print_function
 
 
@@ -15,4 +16,13 @@ class Reconciler(object):
         self.account = account
 
     def run(self):
-        print('todo: reconcile ' + self.account)
+
+        for thing in self.ledgerfile.get_things():
+            if not thing.is_transaction:
+                continue
+
+            print('{date} {code:>5} {payee}'.format(
+                date=thing.get_date_string(thing.thing_date),
+                code=thing.transaction_code,
+                payee=thing.payee
+            ))

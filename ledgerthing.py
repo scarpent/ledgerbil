@@ -28,15 +28,22 @@ class LedgerThing(object):
         r'(' + DATE_REGEX +
         r')(?:\s+\(([^)]*)\))?\s*([^;]+)?(?:;.*$|$)'
     )
+    REC_PENDING = '!'
+    REC_CLEARED = '*'
 
     def __init__(self, lines):
 
         self.thing_number = 0
         self.thing_date = None
         self.payee = None
-        self.transaction_code = None  # e.g. check number
+        self.transaction_code = ''  # e.g. check number
         self.lines = lines
         self.is_transaction = False
+
+        # reconciliation
+        self.rec_account = None
+        self.rec_status = ''
+        self.rec_amount = 0
 
         if self.is_transaction_start(lines[0]):
             self.is_transaction = True
