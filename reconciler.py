@@ -17,12 +17,19 @@ class Reconciler(object):
 
     def run(self):
 
+        count = 0
         for thing in self.ledgerfile.get_things():
-            if not thing.is_transaction:
+            if not thing.rec_account_matches:
                 continue
-
-            print('{date} {code:>5} {payee}'.format(
-                date=thing.get_date_string(),
-                code=thing.transaction_code,
-                payee=thing.payee
-            ))
+            count += 1
+            print(
+                '{number:-4}. {date} {code:>7} {payee:40} '
+                '${amount:10.2f} {status}'.format(
+                    number=count,
+                    date=thing.get_date_string(),
+                    code=thing.transaction_code,
+                    payee=thing.payee,
+                    amount=thing.rec_amount,
+                    status=thing.rec_status
+                )
+            )
