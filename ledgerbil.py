@@ -24,7 +24,7 @@ class Ledgerbil(object):
         self.args = args
 
     def process_file(self):
-        ledgerfile = LedgerFile(self.args.file)
+        ledgerfile = LedgerFile(self.args.file, self.args.reconcile)
 
         if self.args.schedule_file:
             schedule_file = ScheduleFile(self.args.schedule_file)

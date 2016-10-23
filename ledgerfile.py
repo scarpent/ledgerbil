@@ -21,10 +21,12 @@ class LedgerFile(object):
 
     STARTING_DATE = date(1899, 1, 1)
 
-    def __init__(self, filename):
+    def __init__(self, filename, reconcile_account=None):
         self.thing_counter = 0
         self.things = []
         self.filename = filename
+        self.reconcile_account = reconcile_account  # could be partial
+        self.rec_account_matches = []  # there should be only one match
 
         self._parse_file()
 
@@ -56,7 +58,7 @@ class LedgerFile(object):
 
     def _add_thing_lines(self, lines):
         if lines:
-            thing = LedgerThing(lines)
+            thing = LedgerThing(lines, self.reconcile_account)
             self.add_thing(thing)
 
     def add_thing(self, thing):

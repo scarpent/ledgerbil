@@ -22,7 +22,7 @@ class Reconciler(object):
                 continue
 
             print('{date} {code:>5} {payee}'.format(
-                date=thing.get_date_string(thing.thing_date),
+                date=thing.get_date_string(),
                 code=thing.transaction_code,
                 payee=thing.payee
             ))

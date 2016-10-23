@@ -1,29 +1,23 @@
-; * * * * * * * * * * * * * * * * * * * *
-; *           ledger: TESTING           *
-; * * * * * * * * * * * * * * * * * * * *
+2016/10/22 payee
+   e: category
+   a: checking down                        $-10
+   a: checking down                        $10
+   a: capital one                          $-10
 
-; * * * * * * * * * * * * * * * * * * * *
-; *           ledger: accounts          *
-; * * * * * * * * * * * * * * * * * * * *
-account equity
-account equity: opening balances
+2016/10/22 blah
+    e: blah  $-25
+    e: blurg $-50
+    a: checking
 
-account income
-    alias i
+2016/10/22 blah
+    e: blah  $25
+    e: blarg $50
+    a: checking
 
-account assets
-    alias a
-account assets: cash
-account assets: checking up
-
-account liabilities
-    alias l
-account liabilities: credit card
-
-account expenses
-    alias e
-
-; asset opening balances
+2016/10/22 blah
+    e: blah  $25
+    a: checking up $-10
+    a: checking up
 
 2013/01/01 opening balance
     assets: cash                            $50
@@ -66,8 +60,15 @@ account expenses
     a: checking up                          $-75
 
 2016/10/20
+    ; blah blah comment
     e: misc
     a: checking up                          $-10
+
+; these are
+#   all comments
+%     when at
+|       the beginning
+*         of a line
 
 2013/01/15 abc paycheck
     i: wages: gross pay                     $-135
@@ -128,3 +129,8 @@ account expenses
     e: taxes: medicare                      $15
     e: food: work
     a: checking up                          $752.61
+
+2016/10/22 blah blah blah
+    e: misc: blah
+    a: checking up                          ($100 * (1 + 0.07275))
+    a: checking up                          $25
