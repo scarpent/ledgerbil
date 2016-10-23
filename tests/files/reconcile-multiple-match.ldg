@@ -1,0 +1,16 @@
+2016/10/22 payee
+    e: category
+    a: checking down                        $-10
+
+2016/10/22 blah                                         ; comment
+    e: blah                                 ($25 * 1.07275)
+    a: checking up
+
+2016/10/22 (246) blahg
+    e: blah                                 $35
+    a: checking out                         $-35
+
+2016/10/22 aigh
+    e: blarg    ; comment
+    a: cash in                              $-25
+    a: cash out                             $-25

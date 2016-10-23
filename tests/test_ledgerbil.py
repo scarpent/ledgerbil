@@ -132,3 +132,33 @@ class Scheduler(Redirector):
 
         self.assertEqual(schedulefile_expected, schedulefile_actual)
         self.assertEqual(ledgerfile_expected, ledgerfile_actual)
+
+
+class ReconcilerTests(Redirector):
+
+    def test_multiple_matches(self):
+        # in different transactions
+        result = ledgerbil.main([
+            '--file', FT.test_rec_multiple_match,
+            '--reconcile', 'checking'
+        ])
+        self.assertEqual(2, result)
+        self.assertEqual(
+            'Reconcile error. More than one matching account:\n'
+            '    a: checking down\n'
+            '    a: checking up',
+            self.redirect.getvalue().rstrip()
+        )
+        # in same transaction
+        self.reset_redirect()
+        result = ledgerbil.main([
+            '--file', FT.test_rec_multiple_match,
+            '--reconcile', 'cash'
+        ])
+        self.assertEqual(2, result)
+        self.assertEqual(
+            'Reconcile error. More than one matching account:\n'
+            '    a: cash in\n'
+            '    a: cash out',
+            self.redirect.getvalue().rstrip()
+        )

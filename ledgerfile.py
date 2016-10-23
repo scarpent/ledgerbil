@@ -9,6 +9,7 @@ import sys
 from datetime import date
 from operator import attrgetter
 
+from ledgerbilexceptions import LdgReconcilerMoreThanOneMatchingAccount
 from ledgerthing import LedgerThing
 
 
@@ -25,8 +26,8 @@ class LedgerFile(object):
         self.thing_counter = 0
         self.things = []
         self.filename = filename
-        self.reconcile_account = reconcile_account  # could be partial
-        self.rec_account_matches = []  # there should be only one match
+        self.rec_account = reconcile_account  # could be partial
+        self.rec_account_matches_all = []  # should be only one match
 
         self._parse_file()
 
@@ -58,7 +59,7 @@ class LedgerFile(object):
 
     def _add_thing_lines(self, lines):
         if lines:
-            thing = LedgerThing(lines, self.reconcile_account)
+            thing = LedgerThing(lines, self.rec_account)
             self.add_thing(thing)
 
     def add_thing(self, thing):
@@ -67,6 +68,21 @@ class LedgerFile(object):
 
     def add_things(self, things):
         for thing in things:
+
+            if self.rec_account and len(thing.rec_account_matches) > 0:
+                assert len(thing.rec_account_matches) == 1
+                thing_account = thing.rec_account_matches[0]
+                if thing_account not in self.rec_account_matches_all:
+                    self.rec_account_matches_all.append(thing_account)
+
+                # unlike LedgerThing multiple match checking, we'll
+                # raise this one right away, since we don't know how
+                # many things are still to be added, if any
+                if len(self.rec_account_matches_all) > 1:
+                    raise LdgReconcilerMoreThanOneMatchingAccount(
+                        self.rec_account_matches_all
+                    )
+
             thing.thing_number = self.thing_counter
             self.get_things().append(thing)
             # increment after for a zero-based array

@@ -169,7 +169,7 @@ class ReconcilerParsing(Redirector):
             lines,
             account='not given GyibM3nob1kwJ',
             expected_matches=(),
-            expected_amount=0,
+            expected_amount=0.0,
             expected_status=''
     ):
         if account == 'not given GyibM3nob1kwJ':
@@ -446,3 +446,26 @@ class ReconcilerParsing(Redirector):
         # have multiple statuses
         self.assertEqual('', self.redirect.getvalue().rstrip())
 
+    def test_more_transactions_and_math(self):
+        self.verify_reconcile_vars(
+            [
+                '2016/10/23 blah',
+                '    e: blurg      ($25 * 1.07275)',
+                '    e: glerb      $15.67',
+                '    a: checking                       ; todo',
+            ],
+            account='check',
+            expected_matches=('a: checking',),
+            expected_amount=-42.48875
+        )
+        self.verify_reconcile_vars(
+            [
+                '2016/10/23 blah',
+                '    e: blurg      ( $25*1.07275 )   ; comment',
+                '    e: glerb      ($15 * (1 + 8))',
+                '    a: checking                       ; todo',
+            ],
+            account='check',
+            expected_matches=('a: checking',),
+            expected_amount=-161.81875
+        )

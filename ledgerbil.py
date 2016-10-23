@@ -7,6 +7,7 @@ from __future__ import print_function
 import sys
 
 from arghandler import ArgHandler
+from ledgerbilexceptions import LdgReconcilerMoreThanOneMatchingAccount
 from ledgerfile import LedgerFile
 from reconciler import Reconciler
 from schedulefile import ScheduleFile
@@ -24,7 +25,13 @@ class Ledgerbil(object):
         self.args = args
 
     def process_file(self):
-        ledgerfile = LedgerFile(self.args.file, self.args.reconcile)
+        try:
+            ledgerfile = LedgerFile(self.args.file, self.args.reconcile)
+        except LdgReconcilerMoreThanOneMatchingAccount as e:
+            print('Reconcile error. More than one matching account:')
+            for account in e.message:
+                print('    ' + account)
+            return 2
 
         if self.args.schedule_file:
             schedule_file = ScheduleFile(self.args.schedule_file)
@@ -41,6 +48,8 @@ class Ledgerbil(object):
 
         ledgerfile.write_file()
 
+        return 0
+
 
 def main(argv=None):
 
@@ -49,9 +58,7 @@ def main(argv=None):
 
     args = ArgHandler.get_args(argv)
     ledgerbil = Ledgerbil(args)
-    ledgerbil.process_file()
-
-    return 0
+    return ledgerbil.process_file()
 
 
 if __name__ == "__main__":

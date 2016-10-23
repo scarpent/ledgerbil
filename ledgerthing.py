@@ -120,7 +120,7 @@ class LedgerThing(object):
                     transaction_total += amount
 
             if self.rec_account in account:
-                if not account.strip() in self.rec_account_matches:
+                if account.strip() not in self.rec_account_matches:
                     self.rec_account_matches.append(account.strip())
 
                 if previous_status is None:
@@ -157,8 +157,8 @@ class LedgerThing(object):
                 # transaction_total should be 0; use it to adjust
                 account_total -= transaction_total
                 transaction_total -= transaction_total
+                assert transaction_total == 0
             self.rec_amount = account_total
-            assert transaction_total == 0
 
     def get_lines(self):
         if self.is_transaction:

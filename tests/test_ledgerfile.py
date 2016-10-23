@@ -6,6 +6,7 @@ from unittest import TestCase
 from os import remove
 from os import chmod
 
+from ledgerbilexceptions import LdgReconcilerMoreThanOneMatchingAccount
 from ledgerfile import LedgerFile
 from ledgerthing import LedgerThing
 from helpers import Redirector
@@ -189,3 +190,40 @@ class Sorting(TestCase):
         actual = FileTester.read_file(tempfile)
         remove(tempfile)
         self.assertEqual(expected, actual)
+
+
+class ReconcilerParsing(Redirector):
+
+    def test_multiple_matches(self):
+        # individual checking transactions ok, but multiple across file
+        with self.assertRaises(
+                LdgReconcilerMoreThanOneMatchingAccount
+        ) as e:
+            LedgerFile(FileTester.test_rec_multiple_match, 'checking')
+        self.assertEqual(
+            str(['a: checking down', 'a: checking up']),
+            str(e.exception)
+        )
+        self.assertEqual('', self.redirect.getvalue().rstrip())
+        # expand our account partial for a unique match to avoid error
+        self.reset_redirect()
+        ledgerfile = LedgerFile(
+            FileTester.test_rec_multiple_match,
+            'checking up'
+        )
+        self.assertEqual(
+            ['a: checking up'],
+            ledgerfile.rec_account_matches_all
+        )
+        self.assertEqual('', self.redirect.getvalue().rstrip())
+        # multiple matches within a single transaction
+        self.reset_redirect()
+        with self.assertRaises(
+                LdgReconcilerMoreThanOneMatchingAccount
+        ) as e:
+            LedgerFile(FileTester.test_rec_multiple_match, 'cash')
+        self.assertEqual(
+            str(['a: cash in', 'a: cash out']),
+            str(e.exception)
+        )
+        self.assertEqual('', self.redirect.getvalue().rstrip())

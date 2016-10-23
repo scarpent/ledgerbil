@@ -25,7 +25,7 @@ class FileTester(object):
     testschedulefileledger = testdir + 'test-schedule.ledger'
     test_enter_lessthan1 = testdir + 'test-schedule-enter-days-lt1.ldg'
 
-    mainfile = 'ledgerbil.py'
+    test_rec_multiple_match = testdir + 'reconcile-multiple-match.ldg'
 
     @staticmethod
     def create_temp_file(testdata):
