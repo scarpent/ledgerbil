@@ -24,7 +24,7 @@ class Reconciler(object):
             count += 1
             print(
                 '{number:-4}. {date} {code:>7} {payee:40} '
-                '${amount:10.2f} {status}'.format(
+                '${amount:10.2f} {status:1}  |{number:-4}'.format(
                     number=count,
                     date=thing.get_date_string(),
                     code=thing.transaction_code,

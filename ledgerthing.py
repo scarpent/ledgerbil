@@ -38,7 +38,7 @@ class LedgerThing(object):
         r'^\s+'                      # opening indent
         r'([!*])?'                   # optional pending/cleared
         r'(?:\s*)?'                  # optional whitespace after p/c
-        r'([^;]*?)'                  # account
+        r'([^;]*?)(?=  |$)'          # account (2 spaces ends acct)
         r'\(?([-+*/()$\d.\s]+)?\)?'  # optional amount expression
         r'(?:\s\s;.*$|$)'            # optional end comment
     )

@@ -605,3 +605,14 @@ class ReconcilerParsing(Redirector):
             expected_matches=('a: checking',),
             expected_amount=-161.81875
         )
+        self.verify_reconcile_vars(
+            [
+                '2016/10/23 blahgage',
+                '    e: interest      $50',
+                '    l: mortgage r4   ($79.99 + $50)',
+                '    a: checking',
+            ],
+            account='check',
+            expected_matches=('a: checking',),
+            expected_amount=-179.99
+        )
