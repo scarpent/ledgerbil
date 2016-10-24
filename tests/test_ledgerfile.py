@@ -114,12 +114,11 @@ class ThingCounting(TestCase):
         ledgerfile = LedgerFile(tempfile)
         remove(tempfile)
 
-        thinglines = [
+        thing = LedgerThing([
             '2011/01/01 beezlebub',
             '    assets: soul',
             '    liabilities: credit card  $666',
-        ]
-        thing = LedgerThing(thinglines)
+        ])
         ledgerfile.add_thing(thing)
         expected = '012'
         actual = ''
@@ -152,10 +151,11 @@ class ThingDating(TestCase):
     expenses: misc
     liabilities: credit card  $-2
 '''
-        thing_lines = ['; blah blah blah', '; and so on...']
         tempfile = FileTester.create_temp_file(testdata)
         ledgerfile = LedgerFile(tempfile)
-        ledgerfile._add_thing_lines(thing_lines)
+        ledgerfile._add_thing_lines(
+            ['; blah blah blah', '; and so on...']
+        )
         # non-transaction dates are only populated with sort
         ledgerfile.sort()
         remove(tempfile)
