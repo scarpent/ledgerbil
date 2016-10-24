@@ -8,6 +8,7 @@ import sys
 
 from arghandler import ArgHandler
 from ledgerbilexceptions import LdgReconcilerMoreThanOneMatchingAccount
+from ledgerbilexceptions import LdgReconcilerMultipleStatuses
 from ledgerfile import LedgerFile
 from reconciler import Reconciler
 from schedulefile import ScheduleFile
@@ -32,6 +33,9 @@ class Ledgerbil(object):
             for account in e.message:
                 print('    ' + account)
             return 2
+        except LdgReconcilerMultipleStatuses as e:
+            print(str(e))
+            return 4
 
         if self.args.schedule_file:
             schedule_file = ScheduleFile(self.args.schedule_file)

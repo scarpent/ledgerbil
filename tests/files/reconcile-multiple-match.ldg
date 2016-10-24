@@ -14,3 +14,8 @@
     e: blarg    ; comment
     a: cash in                              $-25
     a: cash out                             $-25
+
+2016/10/08 zillion
+    i: fwurmious        $-1000
+    a: mattress         $500
+  ! a: mattress

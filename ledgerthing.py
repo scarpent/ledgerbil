@@ -9,6 +9,7 @@ import re
 import util
 
 from ledgerbilexceptions import LdgReconcilerMoreThanOneMatchingAccount
+from ledgerbilexceptions import LdgReconcilerMultipleStatuses
 
 
 __author__ = 'Scott Carpenter'
@@ -20,9 +21,8 @@ UNSPECIFIED_PAYEE = '<Unspecified payee>'
 
 REC_STATUS_ERROR_MESSAGE = (
     "I don't know how to handle different reconciliation statuses "
-    "(pending/cleared) for the same account within a transaction "
-    " (will use the first one found: '{status}'). Date: {date}, "
-    "Payee: {payee}"
+    "(pending/cleared) for the same account within a transaction: "
+    "Date: {date}, Payee: {payee}"
 )
 
 
@@ -116,34 +116,34 @@ class LedgerThing(object):
                     )
                     transaction_total += amount
 
-            if self.rec_account in account:
-                if account.strip() not in self.rec_account_matches:
-                    self.rec_account_matches.append(account.strip())
+            if self.rec_account not in account:
+                continue
 
-                status = status if status else ''
-                if previous_status is None:
-                    self.rec_status = status
-                    previous_status = status
-                else:
-                    if previous_status != status \
-                            and previous_status != 'foobar' \
-                            and len(self.rec_account_matches) < 2:
+            if account.strip() not in self.rec_account_matches:
+                self.rec_account_matches.append(account.strip())
 
-                        # not going to bother showing this if multiple
-                        # account matches since it's blowing up anyway
-                        # and probably because of the multiple matches
-                        previous_status = 'foobar'
-                        print(REC_STATUS_ERROR_MESSAGE.format(
-                                status=self.rec_status,
-                                date=self.get_date_string(),
-                                payee=self.payee
-                            )
+            status = status if status else ''
+            if previous_status is None:
+                self.rec_status = status
+                previous_status = status
+            else:
+                if previous_status != status \
+                        and len(self.rec_account_matches) < 2:
+
+                    # not going to raise this if multiple account
+                    # matches since it's blowing up anyway and
+                    # probably because of the multiple matches
+                    raise LdgReconcilerMultipleStatuses(
+                        REC_STATUS_ERROR_MESSAGE.format(
+                            date=self.get_date_string(),
+                            payee=self.payee
                         )
+                    )
 
-                if amount is None:
-                    need_math = True
-                else:
-                    account_total += amount
+            if amount is None:
+                need_math = True
+            else:
+                account_total += amount
 
         if len(self.rec_account_matches) > 1:
             raise LdgReconcilerMoreThanOneMatchingAccount(

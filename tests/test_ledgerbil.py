@@ -14,6 +14,7 @@ import util
 # noinspection PyPep8Naming
 from filetester import FileTester as FT
 from helpers import Redirector
+from ledgerthing import REC_STATUS_ERROR_MESSAGE
 
 
 __author__ = 'Scott Carpenter'
@@ -160,5 +161,19 @@ class ReconcilerTests(Redirector):
             'Reconcile error. More than one matching account:\n'
             '    a: cash in\n'
             '    a: cash out',
+            self.redirect.getvalue().rstrip()
+        )
+
+    def test_multiple_statuses(self):
+        result = ledgerbil.main([
+            '--file', FT.test_rec_multiple_match,
+            '--reconcile', 'mattress'
+        ])
+        self.assertEqual(4, result)
+        self.assertEqual(
+            REC_STATUS_ERROR_MESSAGE.format(
+                date='2016/10/08',
+                payee='zillion'
+            ),
             self.redirect.getvalue().rstrip()
         )

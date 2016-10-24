@@ -31,3 +31,6 @@ class LdgScheduleUnrecognizedIntervalUom(LdgException):
 
 class LdgReconcilerMoreThanOneMatchingAccount(LdgException):
     pass
+
+class LdgReconcilerMultipleStatuses(LdgException):
+    pass

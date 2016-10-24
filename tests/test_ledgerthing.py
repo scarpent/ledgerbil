@@ -8,6 +8,7 @@ from datetime import date
 
 from helpers import Redirector
 from ledgerbilexceptions import LdgReconcilerMoreThanOneMatchingAccount
+from ledgerbilexceptions import LdgReconcilerMultipleStatuses
 from ledgerthing import LedgerThing
 from ledgerthing import REC_STATUS_ERROR_MESSAGE
 from ledgerthing import UNSPECIFIED_PAYEE
@@ -445,38 +446,41 @@ class ReconcilerParsing(Redirector):
         )
 
     def test_multiple_statuses(self):
-        self.verify_reconcile_vars(
-            [
-                '2016/10/23 blah',
-                '    i: zerg            $-40',
-                '  * a: checking up     $20      ; has comment',
-                '  ! a: checking up     $20',
-            ],
-            account='checking',
-            expected_matches=('a: checking up',),
-            expected_amount=40,
-            expected_status=LedgerThing.REC_CLEARED
+        with self.assertRaises(LdgReconcilerMultipleStatuses) as e:
+            LedgerThing(
+                [
+                    '2016/10/23 blah',
+                    '    i: zerg            $-40',
+                    '  * a: checking up     $20      ; has comment',
+                    '  ! a: checking up     $20',
+                ],
+                'checking'
             )
         self.assertEqual(
             REC_STATUS_ERROR_MESSAGE.format(
-                status=LedgerThing.REC_CLEARED,
                 date='2016/10/23',
                 payee='blah'
             ),
-            self.redirect.getvalue().rstrip()
+            str(e.exception)
         )
+        self.assertEqual('', self.redirect.getvalue().rstrip())
         self.reset_redirect()
-        self.verify_reconcile_vars(
-            [
-                '2016/10/23 blah',
-                '    i: zerg            $-40',
-                '    a: checking up     $20      ; has comment',
-                '  * a: checking up     $20',
-            ],
-            account='checking',
-            expected_matches=('a: checking up',),
-            expected_amount=40,
-            expected_status=''
+        with self.assertRaises(LdgReconcilerMultipleStatuses) as e:
+            LedgerThing(
+                [
+                    '2016/10/23 blah',
+                    '    i: zerg            $-40',
+                    '    a: checking up     $20      ; has comment',
+                    '  ! a: checking up     $20',
+                ],
+                'checking'
+            )
+        self.assertEqual(
+            REC_STATUS_ERROR_MESSAGE.format(
+                date='2016/10/23',
+                payee='blah'
+            ),
+            str(e.exception)
         )
 
     def test_multiple_matches(self):
