@@ -76,9 +76,35 @@ class GetLines(TestCase):
 
     def test_get_lines(self):
         """lines can be entered and retrieved as is"""
-        lines = ['abc\n', 'xyz\n']
-        thing = LedgerThing(lines)
-        self.assertEqual(lines, thing.get_lines())
+        lines = ('abc\n', 'xyz\n')
+        thing = LedgerThing(list(lines))
+        self.assertEqual(lines, tuple(thing.get_lines()))
+
+    def test_get_lines_dates(self):
+        # same date
+        lines = ('2016/10/24 blah', '  e: blurg')
+        thing = LedgerThing(list(lines))
+        self.assertEqual(lines, tuple(thing.get_lines()))
+        # change date
+        thing.thing_date = date(1998, 3, 8)
+        self.assertEqual(
+            ['1998/03/08 blah', '  e: blurg'],
+            thing.get_lines()
+        )
+
+    def test_get_lines_reconciled_status_no_change(self):
+        # uncleared
+        lines = ('2016/10/24 glob', '  e: blurg', '    a: smurg   $-25')
+        thing = LedgerThing(list(lines), 'smurg')
+        self.assertEqual(lines, tuple(thing.get_lines()))
+        # pending
+        lines = ('2016/10/24 glob', '  ! e: blurg', '  a: smurg   $-25')
+        thing = LedgerThing(list(lines), 'blurg')
+        self.assertEqual(lines, tuple(thing.get_lines()))
+        # cleared
+        lines = ('2016/10/24 glob', '  * e: blurg', '  a: smurg   $-25')
+        thing = LedgerThing(list(lines), 'blurg')
+        self.assertEqual(lines, tuple(thing.get_lines()))
 
 
 class IsNewThing(TestCase):

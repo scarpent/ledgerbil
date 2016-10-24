@@ -18,7 +18,8 @@ from unittest import TestCase
 from StringIO import StringIO
 
 
-class OutputFileTester(TestCase):
+# mark this for no coverage since not used currently
+class OutputFileTester(TestCase):  # pragma: no cover
 
     TEST_FILES_DIR = 'tests/files/'
     OUT_SUFFIX = '.out'

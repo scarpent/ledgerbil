@@ -34,6 +34,14 @@ class LedgerThing(object):
         r'(' + DATE_REGEX +
         r')(?:\s+\(([^)]*)\))?\s*([^;]+)?(?:;.*$|$)'
     )
+    ENTRY_REGEX = re.compile(
+        r'^\s+'                      # opening indent
+        r'([!*])?'                   # optional pending/cleared
+        r'(?:\s*)?'                  # optional whitespace after p/c
+        r'([^;]*?)'                  # account
+        r'\(?([-+*/()$\d.\s]+)?\)?'  # optional amount expression
+        r'(?:\s\s;.*$|$)'            # optional end comment
+    )
     REC_PENDING = '!'
     REC_CLEARED = '*'
 
@@ -43,7 +51,7 @@ class LedgerThing(object):
         self.thing_date = None
         self.payee = None
         self.transaction_code = ''  # e.g. check number
-        self.lines = lines
+        self.lines = lines[:]
         self.is_transaction = False
 
         # reconciliation
@@ -80,15 +88,6 @@ class LedgerThing(object):
             # currently only care about transaction lines if reconciling
             return
 
-        entry_regex = re.compile(
-            r'^\s+'                      # opening indent
-            r'([!*])?'                   # optional pending/cleared
-            r'(?:\s*)?'                  # optional whitespace after p/c
-            r'([^;]*?)'                  # account
-            r'\(?([-+*/()$\d.\s]+)?\)?'  # optional amount expression
-            r'(?:\s\s;.*$|$)'            # optional end comment
-        )
-
         # - most likely only one line for the account we're reconciling,
         #   but we'll have to handle more than one
         # - we only care about total for the account we're reconciling,
@@ -100,10 +99,7 @@ class LedgerThing(object):
         need_math = False
         previous_status = None
         for line in lines:
-            if re.match(r'^(\s*;|$|[#%|*])', line):
-                continue  # ignore comments and empty lines
-
-            m = re.match(entry_regex, line)
+            m = re.match(self.ENTRY_REGEX, line)
             if not m:
                 continue
 
@@ -161,13 +157,40 @@ class LedgerThing(object):
             self.rec_amount = account_total
 
     def get_lines(self):
-        if self.is_transaction:
-            self.lines[0] = re.sub(
-                self.DATE_REGEX,
-                self.get_date_string(),
-                self.lines[0]
-            )
-        return self.lines
+        if not self.is_transaction:
+            return self.lines[:]
+
+        lines = [re.sub(
+            self.DATE_REGEX,
+            self.get_date_string(),
+            self.lines[0]
+        )]
+
+        if not self.rec_account_matches:
+            return lines + self.lines[1:]
+
+        current_status = ' ' if not self.rec_status else self.rec_status
+
+        for line in self.lines[1:]:
+            m = re.match(self.ENTRY_REGEX, line)
+            if not m:  # e.g. a comment
+                line.append(line)
+                continue
+
+            status, account, amount = m.groups()
+            if self.rec_account in account:
+                m = re.match(r'^\s+[!*]?\s*(.*)$', line)
+                assert m
+                # going to use a standard 4 space indent; alternatively
+                # could try to be smart about preserving what is there
+                lines.append('  {status} {remainder}'.format(
+                    status=current_status,
+                    remainder=m.groups()[0]
+                ))
+            else:
+                lines.append(line)
+
+        return lines[:]
 
     @staticmethod
     def is_new_thing(line):
