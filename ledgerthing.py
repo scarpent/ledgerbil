@@ -44,6 +44,7 @@ class LedgerThing(object):
     )
     REC_PENDING = '!'
     REC_CLEARED = '*'
+    REC_UNCLEARED = ''
 
     def __init__(self, lines, reconcile_account=None):
 
@@ -119,9 +120,10 @@ class LedgerThing(object):
                 if account.strip() not in self.rec_account_matches:
                     self.rec_account_matches.append(account.strip())
 
+                status = status if status else ''
                 if previous_status is None:
-                    self.rec_status = status if status else ''
-                    previous_status = self.rec_status
+                    self.rec_status = status
+                    previous_status = status
                 else:
                     if previous_status != status \
                             and previous_status != 'foobar' \
@@ -160,21 +162,21 @@ class LedgerThing(object):
         if not self.is_transaction:
             return self.lines[:]
 
-        lines = [re.sub(
+        lines_out = [re.sub(
             self.DATE_REGEX,
             self.get_date_string(),
             self.lines[0]
         )]
 
         if not self.rec_account_matches:
-            return lines + self.lines[1:]
+            return lines_out + self.lines[1:]
 
         current_status = ' ' if not self.rec_status else self.rec_status
 
         for line in self.lines[1:]:
             m = re.match(self.ENTRY_REGEX, line)
             if not m:  # e.g. a comment
-                line.append(line)
+                lines_out.append(line)
                 continue
 
             status, account, amount = m.groups()
@@ -183,14 +185,14 @@ class LedgerThing(object):
                 assert m
                 # going to use a standard 4 space indent; alternatively
                 # could try to be smart about preserving what is there
-                lines.append('  {status} {remainder}'.format(
+                lines_out.append('  {status} {remainder}'.format(
                     status=current_status,
                     remainder=m.groups()[0]
                 ))
             else:
-                lines.append(line)
+                lines_out.append(line)
 
-        return lines[:]
+        return lines_out[:]
 
     @staticmethod
     def is_new_thing(line):

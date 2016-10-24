@@ -72,7 +72,7 @@ class Constructor(TestCase):
         self.verify_top_line('2001/04/11someone', None, '', None)
 
 
-class GetLines(TestCase):
+class GetLines(Redirector):
 
     def test_get_lines(self):
         """lines can be entered and retrieved as is"""
@@ -105,6 +105,83 @@ class GetLines(TestCase):
         lines = ('2016/10/24 glob', '  * e: blurg', '  a: smurg   $-25')
         thing = LedgerThing(list(lines), 'blurg')
         self.assertEqual(lines, tuple(thing.get_lines()))
+
+    def test_get_lines_indent_change(self):
+        # status doesn't change, but indent does due to standard
+        # uncleared
+        lines = (
+            '2016/10/24 glob',
+            '  ; might as well test comment handling, too',
+            '  e: blurg',
+            '  a: smurg   $-25',
+        )
+        thing = LedgerThing(list(lines), 'smurg')
+        expected =(
+            '2016/10/24 glob',
+            '  ; might as well test comment handling, too',
+            '  e: blurg',
+            '    a: smurg   $-25',
+        )
+        self.assertEqual(expected, tuple(thing.get_lines()))
+        # pending
+        lines = ('2016/10/24 glob', ' !e: blurg', '  a: smurg   $-25')
+        thing = LedgerThing(list(lines), 'blurg')
+        self.assertEqual(
+            ('2016/10/24 glob', '  ! e: blurg', '  a: smurg   $-25'),
+            tuple(thing.get_lines())
+        )
+        # cleared
+        lines = ('2016/10/24 glob', ' *e: blurg', '  a: smurg   $-25')
+        thing = LedgerThing(list(lines), 'blurg')
+        self.assertEqual(
+            ('2016/10/24 glob', '  * e: blurg', '  a: smurg   $-25'),
+            tuple(thing.get_lines())
+        )
+
+    def test_get_lines_status_changes(self):
+        # uncleared -> pending
+        lines = ('2016/10/24 abc', '  e: xyz', '     a: smurg   $-25')
+        thing = LedgerThing(list(lines), 'smurg')
+        thing.rec_status = LedgerThing.REC_PENDING
+        self.assertEqual(
+            ('2016/10/24 abc', '  e: xyz', '  ! a: smurg   $-25'),
+            tuple(thing.get_lines())
+        )
+        # pending -> cleared
+        thing.rec_status = LedgerThing.REC_CLEARED
+        self.assertEqual(
+            ('2016/10/24 abc', '  e: xyz', '  * a: smurg   $-25'),
+            tuple(thing.get_lines())
+        )
+        # cleared -> uncleared
+        thing.rec_status = LedgerThing.REC_UNCLEARED
+        self.assertEqual(
+            ('2016/10/24 abc', '  e: xyz', '    a: smurg   $-25'),
+            tuple(thing.get_lines())
+        )
+
+    def test_get_lines_status_change_multiple_lines(self):
+        lines = (
+            '2016/10/24 glob',
+            '  ; might as well test comment handling, too',
+            '                 e: blurg   $50',
+            ' a: smurg',
+            '    a: smurg   $-25',
+        )
+        thing = LedgerThing(list(lines), 'smurg')
+        thing.rec_status = LedgerThing.REC_PENDING
+        expected = (
+            '2016/10/24 glob',
+            '  ; might as well test comment handling, too',
+            '                 e: blurg   $50',
+            '  ! a: smurg',
+            '  ! a: smurg   $-25',
+        )
+        self.assertEqual(
+            expected,
+            tuple(thing.get_lines())
+        )
+        self.assertEqual('', self.redirect.getvalue().rstrip())
 
 
 class IsNewThing(TestCase):
@@ -470,6 +547,35 @@ class ReconcilerParsing(Redirector):
         # there are multiple matches; it's all blowing up anyway, and
         # a good chance it's because of the multiple matches that we
         # have multiple statuses
+        self.assertEqual('', self.redirect.getvalue().rstrip())
+
+    def test_multiple_lines_for_same_account(self):
+        self.verify_reconcile_vars(
+            [
+                '2016/10/23 blah',
+                '    e: blurg      $35',
+                '    a: checking',
+                '    a: checking   $-25'
+            ],
+            account='a: checking',
+            expected_matches=('a: checking',),
+            expected_amount=-35
+        )
+        self.assertEqual('', self.redirect.getvalue().rstrip())
+        # matching statuses should be okay
+        self.reset_redirect()
+        self.verify_reconcile_vars(
+            [
+                '2016/10/23 blah',
+                '    e: blurg      $35',
+                '  ! a: checking',
+                '  ! a: checking   $-25'
+            ],
+            account='a: checking',
+            expected_matches=('a: checking',),
+            expected_amount=-35,
+            expected_status=LedgerThing.REC_PENDING
+        )
         self.assertEqual('', self.redirect.getvalue().rstrip())
 
     def test_more_transactions_and_math(self):
