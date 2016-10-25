@@ -57,7 +57,7 @@ class LedgerThing(object):
 
         # reconciliation
         self.rec_account = reconcile_account  # could be partial
-        self.rec_account_matches = []  # there should be only one match
+        self.rec_account_matches = []  # should be only one match
         self.rec_status = ''
         self.rec_amount = 0
 

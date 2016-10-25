@@ -27,7 +27,7 @@ class LedgerFile(object):
         self.things = []
         self.filename = filename
         self.rec_account = reconcile_account  # could be partial
-        self.rec_account_matches_all = []  # should be only one match
+        self.rec_account_matches = []  # should be only one match
 
         self._parse_file()
 
@@ -72,15 +72,15 @@ class LedgerFile(object):
             if self.rec_account and len(thing.rec_account_matches) > 0:
                 assert len(thing.rec_account_matches) == 1
                 thing_account = thing.rec_account_matches[0]
-                if thing_account not in self.rec_account_matches_all:
-                    self.rec_account_matches_all.append(thing_account)
+                if thing_account not in self.rec_account_matches:
+                    self.rec_account_matches.append(thing_account)
 
                 # unlike LedgerThing multiple match checking, we'll
                 # raise this one right away, since we don't know how
                 # many things are still to be added, if any
-                if len(self.rec_account_matches_all) > 1:
+                if len(self.rec_account_matches) > 1:
                     raise LdgReconcilerMoreThanOneMatchingAccount(
-                        self.rec_account_matches_all
+                        self.rec_account_matches
                     )
 
             thing.thing_number = self.thing_counter

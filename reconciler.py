@@ -91,7 +91,7 @@ class Reconciler(cmd.Cmd, object):
 
     def do_account(self, args):
         """Print the account being reconciled"""
-        print(self.ledgerfile.rec_account_matches_all[0])
+        print(self.ledgerfile.rec_account_matches[0])
 
     def list_transactions(self):
 

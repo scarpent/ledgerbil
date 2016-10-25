@@ -213,7 +213,7 @@ class ReconcilerParsing(Redirector):
         )
         self.assertEqual(
             ['a: checking up'],
-            ledgerfile.rec_account_matches_all
+            ledgerfile.rec_account_matches
         )
         self.assertEqual('', self.redirect.getvalue().rstrip())
         # multiple matches within a single transaction

@@ -47,7 +47,7 @@ class Ledgerbil(object):
             ledgerfile.sort()
 
         if self.args.reconcile:
-            if ledgerfile.rec_account_matches_all:
+            if ledgerfile.rec_account_matches:
                 reconciler = Reconciler(ledgerfile, self.args.reconcile)
                 reconciler.cmdloop()
             else:
