@@ -177,3 +177,14 @@ class ReconcilerTests(Redirector):
             ),
             self.redirect.getvalue().rstrip()
         )
+
+    def test_no_matching_account(self):
+        result = ledgerbil.main([
+            '--file', FT.test_reconcile,
+            '--reconcile', 'schenectady schmectady'
+        ])
+        self.assertEqual(0, result)
+        self.assertEqual(
+            'No matching account found for "schenectady schmectady"',
+            self.redirect.getvalue().rstrip()
+        )

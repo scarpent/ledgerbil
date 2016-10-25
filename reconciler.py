@@ -87,13 +87,13 @@ class Reconciler(cmd.Cmd, object):
           only showing future up to 4 days
         """
         args = util.parse_args(args)
-        self.run()
+        self.list_transactions()
 
     def do_account(self, args):
         """Print the account being reconciled"""
         print(self.ledgerfile.rec_account_matches_all[0])
 
-    def run(self):
+    def list_transactions(self):
 
         count = 0
         for thing in self.ledgerfile.get_things():
