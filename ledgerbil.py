@@ -48,7 +48,7 @@ class Ledgerbil(object):
 
         if self.args.reconcile:
             reconciler = Reconciler(ledgerfile, self.args.reconcile)
-            reconciler.run()
+            reconciler.cmdloop()
 
         ledgerfile.write_file()
 
