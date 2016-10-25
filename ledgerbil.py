@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 """main ledgerbil program file"""
 
@@ -47,8 +47,13 @@ class Ledgerbil(object):
             ledgerfile.sort()
 
         if self.args.reconcile:
-            reconciler = Reconciler(ledgerfile, self.args.reconcile)
-            reconciler.cmdloop()
+            if ledgerfile.rec_account_matches_all:
+                reconciler = Reconciler(ledgerfile, self.args.reconcile)
+                reconciler.cmdloop()
+            else:
+                print('No matching account found for "{acct}"'.format(
+                    acct=self.args.reconcile
+                ))
 
         ledgerfile.write_file()
 

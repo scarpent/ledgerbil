@@ -1,3 +1,8 @@
+; this should be a valid ledger file for experimentation and *some*
+; unit tests, but not really unit tests that expect exact data --
+; in general if we just add new things and don't modify what's here,
+; we can have tests that rely on certain accounts being present...
+
 2016/10/02 (1901) goofy doofy
     e: misc: goofies
   ! a: checking             $-25

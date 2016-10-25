@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 from unittest import TestCase
 
@@ -15,10 +15,7 @@ __email__ = 'scottc@movingtofreedom.org'
 class SimpleOutputTests(Redirector):
 
     def test_syntax_error(self):
-        interpreter = Reconciler(
-            FileTester.testdir + 'reconcile.ledger',
-            'cash'
-        )
+        interpreter = Reconciler(FileTester.test_reconcile, 'cash')
         bad_command = 'cthulu'
         interpreter.onecmd(bad_command)
         self.assertEqual(
@@ -34,10 +31,7 @@ class SimpleOutputTests(Redirector):
             'quit', 'q', 'EOF',
             #'list', 'l', 'll',
         ]
-        interpreter = Reconciler(
-            FileTester.testdir + 'reconcile.ledger',
-            'cash'
-        )
+        interpreter = Reconciler(FileTester.test_reconcile, 'cash')
         for c in commands:
             self.reset_redirect()
             interpreter.onecmd(c)
@@ -54,10 +48,7 @@ class SimpleOutputTests(Redirector):
             #'help list', 'help l', 'help ll',
             'help quit', 'help q', 'help EOF',
         ]
-        interpreter = Reconciler(
-            FileTester.testdir + 'reconcile.ledger',
-            'cash'
-        )
+        interpreter = Reconciler(FileTester.test_reconcile, 'cash')
         for c in commands:
             self.reset_redirect()
             interpreter.onecmd(c)

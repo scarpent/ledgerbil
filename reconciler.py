@@ -1,9 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 from __future__ import division
 from __future__ import print_function
 
 import cmd
+
+import util
 
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -14,7 +16,7 @@ __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
 
-# PyMethodMayBeStatic
+# noinspection PyMethodMayBeStatic
 class Reconciler(cmd.Cmd, object):
 
     UNKNOWN_SYNTAX = '*** Unknown syntax: '
@@ -24,13 +26,19 @@ class Reconciler(cmd.Cmd, object):
         cmd.Cmd.__init__(self)
         self.aliases = {
             'EOF': self.do_quit,
+            'l': self.do_list,
+            'll': self.do_list,
             'q': self.do_quit,
         }
 
         self.ledgerfile = ledgerfile
         self.account = account
 
-    prompt = '> '
+        self.list_cleared = False
+        self.list_future = False
+
+    intro = ''
+    prompt = 'rec: '
 
     def emptyline(self):
         pass  # pragma: no cover
@@ -67,30 +75,47 @@ class Reconciler(cmd.Cmd, object):
         """Exit the program"""
         return True
 
+    def do_list(self, args):
+        """List entries for selected account
 
-def run(self):
+        Syntax: list [+/-cleared] [+/-future]
+                list [future] [cleared]
 
-    count = 0
-    for thing in self.ledgerfile.get_things():
-        if not thing.rec_account_matches \
-                or thing.thing_date > date.today() + relativedelta(days=4) \
-                or thing.rec_status == '*':
+        - "+cleared" will show cleared entries; the setting will
+          persist until "-cleared" is given
+        - "+future" will show all future entries; "-future" reverts to
+          only showing future up to 4 days
+        """
+        args = util.parse_args(args)
+        self.run()
 
-            continue
-        count += 1
-        print(
-            '{number:-4}. {date} {code:>7} {payee} '
-            '{amount} {status:1}  |{number:-4} '
-            '{thing_num:-6}'.format(
-                number=count,
-                date=thing.get_date_string(),
-                code=thing.transaction_code,
-                payee=get_colored_payee(thing.payee),
-                amount=get_colored_amount(thing.rec_amount),
-                status=thing.rec_status,
-                thing_num=thing.thing_number
+    def do_account(self, args):
+        """Print the account being reconciled"""
+        print(self.ledgerfile.rec_account_matches_all[0])
+
+    def run(self):
+
+        count = 0
+        for thing in self.ledgerfile.get_things():
+            if not thing.rec_account_matches \
+                    or thing.thing_date > date.today() + relativedelta(days=4) \
+                    or thing.rec_status == '*':
+
+                continue
+            count += 1
+            print(
+                '{number:-4}. {date} {code:>7} {payee} '
+                '{amount} {status:1}  |{number:-4} '
+                '{thing_num:-6}'.format(
+                    number=count,
+                    date=thing.get_date_string(),
+                    code=thing.transaction_code,
+                    payee=get_colored_payee(thing.payee),
+                    amount=get_colored_amount(thing.rec_amount),
+                    status=thing.rec_status,
+                    thing_num=thing.thing_number
+                )
             )
-        )
 
 
 def get_colored_amount(amount):

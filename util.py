@@ -1,10 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 from __future__ import division
 from __future__ import print_function
 
 import ast
 import operator as op
+import shlex
 
 from datetime import date
 from datetime import datetime
@@ -58,3 +59,12 @@ def is_valid_date(date_string):
         return True
     except ValueError:
         return False
+
+def parse_args(args):
+    # args should be a string, but we'll make sure it isn't None
+    # (which would cause the string to be read from stdin)
+    try:
+        return shlex.split(args if args else '')
+    except ValueError as e:
+        print('*** ' + e.message)
+        return None

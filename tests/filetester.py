@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 """unit test for ledgerfile.py"""
 
@@ -26,6 +26,7 @@ class FileTester(object):
     test_enter_lessthan1 = testdir + 'test-schedule-enter-days-lt1.ldg'
 
     test_rec_multiple_match = testdir + 'reconcile-multiple-match.ldg'
+    test_reconcile = testdir + 'reconcile.ledger'
 
     @staticmethod
     def create_temp_file(testdata):

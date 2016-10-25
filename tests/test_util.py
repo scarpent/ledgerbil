@@ -1,8 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 from unittest import TestCase
 
 import util
+
+from helpers import Redirector
 
 
 __author__ = 'Scott Carpenter'
@@ -27,3 +29,26 @@ class UtilTests(TestCase):
         self.assertEqual(-2, util.eval_expr('~1'))  # invert
         with self.assertRaises(TypeError):
             util.eval_expr('a')
+
+
+class OutputTests(Redirector):
+
+    def test_parse_args_open_quote(self):
+        output = '*** No closing quotation'
+        result = util.parse_args('"open')
+        self.assertIsNone(result)
+        self.assertEqual(output, self.redirect.getvalue().rstrip())
+        self.reset_redirect()
+        util.parse_args("'still open")
+        self.assertEqual(output, self.redirect.getvalue().rstrip())
+        self.reset_redirect()
+        util.parse_args("this also counts as open'")
+        self.assertEqual(output, self.redirect.getvalue().rstrip())
+
+    def test_parse_args_good(self):
+        args = util.parse_args('')
+        self.assertEqual([], args)
+        args = util.parse_args(None)
+        self.assertEqual([], args)
+        args = util.parse_args('a b "c d"')
+        self.assertEqual(['a', 'b', 'c d'], args)
