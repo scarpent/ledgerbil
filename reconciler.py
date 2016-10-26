@@ -5,10 +5,9 @@ from __future__ import print_function
 
 import cmd
 
-import util
-
 from datetime import date
-from dateutil.relativedelta import relativedelta
+
+from ledgerthing import LedgerThing
 
 
 __author__ = 'Scott Carpenter'
@@ -16,13 +15,13 @@ __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
 
-# noinspection PyMethodMayBeStatic
+# noinspection PyMethodMayBeStatic,PyUnusedLocal
 class Reconciler(cmd.Cmd, object):
 
     UNKNOWN_SYNTAX = '*** Unknown syntax: '
     NO_HELP = '*** No help on '
 
-    def __init__(self, ledgerfile, account):
+    def __init__(self, ledgerfile):
         cmd.Cmd.__init__(self)
         self.aliases = {
             'EOF': self.do_quit,
@@ -32,10 +31,23 @@ class Reconciler(cmd.Cmd, object):
         }
 
         self.ledgerfile = ledgerfile
-        self.account = account
+        self.to_date = date.today()
+        self.ending_balance = None
+        self.open_transactions = []
+        self.current_listing = {}
+        self.total_cleared = 0
+        self.total_pending = 0
 
-        self.list_cleared = False
-        self.list_future = False
+        for thing in self.ledgerfile.get_things():
+            if thing.rec_account_matches:
+                if thing.rec_status == LedgerThing.REC_CLEARED:
+                    self.total_cleared += thing.rec_amount
+                    continue
+
+                if thing.rec_status == LedgerThing.REC_PENDING:
+                    self.total_pending += thing.rec_amount
+
+                self.open_transactions.append(thing)
 
     intro = ''
     prompt = 'rec: '
@@ -78,35 +90,73 @@ class Reconciler(cmd.Cmd, object):
     def do_list(self, args):
         """List entries for selected account
 
-        Syntax: list [+/-cleared] [+/-future]
-                list [future] [cleared]
-
-        - "+cleared" will show cleared entries; the setting will
-          persist until "-cleared" is given
-        - "+future" will show all future entries; "-future" reverts to
-          only showing future up to 4 days
+        - Shows uncleared and pending transactions. (Pending = "!".)
         """
-        args = util.parse_args(args)
         self.list_transactions()
 
     def do_account(self, args):
         """Print the account being reconciled"""
         print(self.ledgerfile.rec_account_matches[0])
 
+    def do_mark(self, args):
+        """Mark a transaction as pending (!)
+
+        Syntax: mark <#>
+        """
+        if not args:
+            print('*** Transaction number required')
+            return
+        elif args not in self.current_listing:
+            print('*** Transaction not found: ' + args)
+            return
+        elif self.current_listing[args].rec_status == LedgerThing.REC_PENDING:
+            print('Already marked pending')
+            return
+
+        print('you selected: {date} {payee} {amount}'.format(
+            date=self.current_listing[args].get_date_string(),
+            payee=self.current_listing[args].payee,
+            amount=self.current_listing[args].rec_amount
+        ))
+
+        self.current_listing[args].rec_status = LedgerThing.REC_PENDING
+        self.list_transactions()
+
+    def do_unmark(self, args):
+        """Remove pending mark (!) from transaction
+
+        Syntax: unmark <#>
+        """
+        if not args:
+            print('*** Transaction number required')
+            return
+        elif args not in self.current_listing:
+            print('*** Transaction not found: ' + args)
+            return
+
+        print('you selected: {date} {payee} {amount}'.format(
+            date=self.current_listing[args].get_date_string(),
+            payee=self.current_listing[args].payee,
+            amount=self.current_listing[args].rec_amount
+        ))
+
+        self.current_listing[args].rec_status = \
+            LedgerThing.REC_UNCLEARED
+        self.list_transactions()
+
     def list_transactions(self):
-
+        self.current_listing = {}
         count = 0
-        for thing in self.ledgerfile.get_things():
-            if not thing.rec_account_matches \
-                    or thing.thing_date > date.today() + relativedelta(days=4) \
-                    or thing.rec_status == '*':
-
+        for thing in self.open_transactions:
+            if thing.thing_date > self.to_date \
+                    and thing.rec_status != LedgerThing.REC_PENDING:
                 continue
+
             count += 1
+            self.current_listing[str(count)] = thing
             print(
-                '{number:-4}. {date} {code:>7} {payee} '
-                '{amount} {status:1}  |{number:-4} '
-                '{thing_num:-6}'.format(
+                '{number:-4}. {date} {amount} {status:1} {payee} '
+                '{code:>7} {thing_num:-6}'.format(
                     number=count,
                     date=thing.get_date_string(),
                     code=thing.transaction_code,
@@ -116,6 +166,15 @@ class Reconciler(cmd.Cmd, object):
                     thing_num=thing.thing_number
                 )
             )
+        self.print_total('cleared', self.total_cleared)
+        self.print_total('pending', self.total_pending)
+
+    @staticmethod
+    def print_total(label, total):
+        print('{label:9}{total}'.format(
+            label=label,
+            total=get_colored_amount(total)
+        ))
 
 
 def get_colored_amount(amount):
@@ -124,9 +183,11 @@ def get_colored_amount(amount):
     else:
         color = '\033[0;32m'  # green
 
-    return '{start}${amount:10.2f}{end}'.format(
+    amount_formatted = '${:.2f}'.format(amount)
+
+    return '{start}{amount:>10}{end}'.format(
         start=color,
-        amount=amount,
+        amount=amount_formatted,
         end='\033[0m'
     )
 

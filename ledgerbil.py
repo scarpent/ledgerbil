@@ -48,14 +48,14 @@ class Ledgerbil(object):
 
         if self.args.reconcile:
             if ledgerfile.rec_account_matches:
-                reconciler = Reconciler(ledgerfile, self.args.reconcile)
+                reconciler = Reconciler(ledgerfile)
                 reconciler.cmdloop()
             else:
                 print('No matching account found for "{acct}"'.format(
                     acct=self.args.reconcile
                 ))
-
-        ledgerfile.write_file()
+        else:
+            ledgerfile.write_file()
 
         return 0
 

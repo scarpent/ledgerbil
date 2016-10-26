@@ -4,6 +4,7 @@ from unittest import TestCase
 
 from filetester import FileTester
 from helpers import Redirector
+from ledgerfile import LedgerFile
 from reconciler import Reconciler
 
 
@@ -15,7 +16,9 @@ __email__ = 'scottc@movingtofreedom.org'
 class SimpleOutputTests(Redirector):
 
     def test_syntax_error(self):
-        interpreter = Reconciler(FileTester.test_reconcile, 'cash')
+        interpreter = Reconciler(
+            LedgerFile(FileTester.test_reconcile, 'cash')
+        )
         bad_command = 'cthulu'
         interpreter.onecmd(bad_command)
         self.assertEqual(
@@ -31,7 +34,9 @@ class SimpleOutputTests(Redirector):
             'quit', 'q', 'EOF',
             #'list', 'l', 'll',
         ]
-        interpreter = Reconciler(FileTester.test_reconcile, 'cash')
+        interpreter = Reconciler(
+            LedgerFile(FileTester.test_reconcile, 'cash')
+        )
         for c in commands:
             self.reset_redirect()
             interpreter.onecmd(c)
@@ -48,7 +53,9 @@ class SimpleOutputTests(Redirector):
             #'help list', 'help l', 'help ll',
             'help quit', 'help q', 'help EOF',
         ]
-        interpreter = Reconciler(FileTester.test_reconcile, 'cash')
+        interpreter = Reconciler(
+            LedgerFile(FileTester.test_reconcile, 'cash')
+        )
         for c in commands:
             self.reset_redirect()
             interpreter.onecmd(c)
