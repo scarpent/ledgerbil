@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from datetime import date
 from unittest import TestCase
 
 import util
@@ -29,6 +30,19 @@ class UtilTests(TestCase):
         self.assertEqual(-2, util.eval_expr('~1'))  # invert
         with self.assertRaises(TypeError):
             util.eval_expr('a')
+
+    def test_dates(self):
+        self.assertEqual(
+            '1999/12/03',
+            util.get_date_string(date(1999, 12, 3))
+        )
+        self.assertEqual(
+            date(1999, 12, 3),
+            util.get_date('1999/12/03')
+        )
+        self.assertTrue(util.is_valid_date('2016/10/26'))
+        self.assertTrue(util.is_valid_date('2016/1/5'))
+        self.assertFalse(util.is_valid_date('2016/5/5 10:23'))
 
 
 class OutputTests(Redirector):

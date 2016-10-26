@@ -7,8 +7,6 @@ import cmd
 
 from datetime import date
 
-from ledgerthing import LedgerThing
-
 
 __author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'
@@ -40,11 +38,11 @@ class Reconciler(cmd.Cmd, object):
 
         for thing in self.ledgerfile.get_things():
             if thing.rec_account_matches:
-                if thing.rec_status == LedgerThing.REC_CLEARED:
+                if thing.is_cleared():
                     self.total_cleared += thing.rec_amount
                     continue
 
-                if thing.rec_status == LedgerThing.REC_PENDING:
+                if thing.is_pending():
                     self.total_pending += thing.rec_amount
 
                 self.open_transactions.append(thing)
@@ -109,7 +107,7 @@ class Reconciler(cmd.Cmd, object):
         elif args not in self.current_listing:
             print('*** Transaction not found: ' + args)
             return
-        elif self.current_listing[args].rec_status == LedgerThing.REC_PENDING:
+        elif self.current_listing[args].is_pending():
             print('Already marked pending')
             return
 
@@ -119,7 +117,7 @@ class Reconciler(cmd.Cmd, object):
             amount=self.current_listing[args].rec_amount
         ))
 
-        self.current_listing[args].rec_status = LedgerThing.REC_PENDING
+        self.current_listing[args].set_pending()
         self.list_transactions()
 
     def do_unmark(self, args):
@@ -140,8 +138,7 @@ class Reconciler(cmd.Cmd, object):
             amount=self.current_listing[args].rec_amount
         ))
 
-        self.current_listing[args].rec_status = \
-            LedgerThing.REC_UNCLEARED
+        self.current_listing[args].set_uncleared()
         self.list_transactions()
 
     def list_transactions(self):
@@ -149,7 +146,7 @@ class Reconciler(cmd.Cmd, object):
         count = 0
         for thing in self.open_transactions:
             if thing.thing_date > self.to_date \
-                    and thing.rec_status != LedgerThing.REC_PENDING:
+                    and not thing.is_pending():
                 continue
 
             count += 1

@@ -292,8 +292,8 @@ class ReconcilerParsing(Redirector):
             len(t.rec_account_matches)
         )
         self.assertEqual(expected_matches, tuple(t.rec_account_matches))
-        self.assertEqual(expected_status, t.rec_status)
         self.assertEqual(expected_amount, t.rec_amount)
+        self.assertEqual(expected_status, t.rec_status)
 
     def test_reconcile_not_a_transaction(self):
         # not reconciling
@@ -616,3 +616,25 @@ class ReconcilerParsing(Redirector):
             expected_matches=('a: checking',),
             expected_amount=-179.99
         )
+
+    def test_statuses(self):
+        thing = LedgerThing(
+            [
+                '2016/10/23 blah',
+                '    e: blurg      $10',
+                '    e: glerb      $10',
+                '    a: checking',
+            ],
+            'checking'
+        )
+        self.assertFalse(thing.is_pending())
+        self.assertFalse(thing.is_cleared())
+        thing.set_pending()
+        self.assertTrue(thing.is_pending())
+        self.assertFalse(thing.is_cleared())
+        thing.set_cleared()
+        self.assertFalse(thing.is_pending())
+        self.assertTrue(thing.is_cleared())
+        thing.set_uncleared()
+        self.assertFalse(thing.is_pending())
+        self.assertFalse(thing.is_cleared())

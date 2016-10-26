@@ -213,3 +213,18 @@ class LedgerThing(object):
 
     def get_date_string(self):
         return util.get_date_string(self.thing_date)
+
+    def is_pending(self):
+        return self.rec_status == self.REC_PENDING
+
+    def set_pending(self):
+        self.rec_status = self.REC_PENDING
+
+    def is_cleared(self):
+        return self.rec_status == self.REC_CLEARED
+
+    def set_cleared(self):
+        self.rec_status = self.REC_CLEARED
+
+    def set_uncleared(self):
+        self.rec_status = self.REC_UNCLEARED

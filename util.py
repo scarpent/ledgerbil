@@ -55,7 +55,7 @@ def get_date(date_string):
 
 def is_valid_date(date_string):
     try:
-        parse(date_string)
+        get_date(date_string)
         return True
     except ValueError:
         return False
