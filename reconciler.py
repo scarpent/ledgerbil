@@ -7,6 +7,7 @@ import cmd
 
 from datetime import date
 
+import util
 
 __author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'
@@ -25,6 +26,8 @@ class Reconciler(cmd.Cmd, object):
             'EOF': self.do_quit,
             'l': self.do_list,
             'll': self.do_list,
+            'm': self.do_mark,
+            'u': self.do_unmark,
             'q': self.do_quit,
         }
 
@@ -48,7 +51,7 @@ class Reconciler(cmd.Cmd, object):
                 self.open_transactions.append(thing)
 
     intro = ''
-    prompt = 'rec: '
+    prompt = '> '
 
     def emptyline(self):
         pass  # pragma: no cover
@@ -100,46 +103,67 @@ class Reconciler(cmd.Cmd, object):
         """Mark a transaction as pending (!)
 
         Syntax: mark <#>
+
+        - The numbered line of a transaction, or multiple numbers
+          separated by spaces
         """
-        if not args:
-            print('*** Transaction number required')
-            return
-        elif args not in self.current_listing:
-            print('*** Transaction not found: ' + args)
-            return
-        elif self.current_listing[args].is_pending():
-            print('Already marked pending')
-            return
-
-        print('you selected: {date} {payee} {amount}'.format(
-            date=self.current_listing[args].get_date_string(),
-            payee=self.current_listing[args].payee,
-            amount=self.current_listing[args].rec_amount
-        ))
-
-        self.current_listing[args].set_pending()
-        self.list_transactions()
+        self.mark_or_unmark(args, mark=True)
 
     def do_unmark(self, args):
         """Remove pending mark (!) from transaction
 
         Syntax: unmark <#>
+
+        - The numbered line of a transaction, or multiple numbers
+          separated by spaces
         """
+        self.mark_or_unmark(args, mark=False)
+
+    def do_start(self, args):
+        """Start balancing an account, or adjust statement date and
+           ending balance
+
+        Syntax: start [date YYYY-MM-DD] [balance]
+        """
+        pass
+
+    def mark_or_unmark(self, args, mark=True):
+        args = util.parse_args(args)
         if not args:
-            print('*** Transaction number required')
-            return
-        elif args not in self.current_listing:
-            print('*** Transaction not found: ' + args)
+            print('*** Transaction number(s) required')
             return
 
-        print('you selected: {date} {payee} {amount}'.format(
-            date=self.current_listing[args].get_date_string(),
-            payee=self.current_listing[args].payee,
-            amount=self.current_listing[args].rec_amount
-        ))
+        at_least_one_success = False
+        messages = ''
+        for num in args:
+            if num not in self.current_listing:
+                messages += 'Transaction not found: {}\n'.format(num)
+                continue
 
-        self.current_listing[args].set_uncleared()
-        self.list_transactions()
+            thing = self.current_listing[num]
+
+            if mark and thing.is_pending():
+                messages += 'Already marked pending: ' + num + '\n'
+                continue
+            elif not mark and not thing.is_pending():
+                messages += "Not marked; can't unmark: " + num + '\n'
+                continue
+
+            if mark:
+                self.current_listing[num].set_pending()
+                self.total_pending += thing.rec_amount
+            else:
+                thing.set_uncleared()
+                self.total_pending -= thing.rec_amount
+
+            self.ledgerfile.write_file()
+            at_least_one_success = True
+
+        if at_least_one_success:
+            self.list_transactions()
+
+        if messages:
+            print(messages, end='')
 
     def list_transactions(self):
         self.current_listing = {}
@@ -153,14 +177,13 @@ class Reconciler(cmd.Cmd, object):
             self.current_listing[str(count)] = thing
             print(
                 '{number:-4}. {date} {amount} {status:1} {payee} '
-                '{code:>7} {thing_num:-6}'.format(
+                '{code:>7}'.format(
                     number=count,
                     date=thing.get_date_string(),
                     code=thing.transaction_code,
                     payee=get_colored_payee(thing.payee),
                     amount=get_colored_amount(thing.rec_amount),
-                    status=thing.rec_status,
-                    thing_num=thing.thing_number
+                    status=thing.rec_status
                 )
             )
         self.print_total('cleared', self.total_cleared)

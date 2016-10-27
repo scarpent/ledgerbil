@@ -60,6 +60,7 @@ def is_valid_date(date_string):
     except ValueError:
         return False
 
+
 def parse_args(args):
     # args should be a string, but we'll make sure it isn't None
     # (which would cause the string to be read from stdin)

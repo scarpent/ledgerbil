@@ -3,7 +3,10 @@
 """unit test for ledgerfile.py"""
 
 import inspect  # inspect.stack()[1][3] gives name of calling function
+import os
+import tempfile
 
+from contextlib import contextmanager
 from shutil import copyfile
 
 
@@ -56,3 +59,12 @@ class FileTester(object):
         f.write(testdata)
         f.close()
         return tempfile
+
+    @staticmethod
+    @contextmanager
+    def temp_input(data):
+        temp = tempfile.NamedTemporaryFile(delete=False)
+        temp.write(data)
+        temp.close()
+        yield temp.name
+        os.unlink(temp.name)

@@ -29,7 +29,7 @@
 
 2016/10/08 smoomious
     e: bantha
-  * a: cash                 $-56.78
+  * a: cash                 $-73.89
 
 2016/10/09
     i: fmoogle
@@ -37,11 +37,11 @@
 
 2016/10/10 frumious
     e: bandersnatch
-    a: cash                 $-56.78
+  ! a: cash                 $-56.78
 
 2016/10/27
     i: fmoogle
-  ! a: cash                 $100
+    a: cash                 $100
 
 2016/11/11
     i: fmoogle
