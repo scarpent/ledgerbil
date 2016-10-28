@@ -292,17 +292,42 @@ class MockRawInput(TestCase):
 
 class StatementTests(MockRawInput, OutputFileTester):
 
-    def test_invalid_date_and_balance_and_no_change(self):
-        teststmt = '''
+    def setUp(self):
+        super(StatementTests, self).setUp()
+
+        class FixedDate(date):
+            @classmethod
+            def today(cls):
+                return cls(2016, 10, 27)
+
+        reconciler.date = FixedDate
+
+    def tearDown(self):
+        super(StatementTests, self).tearDown()
+        reconciler.date = date
+
+    teststmt = '''
 2016/10/26 one
     e: blurg
     a: cash         $-10
 '''
+
+    def test_invalid_date_and_balance_and_no_change(self):
         self.init_test('test_statement_errors')
 
-        with FileTester.temp_input(teststmt) as tempfilename:
+        with FileTester.temp_input(self.teststmt) as tempfilename:
             reconciler = Reconciler(LedgerFile(tempfilename, 'cash'))
 
         self.responses = ['blurg', '', 'abc', '']
+        reconciler.do_statement('')
+        self.conclude_test(strip_ansi_color=True)
+
+    def test_date_and_balance(self):
+        self.init_test('test_statement_date_and_balance')
+
+        with FileTester.temp_input(self.teststmt) as tempfilename:
+            reconciler = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+        self.responses = ['2016/10/30', '40']
         reconciler.do_statement('')
         self.conclude_test(strip_ansi_color=True)
