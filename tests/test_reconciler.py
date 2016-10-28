@@ -55,6 +55,7 @@ class SimpleOutputTests(Redirector):
         with FileTester.temp_input(testdata) as tempfilename:
             interpreter = Reconciler(LedgerFile(tempfilename, 'cash'))
 
+        self.reset_redirect()
         bad_command = 'cthulu'
         interpreter.onecmd(bad_command)
         self.assertEqual(
@@ -116,6 +117,8 @@ class OutputTests(Redirector):
         with FileTester.temp_input(testdata) as tempfilename:
             reconciler = Reconciler(LedgerFile(tempfilename, 'cash'))
 
+        self.reset_redirect()
+
         # none of these should result in a file write; we'll get out of
         # the context manager as an additional confirmation of this
 
@@ -173,7 +176,7 @@ class DataTests(Redirector):
         )
         self.assertEqual(date.today(), reconciler.to_date)
         self.assertIsNone(reconciler.ending_balance)
-        self.assertEqual({}, reconciler.current_listing)
+        self.assertEqual(3, len(reconciler.current_listing))
 
     def test_list(self):
         with FileTester.temp_input(testdata) as tempfilename:
