@@ -296,7 +296,7 @@ class Reconciler(cmd.Cmd, object):
             print('*** Ending balance must be set in order to finish')
             return
 
-        if util.get_amount_str(self.get_zero_candidate()) != '$0.00':
+        if util.get_amount_str(self.get_zero_candidate()) != '0.00':
             print('"To zero" must be zero in order to finish')
             return
 

@@ -369,10 +369,10 @@ class MockRawInput(TestCase):
         reconciler.raw_input = self.save_raw_input
 
 
-class StatementTests(MockRawInput, OutputFileTester):
+class StatementAndFinishTests(MockRawInput, OutputFileTester):
 
     def setUp(self):
-        super(StatementTests, self).setUp()
+        super(StatementAndFinishTests, self).setUp()
 
         # monkey patch date so it will be 10/27/2016
         class FixedDate(date):
@@ -383,7 +383,7 @@ class StatementTests(MockRawInput, OutputFileTester):
         reconciler.date = FixedDate
 
     def tearDown(self):
-        super(StatementTests, self).tearDown()
+        super(StatementAndFinishTests, self).tearDown()
         reconciler.date = date
 
     teststmt = '''
@@ -411,5 +411,18 @@ class StatementTests(MockRawInput, OutputFileTester):
         # use $ symbol, no change
         self.responses = ['2016/10/30', '$40']
         recon.do_statement('')
+
+        self.conclude_test(strip_ansi_color=True)
+
+    def test_finish(self):
+        self.init_test('test_reconcile_finish')
+
+        with FileTester.temp_input(self.teststmt) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+            self.responses = ['2016/10/30', '-30']
+            recon.do_statement('')
+            recon.do_mark('1 2')
+            recon.do_finish('')
 
         self.conclude_test(strip_ansi_color=True)
