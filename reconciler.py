@@ -28,6 +28,7 @@ class Reconciler(cmd.Cmd, object):
             'll': self.do_list,
             'm': self.do_mark,
             'u': self.do_unmark,
+            'un': self.do_unmark,
             'q': self.do_quit,
         }
 
@@ -64,6 +65,8 @@ class Reconciler(cmd.Cmd, object):
 
         if command in self.aliases:
             return self.aliases[command](arg)
+        elif util.is_integer(command):
+            return self.do_mark(command)
         else:
             print(self.UNKNOWN_SYNTAX + line)
 
@@ -102,10 +105,12 @@ class Reconciler(cmd.Cmd, object):
     def do_mark(self, args):
         """Mark a transaction as pending (!)
 
-        Syntax: mark <#>
+        Syntax: mark <#> or <# ... #>
+                <#>
 
         - The numbered line of a transaction, or multiple numbers
           separated by spaces
+        - Without "mark", a single transaction number.
         """
         self.mark_or_unmark(args, mark=True)
 
@@ -122,10 +127,8 @@ class Reconciler(cmd.Cmd, object):
     def do_start(self, args):
         """Start balancing an account, or adjust statement date and
            ending balance
-
-        Syntax: start [date YYYY-MM-DD] [balance]
         """
-        pass
+        self.start_balancing()
 
     def mark_or_unmark(self, args, mark=True):
         args = util.parse_args(args)
@@ -187,14 +190,86 @@ class Reconciler(cmd.Cmd, object):
                 )
             )
         self.print_total('cleared', self.total_cleared)
-        self.print_total('pending', self.total_pending)
+        #self.print_total('pending', self.total_pending)
+        self.print_total('ending', self.ending_balance)
+
+        if self.ending_balance is not None:
+            cleared_plus_pending = self.total_cleared + self.total_pending
+            #self.print_total('cleared + pending', cleared_plus_pending)
+            self.print_total(
+                'to go',
+                self.ending_balance - cleared_plus_pending
+            )
+        print()
+
+    def start_balancing(self):
+        old_ending_date = self.to_date
+        while True:
+            date_str = util.get_date_string(self.to_date)
+            new_date = _get_response(
+                prompt='Ending Date (YYYY-MM-DD)',
+                old_value=date_str
+            )
+            try:
+                self.to_date = util.get_date(new_date)
+                break
+            except ValueError:
+                print('*** Invalid date')
+
+        new_ending_balance = None
+        if self.ending_balance is None:
+            old_ending_balance = None
+        else:
+            old_ending_balance = '{:.2f}'.format(self.ending_balance)
+
+        while True:
+            new_ending_balance = _get_response(
+                prompt='Ending Balance',
+                old_value=old_ending_balance
+            )
+            if new_ending_balance is None:
+                break
+
+            try:
+                self.ending_balance = float(
+                    new_ending_balance.replace('$', '')
+                )
+                break
+            except ValueError:
+                print('*** Invalid number')
+
+        if new_ending_balance is not None:
+            new_ending_balance = '{:.2f}'.format(self.ending_balance)
+
+        if old_ending_date != self.to_date \
+                or old_ending_balance != new_ending_balance:
+            self.list_transactions()
 
     @staticmethod
     def print_total(label, total):
-        print('{label:9}{total}'.format(
-            label=label,
-            total=get_colored_amount(total)
-        ))
+        if total is None:
+            total = '(not set)'
+        else:
+            total = get_colored_amount(total)
+
+        print(
+            '{label} {total}   '.format(label=label, total=total),
+            end=''
+        )
+
+
+# noinspection PyCompatibility
+def _get_response(prompt='', old_value=''):
+    default = '' if old_value is None else old_value
+    response = raw_input('{prompt} [{default}]: '.format(
+        prompt=prompt,
+        default=default
+    )).strip()
+
+    if response == '':
+        response = old_value
+
+    return response
 
 
 def get_colored_amount(amount):

@@ -61,6 +61,14 @@ def is_valid_date(date_string):
         return False
 
 
+def is_integer(value):
+    try:
+        int(value)
+        return True
+    except ValueError:
+        return False
+
+
 def parse_args(args):
     # args should be a string, but we'll make sure it isn't None
     # (which would cause the string to be read from stdin)
