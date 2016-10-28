@@ -10,6 +10,7 @@ OutputFileTester: Redirect standard out to file for easier diffing and
 """
 
 import filecmp
+import re
 import sys
 
 from unittest import TestCase
@@ -19,7 +20,7 @@ from StringIO import StringIO
 
 
 # mark this for no coverage since not used currently
-class OutputFileTester(TestCase):  # pragma: no cover
+class OutputFileTester(TestCase):
 
     TEST_FILES_DIR = 'tests/files/'
     OUT_SUFFIX = '.out'
@@ -37,9 +38,20 @@ class OutputFileTester(TestCase):  # pragma: no cover
         self.actual = testfile + self.OUT_SUFFIX
         sys.stdout = open(self.actual, 'w')
 
-    def conclude_test(self):
+    def conclude_test(self, strip_ansi_color=False):
         sys.stdout.close()
+        if strip_ansi_color:
+            with open(self.actual, 'r+') as f:
+                data = self.remove_color(f.read())
+                f.seek(0)
+                f.write(data)
+                f.truncate()
         self.assertTrue(filecmp.cmp(self.expected, self.actual))
+
+    @staticmethod
+    def remove_color(text):
+        # removes ansi color escape sequences
+        return re.sub(r'(?:\x1b[^m]*m|\x0f)', '', text)
 
 
 class Redirector(TestCase):

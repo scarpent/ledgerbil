@@ -8,6 +8,7 @@ import reconciler
 import util
 
 from filetester import FileTester
+from helpers import OutputFileTester
 from helpers import Redirector
 from ledgerfile import LedgerFile
 from reconciler import Reconciler
@@ -289,5 +290,19 @@ class MockRawInput(TestCase):
         reconciler.raw_input = self.save_raw_input
 
 
-class StatementTests(MockRawInput, Redirector):
-    pass
+class StatementTests(MockRawInput, OutputFileTester):
+
+    def test_invalid_date_and_balance_and_no_change(self):
+        teststmt = '''
+2016/10/26 one
+    e: blurg
+    a: cash         $-10
+'''
+        self.init_test('test_statement_errors')
+
+        with FileTester.temp_input(teststmt) as tempfilename:
+            reconciler = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+        self.responses = ['blurg', '', 'abc', '']
+        reconciler.do_statement('')
+        self.conclude_test(strip_ansi_color=True)

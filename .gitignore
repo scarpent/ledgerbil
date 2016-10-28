@@ -7,3 +7,4 @@ tempp*
 htmlcov
 .idea
 *.iml
+*.out_expected
