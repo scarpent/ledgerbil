@@ -52,6 +52,60 @@ class UtilTests(TestCase):
         self.assertFalse(util.is_integer('-4.5'))
         self.assertFalse(util.is_integer('+4.5'))
         self.assertFalse(util.is_integer('gooogly moogly'))
+        self.assertFalse(util.is_integer(None))
+        self.assertFalse(util.is_integer(''))
+
+    def test_get_amount_str(self):
+        self.assertEqual('0.00', util.get_amount_str(-0.00000000000001))
+        self.assertEqual('0.00', util.get_amount_str(0.000000000000001))
+        self.assertEqual('0.01', util.get_amount_str(0.006))
+        self.assertEqual('3.56', util.get_amount_str(3.56))
+        self.assertEqual('3.56', util.get_amount_str(3.561111111111111))
+        self.assertEqual('5.00', util.get_amount_str(5))
+
+    def test_get_colored_amount(self):
+        self.assertEqual(
+            '\x1b[0;32m$0.00\x1b[0m',
+            util.get_colored_amount(-0.00000000000000000000001)
+        )
+        self.assertEqual(
+            '\x1b[0;32m$0.00\x1b[0m',
+            util.get_colored_amount(0.00000000000000000000001)
+        )
+        self.assertEqual(
+            '\x1b[0;31m$-3.14\x1b[0m',
+            util.get_colored_amount(-3.14)
+        )
+        self.assertEqual(
+            '\x1b[0;32m$3.14\x1b[0m',
+            util.get_colored_amount(3.14)
+        )
+        self.assertEqual(
+            '\x1b[0;31m$-5.68\x1b[0m',
+            util.get_colored_amount(-5.678)
+        )
+        self.assertEqual(
+            '\x1b[0;32m$5.67\x1b[0m',
+            util.get_colored_amount(5.672)
+        )
+        self.assertEqual(
+            '\x1b[0;32m     $9.99\x1b[0m',
+            util.get_colored_amount(9.99, column_width=10)
+        )
+
+    def test_get_cyan_text(self):
+        self.assertEqual(
+            '\x1b[0;36mMEEP\x1b[0m',
+            util.get_cyan_text('MEEP')
+        )
+        self.assertEqual(
+            '\x1b[0;36mMEEP                \x1b[0m',
+            util.get_cyan_text('MEEP', column_width=20)
+        )
+        self.assertEqual(
+            '\x1b[0;36mMEEP                \x1b[0m',
+            util.get_cyan_text('MEEP', column_width=20)
+        )
 
 
 class OutputTests(Redirector):

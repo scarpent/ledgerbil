@@ -4,7 +4,6 @@ from __future__ import division
 from __future__ import print_function
 
 import cmd
-import re
 
 from datetime import date
 
@@ -204,33 +203,41 @@ class Reconciler(cmd.Cmd, object):
             print(
                 '{number} {date} {amount} {status:1} {payee} '
                 '{code:>7}'.format(
-                    number=get_cyan_text(count_str),
+                    number=util.get_cyan_text(count_str),
                     date=thing.get_date_string(),
                     code=thing.transaction_code,
-                    payee=get_cyan_text(thing.payee, column_width=40),
-                    amount=get_colored_amount(thing.rec_amount),
+                    payee=util.get_cyan_text(
+                        thing.payee,
+                        column_width=40
+                    ),
+                    amount=util.get_colored_amount(
+                        thing.rec_amount,
+                        10
+                    ),
                     status=thing.rec_status
                 )
             )
 
-        end_date = get_cyan_text(util.get_date_string(self.to_date))
+        end_date = util.get_cyan_text(
+            util.get_date_string(self.to_date)
+        )
 
         if self.ending_balance is None:
-            end_balance = get_cyan_text('(not set)')
+            end_balance = util.get_cyan_text('(not set)')
         else:
-            end_balance = get_colored_amount(self.ending_balance, 1)
+            end_balance = util.get_colored_amount(self.ending_balance)
 
         print(
             '\nending date: {end_date} ending balance: {end_balance} '
             'cleared: {cleared}'.format(
                 end_date=end_date,
                 end_balance=end_balance,
-                cleared=get_colored_amount(self.total_cleared, 1)
+                cleared=util.get_colored_amount(self.total_cleared)
         ))
 
         if self.ending_balance is not None:
             print('to zero: {}'.format(
-                get_colored_amount(self.get_zero_candidate(), 1)
+                util.get_colored_amount(self.get_zero_candidate())
             ))
 
         print()
@@ -239,7 +246,7 @@ class Reconciler(cmd.Cmd, object):
         old_ending_date = self.to_date
         while True:
             date_str = util.get_date_string(self.to_date)
-            new_date = _get_response(
+            new_date = self.get_response(
                 prompt='Ending Date (YYYY/MM/DD)',
                 old_value=date_str
             )
@@ -253,10 +260,12 @@ class Reconciler(cmd.Cmd, object):
         if self.ending_balance is None:
             old_ending_balance = None
         else:
-            old_ending_balance = get_amount_str(self.ending_balance)
+            old_ending_balance = util.get_amount_str(
+                self.ending_balance
+            )
 
         while True:
-            new_ending_balance = _get_response(
+            new_ending_balance = self.get_response(
                 prompt='Ending Balance',
                 old_value=old_ending_balance
             )
@@ -272,7 +281,9 @@ class Reconciler(cmd.Cmd, object):
                 print('*** Invalid number')
 
         if new_ending_balance is not None:
-            new_ending_balance = get_amount_str(self.ending_balance)
+            new_ending_balance = util.get_amount_str(
+                self.ending_balance
+            )
 
         if old_ending_date != self.to_date \
                 or old_ending_balance != new_ending_balance:
@@ -284,7 +295,7 @@ class Reconciler(cmd.Cmd, object):
             print('*** Ending balance must be set in order to finish')
             return
 
-        if get_amount_str(self.get_zero_candidate()) == '$0.00':
+        if util.get_amount_str(self.get_zero_candidate()) == '$0.00':
             print('"To zero" must be zero in order to finish')
             return
 
@@ -303,51 +314,16 @@ class Reconciler(cmd.Cmd, object):
             - (self.total_cleared + self.total_pending)
         )
 
+    # noinspection PyCompatibility
+    @staticmethod
+    def get_response(prompt='', old_value=''):
+        default = '' if old_value is None else old_value
+        response = raw_input('{prompt} [{default}]: '.format(
+            prompt=prompt,
+            default=default
+        )).strip()
 
-# noinspection PyCompatibility
-def _get_response(prompt='', old_value=''):
-    default = '' if old_value is None else old_value
-    response = raw_input('{prompt} [{default}]: '.format(
-        prompt=prompt,
-        default=default
-    )).strip()
+        if response == '':
+            response = old_value
 
-    if response == '':
-        response = old_value
-
-    return response
-
-
-def get_amount_str(amount):
-    # avoid inconsistent zero signage from floating point machinations
-    # (especially important for establishing if we're at zero for a
-    # balanced statement)
-    return re.sub(r'^-0.00$', '0.00', '{:.2f}'.format(amount))
-
-
-def get_colored_amount(amount, column_width=10):
-    amount_formatted = '$' + get_amount_str(amount)
-    # avoid inconsistent 0 coloring from round/float intrigue
-    if amount_formatted == '$0.00':
-        amount = 0
-
-    if amount < 0:
-        color = '\033[0;31m'  # red
-    else:
-        color = '\033[0;32m'  # green
-
-    return '{start}{amount:>{width}}{end}'.format(
-        width=column_width,
-        start=color,
-        amount=amount_formatted,
-        end='\033[0m'
-    )
-
-
-def get_cyan_text(text, column_width=1):
-    return '{start}{text:{width}}{end}'.format(
-        width=column_width,
-        start='\033[0;36m',
-        text=text,
-        end='\033[0m'
-    )
+        return response

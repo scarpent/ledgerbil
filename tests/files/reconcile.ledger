@@ -16,12 +16,12 @@
   * l: credit card          $-120.67
 
 2016/10/05 transfer
-    l: credit card
+  ! l: credit card
     a: checking             $-120.67
 
 2016/10/07 blahbly blah blah
     e: blurg                ($250 * 1.07275)
-    l: credit card
+  ! l: credit card
 
 2016/09/17
     i: fmoogle
@@ -53,11 +53,11 @@
 
 2016/10/08 magna porta
     e: risus quam
-    l: credit card          $-98.34
+  ! l: credit card          $-98.34
 
 2016/10/11 porta nullam consectetur
     e: justo lorem
-    l: credit card          $-259.1
+  ! l: credit card          $-259.1
 
 2018/01/04 ultricies pellentesque
     e: justo inceptos risus

@@ -5,6 +5,7 @@ from __future__ import print_function
 
 import ast
 import operator as op
+import re
 import shlex
 
 from datetime import date
@@ -77,3 +78,38 @@ def parse_args(args):
     except ValueError as e:
         print('*** ' + e.message)
         return None
+
+
+def get_amount_str(amount):
+    # avoid inconsistent zero signage from floating point machinations
+    # (especially important for establishing if we're at zero for a
+    # balanced statement)
+    return re.sub(r'^-0.00$', '0.00', '{:.2f}'.format(amount))
+
+
+def get_colored_amount(amount, column_width=1):
+    amount_formatted = '$' + get_amount_str(amount)
+    # avoid inconsistent 0 coloring from round/float intrigue
+    if amount_formatted == '$0.00':
+        amount = 0
+
+    if amount < 0:
+        color = '\033[0;31m'  # red
+    else:
+        color = '\033[0;32m'  # green
+
+    return '{start}{amount:>{width}}{end}'.format(
+        width=column_width,
+        start=color,
+        amount=amount_formatted,
+        end='\033[0m'
+    )
+
+
+def get_cyan_text(text, column_width=1):
+    return '{start}{text:{width}}{end}'.format(
+        width=column_width,
+        start='\033[0;36m',
+        text=text,
+        end='\033[0m'
+    )

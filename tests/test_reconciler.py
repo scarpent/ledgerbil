@@ -4,6 +4,7 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 from unittest import TestCase
 
+import reconciler
 import util
 
 from filetester import FileTester
@@ -73,7 +74,7 @@ class SimpleOutputTests(Redirector):
             'list', 'l', 'll',
             'mark', 'm',
             'unmark', 'u', 'un',
-            #'statement', 'start',
+            #'statement', 'start', # do not test here (need raw_input)
             'finish', 'end'
         ]
         with FileTester.temp_input(testdata) as tempfilename:
@@ -264,3 +265,29 @@ class DataTests(Redirector):
             reconciler.do_unmark('1 sdjfkljsdfkljsdl 2')
             self.verify_equal_floats(-15, reconciler.total_cleared)
             self.verify_equal_floats(-30, reconciler.total_pending)
+            reconciler.default('1')
+            self.verify_equal_floats(-15, reconciler.total_cleared)
+            self.verify_equal_floats(-50, reconciler.total_pending)
+
+
+class MockRawInput(TestCase):
+    responses = []
+
+    def mock_raw_input(self, prompt):
+        assert self.responses
+        response = self.responses.pop(0)
+        print(prompt + response)
+        return response
+
+    def setUp(self):
+        super(MockRawInput, self).setUp()
+        self.save_raw_input = raw_input
+        reconciler.raw_input = self.mock_raw_input
+
+    def tearDown(self):
+        super(MockRawInput, self).tearDown()
+        reconciler.raw_input = self.save_raw_input
+
+
+class StatementTests(MockRawInput, Redirector):
+    pass
