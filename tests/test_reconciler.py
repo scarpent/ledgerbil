@@ -310,24 +310,26 @@ class StatementTests(MockRawInput, OutputFileTester):
 2016/10/26 one
     e: blurg
     a: cash         $-10
+
+2016/10/29 two
+    e: blurgerber
+    a: cash         $-20
 '''
 
-    def test_invalid_date_and_balance_and_no_change(self):
-        self.init_test('test_statement_errors')
+    def test_setting_statement_date_and_balance(self):
+        self.init_test('test_statement_stuff')
 
         with FileTester.temp_input(self.teststmt) as tempfilename:
             reconciler = Reconciler(LedgerFile(tempfilename, 'cash'))
 
+        # errors and no change
         self.responses = ['blurg', '', 'abc', '']
         reconciler.do_statement('')
-        self.conclude_test(strip_ansi_color=True)
-
-    def test_date_and_balance(self):
-        self.init_test('test_statement_date_and_balance')
-
-        with FileTester.temp_input(self.teststmt) as tempfilename:
-            reconciler = Reconciler(LedgerFile(tempfilename, 'cash'))
-
+        # new settings
         self.responses = ['2016/10/30', '40']
         reconciler.do_statement('')
+        # use $ symbol, no change
+        self.responses = ['2016/10/30', '$40']
+        reconciler.do_statement('')
+
         self.conclude_test(strip_ansi_color=True)
