@@ -47,7 +47,7 @@ class Ledgerbil(object):
             ledgerfile.sort()
 
         if self.args.reconcile:
-            if ledgerfile.rec_account_matches:
+            if ledgerfile.rec_account_matches:  # pragma: no cover
                 reconciler = Reconciler(ledgerfile)
                 reconciler.cmdloop()
             else:

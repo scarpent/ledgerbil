@@ -233,7 +233,8 @@ class Reconciler(cmd.Cmd, object):
                 end_date=end_date,
                 end_balance=end_balance,
                 cleared=util.get_colored_amount(self.total_cleared)
-        ))
+            )
+        )
 
         if self.ending_balance is not None:
             print('to zero: {}'.format(
@@ -295,7 +296,7 @@ class Reconciler(cmd.Cmd, object):
             print('*** Ending balance must be set in order to finish')
             return
 
-        if util.get_amount_str(self.get_zero_candidate()) == '$0.00':
+        if util.get_amount_str(self.get_zero_candidate()) != '$0.00':
             print('"To zero" must be zero in order to finish')
             return
 
@@ -310,8 +311,8 @@ class Reconciler(cmd.Cmd, object):
 
     def get_zero_candidate(self):
         return (
-            self.ending_balance
-            - (self.total_cleared + self.total_pending)
+            self.ending_balance -
+            (self.total_cleared + self.total_pending)
         )
 
     # noinspection PyCompatibility

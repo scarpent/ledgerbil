@@ -75,7 +75,7 @@ class SimpleOutputTests(Redirector):
             'list', 'l', 'll',
             'mark', 'm',
             'unmark', 'u', 'un',
-            #'statement', 'start', # do not test here (need raw_input)
+            # 'statement', 'start', # do not test here (need raw_input)
             'finish', 'end'
         ]
         with FileTester.temp_input(testdata) as tempfilename:
@@ -117,14 +117,14 @@ class OutputTests(Redirector):
     def test_mark_and_unmark_errors(self):
 
         with FileTester.temp_input(testdata) as tempfilename:
-            reconciler = Reconciler(LedgerFile(tempfilename, 'cash'))
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
 
         self.reset_redirect()
 
         # none of these should result in a file write; we'll get out of
         # the context manager as an additional confirmation of this
 
-        for command in [reconciler.do_mark, reconciler.do_unmark]:
+        for command in [recon.do_mark, recon.do_unmark]:
             command('')
             self.assertEqual(
                 '*** Transaction number(s) required',
@@ -138,20 +138,42 @@ class OutputTests(Redirector):
             )
             self.reset_redirect()
 
-        reconciler.do_list('')
+        recon.do_list('')
         self.reset_redirect()
 
-        reconciler.do_mark('2')
+        recon.do_mark('2')
         self.assertEqual(
             'Already marked pending: 2',
             self.redirect.getvalue().rstrip()
         )
         self.reset_redirect()
-        reconciler.do_unmark('1')
+        recon.do_unmark('1')
         self.assertEqual(
             "Not marked; can't unmark: 1",
             self.redirect.getvalue().rstrip()
         )
+
+    def test_finish_balancing_errors(self):
+
+        with FileTester.temp_input(testdata) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+            self.reset_redirect()
+            recon.finish_balancing()
+            self.assertEqual(
+                '*** Ending balance must be set in order to finish',
+                self.redirect.getvalue().rstrip()
+            )
+
+            self.reset_redirect()
+            recon.ending_balance = -1234.56
+            recon.finish_balancing()
+            self.assertEqual(
+                '"To zero" must be zero in order to finish',
+                self.redirect.getvalue().rstrip()
+            )
+            # confirms it didn't revert to None as on success
+            self.assertEqual(-1234.56, recon.ending_balance)
 
 
 class DataTests(Redirector):
@@ -164,57 +186,67 @@ class DataTests(Redirector):
 
     def test_init_things(self):
         with FileTester.temp_input(testdata) as tempfilename:
-            reconciler = Reconciler(LedgerFile(tempfilename, 'cash'))
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
 
-        self.verify_equal_floats(-15, reconciler.total_cleared)
-        self.verify_equal_floats(-32.12, reconciler.total_pending)
+        self.verify_equal_floats(-15, recon.total_cleared)
+        self.verify_equal_floats(-32.12, recon.total_pending)
         payees = {
-            thing.payee for thing in reconciler.open_transactions
+            thing.payee for thing in recon.open_transactions
         }
         # all open transactions, including the future:
         self.assertEqual(
             ({'two', 'two pt five', 'three', 'four'}),
             payees
         )
-        self.assertEqual(date.today(), reconciler.to_date)
-        self.assertIsNone(reconciler.ending_balance)
-        self.assertEqual(3, len(reconciler.current_listing))
-
-    def test_list(self):
-        with FileTester.temp_input(testdata) as tempfilename:
-            reconciler = Reconciler(LedgerFile(tempfilename, 'cash'))
-
-        reconciler.do_list('')
         # noinspection PyCompatibility
         payees = {
             thing.payee for k, thing in
-            reconciler.current_listing.iteritems()
-        }
-        # only future items should be pending items ('three')
+            recon.current_listing.iteritems()
+            }
+        # future items included only if pending ('three')
         self.assertEqual(
             ({'two', 'two pt five', 'three'}),
             payees
         )
-        self.verify_equal_floats(-15, reconciler.total_cleared)
-        self.verify_equal_floats(-32.12, reconciler.total_pending)
+        self.assertEqual(date.today(), recon.to_date)
+        self.assertIsNone(recon.ending_balance)
+        self.assertEqual(3, len(recon.current_listing))
+
+    def test_list(self):
+        with FileTester.temp_input(testdata) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+        recon.do_list('')
+        # noinspection PyCompatibility
+        payees = {
+            thing.payee for k, thing in
+            recon.current_listing.iteritems()
+        }
+        # future items included only if pending ('three')
+        self.assertEqual(
+            ({'two', 'two pt five', 'three'}),
+            payees
+        )
+        self.verify_equal_floats(-15, recon.total_cleared)
+        self.verify_equal_floats(-32.12, recon.total_pending)
 
     def test_list_and_modify(self):
 
         with FileTester.temp_input(testdata) as tempfilename:
-            reconciler = Reconciler(LedgerFile(tempfilename, 'cash'))
-            self.verify_equal_floats(-15, reconciler.total_cleared)
-            self.verify_equal_floats(-32.12, reconciler.total_pending)
-            reconciler.do_list('')
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+            self.verify_equal_floats(-15, recon.total_cleared)
+            self.verify_equal_floats(-32.12, recon.total_pending)
+            recon.do_list('')
             # noinspection PyCompatibility
             payees = {
                 thing.payee for k, thing in
-                reconciler.current_listing.iteritems()
+                recon.current_listing.iteritems()
                 }
             self.assertEqual(
                 ({'two', 'two pt five', 'three'}),
                 payees
             )
-            reconciler.do_unmark('3')
+            recon.do_unmark('3')
 
         # 3 was a pending future transaction, so:
         # pending total is adjusted and one less current listing
@@ -222,15 +254,15 @@ class DataTests(Redirector):
         # noinspection PyCompatibility
         payees = {
             thing.payee for k, thing in
-            reconciler.current_listing.iteritems()
+            recon.current_listing.iteritems()
             }
         self.assertEqual(({'two', 'two pt five'}), payees)
-        self.verify_equal_floats(-15, reconciler.total_cleared)
-        self.verify_equal_floats(-2.12, reconciler.total_pending)
+        self.verify_equal_floats(-15, recon.total_cleared)
+        self.verify_equal_floats(-2.12, recon.total_pending)
 
         # open transactions shouldn't change
         payees = {
-            thing.payee for thing in reconciler.open_transactions
+            thing.payee for thing in recon.open_transactions
         }
         self.assertEqual(
             ({'two', 'two pt five', 'three', 'four'}),
@@ -240,35 +272,82 @@ class DataTests(Redirector):
     def test_mark_and_unmark(self):
 
         with FileTester.temp_input(testdata) as tempfilename:
-            reconciler = Reconciler(LedgerFile(tempfilename, 'cash'))
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
 
-            self.verify_equal_floats(-15, reconciler.total_cleared)
-            self.verify_equal_floats(-32.12, reconciler.total_pending)
-            reconciler.do_list('')
-            reconciler.do_mark('1')
-            self.verify_equal_floats(-15, reconciler.total_cleared)
-            self.verify_equal_floats(-52.12, reconciler.total_pending)
-            reconciler.do_unmark('1 2')
-            self.verify_equal_floats(-15, reconciler.total_cleared)
-            self.verify_equal_floats(-30, reconciler.total_pending)
-            reconciler.do_mark('1 2')
-            self.verify_equal_floats(-15, reconciler.total_cleared)
-            self.verify_equal_floats(-52.12, reconciler.total_pending)
-            reconciler.do_unmark('2')
-            self.verify_equal_floats(-15, reconciler.total_cleared)
-            self.verify_equal_floats(-50, reconciler.total_pending)
-            reconciler.do_mark('1 2 blurg')
-            self.verify_equal_floats(-15, reconciler.total_cleared)
-            self.verify_equal_floats(-52.12, reconciler.total_pending)
-            reconciler.do_unmark('blarg 2')
-            self.verify_equal_floats(-15, reconciler.total_cleared)
-            self.verify_equal_floats(-50, reconciler.total_pending)
-            reconciler.do_unmark('1 sdjfkljsdfkljsdl 2')
-            self.verify_equal_floats(-15, reconciler.total_cleared)
-            self.verify_equal_floats(-30, reconciler.total_pending)
-            reconciler.default('1')
-            self.verify_equal_floats(-15, reconciler.total_cleared)
-            self.verify_equal_floats(-50, reconciler.total_pending)
+            self.verify_equal_floats(-15, recon.total_cleared)
+            self.verify_equal_floats(-32.12, recon.total_pending)
+            recon.do_list('')
+            recon.do_mark('1')
+            self.verify_equal_floats(-15, recon.total_cleared)
+            self.verify_equal_floats(-52.12, recon.total_pending)
+            recon.do_unmark('1 2')
+            self.verify_equal_floats(-15, recon.total_cleared)
+            self.verify_equal_floats(-30, recon.total_pending)
+            recon.do_mark('1 2')
+            self.verify_equal_floats(-15, recon.total_cleared)
+            self.verify_equal_floats(-52.12, recon.total_pending)
+            recon.do_unmark('2')
+            self.verify_equal_floats(-15, recon.total_cleared)
+            self.verify_equal_floats(-50, recon.total_pending)
+            recon.do_mark('1 2 blurg')
+            self.verify_equal_floats(-15, recon.total_cleared)
+            self.verify_equal_floats(-52.12, recon.total_pending)
+            recon.do_unmark('blarg 2')
+            self.verify_equal_floats(-15, recon.total_cleared)
+            self.verify_equal_floats(-50, recon.total_pending)
+            recon.do_unmark('1 sdjfkljsdfkljsdl 2')
+            self.verify_equal_floats(-15, recon.total_cleared)
+            self.verify_equal_floats(-30, recon.total_pending)
+            recon.default('1')
+            self.verify_equal_floats(-15, recon.total_cleared)
+            self.verify_equal_floats(-50, recon.total_pending)
+
+    def test_finish_balancing_with_errors(self):
+        """Verify things don't change when there are errors"""
+        with FileTester.temp_input(testdata) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+            recon.finish_balancing()
+
+            payees = {
+                thing.payee for thing in recon.open_transactions
+                }
+            self.assertEqual(
+                ({'two', 'two pt five', 'three', 'four'}),
+                payees
+            )
+            # noinspection PyCompatibility
+            payees = {
+                thing.payee for k, thing in
+                recon.current_listing.iteritems()
+                }
+            # future items included only if pending ('three')
+            self.assertEqual(
+                ({'two', 'two pt five', 'three'}),
+                payees
+            )
+
+            recon.ending_balance = -1234.56
+            recon.finish_balancing()
+
+            self.assertEqual(-1234.56, recon.ending_balance)
+            payees = {
+                thing.payee for thing in recon.open_transactions
+                }
+            self.assertEqual(
+                ({'two', 'two pt five', 'three', 'four'}),
+                payees
+            )
+            # noinspection PyCompatibility
+            payees = {
+                thing.payee for k, thing in
+                recon.current_listing.iteritems()
+                }
+            # future items included only if pending ('three')
+            self.assertEqual(
+                ({'two', 'two pt five', 'three'}),
+                payees
+            )
 
 
 class MockRawInput(TestCase):
@@ -295,6 +374,7 @@ class StatementTests(MockRawInput, OutputFileTester):
     def setUp(self):
         super(StatementTests, self).setUp()
 
+        # monkey patch date so it will be 10/27/2016
         class FixedDate(date):
             @classmethod
             def today(cls):
@@ -320,16 +400,16 @@ class StatementTests(MockRawInput, OutputFileTester):
         self.init_test('test_statement_stuff')
 
         with FileTester.temp_input(self.teststmt) as tempfilename:
-            reconciler = Reconciler(LedgerFile(tempfilename, 'cash'))
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
 
         # errors and no change
         self.responses = ['blurg', '', 'abc', '']
-        reconciler.do_statement('')
+        recon.do_statement('')
         # new settings
         self.responses = ['2016/10/30', '40']
-        reconciler.do_statement('')
+        recon.do_statement('')
         # use $ symbol, no change
         self.responses = ['2016/10/30', '$40']
-        reconciler.do_statement('')
+        recon.do_statement('')
 
         self.conclude_test(strip_ansi_color=True)

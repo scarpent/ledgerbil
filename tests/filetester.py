@@ -33,17 +33,17 @@ class FileTester(object):
 
     @staticmethod
     def create_temp_file(testdata):
-        tempfile = FileTester.testdir + 'temp_' + inspect.stack()[1][3]
-        f = open(tempfile, 'w')
+        temp_file = FileTester.testdir + 'temp_' + inspect.stack()[1][3]
+        f = open(temp_file, 'w')
         f.write(testdata)
         f.close()
-        return tempfile
+        return temp_file
 
     @staticmethod
     def copy_to_temp_file(filename):
-        tempfile = FileTester.testdir + 'temp_' + inspect.stack()[1][3]
-        copyfile(filename, tempfile)
-        return tempfile
+        temp_file = FileTester.testdir + 'temp_' + inspect.stack()[1][3]
+        copyfile(filename, temp_file)
+        return temp_file
 
     @staticmethod
     def read_file(filename):
@@ -54,11 +54,11 @@ class FileTester(object):
 
     @staticmethod
     def write_to_temp_file(filename, testdata):
-        tempfile = filename + '_temp'
-        f = open(tempfile, 'w')
+        temp_file = filename + '_temp'
+        f = open(temp_file, 'w')
         f.write(testdata)
         f.close()
-        return tempfile
+        return temp_file
 
     @staticmethod
     @contextmanager
