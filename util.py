@@ -9,7 +9,6 @@ import shlex
 
 from datetime import date
 from datetime import datetime
-from dateutil.parser import parse
 
 
 __author__ = 'Scott Carpenter'
@@ -63,9 +62,10 @@ def is_valid_date(date_string):
 
 def is_integer(value):
     try:
-        int(value)
-        return True
-    except ValueError:
+        if value[0] in ('-', '+'):
+            return value[1:].isdigit()
+        return value.isdigit()
+    except (TypeError, IndexError):
         return False
 
 

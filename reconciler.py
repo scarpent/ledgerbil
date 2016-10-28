@@ -66,8 +66,8 @@ class Reconciler(cmd.Cmd, object):
 
         if command in self.aliases:
             return self.aliases[command](arg)
-        elif util.is_integer(command):
-            return self.do_mark(command)
+        elif util.is_integer(line):
+            return self.do_mark(line)
         else:
             print(self.UNKNOWN_SYNTAX + line)
 
@@ -125,12 +125,9 @@ class Reconciler(cmd.Cmd, object):
         """
         self.mark_or_unmark(args, mark=False)
 
-    def do_start(self, args):
-        """Start balancing an account
-
-        - Set or adjust statement date and ending balance
-        """
-        self.start_balancing()
+    def do_statement(self, args):
+        """Set or adjust statement date and ending balance"""
+        self.set_statement_info()
 
     def do_finish(self, args):
         """Finish balancing the account
@@ -199,8 +196,11 @@ class Reconciler(cmd.Cmd, object):
                     status=thing.rec_status
                 )
             )
+
+        print()
+
         self.print_total('cleared', self.total_cleared)
-        #self.print_total('pending', self.total_pending)
+        self.print_total('pending', self.total_pending)
         self.print_total('ending', self.ending_balance)
 
         if self.ending_balance is not None:
@@ -217,14 +217,14 @@ class Reconciler(cmd.Cmd, object):
         if total is None:
             total = '(not set)'
         else:
-            total = get_colored_amount(total)
+            total = get_colored_amount(total, column_width=1)
 
         print(
             '{label} {total}   '.format(label=label, total=total),
             end=''
         )
 
-    def start_balancing(self):
+    def set_statement_info(self):
         old_ending_date = self.to_date
         while True:
             date_str = util.get_date_string(self.to_date)
@@ -285,7 +285,7 @@ def _get_response(prompt='', old_value=''):
     return response
 
 
-def get_colored_amount(amount):
+def get_colored_amount(amount, column_width=10):
     if amount < 0:
         color = '\033[0;31m'  # red
     else:
@@ -293,7 +293,8 @@ def get_colored_amount(amount):
 
     amount_formatted = '${:.2f}'.format(amount)
 
-    return '{start}{amount:>10}{end}'.format(
+    return '{start}{amount:>{width}}{end}'.format(
+        width=column_width,
         start=color,
         amount=amount_formatted,
         end='\033[0m'

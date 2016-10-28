@@ -44,6 +44,15 @@ class UtilTests(TestCase):
         self.assertTrue(util.is_valid_date('2016/1/5'))
         self.assertFalse(util.is_valid_date('2016/5/5 10:23'))
 
+    def test_is_integer(self):
+        self.assertTrue(util.is_integer('4'))
+        self.assertTrue(util.is_integer('-4'))
+        self.assertTrue(util.is_integer('+4'))
+        self.assertFalse(util.is_integer('4.5'))
+        self.assertFalse(util.is_integer('-4.5'))
+        self.assertFalse(util.is_integer('+4.5'))
+        self.assertFalse(util.is_integer('gooogly moogly'))
+
 
 class OutputTests(Redirector):
 
