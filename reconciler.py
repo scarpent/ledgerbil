@@ -23,6 +23,7 @@ class Reconciler(cmd.Cmd, object):
     def __init__(self, ledgerfile):
         cmd.Cmd.__init__(self)
         self.aliases = {
+            'end': self.do_finish,
             'EOF': self.do_quit,
             'l': self.do_list,
             'll': self.do_list,
@@ -94,7 +95,7 @@ class Reconciler(cmd.Cmd, object):
     def do_list(self, args):
         """List entries for selected account
 
-        - Shows uncleared and pending transactions. (Pending = "!".)
+        - Shows uncleared and pending transactions (Pending = "!")
         """
         self.list_transactions()
 
@@ -110,7 +111,7 @@ class Reconciler(cmd.Cmd, object):
 
         - The numbered line of a transaction, or multiple numbers
           separated by spaces
-        - Without "mark", a single transaction number.
+        - Without "mark", a single transaction number
         """
         self.mark_or_unmark(args, mark=True)
 
@@ -125,10 +126,19 @@ class Reconciler(cmd.Cmd, object):
         self.mark_or_unmark(args, mark=False)
 
     def do_start(self, args):
-        """Start balancing an account, or adjust statement date and
-           ending balance
+        """Start balancing an account
+
+        - Set or adjust statement date and ending balance
         """
         self.start_balancing()
+
+    def do_finish(self, args):
+        """Finish balancing the account
+
+        - Marking all pending transactions as cleared (*) if the ending
+          balance is set and the total is zeroed out
+       """
+        self.finish_balancing()
 
     def mark_or_unmark(self, args, mark=True):
         args = util.parse_args(args)
@@ -202,6 +212,18 @@ class Reconciler(cmd.Cmd, object):
             )
         print()
 
+    @staticmethod
+    def print_total(label, total):
+        if total is None:
+            total = '(not set)'
+        else:
+            total = get_colored_amount(total)
+
+        print(
+            '{label} {total}   '.format(label=label, total=total),
+            end=''
+        )
+
     def start_balancing(self):
         old_ending_date = self.to_date
         while True:
@@ -245,17 +267,8 @@ class Reconciler(cmd.Cmd, object):
                 or old_ending_balance != new_ending_balance:
             self.list_transactions()
 
-    @staticmethod
-    def print_total(label, total):
-        if total is None:
-            total = '(not set)'
-        else:
-            total = get_colored_amount(total)
-
-        print(
-            '{label} {total}   '.format(label=label, total=total),
-            end=''
-        )
+    def finish_balancing(self):
+        pass
 
 
 # noinspection PyCompatibility

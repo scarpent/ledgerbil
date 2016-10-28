@@ -72,6 +72,8 @@ class SimpleOutputTests(Redirector):
             'list', 'l', 'll',
             'mark', 'm',
             'unmark', 'u', 'un',
+            #'start',
+            'finish',
         ]
         with FileTester.temp_input(testdata) as tempfilename:
             interpreter = Reconciler(LedgerFile(tempfilename, 'cash'))
@@ -93,7 +95,8 @@ class SimpleOutputTests(Redirector):
             'help list', 'help l', 'help ll',
             'help account',
             'help mark', 'help m',
-            'help unmark', 'help u'
+            'help unmark', 'help u',
+            'help start', 'help finish',
         ]
         with FileTester.temp_input(testdata) as tempfilename:
             interpreter = Reconciler(LedgerFile(tempfilename, 'cash'))
