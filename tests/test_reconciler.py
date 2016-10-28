@@ -72,7 +72,7 @@ class SimpleOutputTests(Redirector):
             'list', 'l', 'll',
             'mark', 'm',
             'unmark', 'u', 'un',
-            #'statement',
+            #'statement', 'start',
             'finish', 'end'
         ]
         with FileTester.temp_input(testdata) as tempfilename:

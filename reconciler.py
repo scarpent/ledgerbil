@@ -4,6 +4,7 @@ from __future__ import division
 from __future__ import print_function
 
 import cmd
+import re
 
 from datetime import date
 
@@ -31,6 +32,7 @@ class Reconciler(cmd.Cmd, object):
             'u': self.do_unmark,
             'un': self.do_unmark,
             'q': self.do_quit,
+            'start': self.do_statement,
         }
 
         self.ledgerfile = ledgerfile
@@ -41,16 +43,7 @@ class Reconciler(cmd.Cmd, object):
         self.total_cleared = 0
         self.total_pending = 0
 
-        for thing in self.ledgerfile.get_things():
-            if thing.rec_account_matches:
-                if thing.is_cleared():
-                    self.total_cleared += thing.rec_amount
-                    continue
-
-                if thing.is_pending():
-                    self.total_pending += thing.rec_amount
-
-                self.open_transactions.append(thing)
+        self.populate_open_transactions()
 
     intro = ''
     prompt = '> '
@@ -137,6 +130,25 @@ class Reconciler(cmd.Cmd, object):
        """
         self.finish_balancing()
 
+    def populate_open_transactions(self):
+        self.open_transactions = []
+        self.current_listing = {}
+        self.total_cleared = 0
+        self.total_pending = 0
+
+        for thing in self.ledgerfile.get_things():
+            if thing.rec_account_matches:
+                if thing.is_cleared():
+                    self.total_cleared += thing.rec_amount
+                    continue
+
+                if thing.is_pending():
+                    self.total_pending += thing.rec_amount
+
+                self.open_transactions.append(thing)
+
+        self.do_list('')
+
     def mark_or_unmark(self, args, mark=True):
         args = util.parse_args(args)
         if not args:
@@ -183,53 +195,52 @@ class Reconciler(cmd.Cmd, object):
                     and not thing.is_pending():
                 continue
 
+            if not self.current_listing:
+                print()  # only print one buffer line at top if items
+
             count += 1
             self.current_listing[str(count)] = thing
+            count_str = '{:-4}.'.format(count)
             print(
-                '{number:-4}. {date} {amount} {status:1} {payee} '
+                '{number} {date} {amount} {status:1} {payee} '
                 '{code:>7}'.format(
-                    number=count,
+                    number=get_cyan_text(count_str),
                     date=thing.get_date_string(),
                     code=thing.transaction_code,
-                    payee=get_colored_payee(thing.payee),
+                    payee=get_cyan_text(thing.payee, column_width=40),
                     amount=get_colored_amount(thing.rec_amount),
                     status=thing.rec_status
                 )
             )
 
-        print()
+        end_date = get_cyan_text(util.get_date_string(self.to_date))
 
-        self.print_total('cleared', self.total_cleared)
-        self.print_total('pending', self.total_pending)
-        self.print_total('ending', self.ending_balance)
-
-        if self.ending_balance is not None:
-            cleared_plus_pending = self.total_cleared + self.total_pending
-            #self.print_total('cleared + pending', cleared_plus_pending)
-            self.print_total(
-                'to go',
-                self.ending_balance - cleared_plus_pending
-            )
-        print()
-
-    @staticmethod
-    def print_total(label, total):
-        if total is None:
-            total = '(not set)'
+        if self.ending_balance is None:
+            end_balance = get_cyan_text('(not set)')
         else:
-            total = get_colored_amount(total, column_width=1)
+            end_balance = get_colored_amount(self.ending_balance, 1)
 
         print(
-            '{label} {total}   '.format(label=label, total=total),
-            end=''
-        )
+            '\nending date: {end_date} ending balance: {end_balance} '
+            'cleared: {cleared}'.format(
+                end_date=end_date,
+                end_balance=end_balance,
+                cleared=get_colored_amount(self.total_cleared, 1)
+        ))
+
+        if self.ending_balance is not None:
+            print('to zero: {}'.format(
+                get_colored_amount(self.get_zero_candidate(), 1)
+            ))
+
+        print()
 
     def set_statement_info(self):
         old_ending_date = self.to_date
         while True:
             date_str = util.get_date_string(self.to_date)
             new_date = _get_response(
-                prompt='Ending Date (YYYY-MM-DD)',
+                prompt='Ending Date (YYYY/MM/DD)',
                 old_value=date_str
             )
             try:
@@ -242,7 +253,7 @@ class Reconciler(cmd.Cmd, object):
         if self.ending_balance is None:
             old_ending_balance = None
         else:
-            old_ending_balance = '{:.2f}'.format(self.ending_balance)
+            old_ending_balance = get_amount_str(self.ending_balance)
 
         while True:
             new_ending_balance = _get_response(
@@ -261,14 +272,36 @@ class Reconciler(cmd.Cmd, object):
                 print('*** Invalid number')
 
         if new_ending_balance is not None:
-            new_ending_balance = '{:.2f}'.format(self.ending_balance)
+            new_ending_balance = get_amount_str(self.ending_balance)
 
         if old_ending_date != self.to_date \
                 or old_ending_balance != new_ending_balance:
             self.list_transactions()
 
     def finish_balancing(self):
-        pass
+
+        if self.ending_balance is None:
+            print('*** Ending balance must be set in order to finish')
+            return
+
+        if get_amount_str(self.get_zero_candidate()) == '$0.00':
+            print('"To zero" must be zero in order to finish')
+            return
+
+        for thing in self.open_transactions:
+            if thing.is_pending():
+                thing.set_cleared()
+
+        self.ending_balance = None
+        self.ledgerfile.write_file()
+
+        self.populate_open_transactions()
+
+    def get_zero_candidate(self):
+        return (
+            self.ending_balance
+            - (self.total_cleared + self.total_pending)
+        )
 
 
 # noinspection PyCompatibility
@@ -285,13 +318,23 @@ def _get_response(prompt='', old_value=''):
     return response
 
 
+def get_amount_str(amount):
+    # avoid inconsistent zero signage from floating point machinations
+    # (especially important for establishing if we're at zero for a
+    # balanced statement)
+    return re.sub(r'^-0.00$', '0.00', '{:.2f}'.format(amount))
+
+
 def get_colored_amount(amount, column_width=10):
+    amount_formatted = '$' + get_amount_str(amount)
+    # avoid inconsistent 0 coloring from round/float intrigue
+    if amount_formatted == '$0.00':
+        amount = 0
+
     if amount < 0:
         color = '\033[0;31m'  # red
     else:
         color = '\033[0;32m'  # green
-
-    amount_formatted = '${:.2f}'.format(amount)
 
     return '{start}{amount:>{width}}{end}'.format(
         width=column_width,
@@ -301,10 +344,10 @@ def get_colored_amount(amount, column_width=10):
     )
 
 
-def get_colored_payee(text):
-    # cyan
-    return '{start}{payee:40}{end}'.format(
+def get_cyan_text(text, column_width=1):
+    return '{start}{text:{width}}{end}'.format(
+        width=column_width,
         start='\033[0;36m',
-        payee=text,
+        text=text,
         end='\033[0m'
     )
