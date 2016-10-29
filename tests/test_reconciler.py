@@ -21,6 +21,11 @@ __email__ = 'scottc@movingtofreedom.org'
 
 next_week = date.today() + relativedelta(weeks=1)
 testdata = '''
+2016/10/01 flibble
+    e: smurg
+    a: credit       $-11
+    a: credit       $-22
+
 2016/10/26 one
     e: blurg
   * a: cash         $-10
@@ -276,7 +281,6 @@ class DataTests(Redirector):
 
             self.verify_equal_floats(-15, recon.total_cleared)
             self.verify_equal_floats(-32.12, recon.total_pending)
-            recon.do_list('')
             recon.do_mark('1')
             self.verify_equal_floats(-15, recon.total_cleared)
             self.verify_equal_floats(-52.12, recon.total_pending)
@@ -301,6 +305,19 @@ class DataTests(Redirector):
             recon.default('1')
             self.verify_equal_floats(-15, recon.total_cleared)
             self.verify_equal_floats(-50, recon.total_pending)
+
+        # entry with account on multiple lines
+        with FileTester.temp_input(testdata) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'credit'))
+
+            self.verify_equal_floats(0, recon.total_cleared)
+            self.verify_equal_floats(0, recon.total_pending)
+            recon.do_mark('1')
+            self.verify_equal_floats(0, recon.total_cleared)
+            self.verify_equal_floats(-33, recon.total_pending)
+            recon.do_unmark('1')
+            self.verify_equal_floats(0, recon.total_cleared)
+            self.verify_equal_floats(0, recon.total_pending)
 
     def test_finish_balancing_with_errors(self):
         """Verify things don't change when there are errors"""
