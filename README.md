@@ -25,10 +25,10 @@ expressions, it handles the job well.
 But! We desire to use the power of software to make our lives easier.
 (We're deluded that way.)
 
-I first wanted to automate the entry of recurring transactions, and
-this is ledgerbil's main function at the moment.
-
-Ledgerbil can also sort a file by transaction date.
+Ledgerbil's features:
+  * Automate the entry of recurring transactions via a scheduler.
+  * Interactively reconcile accounts.
+  * Sort a file by transaction date.
 
 I'm rather narrow-mindedly focusing on supporting the subset of
 ledger-cli that I'm using, and in particular working with my
