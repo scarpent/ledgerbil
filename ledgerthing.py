@@ -91,9 +91,9 @@ class LedgerThing(object):
 
         # - most likely only one line for the account we're reconciling,
         #   but we'll have to handle more than one
-        # - we only care about total for the account we're reconciling,
-        #   but we need to total everything up in case our account
-        #   doesn't have a dollar amount and we need to calculate it
+        # - we only care about total for the account, but we need to
+        #   total everything up in case our account doesn't have a
+        #   dollar amount and we need to calculate it
 
         transaction_total = 0
         account_total = 0
@@ -131,8 +131,8 @@ class LedgerThing(object):
                         and len(self.rec_account_matches) < 2:
 
                     # not going to raise this if multiple account
-                    # matches since it's blowing up anyway and
-                    # probably because of the multiple matches
+                    # matches since it's blowing up anyway, and maybe
+                    # multiple statuses because of multiple accounts
                     raise LdgReconcilerMultipleStatuses(
                         REC_STATUS_ERROR_MESSAGE.format(
                             date=self.get_date_string(),
