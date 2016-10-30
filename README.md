@@ -158,6 +158,9 @@ Reconciler doesn't understand asset versus liability accounts so you'll
 want to give a positive amount for assets and negative for liability,
 assuming the normal state of these kinds of accounts.
 
+Statement ending info is saved to ~/.ledgerbil and restored when the
+reconciler is restarted.
+
 ##### mark / unmark
 
 Set transactions as pending (!) or remove the pending mark. You can
