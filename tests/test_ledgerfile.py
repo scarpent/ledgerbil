@@ -58,6 +58,7 @@ class FileParsingOnInit(Redirector):
         ledgerfile.print_file()
         self.redirect.seek(0)
         self.assertEqual(expected, self.redirect.read())
+        self.assertIsNone(ledgerfile.get_reconciliation_account())
 
     def test_parsed_file_unchanged_via_write(self):
         """file output after parsing should be identical to input"""

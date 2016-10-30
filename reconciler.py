@@ -4,6 +4,8 @@ from __future__ import division
 from __future__ import print_function
 
 import cmd
+import json
+import os
 
 from datetime import date
 
@@ -20,6 +22,10 @@ class Reconciler(cmd.Cmd, object):
 
     UNKNOWN_SYNTAX = '*** Unknown syntax: '
     NO_HELP = '*** No help on '
+
+    CACHE_FILE = '{home}/.ledgerbil'.format(
+        home=os.path.expanduser('~')
+    )
 
     def __init__(self, ledgerfile):
         cmd.Cmd.__init__(self)
@@ -38,6 +44,9 @@ class Reconciler(cmd.Cmd, object):
         self.ledgerfile = ledgerfile
         self.to_date = date.today()
         self.ending_balance = None
+        self.get_statement_info_from_cache()
+
+        # these are immediately reset in populate open transactions
         self.open_transactions = []
         self.current_listing = {}
         self.total_cleared = 0
@@ -94,7 +103,7 @@ class Reconciler(cmd.Cmd, object):
 
     def do_account(self, args):
         """Print the account being reconciled"""
-        print(self.ledgerfile.rec_account_matches[0])
+        print(self.ledgerfile.get_reconciliation_account())
 
     def do_mark(self, args):
         """Mark a transaction as pending (!)
@@ -287,8 +296,10 @@ class Reconciler(cmd.Cmd, object):
                 self.ending_balance
             )
 
+        # only list and save to cache if values have changed...
         if old_ending_date != self.to_date \
                 or old_ending_balance != new_ending_balance:
+            self.save_statement_info_to_cache()
             self.list_transactions()
 
     def finish_balancing(self):
@@ -306,8 +317,9 @@ class Reconciler(cmd.Cmd, object):
                 thing.set_cleared()
 
         self.ending_balance = None
+        self.to_date = date.today()
         self.ledgerfile.write_file()
-
+        self.save_statement_info_to_cache()
         self.populate_open_transactions()
 
     def get_zero_candidate(self):
@@ -329,3 +341,40 @@ class Reconciler(cmd.Cmd, object):
             response = old_value
 
         return response
+
+    def get_key_and_cache(self):
+        key = self.ledgerfile.get_reconciliation_account()
+
+        if os.path.exists(Reconciler.CACHE_FILE):
+            try:
+                with open(self.CACHE_FILE, 'r') as the_file:
+                    return key, json.loads(the_file.read())
+            except (IOError, ValueError) as e:
+                print('Error getting reconciler cache: {}.'.format(e))
+
+        return key, {}
+
+    def get_statement_info_from_cache(self):
+        key, cache = self.get_key_and_cache()
+
+        if key in cache:
+            self.to_date = util.get_date(cache[key]['ending_date'])
+            self.ending_balance = cache[key]['ending_balance']
+
+    def save_statement_info_to_cache(self):
+        key, cache = self.get_key_and_cache()
+
+        if self.ending_balance is None:
+            cache.pop(key, None)
+        else:
+            entry = {
+                'ending_date': util.get_date_string(self.to_date),
+                'ending_balance': self.ending_balance,
+            }
+            cache[key] = entry
+
+        try:
+            with open(Reconciler.CACHE_FILE, 'w') as the_file:
+                the_file.write(json.dumps(cache))
+        except (IOError, ValueError) as e:
+            print('Error writing reconciler cache: {}'.format(e))

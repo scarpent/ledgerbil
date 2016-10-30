@@ -8,3 +8,4 @@ htmlcov
 .idea
 *.iml
 *.out_expected
+.ledgerbil_cache_test

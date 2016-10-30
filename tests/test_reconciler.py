@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import os
+
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from unittest import TestCase
@@ -49,6 +51,9 @@ testdata = '''
     e: snurp
     a: cash         $-40
 '''.format(next_week=util.get_date_string(next_week))
+
+Reconciler.CACHE_FILE = FileTester.CACHE_FILE_TEST
+FileTester.delete_test_cache_file()
 
 
 class SimpleOutputTests(Redirector):
@@ -186,7 +191,8 @@ class DataTests(Redirector):
 
     def test_init_things(self):
         with FileTester.temp_input(testdata) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+            ledgerfile = LedgerFile(tempfilename, 'cash')
+            recon = Reconciler(ledgerfile)
 
         self.verify_equal_floats(-15, recon.total_cleared)
         self.verify_equal_floats(-32.12, recon.total_pending)
@@ -211,6 +217,10 @@ class DataTests(Redirector):
         self.assertEqual(date.today(), recon.to_date)
         self.assertIsNone(recon.ending_balance)
         self.assertEqual(3, len(recon.current_listing))
+        self.assertEqual(
+            'a: cash',
+            ledgerfile.get_reconciliation_account()
+        )
 
     def test_list(self):
         with FileTester.temp_input(testdata) as tempfilename:
@@ -364,9 +374,15 @@ class MockRawInput(TestCase):
         self.save_raw_input = raw_input
         reconciler.raw_input = self.mock_raw_input
 
+        Reconciler.CACHE_FILE = FileTester.CACHE_FILE_TEST
+        FileTester.delete_test_cache_file()
+
     def tearDown(self):
         super(MockRawInput, self).tearDown()
         reconciler.raw_input = self.save_raw_input
+
+        Reconciler.CACHE_FILE = FileTester.CACHE_FILE_TEST
+        FileTester.delete_test_cache_file()
 
 
 class StatementAndFinishTests(MockRawInput, OutputFileTester):
@@ -394,6 +410,16 @@ class StatementAndFinishTests(MockRawInput, OutputFileTester):
 2016/10/29 two
     e: blurgerber
     a: cash         $-20
+'''
+
+    testfinish = '''
+2016/10/26 one
+    e: blurg
+  * a: cash         $-10
+
+2016/10/29 two
+    e: blurgerber
+  * a: cash         $-20
 '''
 
     def test_setting_statement_date_and_balance(self):
@@ -426,3 +452,172 @@ class StatementAndFinishTests(MockRawInput, OutputFileTester):
             recon.do_finish('')
 
         self.conclude_test(strip_ansi_color=True)
+
+    def test_caching_with_quit(self):
+        self.cache_test(do_quit=True)
+
+    def test_caching_without_quit(self):
+        """ same results if we don't quit """
+        self.cache_test(do_quit=False)
+
+    def cache_test(self, do_quit=True):
+        self.init_test('test_reconciler_caching')
+
+        with FileTester.temp_input(self.teststmt) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+        self.responses = ['2030/03/30', '-30']
+        recon.do_statement('')
+        if do_quit:
+            recon.do_quit('')
+        print('<<< test: restart >>>')
+
+        with FileTester.temp_input(self.teststmt) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+            recon.do_mark('1 2')
+            recon.do_finish('')
+
+        if do_quit:
+            recon.do_quit('')
+        print('<<< test: restart >>>')
+
+        with FileTester.temp_input(self.testfinish) as tempfilename:
+            Reconciler(LedgerFile(tempfilename, 'cash'))
+
+        self.conclude_test(strip_ansi_color=True)
+
+
+class CacheTests(MockRawInput, Redirector):
+
+    testcache = '''
+2016/10/26 one
+    e: blurg
+    a: cash         $-10
+
+2016/10/26 two
+    e: blurg
+    a: credit       $-10
+'''
+
+    def test_get_key_and_cache_no_cache(self):
+
+        assert not os.path.exists(FileTester.CACHE_FILE_TEST)
+
+        with FileTester.temp_input(self.testcache) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+        assert not os.path.exists(FileTester.CACHE_FILE_TEST)
+
+        key, cache = recon.get_key_and_cache()
+        self.assertEqual('a: cash', key)
+        self.assertEqual({}, cache)
+
+    def test_get_key_and_cache_error(self):
+
+        with FileTester.temp_input(self.testcache) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+        self.reset_redirect()
+        with open(Reconciler.CACHE_FILE, 'w') as cache_file:
+            cache_file.write('bad json data')
+        key, cache = recon.get_key_and_cache()
+        self.assertEqual('a: cash', key)
+        self.assertEqual({}, cache)
+        self.assertEqual(
+            'Error getting reconciler cache: '
+            'No JSON object could be decoded.',
+            self.redirect.getvalue().rstrip()
+        )
+        # not going to test file access since handled essentially the
+        # same and don't want to bother with it
+
+    def test_save_cache_error(self):
+
+        with FileTester.temp_input(self.testcache) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+        self.reset_redirect()
+        Reconciler.CACHE_FILE = '/not/a/real/path/dDFgMAEVRPcjMZ'
+        recon.save_statement_info_to_cache()
+        self.assertEqual(
+            "Error writing reconciler cache: [Errno 2] No such file "
+            "or directory: '/not/a/real/path/dDFgMAEVRPcjMZ'",
+            self.redirect.getvalue().rstrip()
+        )
+        # not going to test json ValueError because seems it would be
+        # extremely unlikely given a valid cache dictionary
+
+    def test_cache(self):
+
+        with FileTester.temp_input(self.testcache) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+        # saving cache with ending balance "None" causes cache entry to
+        # be removed; first let's make sure it works w/o existing entry
+        assert not os.path.exists(FileTester.CACHE_FILE_TEST)
+        assert recon.ending_balance is None
+        recon.save_statement_info_to_cache()
+        key, cache = recon.get_key_and_cache()
+        self.assertEqual({}, cache)
+
+        # add entry
+        recon.ending_balance = 100
+        recon.to_date = date(2020, 10, 20)
+        recon.save_statement_info_to_cache()
+        key, cache = recon.get_key_and_cache()
+        self.assertEqual(
+            {u'a: cash': {
+                u'ending_balance': 100,
+                u'ending_date': u'2020/10/20'
+            }},
+            cache
+        )
+
+        # remove entry
+        recon.ending_balance = None
+        recon.save_statement_info_to_cache()
+        key, cache = recon.get_key_and_cache()
+        self.assertEqual({}, cache)
+
+        # multiple entries
+        recon.ending_balance = 111
+        recon.to_date = date(2111, 11, 11)
+        recon.save_statement_info_to_cache()
+
+        with FileTester.temp_input(self.testcache) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'credit'))
+
+        recon.ending_balance = 222
+        recon.to_date = date(2222, 2, 22)
+        recon.save_statement_info_to_cache()
+        key, cache = recon.get_key_and_cache()
+        self.assertEqual(
+            {u'a: credit': {
+                u'ending_balance': 222,
+                u'ending_date': u'2222/02/22'
+            }, u'a: cash': {
+                u'ending_balance': 111,
+                u'ending_date': u'2111/11/11'
+            }},
+            cache
+        )
+
+        # remove credit
+        recon.ending_balance = None
+        recon.save_statement_info_to_cache()
+        key, cache = recon.get_key_and_cache()
+        self.assertEqual(
+            {u'a: cash': {
+                u'ending_balance': 111,
+                u'ending_date': u'2111/11/11'
+            }},
+            cache
+        )
+
+        # indirectly verify get_statement_info_from_cache
+        with FileTester.temp_input(self.testcache) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+        # get_statement_info_from_cache will have been called in init
+        self.assertEqual(111, recon.ending_balance)
+        self.assertEqual(date(2111, 11, 11), recon.to_date)

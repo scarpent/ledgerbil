@@ -31,6 +31,8 @@ class FileTester(object):
     test_rec_multiple_match = testdir + 'reconcile-multiple-match.ldg'
     test_reconcile = testdir + 'reconcile.ledger'
 
+    CACHE_FILE_TEST = testdir + '.ledgerbil_cache_test'
+
     @staticmethod
     def create_temp_file(testdata):
         temp_file = FileTester.testdir + 'temp_' + inspect.stack()[1][3]
@@ -68,3 +70,8 @@ class FileTester(object):
         temp.close()
         yield temp.name
         os.unlink(temp.name)
+
+    @staticmethod
+    def delete_test_cache_file():
+        if os.path.exists(FileTester.CACHE_FILE_TEST):
+            os.remove(FileTester.CACHE_FILE_TEST)

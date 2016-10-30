@@ -115,3 +115,9 @@ class LedgerFile(object):
             for line in thing.get_lines():
                 self.ledger_file.write(line + '\n')
         self._close_file()
+
+    def get_reconciliation_account(self):
+        if len(self.rec_account_matches) == 1:
+            return self.rec_account_matches[0]
+        else:
+            return None
