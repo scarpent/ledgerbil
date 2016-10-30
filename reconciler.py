@@ -42,7 +42,7 @@ class Reconciler(cmd.Cmd, object):
         }
 
         self.ledgerfile = ledgerfile
-        self.to_date = date.today()
+        self.ending_date = date.today()
         self.ending_balance = None
         self.get_statement_info_from_cache()
 
@@ -200,7 +200,7 @@ class Reconciler(cmd.Cmd, object):
         self.current_listing = {}
         count = 0
         for thing in self.open_transactions:
-            if thing.thing_date > self.to_date \
+            if thing.thing_date > self.ending_date \
                     and not thing.is_pending():
                 continue
 
@@ -229,7 +229,7 @@ class Reconciler(cmd.Cmd, object):
             )
 
         end_date = util.get_cyan_text(
-            util.get_date_string(self.to_date)
+            util.get_date_string(self.ending_date)
         )
 
         if self.ending_balance is None:
@@ -254,15 +254,15 @@ class Reconciler(cmd.Cmd, object):
         print()
 
     def set_statement_info(self):
-        old_ending_date = self.to_date
+        old_ending_date = self.ending_date
         while True:
-            date_str = util.get_date_string(self.to_date)
+            date_str = util.get_date_string(self.ending_date)
             new_date = self.get_response(
                 prompt='Ending Date (YYYY/MM/DD)',
                 old_value=date_str
             )
             try:
-                self.to_date = util.get_date(new_date)
+                self.ending_date = util.get_date(new_date)
                 break
             except ValueError:
                 print('*** Invalid date')
@@ -297,7 +297,7 @@ class Reconciler(cmd.Cmd, object):
             )
 
         # only list and save to cache if values have changed...
-        if old_ending_date != self.to_date \
+        if old_ending_date != self.ending_date \
                 or old_ending_balance != new_ending_balance:
             self.save_statement_info_to_cache()
             self.list_transactions()
@@ -317,7 +317,7 @@ class Reconciler(cmd.Cmd, object):
                 thing.set_cleared()
 
         self.ending_balance = None
-        self.to_date = date.today()
+        self.ending_date = date.today()
         self.ledgerfile.write_file()
         self.save_statement_info_to_cache()
         self.populate_open_transactions()
@@ -358,7 +358,7 @@ class Reconciler(cmd.Cmd, object):
         key, cache = self.get_key_and_cache()
 
         if key in cache:
-            self.to_date = util.get_date(cache[key]['ending_date'])
+            self.ending_date = util.get_date(cache[key]['ending_date'])
             self.ending_balance = cache[key]['ending_balance']
 
     def save_statement_info_to_cache(self):
@@ -368,7 +368,7 @@ class Reconciler(cmd.Cmd, object):
             cache.pop(key, None)
         else:
             entry = {
-                'ending_date': util.get_date_string(self.to_date),
+                'ending_date': util.get_date_string(self.ending_date),
                 'ending_balance': self.ending_balance,
             }
             cache[key] = entry

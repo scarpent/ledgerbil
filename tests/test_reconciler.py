@@ -214,7 +214,7 @@ class DataTests(Redirector):
             ({'two', 'two pt five', 'three'}),
             payees
         )
-        self.assertEqual(date.today(), recon.to_date)
+        self.assertEqual(date.today(), recon.ending_date)
         self.assertIsNone(recon.ending_balance)
         self.assertEqual(3, len(recon.current_listing))
         self.assertEqual(
@@ -562,7 +562,7 @@ class CacheTests(MockRawInput, Redirector):
 
         # add entry
         recon.ending_balance = 100
-        recon.to_date = date(2020, 10, 20)
+        recon.ending_date = date(2020, 10, 20)
         recon.save_statement_info_to_cache()
         key, cache = recon.get_key_and_cache()
         self.assertEqual(
@@ -581,14 +581,14 @@ class CacheTests(MockRawInput, Redirector):
 
         # multiple entries
         recon.ending_balance = 111
-        recon.to_date = date(2111, 11, 11)
+        recon.ending_date = date(2111, 11, 11)
         recon.save_statement_info_to_cache()
 
         with FileTester.temp_input(self.testcache) as tempfilename:
             recon = Reconciler(LedgerFile(tempfilename, 'credit'))
 
         recon.ending_balance = 222
-        recon.to_date = date(2222, 2, 22)
+        recon.ending_date = date(2222, 2, 22)
         recon.save_statement_info_to_cache()
         key, cache = recon.get_key_and_cache()
         self.assertEqual(
@@ -620,4 +620,4 @@ class CacheTests(MockRawInput, Redirector):
 
         # get_statement_info_from_cache will have been called in init
         self.assertEqual(111, recon.ending_balance)
-        self.assertEqual(date(2111, 11, 11), recon.to_date)
+        self.assertEqual(date(2111, 11, 11), recon.ending_date)
