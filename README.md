@@ -25,14 +25,14 @@ expressions, it handles the job well.
 But! We desire to use the power of software to make our lives easier.
 (We're deluded that way.)
 
-I first wanted to automate the entry of recurring transactions, and
-this is ledgerbil's main function at the moment.
-
-Ledgerbil can also sort a file by transaction date.
+Ledgerbil's features:
+  * Automate the entry of recurring transactions via a scheduler.
+  * Interactively reconcile accounts.
+  * Sort a file by transaction date.
 
 I'm rather narrow-mindedly focusing on supporting the subset of
-ledger-cli that I'm actually using, and that is reflected in my
-transactional journal file. (And in the included unit tests.)
+ledger-cli that I'm using, and in particular working with my
+non-investment transactional journal file.
 
 Ledgerbil will assume a properly formatted ledger file, although it
 won't necessarily enforce rules or report problems with an input file.
@@ -43,15 +43,15 @@ of exciting features:
 
 ## --help
 
-    usage: ledgerbil.py [-h] -f FILE [-s] [-S FILE]
+    usage: ledgerbil.py [-h] -f FILE [-s] [-r ACCT] [-S FILE]
 
     optional arguments:
-      -h, --help            show this help message and exit
-      -f FILE, --file FILE  ledger file to be processed
-      -s, --sort            sort the file by transaction date
-      -S FILE, --schedule-file FILE
-                            file with scheduled transactions (to be added to -f
-                            ledger file)
+      -h, --help                     show this help message and exit
+      -f FILE, --file FILE           ledger file to be processed
+      -s, --sort                     sort the file by transaction date
+      -r ACCT, --reconcile ACCT      interactively reconcile the specified account
+      -S FILE, --schedule-file FILE  file with scheduled transactions (to be added
+                                     to -f ledger file)
 
 ### --sort
 
@@ -73,6 +73,127 @@ before any dated transactions, they will be given a date in 1899 to
 ### --schedule-file
 
 to do: documenting of this thing
+
+### --reconcile ACCT
+
+Interactively reconcile the account matching ACCT string.
+
+Help is available at the interactive prompt:
+
+    > help
+
+    Documented commands (type help <topic>):
+    ========================================
+    account  aliases  finish  help  list  mark  quit  statement  unmark
+
+As mentioned above, this is targeted for my own usage, although may be
+suitable for those with similar needs, perhaps requiring a bit of work.
+(I didn't spend time on some scenarios that I would address if,
+miraculously, someone else cared about them. And there are other
+scenarios I won't address in any circumstance, given my aims here.)
+
+The reconciler will error if more than one matching account is found.
+Aliases aren't resolved so the same account will be seen as different if
+it occurs in aliased and non-aliased form. (I keep my alias definitions
+in a separate account file.)
+
+If multiple entries for the account occur in one transaction, they'll be
+treated as one amount and line item while reconciling. If they have
+different statuses initially, there'll be an error. (When in sync,
+they'll be updated to pending/cleared status together.)
+
+The reconciler will total up all cleared (*) transactions to get what
+should be the "last statement balance," but only shows pending and
+uncleared transactions.
+
+For an example file:
+
+    2016/10/21 dolor
+        i: sit amet
+      * a: cash         $100
+
+    2016/10/26 lorem
+        e: consectetur adipiscing elit
+        a: cash         $-10
+
+    2016/10/29 ipsum
+        e: sed do eiusmod
+        a: cash         $-20
+
+##### list
+
+(Note that there is pretty coloring in real life.)
+
+    $ ./ledgerbil.py -f xyz.ldg -r cash
+
+       1. 2016/10/26    $-10.00   lorem
+       2. 2016/10/29    $-20.00   ipsum
+
+    ending date: 2016/10/29 ending balance: (not set) cleared: $100.00
+
+    >
+
+##### statement
+
+Will prompt you for the statement ending date and ending balance.
+
+    > statement
+    Ending Date (YYYY/MM/DD) [2016/10/29]:
+    Ending Balance []: 70
+
+       1. 2016/10/26    $-10.00   lorem
+       2. 2016/10/29    $-20.00   ipsum
+
+    ending date: 2016/10/29 ending balance: $70.00 cleared: $100.00
+    to zero: $-30.00
+
+Only transactions on or before that date will be shown, with the
+exception of pending transactions. All pending transactions are included
+regardless of date because they're needed to make the math work.
+
+You can mark and unmark transactions without the ending balance but you
+can't finish balancing and convert pending transactions to cleared.
+
+Reconciler doesn't understand asset versus liability accounts so you'll
+want to give a positive amount for assets and negative for liability,
+assuming the normal state of these kinds of accounts.
+
+##### mark / unmark
+
+Set transactions as pending (!) or remove the pending mark. You can
+enter multiple lines, or give a single number by itself with no command.
+
+    1
+
+    or
+
+    > mark 1 2
+
+    1. 2016/10/26    $-10.00 ! lorem
+    2. 2016/10/29    $-20.00 ! ipsum
+
+    ending date: 2016/10/29 ending balance: $70.00 cleared: $100.00
+    to zero: $0.00
+
+The ledger file is saved after every mark/unmark command.
+
+Ledger allows a lot of flexibility in file formatting, and in general,
+ledgerbil attempts to preserve all formatting, but in this case for
+simplicity's sake, ledgerbil maintains and enforces a four space indent
+for transaction entries, with the ! or * going in the third "space" when
+present. (It wouldn't be *that* hard to make it smarter about this, but
+I didn't want to deal with some edge cases in the initial
+implementation.) The reconciler only works with individual account
+entries; never the whole transaction on the top line.
+
+##### finish
+
+If "to zero" is 0, this command will update all pending (!) entries for
+the account to cleared (*) and save the file.
+
+    > finish
+
+    ending date: 2016/10/29 ending balance: (not set) cleared: $70.00
 
 ### license
 

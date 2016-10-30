@@ -42,9 +42,11 @@ class Ledgerbil(object):
             scheduler = Scheduler(ledgerfile, schedule_file)
             scheduler.run()
             schedule_file.write_file()
+            ledgerfile.write_file()
 
         if self.args.sort:
             ledgerfile.sort()
+            ledgerfile.write_file()
 
         if self.args.reconcile:
             if ledgerfile.rec_account_matches:  # pragma: no cover
@@ -54,8 +56,6 @@ class Ledgerbil(object):
                 print('No matching account found for "{acct}"'.format(
                     acct=self.args.reconcile
                 ))
-        else:
-            ledgerfile.write_file()
 
         return 0
 
@@ -67,6 +67,7 @@ def main(argv=None):
 
     args = ArgHandler.get_args(argv)
     ledgerbil = Ledgerbil(args)
+
     return ledgerbil.process_file()
 
 

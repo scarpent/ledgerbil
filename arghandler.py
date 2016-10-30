@@ -39,7 +39,7 @@ class ArgHandler(object):
         parser.add_argument(
             '-r', '--reconcile',
             type=str, metavar='ACCT',
-            help='reconcile the specified account'
+            help='interactively reconcile the specified account'
         )
         parser.add_argument(
             '-S', '--schedule-file',
