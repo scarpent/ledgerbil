@@ -43,7 +43,7 @@ of exciting features:
 
 ## --help
 
-    usage: ledgerbil.py [-h] -f FILE [-s] [-r ACCT] [-S FILE]
+    usage: ledgerbil.py [-h] [-f FILE] [-s] [-r ACCT] [-S FILE] [-n]
 
     optional arguments:
       -h, --help                     show this help message and exit
@@ -52,6 +52,8 @@ of exciting features:
       -r ACCT, --reconcile ACCT      interactively reconcile the specified account
       -S FILE, --schedule-file FILE  file with scheduled transactions (to be added
                                      to -f ledger file)
+      -n, --next-scheduled-date      show the date of the next scheduled
+                                     transaction
 
 ### --sort
 
