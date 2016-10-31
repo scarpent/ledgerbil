@@ -20,18 +20,34 @@ class Scheduler(object):
 
     def run(self):
 
+        print('Schedule file (enter days = {days}):'.format(
+            days=ScheduleThing.enter_days
+        ))
+
         if ScheduleThing.enter_days == ScheduleThing.NO_DAYS:
             return
 
         self.schedulefile.sort()
 
+        things_added = 0
         for schedulething in self.schedulefile.things:
 
             if schedulething.first_thing:
                 continue
 
-            self.ledgerfile.add_things(
-                schedulething.get_scheduled_entries()
-            )
+            things = schedulething.get_scheduled_entries()
+            self.ledgerfile.add_things(things)
+            things_added += len(things)
+
+            for thing in things:
+                print('\t{date} {payee}'.format(
+                    date=thing.thing_date,
+                    payee=thing.payee
+                ))
+
+        print('Added {num} {entries}'.format(
+            num=things_added,
+            entries='entry' if things_added == 1 else 'entries'
+        ))
 
         self.schedulefile.sort()

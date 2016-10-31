@@ -95,10 +95,6 @@ class ScheduleThing(LedgerThing):
             date.today() + relativedelta(days=ScheduleThing.enter_days)
         )
 
-        print('\nSchedule file (enter days = {days}):\n'.format(
-            days=ScheduleThing.enter_days
-        ))
-
     def _handle_thing_config(self, line):
         """
         @type line: string
@@ -229,12 +225,6 @@ class ScheduleThing(LedgerThing):
             self.DATE_REGEX,
             self.get_date_string(),
             entry_lines[ScheduleThing.LINE_DATE]
-        )
-        print(
-            '\n%s\n%s\n' % (
-                entry_lines[ScheduleThing.LINE_DATE],
-                self.lines[ScheduleThing.LINE_SCHEDULE]
-            )
         )
         return LedgerThing(entry_lines)
 
