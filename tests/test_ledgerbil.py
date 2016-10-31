@@ -15,6 +15,8 @@ import util
 from filetester import FileTester as FT
 from helpers import Redirector
 from ledgerthing import REC_STATUS_ERROR_MESSAGE
+from schedulething_tester import ScheduleThingTester
+from test_schedulefile import ScheduleFileTests
 
 
 __author__ = 'Scott Carpenter'
@@ -64,7 +66,24 @@ class Sorting(TestCase):
         self.assertEqual(expected, actual)
 
 
-class Scheduler(Redirector):
+class MainErrors(Redirector):
+
+    def test_main_next_scheduled_date(self):
+        ledgerbil.main(['-n'])
+        self.assertEqual(
+            'error: -S/--schedule-file is required',
+            self.redirect.getvalue().strip()
+        )
+
+    def test_main_file_required(self):
+        ledgerbil.main([])
+        self.assertEqual(
+            'error: -f/--file is required',
+            self.redirect.getvalue().strip()
+        )
+
+
+class Scheduler(ScheduleThingTester):
 
     @staticmethod
     def get_schedule_file(the_date, schedule, enter_days=7):
@@ -133,6 +152,16 @@ class Scheduler(Redirector):
 
         self.assertEqual(schedulefile_expected, schedulefile_actual)
         self.assertEqual(ledgerfile_expected, ledgerfile_actual)
+
+    def test_next_scheduled_date(self):
+
+        with FT.temp_input(ScheduleFileTests.scheduledata) as tempfile:
+            ledgerbil.main(['-n', '-S', tempfile])
+
+        self.assertEqual(
+            '2007/07/07',
+            self.redirect.getvalue().rstrip()
+        )
 
 
 class ReconcilerTests(Redirector):

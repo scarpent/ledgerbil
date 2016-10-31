@@ -10,32 +10,17 @@ __author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
+
 filename = 'dummy.ldg'
 
 
 class Arguments(Redirector):
 
-    def test_file_short_option(self):
-        """should set parse args 'file' var"""
+    def test_file_option(self):
         args = ArgHandler.get_args(['-f', filename])
         self.assertTrue(args.file)
-
-    def test_file_long_option(self):
-        """should set parse args 'file' var"""
         args = ArgHandler.get_args(['--file', filename])
         self.assertTrue(args.file)
-
-    def test_file_option_is_required(self):
-        """should cause argparse error if file option not specified"""
-        expected = 'error: argument -f/--file is required'
-        try:
-            ArgHandler.get_args([])
-        except SystemExit:
-            pass
-
-        self.redirecterr.seek(0)
-        actual = self.redirecterr.read()
-        self.assertTrue(expected in actual)
 
     def test_file_option_and_filename_both_required(self):
         """should cause argparse error if file opt specified w/o file"""
@@ -49,13 +34,9 @@ class Arguments(Redirector):
         actual = self.redirecterr.read()
         self.assertTrue(expected in actual)
 
-    def test_sort_short_option(self):
-        """should set parse args 'sort' var"""
+    def test_sort_option(self):
         args = ArgHandler.get_args(['-f', filename, '-s'])
         self.assertTrue(args.sort)
-
-    def test_sort_long_option(self):
-        """should set parse args 'sort' var"""
         args = ArgHandler.get_args(['--file', filename, '--sort'])
         self.assertTrue(args.sort)
 
@@ -64,13 +45,9 @@ class Arguments(Redirector):
         args = ArgHandler.get_args(['--file', filename])
         self.assertFalse(args.sort)
 
-    def test_schedule_file_short_option(self):
-        """should set parse args 'schedule-file' var"""
+    def test_schedule_file_option(self):
         args = ArgHandler.get_args(['-f', filename, '-S', filename])
         self.assertTrue(args.schedule_file)
-
-    def test_schedule_file_long_option(self):
-        """should set parse args 'schedule-file' var"""
         args = ArgHandler.get_args([
             '--file', filename,
             '--schedule-file', filename,

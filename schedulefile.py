@@ -19,3 +19,11 @@ class ScheduleFile(LedgerFile):
         if lines:
             thing = ScheduleThing(lines)
             self.add_thing(thing)
+
+    def next_scheduled_date(self):
+        self.sort()
+        for thing in self.get_things():
+            if thing.is_transaction:
+                return thing.get_date_string()
+
+        return ''

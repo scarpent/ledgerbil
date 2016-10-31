@@ -61,8 +61,7 @@ class Redirector(TestCase):
         self.reset_redirect()
 
         self.savestderr = sys.stderr
-        self.redirecterr = StringIO()
-        sys.stderr = self.redirecterr
+        self.reset_err_redirect()
 
     def tearDown(self):
         self.redirect.close()
@@ -74,3 +73,7 @@ class Redirector(TestCase):
     def reset_redirect(self):
         self.redirect = StringIO()
         sys.stdout = self.redirect
+
+    def reset_err_redirect(self):
+        self.redirecterr = StringIO()
+        sys.stderr = self.redirecterr

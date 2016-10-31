@@ -26,6 +26,20 @@ class Ledgerbil(object):
         self.args = args
 
     def process_file(self):
+
+        if self.args.next_scheduled_date:
+            if not self.args.schedule_file:
+                print('error: -S/--schedule-file is required')
+                return 8
+
+            schedule_file = ScheduleFile(self.args.schedule_file)
+            print(schedule_file.next_scheduled_date())
+            return 0
+
+        if not self.args.file:
+            print('error: -f/--file is required')
+            return 16
+
         try:
             ledgerfile = LedgerFile(self.args.file, self.args.reconcile)
         except LdgReconcilerMoreThanOneMatchingAccount as e:
