@@ -253,7 +253,30 @@ class Reconciler(cmd.Cmd, object):
 
         print()
 
+    def cancel_statement(self, value):
+
+        if value and value.lower() == 'cancel':
+            previous_ending = self.ending_balance
+
+            self.ending_date = date.today()
+            self.ending_balance = None
+
+            if previous_ending is not None:
+                self.save_statement_info_to_cache()
+                self.list_transactions()
+
+            return True
+        else:
+            return False
+
     def set_statement_info(self):
+
+        if self.ending_balance is not None:
+            print(
+                "(Enter 'cancel' to remove ending balance and set "
+                "ending date to today.)"
+            )
+
         old_ending_date = self.ending_date
         while True:
             date_str = util.get_date_string(self.ending_date)
@@ -261,6 +284,10 @@ class Reconciler(cmd.Cmd, object):
                 prompt='Ending Date (YYYY/MM/DD)',
                 old_value=date_str
             )
+
+            if self.cancel_statement(new_date):
+                return
+
             try:
                 self.ending_date = util.get_date(new_date)
                 break
@@ -282,6 +309,9 @@ class Reconciler(cmd.Cmd, object):
             )
             if new_ending_balance is None:
                 break
+
+            if self.cancel_statement(new_ending_balance):
+                return
 
             try:
                 self.ending_balance = float(

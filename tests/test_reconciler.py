@@ -457,6 +457,30 @@ class StatementAndFinishTests(MockRawInput, OutputFileTester):
 
         self.conclude_test(strip_ansi_color=True)
 
+    def test_cancel_statement(self):
+        self.init_test('test_cancel_statement_stuff')
+
+        with FileTester.temp_input(self.teststmt) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+        self.responses = ['2016/10/27', '50']
+        recon.do_statement('')
+        self.responses = ['cAnCeL']
+        recon.do_statement('')
+        self.assertIsNone(recon.ending_balance)
+        print('<<< test: restart >>>')
+
+        with FileTester.temp_input(self.teststmt) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+        self.assertIsNone(recon.ending_balance)
+        self.responses = ['2016/10/28', '40']
+        recon.do_statement('')
+        self.responses = ['2016/10/28', 'cancel']
+        recon.do_statement('')
+        self.assertIsNone(recon.ending_balance)
+
+
     def test_finish(self):
         self.init_test('test_reconcile_finish')
 
@@ -502,6 +526,28 @@ class StatementAndFinishTests(MockRawInput, OutputFileTester):
             Reconciler(LedgerFile(tempfilename, 'cash'))
 
         self.conclude_test(strip_ansi_color=True)
+
+
+class ResponseTests(MockRawInput, Redirector):
+
+    def test_get_response_with_none(self):
+        """ None should be preserve for no response"""
+        self.responses = ['']
+        self.assertIsNone(Reconciler.get_response('prompt', None))
+        self.responses = ['']
+        self.assertEqual('', Reconciler.get_response('prompt', ''))
+
+    def test_get_response(self):
+        self.responses = ['']
+        self.assertEqual(
+            'preserve old value',
+            Reconciler.get_response('prompt', 'preserve old value')
+        )
+        self.responses = ['new value']
+        self.assertEqual(
+            'new value',
+            Reconciler.get_response('prompt', 'old value')
+        )
 
 
 class CacheTests(MockRawInput, Redirector):
