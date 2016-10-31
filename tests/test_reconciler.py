@@ -245,6 +245,32 @@ class DataTests(Redirector):
         self.verify_equal_floats(-15, recon.total_cleared)
         self.verify_equal_floats(-32.12, recon.total_pending)
 
+    def test_list_all(self):
+        with FileTester.temp_input(testdata) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+        recon.do_list('')
+        # noinspection PyCompatibility
+        payees = {
+            thing.payee for k, thing in
+            recon.current_listing.iteritems()
+            }
+        # future items included only if pending ('three')
+        self.assertEqual(
+            ({'two', 'two pt five', 'three'}),
+            payees
+        )
+        recon.do_list('aLL')
+        # noinspection PyCompatibility
+        payees = {
+            thing.payee for k, thing in
+            recon.current_listing.iteritems()
+            }
+        self.assertEqual(
+            ({'two', 'two pt five', 'three', 'four'}),
+            payees
+        )
+
     def test_list_and_modify(self):
 
         with FileTester.temp_input(testdata) as tempfilename:
@@ -479,7 +505,6 @@ class StatementAndFinishTests(MockRawInput, OutputFileTester):
         self.responses = ['2016/10/28', 'cancel']
         recon.do_statement('')
         self.assertIsNone(recon.ending_balance)
-
 
     def test_finish(self):
         self.init_test('test_reconcile_finish')

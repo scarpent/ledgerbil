@@ -97,9 +97,15 @@ class Reconciler(cmd.Cmd, object):
     def do_list(self, args):
         """List entries for selected account
 
+        Syntax: list [all]
+
         - Shows uncleared and pending transactions (Pending = "!")
+        - Pending transactions are always listed regardless of date
+        - Uncleared transactions are listed up to the statement ending
+          date (defaults to today)
+        - "All" will list all uncleared transactions regardless of date
         """
-        self.list_transactions()
+        self.list_transactions(args)
 
     def do_account(self, args):
         """Print the account being reconciled"""
@@ -196,11 +202,18 @@ class Reconciler(cmd.Cmd, object):
         if messages:
             print(messages, end='')
 
-    def list_transactions(self):
+    def list_transactions(self, args=None):
+        args = util.parse_args(args)
+        if args and args[0].lower() == 'all':
+            show_all = True
+        else:
+            show_all = False
+
         self.current_listing = {}
         count = 0
         for thing in self.open_transactions:
             if thing.thing_date > self.ending_date \
+                    and not show_all \
                     and not thing.is_pending():
                 continue
 
