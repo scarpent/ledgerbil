@@ -41,7 +41,6 @@ class ScheduleThing(LedgerThing):
 
     def __init__(self, lines):
         self.first_thing = False
-        self.is_schedule_thing = False
         self.interval_uom = ''   # month or week
         self.days = []           # e.g. 5, 15, eom, eom30
         self.interval = 1        # e.g. 1 = every month, 2 = every other
