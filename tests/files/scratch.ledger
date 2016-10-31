@@ -1,7 +1,5 @@
-; this should be a valid ledger file for *some* unit tests, but not
-; really unit tests that expect exact data --
-; in general if we just add new things and don't modify what's here,
-; we can have tests that rely on certain accounts being present...
+; no unit tests for this one - just use it for interactive
+; experimentation...
 
 2016/10/02 (1901) goofy doofy
     e: misc: goofies
@@ -43,7 +41,7 @@
     i: fmoogle
   ! a: cash                 $100
 
-2016/11/11
+2016/11/11 lorem ipsum
     i: fmoogle
     a: cash                 $100
 
