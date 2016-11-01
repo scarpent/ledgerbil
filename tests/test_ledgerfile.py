@@ -154,7 +154,7 @@ class ThingDating(TestCase):
 '''
         tempfile = FileTester.create_temp_file(testdata)
         ledgerfile = LedgerFile(tempfile)
-        ledgerfile._add_thing_lines(
+        ledgerfile._add_thing_from_lines(
             ['; blah blah blah', '; and so on...']
         )
         # non-transaction dates are only populated with sort

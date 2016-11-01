@@ -15,8 +15,7 @@ __email__ = 'scottc@movingtofreedom.org'
 
 class ScheduleFile(LedgerFile):
 
-    def _add_thing_lines(self, lines):
-        lines = self._remove_trailing_blank_lines(lines)
+    def _add_thing_from_lines(self, lines):
         if lines:
             thing = ScheduleThing(lines)
             self.add_thing(thing)

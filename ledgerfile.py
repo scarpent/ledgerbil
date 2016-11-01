@@ -32,18 +32,22 @@ class LedgerFile(object):
         self._read_file()
 
     def _read_file(self):
-        self._test_writable()  # want to make sure we can later write
+        self._test_writable()
         current_lines = []
         with open(self.filename, 'r') as the_file:
             for line in the_file:
                 line = line.rstrip()
                 if LedgerThing.is_new_thing(line):
-                    self._add_thing_lines(current_lines)
+                    self._add_thing_from_lines(
+                        self._remove_trailing_blank_lines(current_lines)
+                    )
                     current_lines = []
 
                 current_lines.append(line)
 
-        self._add_thing_lines(current_lines)
+        self._add_thing_from_lines(
+            self._remove_trailing_blank_lines(current_lines)
+        )
 
     def _test_writable(self):
         try:
@@ -55,9 +59,6 @@ class LedgerFile(object):
 
     @staticmethod
     def _remove_trailing_blank_lines(lines):
-        if not lines:
-            return lines
-
         for line in reversed(lines):
             if line == '':
                 lines.pop()
@@ -66,8 +67,7 @@ class LedgerFile(object):
 
         return lines
 
-    def _add_thing_lines(self, lines):
-        lines = self._remove_trailing_blank_lines(lines)
+    def _add_thing_from_lines(self, lines):
         if lines:
             thing = LedgerThing(lines, self.rec_account)
             self.add_thing(thing)
