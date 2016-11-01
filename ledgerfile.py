@@ -53,7 +53,21 @@ class LedgerFile(object):
             sys.stderr.write('error: %s\n' % e)
             sys.exit(-1)
 
+    @staticmethod
+    def _remove_trailing_blank_lines(lines):
+        if not lines:
+            return lines
+
+        for line in reversed(lines):
+            if line == '':
+                lines.pop()
+            else:
+                break
+
+        return lines
+
     def _add_thing_lines(self, lines):
+        lines = self._remove_trailing_blank_lines(lines)
         if lines:
             thing = LedgerThing(lines, self.rec_account)
             self.add_thing(thing)
@@ -104,12 +118,14 @@ class LedgerFile(object):
         for thing in self.get_things():
             for line in thing.get_lines():
                 print(line)
+            print()
 
     def write_file(self):
         with open(self.filename, 'w') as the_file:
             for thing in self.get_things():
                 for line in thing.get_lines():
                     the_file.write(line + '\n')
+                the_file.write('\n')
 
     def get_reconciliation_account(self):
         if len(self.rec_account_matches) == 1:

@@ -31,7 +31,7 @@ class SchedulerRun(ScheduleThingTester):
             '{date} bananas unlimited\n'
             '    ;; schedule ; {schedule}\n'
             '    e: misc\n'
-            '    l: credit card                     $-50\n'.format(
+            '    l: credit card                     $-50\n\n'.format(
                 date=the_date,
                 schedule=schedule,
                 enter_days=enter_days

@@ -65,6 +65,7 @@ account expenses: taxes: state
 2013/01/01 opening balance
     assets: cash                            $50
     equity: opening balances
+
 2013/01/01 opening balance
     assets: checking up                     $543.21
     equity: opening balances
@@ -165,9 +166,11 @@ account expenses: taxes: state
 
 comment
     This is a block comment with
-    multiple lines
+    multiple lines (which is currently unhandled)
+
 2020/12/31 el guapo
     e: food: alcohol                        $11
     e: food: dining out
     l: credit card                          $-42.23
 end comment
+
