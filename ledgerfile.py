@@ -29,33 +29,29 @@ class LedgerFile(object):
         self.rec_account = reconcile_account  # could be partial
         self.rec_account_matches = []  # should be only one match
 
-        self._parse_file()
+        self._read_file()
 
-    def _open_file(self):
+    def _read_file(self):
+        self._test_writable()  # want to make sure we can later write
+        current_lines = []
+        with open(self.filename, 'r') as the_file:
+            for line in the_file:
+                line = line.rstrip()
+                if LedgerThing.is_new_thing(line):
+                    self._add_thing_lines(current_lines)
+                    current_lines = []
+
+                current_lines.append(line)
+
+        self._add_thing_lines(current_lines)
+
+    def _test_writable(self):
         try:
-            self.ledger_file = open(self.filename, 'r+')
+            with open(self.filename, 'r+'):
+                pass
         except IOError as e:
             sys.stderr.write('error: %s\n' % e)
             sys.exit(-1)
-
-    def _close_file(self):
-        self.ledger_file.close()
-
-    def _parse_file(self):
-        self._open_file()
-        self._parse_lines(self.ledger_file.read().splitlines())
-        self._close_file()
-
-    def _parse_lines(self, lines):
-        current_lines = []
-        for line in lines:
-            if LedgerThing.is_new_thing(line):
-                self._add_thing_lines(current_lines)
-                current_lines = []
-
-            current_lines.append(line)
-
-        self._add_thing_lines(current_lines)
 
     def _add_thing_lines(self, lines):
         if lines:
@@ -110,11 +106,10 @@ class LedgerFile(object):
                 print(line)
 
     def write_file(self):
-        self._open_file()
-        for thing in self.get_things():
-            for line in thing.get_lines():
-                self.ledger_file.write(line + '\n')
-        self._close_file()
+        with open(self.filename, 'w') as the_file:
+            for thing in self.get_things():
+                for line in thing.get_lines():
+                    the_file.write(line + '\n')
 
     def get_reconciliation_account(self):
         if len(self.rec_account_matches) == 1:
