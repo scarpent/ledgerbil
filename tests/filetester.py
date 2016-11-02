@@ -36,9 +36,8 @@ class FileTester(object):
     @staticmethod
     def create_temp_file(testdata):
         temp_file = FileTester.testdir + 'temp_' + inspect.stack()[1][3]
-        f = open(temp_file, 'w')
-        f.write(testdata)
-        f.close()
+        with open(temp_file, 'w') as f:
+            f.write(testdata)
         return temp_file
 
     @staticmethod
@@ -49,25 +48,21 @@ class FileTester(object):
 
     @staticmethod
     def read_file(filename):
-        f = open(filename, 'r')
-        testdata = f.read()
-        f.close()
-        return testdata
+        with open(filename, 'r') as f:
+            return f.read()
 
     @staticmethod
     def write_to_temp_file(filename, testdata):
         temp_file = filename + '_temp'
-        f = open(temp_file, 'w')
-        f.write(testdata)
-        f.close()
+        with open(temp_file, 'w') as f:
+            f.write(testdata)
         return temp_file
 
     @staticmethod
     @contextmanager
     def temp_input(data):
-        temp = tempfile.NamedTemporaryFile(delete=False)
-        temp.write(data)
-        temp.close()
+        with tempfile.NamedTemporaryFile(delete=False) as temp:
+            temp.write(data)
         yield temp.name
         os.unlink(temp.name)
 
