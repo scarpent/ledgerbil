@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """error codes"""
 
 from __future__ import print_function

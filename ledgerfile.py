@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """ledger file base class"""
 
 from __future__ import print_function

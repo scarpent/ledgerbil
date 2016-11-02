@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """objects in ledger file: transactions, etc"""
 
 from __future__ import print_function

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """initializes ScheduleThing class for testing"""
 
 from helpers import Redirector

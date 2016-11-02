@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """unit test for schedule_thing.py"""
 
 from unittest import TestCase

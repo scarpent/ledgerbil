@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """unit test for ledgerfile.py"""
 
 import inspect  # inspect.stack()[1][3] gives name of calling function

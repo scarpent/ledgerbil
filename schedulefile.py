@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """schedule file"""
 
 from __future__ import print_function

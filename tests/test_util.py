@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from datetime import date
 from unittest import TestCase
 

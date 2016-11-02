@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """scheduler runner"""
 
 from __future__ import print_function

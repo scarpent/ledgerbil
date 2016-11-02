@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """unit test for ledgerbil.py"""
 
 from helpers import Redirector

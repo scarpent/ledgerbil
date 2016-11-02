@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """do all the argparse stuff"""
 
 from __future__ import print_function

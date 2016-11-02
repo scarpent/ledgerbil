@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """ Unit Test Helpers
 
 Redirector: Capture streams

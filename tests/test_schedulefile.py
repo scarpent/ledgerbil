@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from filetester import FileTester
 from schedulefile import ScheduleFile
 from schedulething_tester import ScheduleThingTester

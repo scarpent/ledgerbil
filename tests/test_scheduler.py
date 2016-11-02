@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """unit test for scheduler.py"""
 
 import os

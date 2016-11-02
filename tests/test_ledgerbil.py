@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """unit tests for ledgerbil.py"""
 
 import os

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """unit test for ledgerfile.py"""
 
 from unittest import TestCase
