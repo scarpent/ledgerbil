@@ -9,9 +9,11 @@ from copy import copy
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
+from ledgerbilexceptions import LdgScheduleFileConfigError
+from ledgerbilexceptions import LdgScheduleThingLabelError
+from ledgerbilexceptions import LdgScheduleThingParametersError
+from ledgerbilexceptions import LdgScheduleUnrecognizedIntervalUom
 from ledgerthing import LedgerThing
-from ledgerbilexceptions import *
-
 
 __author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'
@@ -159,19 +161,20 @@ class ScheduleThing(LedgerThing):
         if not configitems[days_idx].strip():
             configitems[days_idx] = str(self.thing_date.day)
 
-        match = re.match('''[^\d]*(\d+).*''', configitems[interval_idx])
+        match = re.match(r'[^\d]*(\d+).*', configitems[interval_idx])
         interval = 1
         if match:
             interval = int(match.group(1))
 
-        if intervaluom == 'bimonthly':
-            interval *= 2
-        elif intervaluom == 'quarterly':
-            interval *= 3
-        elif intervaluom == 'biannual':
-            interval *= 6
-        elif intervaluom == 'yearly':
-            interval *= 12
+        uom_translations = {
+            'bimonthly': 2,
+            'quarterly': 3,
+            'biannual': 6,
+            'yearly': 12,
+        }
+
+        if intervaluom in uom_translations:
+            interval *= uom_translations[intervaluom]
 
         if intervaluom != ScheduleThing.INTERVAL_WEEK:
             intervaluom = ScheduleThing.INTERVAL_MONTH
@@ -181,7 +184,7 @@ class ScheduleThing(LedgerThing):
 
         day_string = configitems[days_idx].lower()
         self.days = []
-        days_regex = '(\d+|eom(?:\d\d?)?)'
+        days_regex = r'(\d+|eom(?:\d\d?)?)'
         for match in re.finditer(days_regex, day_string):
             # convert to ints where possible so will sort out correctly
             try:
