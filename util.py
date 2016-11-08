@@ -8,7 +8,6 @@ import operator as op
 import re
 import shlex
 
-from datetime import date
 from datetime import datetime
 
 
