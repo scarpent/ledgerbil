@@ -1,8 +1,7 @@
 """unit test for ledgerbil.py"""
 
-from helpers import Redirector
 from arghandler import ArgHandler
-
+from helpers import Redirector
 
 __author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'

@@ -5,10 +5,8 @@ from __future__ import print_function
 import re
 
 import util
-
-from ledgerbilexceptions import LdgReconcilerMoreThanOneMatchingAccount
-from ledgerbilexceptions import LdgReconcilerMultipleStatuses
-
+from ledgerbilexceptions import (LdgReconcilerMoreThanOneMatchingAccount,
+                                 LdgReconcilerMultipleStatuses)
 
 __author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'

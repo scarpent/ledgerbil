@@ -7,13 +7,12 @@ from __future__ import print_function
 import sys
 
 from arghandler import ArgHandler
-from ledgerbilexceptions import LdgReconcilerMoreThanOneMatchingAccount
-from ledgerbilexceptions import LdgReconcilerMultipleStatuses
+from ledgerbilexceptions import (LdgReconcilerMoreThanOneMatchingAccount,
+                                 LdgReconcilerMultipleStatuses)
 from ledgerfile import LedgerFile
 from reconciler import Reconciler
 from schedulefile import ScheduleFile
 from scheduler import Scheduler
-
 
 __author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'

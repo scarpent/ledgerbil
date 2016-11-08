@@ -1,15 +1,13 @@
 """unit test for ledgerfile.py"""
 
+from os import chmod, remove
 from unittest import TestCase
-from os import remove
-from os import chmod
 
+from filetester import FileTester
+from helpers import Redirector
 from ledgerbilexceptions import LdgReconcilerMoreThanOneMatchingAccount
 from ledgerfile import LedgerFile
 from ledgerthing import LedgerThing
-from helpers import Redirector
-from filetester import FileTester
-
 
 __author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'

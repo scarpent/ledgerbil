@@ -1,14 +1,11 @@
-from __future__ import division
-from __future__ import print_function
+from __future__ import division, print_function
 
 import cmd
 import json
 import os
-
 from datetime import date
 
 import util
-
 
 __author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'

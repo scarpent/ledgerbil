@@ -1,15 +1,12 @@
 #!/usr/bin/env python
 
-from __future__ import division
-from __future__ import print_function
+from __future__ import division, print_function
 
 import ast
 import operator as op
 import re
 import shlex
-
 from datetime import datetime
-
 
 __author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'

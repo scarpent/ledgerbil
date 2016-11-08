@@ -1,18 +1,16 @@
 """unit test for scheduler.py"""
 
 import os
-
 from datetime import date
+
 from dateutil.relativedelta import relativedelta
 
 import util
-
 from filetester import FileTester
 from ledgerfile import LedgerFile
 from schedulefile import ScheduleFile
 from scheduler import Scheduler
 from schedulething_tester import ScheduleThingTester
-
 
 __author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'

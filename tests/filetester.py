@@ -1,12 +1,11 @@
 """unit test for ledgerfile.py"""
 
-import inspect  # inspect.stack()[1][3] gives name of calling function
+# inspect.stack()[1][3] gives name of calling function
+import inspect
 import os
 import tempfile
-
 from contextlib import contextmanager
 from shutil import copyfile
-
 
 __author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'

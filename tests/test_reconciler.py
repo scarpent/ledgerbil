@@ -1,18 +1,15 @@
 import os
-
 from datetime import date
-from dateutil.relativedelta import relativedelta
 from unittest import TestCase
+
+from dateutil.relativedelta import relativedelta
 
 import reconciler
 import util
-
 from filetester import FileTester
-from helpers import OutputFileTester
-from helpers import Redirector
+from helpers import OutputFileTester, Redirector
 from ledgerfile import LedgerFile
 from reconciler import Reconciler
-
 
 __author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'

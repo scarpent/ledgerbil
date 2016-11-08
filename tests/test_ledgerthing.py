@@ -1,16 +1,13 @@
 """unit test for ledgerthing.py"""
 
+from datetime import date
 from unittest import TestCase
 
-from datetime import date
-
 from helpers import Redirector
-from ledgerbilexceptions import LdgReconcilerMoreThanOneMatchingAccount
-from ledgerbilexceptions import LdgReconcilerMultipleStatuses
-from ledgerthing import LedgerThing
-from ledgerthing import REC_STATUS_ERROR_MESSAGE
-from ledgerthing import UNSPECIFIED_PAYEE
-
+from ledgerbilexceptions import (LdgReconcilerMoreThanOneMatchingAccount,
+                                 LdgReconcilerMultipleStatuses)
+from ledgerthing import (REC_STATUS_ERROR_MESSAGE, UNSPECIFIED_PAYEE,
+                         LedgerThing)
 
 __author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'

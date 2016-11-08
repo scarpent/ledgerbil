@@ -3,13 +3,11 @@
 from __future__ import print_function
 
 import sys
-
 from datetime import date
 from operator import attrgetter
 
 from ledgerbilexceptions import LdgReconcilerMoreThanOneMatchingAccount
 from ledgerthing import LedgerThing
-
 
 __author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'

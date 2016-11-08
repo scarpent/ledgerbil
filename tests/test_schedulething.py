@@ -1,17 +1,14 @@
 """unit test for schedule_thing.py"""
 
+from datetime import date, datetime
 from unittest import TestCase
 
-from datetime import datetime
-from datetime import date
 from dateutil.relativedelta import relativedelta
 
 import util
-
 from helpers import Redirector
-from schedulething import ScheduleThing
 from ledgerbilexceptions import *
-
+from schedulething import ScheduleThing
 
 __author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'
