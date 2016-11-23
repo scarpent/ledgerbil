@@ -188,10 +188,10 @@ class Reconciler(cmd.Cmd, object):
                 thing.set_uncleared()
                 self.total_pending -= thing.rec_amount
 
-            self.ledgerfile.write_file()
             at_least_one_success = True
 
         if at_least_one_success:
+            self.ledgerfile.write_file()
             self.list_transactions()
 
         if messages:
