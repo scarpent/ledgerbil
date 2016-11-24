@@ -617,6 +617,23 @@ class ReconcilerParsing(Redirector):
             expected_amount=-179.99
         )
 
+    def test_entry_comments(self):
+        self.verify_reconcile_vars(
+            [
+                '2016/11/24 blah',
+                '    i: blurg',
+                '    a: checking  $10  ; comment',
+                '    a: checking  $10 ; comment',
+                '    a: checking  $10; comment',
+                '    a: checking  ($5 * 2)  ; comment',
+                '    a: checking  ($5 * 2) ; comment',
+                '    a: checking  ($5 * 2); comment',
+            ],
+            account='check',
+            expected_matches=('a: checking',),
+            expected_amount=60
+        )
+
     def test_statuses(self):
         thing = LedgerThing(
             [

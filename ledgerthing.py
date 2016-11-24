@@ -36,7 +36,7 @@ class LedgerThing(object):
         r'(?:\s*)?'                  # optional whitespace after p/c
         r'([^;]*?)(?=  |$)'          # account (2 spaces ends acct)
         r'\(?([-+*/()$\d.\s]+)?\)?'  # optional amount expression
-        r'(?:\s\s;.*$|$)'            # optional end comment
+        r'(?:;.*$|$)'                # optional end comment
     )
     REC_PENDING = '!'
     REC_CLEARED = '*'
