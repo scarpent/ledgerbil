@@ -111,10 +111,12 @@ class Reconciler(cmd.Cmd, object):
 
         Syntax: mark <#> or <# ... #>
                 <#>
+                mark all
 
         - The numbered line of a transaction, or multiple numbers
           separated by spaces
         - Without "mark", a single transaction number
+        - "all" to mark all uncleared transactions
         """
         self.mark_or_unmark(args, mark=True)
 
@@ -122,9 +124,11 @@ class Reconciler(cmd.Cmd, object):
         """Remove pending mark (!) from transaction
 
         Syntax: unmark <#>
+                unmark all
 
         - The numbered line of a transaction, or multiple numbers
           separated by spaces
+        - "all" to unmark all pending transactions
         """
         self.mark_or_unmark(args, mark=False)
 
@@ -164,6 +168,14 @@ class Reconciler(cmd.Cmd, object):
         if not args:
             print('*** Transaction number(s) required')
             return
+
+        if args[0].lower() == 'all':
+            args = []
+            # noinspection PyCompatibility
+            for key, thing in self.current_listing.iteritems():
+                if ((mark and not thing.is_pending())
+                        or (not mark and thing.is_pending())):
+                    args.append(key)
 
         at_least_one_success = False
         messages = ''

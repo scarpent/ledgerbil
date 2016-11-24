@@ -350,6 +350,20 @@ class DataTests(Redirector):
             self.verify_equal_floats(0, recon.total_cleared)
             self.verify_equal_floats(0, recon.total_pending)
 
+    def test_mark_and_unmark_all(self):
+
+        with FileTester.temp_input(testdata) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+            self.verify_equal_floats(-15, recon.total_cleared)
+            self.verify_equal_floats(-32.12, recon.total_pending)
+            recon.do_unmark('all')
+            self.verify_equal_floats(-15, recon.total_cleared)
+            self.verify_equal_floats(0, recon.total_pending)
+            recon.do_mark('all')
+            self.verify_equal_floats(-15, recon.total_cleared)
+            self.verify_equal_floats(-22.12, recon.total_pending)
+
     def test_finish_balancing_with_errors(self):
         """Verify things don't change when there are errors"""
         with FileTester.temp_input(testdata) as tempfilename:
