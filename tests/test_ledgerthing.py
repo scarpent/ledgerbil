@@ -4,15 +4,10 @@ from datetime import date
 from unittest import TestCase
 
 from helpers import Redirector
-from ledgerbilexceptions import (
-    LdgReconcilerMoreThanOneMatchingAccount,
-    LdgReconcilerMultipleStatuses,
-)
-from ledgerthing import (
-    REC_STATUS_ERROR_MESSAGE,
-    UNSPECIFIED_PAYEE,
-    LedgerThing,
-)
+from ledgerbilexceptions import (LdgReconcilerMoreThanOneMatchingAccount,
+                                 LdgReconcilerMultipleStatuses)
+from ledgerthing import (REC_STATUS_ERROR_MESSAGE, UNSPECIFIED_PAYEE,
+                         LedgerThing)
 
 __author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'
@@ -298,7 +293,6 @@ class ReconcilerParsing(Redirector):
     def test_reconcile_not_a_transaction(self):
         # not reconciling
         self.verify_reconcile_vars(['; some comment'])
-        # noinspection PyTypeChecker
         self.verify_reconcile_vars(['; some comment'], None)
         # reconciling
         self.verify_reconcile_vars(['; some comment'], 'checking',)

@@ -12,7 +12,6 @@ __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
 
-# noinspection PyMethodMayBeStatic,PyUnusedLocal
 class Reconciler(cmd.Cmd, object):
 
     UNKNOWN_SYNTAX = '*** Unknown syntax: '
@@ -171,7 +170,6 @@ class Reconciler(cmd.Cmd, object):
 
         if args[0].lower() == 'all':
             args = []
-            # noinspection PyCompatibility
             for key, thing in self.current_listing.iteritems():
                 if ((mark and not thing.is_pending())
                         or (not mark and thing.is_pending())):
@@ -378,7 +376,6 @@ class Reconciler(cmd.Cmd, object):
             (self.total_cleared + self.total_pending)
         )
 
-    # noinspection PyCompatibility
     @staticmethod
     def get_response(prompt='', old_value=''):
         default = '' if old_value is None else old_value

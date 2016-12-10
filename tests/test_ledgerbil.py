@@ -8,8 +8,6 @@ from dateutil.relativedelta import relativedelta
 
 import ledgerbil
 import util
-
-# noinspection PyPep8Naming
 from filetester import FileTester as FT
 from helpers import Redirector
 from ledgerthing import REC_STATUS_ERROR_MESSAGE

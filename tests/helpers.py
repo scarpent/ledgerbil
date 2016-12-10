@@ -10,7 +10,6 @@ OutputFileTester: Redirect standard out to file for easier diffing and
 import filecmp
 import re
 import sys
-# noinspection PyCompatibility
 from StringIO import StringIO
 from unittest import TestCase
 

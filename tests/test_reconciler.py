@@ -204,7 +204,6 @@ class DataTests(Redirector):
             ({'two', 'two pt five', 'three', 'four'}),
             payees
         )
-        # noinspection PyCompatibility
         payees = {
             thing.payee for k, thing in
             recon.current_listing.iteritems()
@@ -227,7 +226,6 @@ class DataTests(Redirector):
             recon = Reconciler(LedgerFile(tempfilename, 'cash'))
 
         recon.do_list('')
-        # noinspection PyCompatibility
         payees = {
             thing.payee for k, thing in
             recon.current_listing.iteritems()
@@ -245,7 +243,6 @@ class DataTests(Redirector):
             recon = Reconciler(LedgerFile(tempfilename, 'cash'))
 
         recon.do_list('')
-        # noinspection PyCompatibility
         payees = {
             thing.payee for k, thing in
             recon.current_listing.iteritems()
@@ -256,7 +253,6 @@ class DataTests(Redirector):
             payees
         )
         recon.do_list('aLL')
-        # noinspection PyCompatibility
         payees = {
             thing.payee for k, thing in
             recon.current_listing.iteritems()
@@ -273,7 +269,6 @@ class DataTests(Redirector):
             self.verify_equal_floats(-15, recon.total_cleared)
             self.verify_equal_floats(-32.12, recon.total_pending)
             recon.do_list('')
-            # noinspection PyCompatibility
             payees = {
                 thing.payee for k, thing in
                 recon.current_listing.iteritems()
@@ -287,7 +282,6 @@ class DataTests(Redirector):
         # 3 was a pending future transaction, so:
         # pending total is adjusted and one less current listing
         # (also, the mark should have triggered a new listing...)
-        # noinspection PyCompatibility
         payees = {
             thing.payee for k, thing in
             recon.current_listing.iteritems()
@@ -378,7 +372,6 @@ class DataTests(Redirector):
                 ({'two', 'two pt five', 'three', 'four'}),
                 payees
             )
-            # noinspection PyCompatibility
             payees = {
                 thing.payee for k, thing in
                 recon.current_listing.iteritems()
@@ -400,7 +393,6 @@ class DataTests(Redirector):
                 ({'two', 'two pt five', 'three', 'four'}),
                 payees
             )
-            # noinspection PyCompatibility
             payees = {
                 thing.payee for k, thing in
                 recon.current_listing.iteritems()
