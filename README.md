@@ -166,13 +166,12 @@ reconciler is restarted.
 ##### mark / unmark
 
 Set transactions as pending (!) or remove the pending mark. You can
-enter multiple lines, or give a single number by itself with no command.
+enter multiple lines, "all", or give a single number by itself with no
+command.
 
-    1
+    mark 1 2  (or)  1  (or)
 
-    or
-
-    > mark 1 2
+    > mark all
 
     1. 2016/10/26    $-10.00 ! lorem
     2. 2016/10/29    $-20.00 ! ipsum
