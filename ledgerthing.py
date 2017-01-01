@@ -31,12 +31,12 @@ class LedgerThing(object):
         r')(?:\s+\(([^)]*)\))?\s*([^;]+)?(?:;.*$|$)'
     )
     ENTRY_REGEX = re.compile(
-        r'^\s+'                      # opening indent
-        r'([!*])?'                   # optional pending/cleared
-        r'(?:\s*)?'                  # optional whitespace after p/c
-        r'([^;]*?)(?=  |$)'          # account (2 spaces ends acct)
-        r'\(?([-+*/()$\d.\s]+)?\)?'  # optional amount expression
-        r'(?:;.*$|$)'                # optional end comment
+        r'^\s+'                       # opening indent
+        r'([!*])?'                    # optional pending/cleared
+        r'(?:\s*)?'                   # optional whitespace after p/c
+        r'([^;]*?)(?=  |$)'           # account (2 spaces ends acct)
+        r'\(?([-+*/()$\d.,\s]+)?\)?'  # optional amount expression
+        r'(?:;.*$|$)'                 # optional end comment
     )
     REC_PENDING = '!'
     REC_CLEARED = '*'
@@ -108,7 +108,7 @@ class LedgerThing(object):
                     amount = None
                 else:
                     amount = util.eval_expr(
-                        re.sub(r'\$', '', amount)
+                        re.sub(r'[$,]', '', amount)
                     )
                     transaction_total += amount
 

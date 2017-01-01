@@ -358,6 +358,18 @@ class ReconcilerParsing(Redirector):
             expected_amount=50
         )
 
+    def test_comma_in_amount(self):
+        self.verify_reconcile_vars(
+            [
+                '2016/10/23 blah',
+                '    e: blurg      $1000',
+                '    a: checking   $-1,000',
+            ],
+            account='check',
+            expected_matches=('a: checking',),
+            expected_amount=-1000
+        )
+
     def test_comments_and_empty_lines_and_non_matching(self):
         self.verify_reconcile_vars(
             [
