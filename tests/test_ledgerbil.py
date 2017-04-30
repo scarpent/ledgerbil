@@ -163,11 +163,12 @@ class ReconcilerTests(Redirector):
 
     def test_multiple_matches(self):
         # in different transactions
-        result = ledgerbil.main([
-            '--file', FT.test_rec_multiple_match,
-            '--reconcile', 'checking'
-        ])
-        self.assertEqual(2, result)
+        with self.assertRaises(SystemExit) as cm:
+            ledgerbil.main([
+                '--file', FT.test_rec_multiple_match,
+                '--reconcile', 'checking'
+            ])
+        self.assertEqual(-1, cm.exception.code)
         self.assertEqual(
             'Reconcile error. More than one matching account:\n'
             '    a: checking down\n'
@@ -176,11 +177,12 @@ class ReconcilerTests(Redirector):
         )
         # in same transaction
         self.reset_redirect()
-        result = ledgerbil.main([
-            '--file', FT.test_rec_multiple_match,
-            '--reconcile', 'cash'
-        ])
-        self.assertEqual(2, result)
+        with self.assertRaises(SystemExit) as cm:
+            ledgerbil.main([
+                '--file', FT.test_rec_multiple_match,
+                '--reconcile', 'cash'
+            ])
+        self.assertEqual(-1, cm.exception.code)
         self.assertEqual(
             'Reconcile error. More than one matching account:\n'
             '    a: cash in\n'
@@ -189,11 +191,12 @@ class ReconcilerTests(Redirector):
         )
 
     def test_multiple_statuses(self):
-        result = ledgerbil.main([
-            '--file', FT.test_rec_multiple_match,
-            '--reconcile', 'mattress'
-        ])
-        self.assertEqual(4, result)
+        with self.assertRaises(SystemExit) as cm:
+            ledgerbil.main([
+                '--file', FT.test_rec_multiple_match,
+                '--reconcile', 'mattress'
+            ])
+        self.assertEqual(-1, cm.exception.code)
         self.assertEqual(
             REC_STATUS_ERROR_MESSAGE.format(
                 date='2016/10/08',

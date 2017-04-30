@@ -81,7 +81,8 @@ class SimpleOutputTests(Redirector):
             'mark', 'm',
             'unmark', 'u', 'un',
             # 'statement', 'start', # do not test here (need raw_input)
-            'finish', 'end'
+            'finish', 'end',
+            # 'reload', 'r',
         ]
         with FileTester.temp_input(testdata) as tempfilename:
             interpreter = Reconciler(LedgerFile(tempfilename, 'cash'))
@@ -105,6 +106,7 @@ class SimpleOutputTests(Redirector):
             'help mark', 'help m',
             'help unmark', 'help u',
             'help start', 'help finish',
+            'help reload', 'help r',
         ]
         with FileTester.temp_input(testdata) as tempfilename:
             interpreter = Reconciler(LedgerFile(tempfilename, 'cash'))
@@ -207,7 +209,7 @@ class DataTests(Redirector):
         payees = {
             thing.payee for k, thing in
             recon.current_listing.iteritems()
-            }
+        }
         # future items included only if pending ('three')
         self.assertEqual(
             ({'two', 'two pt five', 'three'}),
@@ -246,7 +248,7 @@ class DataTests(Redirector):
         payees = {
             thing.payee for k, thing in
             recon.current_listing.iteritems()
-            }
+        }
         # future items included only if pending ('three')
         self.assertEqual(
             ({'two', 'two pt five', 'three'}),
@@ -256,7 +258,7 @@ class DataTests(Redirector):
         payees = {
             thing.payee for k, thing in
             recon.current_listing.iteritems()
-            }
+        }
         self.assertEqual(
             ({'two', 'two pt five', 'three', 'four'}),
             payees
@@ -272,7 +274,7 @@ class DataTests(Redirector):
             payees = {
                 thing.payee for k, thing in
                 recon.current_listing.iteritems()
-                }
+            }
             self.assertEqual(
                 ({'two', 'two pt five', 'three'}),
                 payees
@@ -285,7 +287,7 @@ class DataTests(Redirector):
         payees = {
             thing.payee for k, thing in
             recon.current_listing.iteritems()
-            }
+        }
         self.assertEqual(({'two', 'two pt five'}), payees)
         self.verify_equal_floats(-15, recon.total_cleared)
         self.verify_equal_floats(-2.12, recon.total_pending)
@@ -367,7 +369,7 @@ class DataTests(Redirector):
 
             payees = {
                 thing.payee for thing in recon.open_transactions
-                }
+            }
             self.assertEqual(
                 ({'two', 'two pt five', 'three', 'four'}),
                 payees
@@ -375,7 +377,7 @@ class DataTests(Redirector):
             payees = {
                 thing.payee for k, thing in
                 recon.current_listing.iteritems()
-                }
+            }
             # future items included only if pending ('three')
             self.assertEqual(
                 ({'two', 'two pt five', 'three'}),
@@ -388,7 +390,7 @@ class DataTests(Redirector):
             self.assertEqual(-1234.56, recon.ending_balance)
             payees = {
                 thing.payee for thing in recon.open_transactions
-                }
+            }
             self.assertEqual(
                 ({'two', 'two pt five', 'three', 'four'}),
                 payees
@@ -396,7 +398,7 @@ class DataTests(Redirector):
             payees = {
                 thing.payee for k, thing in
                 recon.current_listing.iteritems()
-                }
+            }
             # future items included only if pending ('three')
             self.assertEqual(
                 ({'two', 'two pt five', 'three'}),

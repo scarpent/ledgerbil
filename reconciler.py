@@ -32,6 +32,7 @@ class Reconciler(cmd.Cmd, object):
             'u': self.do_unmark,
             'un': self.do_unmark,
             'q': self.do_quit,
+            'r': self.do_reload,
             'start': self.do_statement,
         }
 
@@ -142,6 +143,14 @@ class Reconciler(cmd.Cmd, object):
           balance is set and the total is zeroed out
        """
         self.finish_balancing()
+
+    def do_reload(self, args):
+        """Reload the ledger file from storage"""
+        self.reload()
+
+    def reload(self):
+        self.ledgerfile.reset()
+        self.populate_open_transactions()
 
     def populate_open_transactions(self):
         self.open_transactions = []

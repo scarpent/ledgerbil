@@ -6,7 +6,8 @@ import sys
 from datetime import date
 from operator import attrgetter
 
-from ledgerbilexceptions import LdgReconcilerMoreThanOneMatchingAccount
+from ledgerbilexceptions import (LdgReconcilerMoreThanOneMatchingAccount,
+                                 LdgReconcilerMultipleStatuses)
 from ledgerthing import LedgerThing
 
 __author__ = 'Scott Carpenter'
@@ -19,13 +20,25 @@ class LedgerFile(object):
     STARTING_DATE = date(1899, 1, 1)
 
     def __init__(self, filename, reconcile_account=None):
-        self.thing_counter = 0
-        self.things = []
         self.filename = filename
         self.rec_account = reconcile_account  # could be partial
+        self.reset()
+
+    def reset(self):
+        self.thing_counter = 0
+        self.things = []
         self.rec_account_matches = []  # should be only one match
 
-        self._read_file()
+        try:
+            self._read_file()
+        except LdgReconcilerMoreThanOneMatchingAccount as e:
+            print('Reconcile error. More than one matching account:')
+            for account in e.message:
+                print('    ' + account)
+            sys.exit(-1)
+        except LdgReconcilerMultipleStatuses as e:
+            print(str(e))
+            sys.exit(-1)
 
     def _read_file(self):
         self._test_writable()

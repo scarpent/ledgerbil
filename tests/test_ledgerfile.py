@@ -5,7 +5,6 @@ from unittest import TestCase
 
 from filetester import FileTester
 from helpers import Redirector
-from ledgerbilexceptions import LdgReconcilerMoreThanOneMatchingAccount
 from ledgerfile import LedgerFile
 from ledgerthing import LedgerThing
 
@@ -193,34 +192,23 @@ class ReconcilerParsing(Redirector):
 
     def test_multiple_matches(self):
         # individual checking transactions ok, but multiple across file
-        with self.assertRaises(
-                LdgReconcilerMoreThanOneMatchingAccount
-        ) as e:
+        with self.assertRaises(SystemExit):
             LedgerFile(FileTester.test_rec_multiple_match, 'checking')
-        self.assertEqual(
-            str(['a: checking down', 'a: checking up']),
-            str(e.exception)
-        )
-        self.assertEqual('', self.redirect.getvalue().rstrip())
+        expected = ('Reconcile error. More than one matching account:\n'
+                    '    a: checking down\n    a: checking up')
+        self.assertEqual(expected, self.redirect.getvalue().rstrip())
         # expand our account partial for a unique match to avoid error
         self.reset_redirect()
         ledgerfile = LedgerFile(
             FileTester.test_rec_multiple_match,
             'checking up'
         )
-        self.assertEqual(
-            ['a: checking up'],
-            ledgerfile.rec_account_matches
-        )
+        self.assertEqual(['a: checking up'], ledgerfile.rec_account_matches)
         self.assertEqual('', self.redirect.getvalue().rstrip())
         # multiple matches within a single transaction
         self.reset_redirect()
-        with self.assertRaises(
-                LdgReconcilerMoreThanOneMatchingAccount
-        ) as e:
+        with self.assertRaises(SystemExit):
             LedgerFile(FileTester.test_rec_multiple_match, 'cash')
-        self.assertEqual(
-            str(['a: cash in', 'a: cash out']),
-            str(e.exception)
-        )
-        self.assertEqual('', self.redirect.getvalue().rstrip())
+        expected = ('Reconcile error. More than one matching account:\n'
+                    '    a: cash in\n    a: cash out')
+        self.assertEqual(expected, self.redirect.getvalue().rstrip())

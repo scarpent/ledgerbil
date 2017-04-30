@@ -86,7 +86,7 @@ Help is available at the interactive prompt:
 
     Documented commands (type help <topic>):
     ========================================
-    account  aliases  finish  help  list  mark  quit  statement  unmark
+    account  aliases  finish  help  list  mark  quit  reload  statement  unmark
 
 As mentioned above, this is targeted for my own usage, although may be
 suitable for those with similar needs, perhaps requiring a bit of work.
@@ -182,13 +182,22 @@ command.
 The ledger file is saved after every mark/unmark command.
 
 Ledger allows a lot of flexibility in file formatting, and in general,
-ledgerbil attempts to preserve all formatting, but in this case for
+ledgerbil attempts to preserve all formatting, but in this case, for
 simplicity's sake, ledgerbil maintains and enforces a four space indent
 for transaction entries, with the ! or * going in the third "space" when
 present. (It wouldn't be *that* hard to make it smarter about this, but
 I didn't want to deal with some edge cases in the initial
 implementation.) The reconciler only works with individual account
 entries; never the whole transaction on the top line.
+
+##### reload
+
+Reload the ledger file from storage.
+
+Ledgerbil loads the entire file into memory when it starts, and writes
+after mark/unmark operations. This command lets you make an update
+outside of the reconciler (e.g. in an editor) and refresh without having
+to restart the program.
 
 ##### finish
 

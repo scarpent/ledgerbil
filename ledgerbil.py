@@ -7,8 +7,6 @@ from __future__ import print_function
 import sys
 
 from arghandler import ArgHandler
-from ledgerbilexceptions import (LdgReconcilerMoreThanOneMatchingAccount,
-                                 LdgReconcilerMultipleStatuses)
 from ledgerfile import LedgerFile
 from reconciler import Reconciler
 from schedulefile import ScheduleFile
@@ -29,7 +27,7 @@ class Ledgerbil(object):
         if self.args.next_scheduled_date:
             if not self.args.schedule_file:
                 print('error: -S/--schedule-file is required')
-                return 8
+                return -1
 
             schedule_file = ScheduleFile(self.args.schedule_file)
             print(schedule_file.next_scheduled_date())
@@ -37,18 +35,9 @@ class Ledgerbil(object):
 
         if not self.args.file:
             print('error: -f/--file is required')
-            return 16
+            return -1
 
-        try:
-            ledgerfile = LedgerFile(self.args.file, self.args.reconcile)
-        except LdgReconcilerMoreThanOneMatchingAccount as e:
-            print('Reconcile error. More than one matching account:')
-            for account in e.message:
-                print('    ' + account)
-            return 2
-        except LdgReconcilerMultipleStatuses as e:
-            print(str(e))
-            return 4
+        ledgerfile = LedgerFile(self.args.file, self.args.reconcile)
 
         if self.args.schedule_file:
             schedule_file = ScheduleFile(self.args.schedule_file)
