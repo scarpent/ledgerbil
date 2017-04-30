@@ -1,5 +1,6 @@
 import os
 from datetime import date
+from textwrap import dedent
 from unittest import TestCase
 
 from dateutil.relativedelta import relativedelta
@@ -17,40 +18,41 @@ __email__ = 'scottc@movingtofreedom.org'
 
 
 next_week = date.today() + relativedelta(weeks=1)
-testdata = '''
-2016/10/01 flibble
-    e: smurg
-    a: credit       $-11
-    a: credit       $-22
+testdata = dedent('''\
+    2016/10/01 flibble
+        e: smurg
+        a: credit       $-11
+        a: credit       $-22
 
-2016/10/26 one
-    e: blurg
-  * a: cash         $-10
+    2016/10/26 one
+        e: blurg
+      * a: cash         $-10
 
-2016/10/26 one point five
-    e: blurg
-  * a: cash         $-5
+    2016/10/26 one point five
+        e: blurg
+      * a: cash         $-5
 
-2016/10/27 two
-    e: meep
-    a: cash         $-20
+    2016/10/27 two
+        e: meep
+        a: cash         $-20
 
-2016/10/27 two pt five
-    e: meep 2
-  ! a: cash         $-2.12
+    2016/10/27 two pt five
+        e: meep 2
+      ! a: cash         $-2.12
 
-2016/10/27 two point zwib
-    i: jsdklfjsdlkjflksdjfklsd
-    a: checking     $550
+    2016/10/27 two point zwib
+        i: jsdklfjsdlkjflksdjfklsd
+        a: checking     $550
 
-{next_week} three
-    e: fweep
-  ! a: cash         $-30
+    {next_week} three
+        e: fweep
+      ! a: cash         $-30
 
-{next_week} four
-    e: snurp
-    a: cash         $-40
-'''.format(next_week=util.get_date_string(next_week))
+    {next_week} four
+        e: snurp
+        a: cash         $-40
+    '''.format(next_week=util.get_date_string(next_week))
+)
 
 Reconciler.CACHE_FILE = FileTester.CACHE_FILE_TEST
 FileTester.delete_test_cache_file()
@@ -82,7 +84,7 @@ class SimpleOutputTests(Redirector):
             'unmark', 'u', 'un',
             # 'statement', 'start', # do not test here (need raw_input)
             'finish', 'end',
-            # 'reload', 'r',
+            # 'reload', 'r', # excluded (causes sys exit)
         ]
         with FileTester.temp_input(testdata) as tempfilename:
             interpreter = Reconciler(LedgerFile(tempfilename, 'cash'))
