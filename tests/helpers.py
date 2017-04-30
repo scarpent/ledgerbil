@@ -14,7 +14,6 @@ from StringIO import StringIO
 from unittest import TestCase
 
 
-# mark this for no coverage since not used currently
 class OutputFileTester(TestCase):
 
     TEST_FILES_DIR = 'tests/files/'

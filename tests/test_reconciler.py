@@ -84,19 +84,19 @@ class SimpleOutputTests(Redirector):
             'unmark', 'u', 'un',
             # 'statement', 'start', # do not test here (need raw_input)
             'finish', 'end',
-            # 'reload', 'r', # excluded (causes sys exit)
+            'reload', 'r',
         ]
         with FileTester.temp_input(testdata) as tempfilename:
             interpreter = Reconciler(LedgerFile(tempfilename, 'cash'))
 
-        for c in commands:
-            self.reset_redirect()
-            interpreter.onecmd(c)
-            self.assertFalse(
-                self.redirect.getvalue().startswith(
-                    Reconciler.UNKNOWN_SYNTAX
+            for c in commands:
+                self.reset_redirect()
+                interpreter.onecmd(c)
+                self.assertFalse(
+                    self.redirect.getvalue().startswith(
+                        Reconciler.UNKNOWN_SYNTAX
+                    )
                 )
-            )
 
     def test_simple_help_check(self):
         commands = [
@@ -450,25 +450,25 @@ class StatementAndFinishTests(MockRawInput, OutputFileTester):
         super(StatementAndFinishTests, self).tearDown()
         reconciler.date = date
 
-    teststmt = '''
-2016/10/26 one
-    e: blurg
-    a: cash         $-10
+    teststmt = dedent('''\
+        2016/10/26 one
+            e: blurg
+            a: cash         $-10
 
-2016/10/29 two
-    e: blurgerber
-    a: cash         $-20
-'''
+        2016/10/29 two
+            e: blurgerber
+            a: cash         $-20
+        ''')
 
-    testfinish = '''
-2016/10/26 one
-    e: blurg
-  * a: cash         $-10
+    testfinish = dedent('''
+        2016/10/26 one
+            e: blurg
+          * a: cash         $-10
 
-2016/10/29 two
-    e: blurgerber
-  * a: cash         $-20
-'''
+        2016/10/29 two
+            e: blurgerber
+          * a: cash         $-20
+        ''')
 
     def test_setting_statement_date_and_balance(self):
         self.init_test('test_statement_stuff')
@@ -582,15 +582,15 @@ class ResponseTests(MockRawInput, Redirector):
 
 class CacheTests(MockRawInput, Redirector):
 
-    testcache = '''
-2016/10/26 one
-    e: blurg
-    a: cash         $-10
+    testcache = dedent('''\
+        2016/10/26 one
+            e: blurg
+            a: cash         $-10
 
-2016/10/26 two
-    e: blurg
-    a: credit       $-10
-'''
+        2016/10/26 two
+            e: blurg
+            a: credit       $-10
+        ''')
 
     def test_get_key_and_cache_no_cache(self):
 
@@ -714,3 +714,37 @@ class CacheTests(MockRawInput, Redirector):
         # get_statement_info_from_cache will have been called in init
         self.assertEqual(111, recon.ending_balance)
         self.assertEqual(date(2111, 11, 11), recon.ending_date)
+
+
+class ReloadTests(Redirector):
+
+    testdata = dedent('''\
+        2016/10/26 one
+            e: blurg
+            a: cash         $-10
+
+        2016/10/29 two
+            e: glarg
+          * a: cash         $-20
+        ''')
+
+    testdata_modified = dedent('''\
+        2016/10/26 one
+            e: blurg
+            a: cash         $-10
+
+        2016/10/29 two
+            e: blarg
+          * a: cash         $-55
+        ''')
+
+    def test_reload(self):
+        with FileTester.temp_input(self.testdata) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+            self.assertEqual(-20, recon.total_cleared)
+
+            with open(tempfilename, 'w') as the_file:
+                the_file.write(self.testdata_modified)
+
+            recon.do_reload('')
+            self.assertEqual(-55, recon.total_cleared)
