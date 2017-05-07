@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import division, print_function
-
 import ast
 import operator as op
 import re
@@ -72,7 +70,7 @@ def parse_args(args):
     try:
         return shlex.split(args if args else '')
     except ValueError as e:
-        print('*** ' + e.message)
+        print('*** '.format(e))
         return None
 
 

@@ -58,7 +58,7 @@ class FileTester(object):
     @staticmethod
     @contextmanager
     def temp_input(data):
-        with tempfile.NamedTemporaryFile(delete=False) as temp:
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp:
             temp.write(data)
         yield temp.name
         os.unlink(temp.name)

@@ -1,14 +1,13 @@
 """error codes"""
 
-from __future__ import print_function
-
 __author__ = 'Scott Carpenter'
 __license__ = 'gpl v3 or greater'
 __email__ = 'scottc@movingtofreedom.org'
 
 
 class LdgException(Exception):
-    pass
+    def __init__(self, value):
+        self.value = value
 
 
 class LdgScheduleFileConfigError(LdgException):

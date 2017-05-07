@@ -2,8 +2,6 @@
 
 """main ledgerbil program file"""
 
-from __future__ import print_function
-
 import sys
 
 from arghandler import ArgHandler

@@ -1,5 +1,3 @@
-from __future__ import division, print_function
-
 import cmd
 import json
 import os
@@ -77,7 +75,7 @@ class Reconciler(cmd.Cmd, object):
     def do_aliases(self, arg):
         """Print aliases"""
         for alias in sorted(
-                self.aliases.keys(),
+                list(self.aliases.keys()),
                 key=lambda x: x.lower()
         ):
             print('{alias:5}{command}'.format(
@@ -179,7 +177,7 @@ class Reconciler(cmd.Cmd, object):
 
         if args[0].lower() == 'all':
             args = []
-            for key, thing in self.current_listing.iteritems():
+            for key, thing in self.current_listing.items():
                 if ((mark and not thing.is_pending())
                         or (not mark and thing.is_pending())):
                     args.append(key)
@@ -388,7 +386,7 @@ class Reconciler(cmd.Cmd, object):
     @staticmethod
     def get_response(prompt='', old_value=''):
         default = '' if old_value is None else old_value
-        response = raw_input('{prompt} [{default}]: '.format(
+        response = input('{prompt} [{default}]: '.format(
             prompt=prompt,
             default=default
         )).strip()

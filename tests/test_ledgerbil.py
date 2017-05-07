@@ -149,14 +149,10 @@ class Scheduler(ScheduleThingTester):
         self.assertEqual(ledgerfile_expected, ledgerfile_actual)
 
     def test_next_scheduled_date(self):
-
         with FT.temp_input(ScheduleFileTests.scheduledata) as tempfile:
             ledgerbil.main(['-n', '-S', tempfile])
 
-        self.assertEqual(
-            '2007/07/07',
-            self.redirect.getvalue().rstrip()
-        )
+        assert self.redirect.getvalue().rstrip() == '2007/07/07'
 
 
 class ReconcilerTests(Redirector):

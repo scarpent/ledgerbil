@@ -1,7 +1,5 @@
 """schedule file"""
 
-from __future__ import print_function
-
 from ledgerfile import LedgerFile
 from schedulething import ScheduleThing
 

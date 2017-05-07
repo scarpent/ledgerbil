@@ -1,7 +1,5 @@
 """scheduler runner"""
 
-from __future__ import print_function
-
 from schedulething import ScheduleThing
 
 __author__ = 'Scott Carpenter'

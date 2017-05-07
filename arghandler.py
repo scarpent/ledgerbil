@@ -1,7 +1,5 @@
 """do all the argparse stuff"""
 
-from __future__ import print_function
-
 import argparse
 
 __author__ = 'Scott Carpenter'

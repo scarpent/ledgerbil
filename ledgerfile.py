@@ -1,7 +1,5 @@
 """ledger file base class"""
 
-from __future__ import print_function
-
 import sys
 from datetime import date
 from operator import attrgetter
@@ -33,7 +31,7 @@ class LedgerFile(object):
             self._read_file()
         except LdgReconcilerMoreThanOneMatchingAccount as e:
             print('Reconcile error. More than one matching account:')
-            for account in e.message:
+            for account in e.value:
                 print('    ' + account)
             sys.exit(-1)
         except LdgReconcilerMultipleStatuses as e:

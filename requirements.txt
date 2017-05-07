@@ -7,5 +7,5 @@ pytest-cov
 # utils
 flake8
 ipdb
-ipython==5.3
+ipython
 isort

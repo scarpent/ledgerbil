@@ -210,7 +210,7 @@ class DataTests(Redirector):
         )
         payees = {
             thing.payee for k, thing in
-            recon.current_listing.iteritems()
+            recon.current_listing.items()
         }
         # future items included only if pending ('three')
         self.assertEqual(
@@ -232,7 +232,7 @@ class DataTests(Redirector):
         recon.do_list('')
         payees = {
             thing.payee for k, thing in
-            recon.current_listing.iteritems()
+            recon.current_listing.items()
         }
         # future items included only if pending ('three')
         self.assertEqual(
@@ -249,7 +249,7 @@ class DataTests(Redirector):
         recon.do_list('')
         payees = {
             thing.payee for k, thing in
-            recon.current_listing.iteritems()
+            recon.current_listing.items()
         }
         # future items included only if pending ('three')
         self.assertEqual(
@@ -259,7 +259,7 @@ class DataTests(Redirector):
         recon.do_list('aLL')
         payees = {
             thing.payee for k, thing in
-            recon.current_listing.iteritems()
+            recon.current_listing.items()
         }
         self.assertEqual(
             ({'two', 'two pt five', 'three', 'four'}),
@@ -275,7 +275,7 @@ class DataTests(Redirector):
             recon.do_list('')
             payees = {
                 thing.payee for k, thing in
-                recon.current_listing.iteritems()
+                recon.current_listing.items()
             }
             self.assertEqual(
                 ({'two', 'two pt five', 'three'}),
@@ -288,7 +288,7 @@ class DataTests(Redirector):
         # (also, the mark should have triggered a new listing...)
         payees = {
             thing.payee for k, thing in
-            recon.current_listing.iteritems()
+            recon.current_listing.items()
         }
         self.assertEqual(({'two', 'two pt five'}), payees)
         self.verify_equal_floats(-15, recon.total_cleared)
@@ -378,7 +378,7 @@ class DataTests(Redirector):
             )
             payees = {
                 thing.payee for k, thing in
-                recon.current_listing.iteritems()
+                recon.current_listing.items()
             }
             # future items included only if pending ('three')
             self.assertEqual(
@@ -399,7 +399,7 @@ class DataTests(Redirector):
             )
             payees = {
                 thing.payee for k, thing in
-                recon.current_listing.iteritems()
+                recon.current_listing.items()
             }
             # future items included only if pending ('three')
             self.assertEqual(
@@ -414,12 +414,12 @@ class MockRawInput(TestCase):
     def mock_raw_input(self, prompt):
         assert self.responses
         response = self.responses.pop(0)
-        print(prompt + response)
+        print((prompt + response))
         return response
 
     def setUp(self):
         super(MockRawInput, self).setUp()
-        self.save_raw_input = raw_input
+        # self.save_raw_input = raw_input
         reconciler.raw_input = self.mock_raw_input
 
         Reconciler.CACHE_FILE = FileTester.CACHE_FILE_TEST
@@ -659,9 +659,9 @@ class CacheTests(MockRawInput, Redirector):
         recon.save_statement_info_to_cache()
         key, cache = recon.get_key_and_cache()
         self.assertEqual(
-            {u'a: cash': {
-                u'ending_balance': 100,
-                u'ending_date': u'2020/10/20'
+            {'a: cash': {
+                'ending_balance': 100,
+                'ending_date': '2020/10/20'
             }},
             cache
         )
@@ -685,12 +685,12 @@ class CacheTests(MockRawInput, Redirector):
         recon.save_statement_info_to_cache()
         key, cache = recon.get_key_and_cache()
         self.assertEqual(
-            {u'a: credit': {
-                u'ending_balance': 222,
-                u'ending_date': u'2222/02/22'
-            }, u'a: cash': {
-                u'ending_balance': 111,
-                u'ending_date': u'2111/11/11'
+            {'a: credit': {
+                'ending_balance': 222,
+                'ending_date': '2222/02/22'
+            }, 'a: cash': {
+                'ending_balance': 111,
+                'ending_date': '2111/11/11'
             }},
             cache
         )
@@ -700,9 +700,9 @@ class CacheTests(MockRawInput, Redirector):
         recon.save_statement_info_to_cache()
         key, cache = recon.get_key_and_cache()
         self.assertEqual(
-            {u'a: cash': {
-                u'ending_balance': 111,
-                u'ending_date': u'2111/11/11'
+            {'a: cash': {
+                'ending_balance': 111,
+                'ending_date': '2111/11/11'
             }},
             cache
         )

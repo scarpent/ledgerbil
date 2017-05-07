@@ -10,7 +10,7 @@ OutputFileTester: Redirect standard out to file for easier diffing and
 import filecmp
 import re
 import sys
-from StringIO import StringIO
+from io import StringIO
 from unittest import TestCase
 
 
