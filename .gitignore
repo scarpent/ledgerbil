@@ -1,6 +1,7 @@
 *.iml
 *.out
 *.pyc
+.cache
 .coverage
 .DS_Store
 .idea

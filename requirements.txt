@@ -1,0 +1,11 @@
+python-dateutil
+
+# test
+pytest
+pytest-cov
+
+# utils
+flake8
+ipdb
+ipython==5.3
+isort
