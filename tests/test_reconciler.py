@@ -82,7 +82,7 @@ class SimpleOutputTests(Redirector):
             'list', 'l', 'll',
             'mark', 'm',
             'unmark', 'u', 'un',
-            # 'statement', 'start', # do not test here (need raw_input)
+            # 'statement', 'start', # do not test here (need input)
             'finish', 'end',
             'reload', 'r',
         ]
@@ -408,32 +408,32 @@ class DataTests(Redirector):
             )
 
 
-class MockRawInput(TestCase):
+class MockInput(TestCase):
     responses = []
 
-    def mock_raw_input(self, prompt):
+    def mock_input(self, prompt):
         assert self.responses
         response = self.responses.pop(0)
         print((prompt + response))
         return response
 
     def setUp(self):
-        super(MockRawInput, self).setUp()
-        # self.save_raw_input = raw_input
-        reconciler.raw_input = self.mock_raw_input
+        super(MockInput, self).setUp()
+        self.save_input = input
+        reconciler.input = self.mock_input
 
         Reconciler.CACHE_FILE = FileTester.CACHE_FILE_TEST
         FileTester.delete_test_cache_file()
 
     def tearDown(self):
-        super(MockRawInput, self).tearDown()
-        reconciler.raw_input = self.save_raw_input
+        super(MockInput, self).tearDown()
+        reconciler.input = self.save_input
 
         Reconciler.CACHE_FILE = FileTester.CACHE_FILE_TEST
         FileTester.delete_test_cache_file()
 
 
-class StatementAndFinishTests(MockRawInput, OutputFileTester):
+class StatementAndFinishTests(MockInput, OutputFileTester):
 
     def setUp(self):
         super(StatementAndFinishTests, self).setUp()
@@ -558,7 +558,7 @@ class StatementAndFinishTests(MockRawInput, OutputFileTester):
         self.conclude_test(strip_ansi_color=True)
 
 
-class ResponseTests(MockRawInput, Redirector):
+class ResponseTests(MockInput, Redirector):
 
     def test_get_response_with_none(self):
         """ None should be preserve for no response"""
@@ -580,7 +580,7 @@ class ResponseTests(MockRawInput, Redirector):
         )
 
 
-class CacheTests(MockRawInput, Redirector):
+class CacheTests(MockInput, Redirector):
 
     testcache = dedent('''\
         2016/10/26 one

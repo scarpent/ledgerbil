@@ -3,6 +3,7 @@ python-dateutil
 # test
 pytest
 pytest-cov
+pytest-warnings
 
 # utils
 flake8
