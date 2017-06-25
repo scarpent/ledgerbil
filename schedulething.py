@@ -184,11 +184,10 @@ class ScheduleThing(LedgerThing):
         self.days = []
         days_regex = r'(\d+|eom(?:\d\d?)?)'
         for match in re.finditer(days_regex, day_string):
-            # convert to ints where possible so will sort out correctly
-            try:
-                theday = int(match.groups()[0])
-            except ValueError:
-                theday = match.groups()[0]
+            if match.groups()[0].isdigit:
+                theday = match.groups()[0].zfill(2)  # format for sorting
+            else:
+                theday = match.groups()[0]  # e.g. eom
 
             self.days.append(theday)
 

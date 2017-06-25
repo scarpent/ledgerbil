@@ -290,7 +290,7 @@ class HandleThingConfig(Redirector):
         schedule_thing = ScheduleThing(schedule_lines)
         self.assertEqual(
             self.get_expected_config(
-                ScheduleThing.INTERVAL_MONTH, [2, 15, 'eom30'], 3
+                ScheduleThing.INTERVAL_MONTH, ['02', '15', 'eom30'], 3
             ),
             self.get_actual_config(schedule_thing)
         )
@@ -328,7 +328,7 @@ class HandleThingConfig(Redirector):
         schedule_thing = ScheduleThing(schedule_lines)
         self.assertEqual(
             self.get_expected_config(
-                ScheduleThing.INTERVAL_MONTH, [15, 'eom30'], 1
+                ScheduleThing.INTERVAL_MONTH, ['15', 'eom30'], 1
             ),
             self.get_actual_config(schedule_thing)
         )
@@ -341,7 +341,7 @@ class HandleThingConfig(Redirector):
         schedule_thing = ScheduleThing(schedule_lines)
         self.assertEqual(
             self.get_expected_config(
-                ScheduleThing.INTERVAL_MONTH, [15, 'eom30'], 1
+                ScheduleThing.INTERVAL_MONTH, ['15', 'eom30'], 1
             ),
             self.get_actual_config(schedule_thing)
         )
@@ -354,7 +354,7 @@ class HandleThingConfig(Redirector):
         schedule_thing = ScheduleThing(schedule_lines)
         self.assertEqual(
             self.get_expected_config(
-                ScheduleThing.INTERVAL_MONTH, [27], 2
+                ScheduleThing.INTERVAL_MONTH, ['27'], 2
             ),
             self.get_actual_config(schedule_thing)
         )
@@ -367,7 +367,7 @@ class HandleThingConfig(Redirector):
         schedule_thing = ScheduleThing(schedule_lines)
         self.assertEqual(
             self.get_expected_config(
-                ScheduleThing.INTERVAL_MONTH, [13], 1
+                ScheduleThing.INTERVAL_MONTH, ['13'], 1
             ),
             self.get_actual_config(schedule_thing)
         )
@@ -380,7 +380,7 @@ class HandleThingConfig(Redirector):
         schedule_thing = ScheduleThing(schedule_lines)
         self.assertEqual(
             self.get_expected_config(
-                ScheduleThing.INTERVAL_MONTH, [13], 2
+                ScheduleThing.INTERVAL_MONTH, ['13'], 2
             ),
             self.get_actual_config(schedule_thing)
         )
@@ -393,7 +393,7 @@ class HandleThingConfig(Redirector):
         schedule_thing = ScheduleThing(schedule_lines)
         self.assertEqual(
             self.get_expected_config(
-                ScheduleThing.INTERVAL_MONTH, [6], 9
+                ScheduleThing.INTERVAL_MONTH, ['06'], 9
             ),
             self.get_actual_config(schedule_thing)
         )
@@ -406,7 +406,7 @@ class HandleThingConfig(Redirector):
         schedule_thing = ScheduleThing(schedule_lines)
         self.assertEqual(
             self.get_expected_config(
-                ScheduleThing.INTERVAL_MONTH, [9], 6
+                ScheduleThing.INTERVAL_MONTH, ['09'], 6
             ),
             self.get_actual_config(schedule_thing)
         )
@@ -419,7 +419,7 @@ class HandleThingConfig(Redirector):
         schedule_thing = ScheduleThing(schedule_lines)
         self.assertEqual(
             self.get_expected_config(
-                ScheduleThing.INTERVAL_MONTH, [22], 60
+                ScheduleThing.INTERVAL_MONTH, ['22'], 60
             ),
             self.get_actual_config(schedule_thing)
         )

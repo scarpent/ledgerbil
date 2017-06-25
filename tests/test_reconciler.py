@@ -616,13 +616,7 @@ class CacheTests(MockInput, Redirector):
         key, cache = recon.get_key_and_cache()
         self.assertEqual('a: cash', key)
         self.assertEqual({}, cache)
-        self.assertEqual(
-            'Error getting reconciler cache: '
-            'No JSON object could be decoded.',
-            self.redirect.getvalue().rstrip()
-        )
-        # not going to test file access since handled essentially the
-        # same and don't want to bother with it
+        assert 'Error getting reconciler cache:' in self.redirect.getvalue()
 
     def test_save_cache_error(self):
 

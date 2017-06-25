@@ -13,10 +13,7 @@ deps:
 	pip install --requirement requirements.txt
 
 test:
-	python -m pytest $(PYTEST_ARGS) -rw -x --no-cov-on-fail --cov-report term-missing --cov-report html --cov . | grep -Ev '^[^T].*100%'
-
-pdbtest:
-	python -m pytest $(PYTEST_ARGS) -s -x --no-cov-on-fail
+	python -m pytest $(PT) | grep -Ev '^[^T].*100%' && flake8
 
 unittest:
 	./test_with_coverage.sh
