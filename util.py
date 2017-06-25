@@ -70,7 +70,7 @@ def parse_args(args):
     try:
         return shlex.split(args if args else '')
     except ValueError as e:
-        print('*** '.format(e))
+        print('*** {}'.format(e))
         return None
 
 
