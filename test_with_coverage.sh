@@ -5,6 +5,6 @@ if [[ "$1" = "-b" ]]; then
 fi
 
 coverage run $branch -m unittest discover tests
-coverage report -m --omit=/usr/* | grep -Ev '^[^T].*100%'
-coverage html --omit=/usr/*
+coverage report -m --omit=/usr/* --omit=/Users/scarpent/.virtualenvs/* | grep -Ev '^[^T].*100%'
+coverage html --omit=/usr/* --omit=/Users/scarpent/.virtualenvs/*
 
