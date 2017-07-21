@@ -6,6 +6,7 @@
 .DS_Store
 .idea
 .ledgerbil_cache_test
+.python-version
 /temp
 htmlcov
 pycallgraph.png
