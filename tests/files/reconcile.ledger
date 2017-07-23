@@ -3,7 +3,7 @@
 ; in general if we just add new things and don't modify what's here,
 ; we can have tests that rely on certain accounts being present...
 
-2016/10/02 (1901) goofy doofy
+2016/10/02 (1901) goofy doofy  ; comment blah blah
     e: misc: goofies
   ! a: checking             $-25
 

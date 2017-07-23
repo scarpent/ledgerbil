@@ -75,16 +75,17 @@ class SimpleOutputTests(Redirector):
     def test_not_syntax_error(self):
         """ crudely verify basic commands """
         commands = [
-            'help',
-            'aliases',
-            'quit', 'q', 'EOF',
+            # 'statement', 'start', # do not test here (need input)
             'account',
+            'aliases',
+            'finish', 'end',
+            'help',
             'list', 'l', 'll',
             'mark', 'm',
-            'unmark', 'u', 'un',
-            # 'statement', 'start', # do not test here (need input)
-            'finish', 'end',
+            'quit', 'q', 'EOF',
             'reload', 'r',
+            'show', 's',
+            'unmark', 'u', 'un',
         ]
         with FileTester.temp_input(testdata) as tempfilename:
             interpreter = Reconciler(LedgerFile(tempfilename, 'cash'))
@@ -100,15 +101,16 @@ class SimpleOutputTests(Redirector):
 
     def test_simple_help_check(self):
         commands = [
-            'help help',
-            'help aliases',
-            'help quit', 'help q', 'help EOF',
-            'help list', 'help l', 'help ll',
             'help account',
+            'help aliases',
+            'help help',
+            'help list', 'help l', 'help ll',
             'help mark', 'help m',
-            'help unmark', 'help u',
-            'help start', 'help finish',
+            'help quit', 'help q', 'help EOF',
             'help reload', 'help r',
+            'help show', 'help s',
+            'help start', 'help finish',
+            'help unmark', 'help u',
         ]
         with FileTester.temp_input(testdata) as tempfilename:
             interpreter = Reconciler(LedgerFile(tempfilename, 'cash'))
@@ -183,6 +185,56 @@ class OutputTests(Redirector):
             )
             # confirms it didn't revert to None as on success
             self.assertEqual(-1234.56, recon.ending_balance)
+
+    def test_show_transaction_errors(self):
+
+        with FileTester.temp_input(testdata) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'checking'))
+
+        self.reset_redirect()
+        recon.show_transaction('')
+        self.assertEqual(
+            '*** Transaction number(s) required',
+            self.redirect.getvalue().rstrip()
+        )
+        self.reset_redirect()
+        recon.show_transaction('blah')
+        self.assertEqual(
+            'Transaction not found: blah',
+            self.redirect.getvalue().rstrip()
+        )
+
+    def test_show_one_transaction(self):
+        expected = dedent('''\
+
+            2016/10/27 two
+                e: meep
+                a: cash         $-20''')
+
+        with FileTester.temp_input(testdata) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+        self.reset_redirect()
+        recon.show_transaction('1')
+        assert self.redirect.getvalue().rstrip() == expected
+
+    def test_show_two_transactions(self):
+        expected = dedent('''\
+
+            2016/10/27 two
+                e: meep
+                a: cash         $-20
+
+            2016/10/27 two pt five
+                e: meep 2
+              ! a: cash         $-2.12''')
+
+        with FileTester.temp_input(testdata) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+        self.reset_redirect()
+        recon.show_transaction('1 2')
+        assert self.redirect.getvalue().rstrip() == expected
 
 
 class DataTests(Redirector):

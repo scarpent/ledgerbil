@@ -31,6 +31,7 @@ class Reconciler(cmd.Cmd, object):
             'un': self.do_unmark,
             'q': self.do_quit,
             'r': self.do_reload,
+            's': self.do_show,
             'start': self.do_statement,
         }
 
@@ -146,9 +147,36 @@ class Reconciler(cmd.Cmd, object):
         """Reload the ledger file from storage"""
         self.reload()
 
+    def do_show(self, args):
+        """Show transaction details
+
+        Syntax: show <#> or <# ... #>
+        """
+        self.show_transaction(args)
+
     def reload(self):
         self.ledgerfile.reset()
         self.populate_open_transactions()
+
+    def show_transaction(self, args):
+        args = util.parse_args(args)
+        if not args:
+            print('*** Transaction number(s) required')
+            return
+
+        messages = ''
+        for num in args:
+            if num not in self.current_listing:
+                messages += 'Transaction not found: {}\n'.format(num)
+                continue
+
+            thing = self.current_listing[num]
+            print()
+            for line in thing.get_lines():
+                print(line)
+
+        if messages:
+            print(messages, end='')
 
     def populate_open_transactions(self):
         self.open_transactions = []

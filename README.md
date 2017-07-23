@@ -86,7 +86,8 @@ Help is available at the interactive prompt:
 
     Documented commands (type help <topic>):
     ========================================
-    account  aliases  finish  help  list  mark  quit  reload  statement  unmark
+    account  finish  list  quit    show       unmark
+    aliases  help    mark  reload  statement
 
 As mentioned above, this is targeted for my own usage, although may be
 suitable for those with similar needs, perhaps requiring a bit of work.
@@ -169,7 +170,7 @@ Set transactions as pending (!) or remove the pending mark. You can
 enter multiple lines, "all", or give a single number by itself with no
 command.
 
-    mark 1 2  (or)  1  (or)
+    > mark 1 2  (or)  1  (or)
 
     > mark all
 
@@ -189,6 +190,16 @@ present. (It wouldn't be *that* hard to make it smarter about this, but
 I didn't want to deal with some edge cases in the initial
 implementation.) The reconciler only works with individual account
 entries; never the whole transaction on the top line.
+
+##### show
+
+Show transaction details
+
+    > show 2
+    
+    2016/10/26 lorem
+        e: consectetur adipiscing elit
+        a: cash         $-10
 
 ##### reload
 
