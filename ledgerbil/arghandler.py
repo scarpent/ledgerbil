@@ -1,10 +1,4 @@
-"""do all the argparse stuff"""
-
 import argparse
-
-__author__ = 'Scott Carpenter'
-__license__ = 'gpl v3 or greater'
-__email__ = 'scottc@movingtofreedom.org'
 
 
 class ArgHandler(object):

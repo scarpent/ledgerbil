@@ -1,12 +1,5 @@
-"""unit test for ledgerbil.py"""
-
-from arghandler import ArgHandler
-from helpers import Redirector
-
-__author__ = 'Scott Carpenter'
-__license__ = 'gpl v3 or greater'
-__email__ = 'scottc@movingtofreedom.org'
-
+from ..arghandler import ArgHandler
+from .helpers import Redirector
 
 filename = 'dummy.ldg'
 

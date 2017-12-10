@@ -3,15 +3,11 @@
 from datetime import date
 from unittest import TestCase
 
-from helpers import Redirector
-from ledgerbilexceptions import (LdgReconcilerMoreThanOneMatchingAccount,
-                                 LdgReconcilerMultipleStatuses)
-from ledgerthing import (REC_STATUS_ERROR_MESSAGE, UNSPECIFIED_PAYEE,
-                         LedgerThing)
-
-__author__ = 'Scott Carpenter'
-__license__ = 'gpl v3 or greater'
-__email__ = 'scottc@movingtofreedom.org'
+from ..ledgerbilexceptions import (LdgReconcilerMoreThanOneMatchingAccount,
+                                   LdgReconcilerMultipleStatuses)
+from ..ledgerthing import (REC_STATUS_ERROR_MESSAGE, UNSPECIFIED_PAYEE,
+                           LedgerThing)
+from .helpers import Redirector
 
 
 class Constructor(TestCase):

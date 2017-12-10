@@ -1,12 +1,8 @@
 from datetime import date
 from unittest import TestCase
 
-import util
-from helpers import Redirector
-
-__author__ = 'Scott Carpenter'
-__license__ = 'gpl v3 or greater'
-__email__ = 'scottc@movingtofreedom.org'
+from .. import util
+from .helpers import Redirector
 
 
 class UtilTests(TestCase):

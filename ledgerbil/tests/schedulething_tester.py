@@ -1,11 +1,7 @@
 """initializes ScheduleThing class for testing"""
 
-from helpers import Redirector
-from schedulething import ScheduleThing
-
-__author__ = 'Scott Carpenter'
-__license__ = 'gpl v3 or greater'
-__email__ = 'scottc@movingtofreedom.org'
+from ..schedulething import ScheduleThing
+from .helpers import Redirector
 
 
 class ScheduleThingTester(Redirector):

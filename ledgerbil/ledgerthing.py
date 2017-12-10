@@ -2,14 +2,9 @@
 
 import re
 
-import util
-from ledgerbilexceptions import (LdgReconcilerMoreThanOneMatchingAccount,
-                                 LdgReconcilerMultipleStatuses)
-
-__author__ = 'Scott Carpenter'
-__license__ = 'gpl v3 or greater'
-__email__ = 'scottc@movingtofreedom.org'
-
+from . import util
+from .ledgerbilexceptions import (LdgReconcilerMoreThanOneMatchingAccount,
+                                  LdgReconcilerMultipleStatuses)
 
 UNSPECIFIED_PAYEE = '<Unspecified payee>'
 

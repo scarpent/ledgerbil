@@ -1,6 +1,6 @@
 PYTEST_ARGS ?=
 
-.PHONY: virtualenv deps unittest testpdb unittest
+.PHONY: virtualenv mkvirtualenv deps test
 
 virtualenv:
 	pip install virtualenv --upgrade
@@ -15,5 +15,3 @@ deps:
 test:
 	python -m pytest $(PT) | grep -Ev '^[^T].*100%' && flake8
 
-unittest:
-	./test_with_coverage.sh

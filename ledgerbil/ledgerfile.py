@@ -1,16 +1,10 @@
-"""ledger file base class"""
-
 import sys
 from datetime import date
 from operator import attrgetter
 
-from ledgerbilexceptions import (LdgReconcilerMoreThanOneMatchingAccount,
-                                 LdgReconcilerMultipleStatuses)
-from ledgerthing import LedgerThing
-
-__author__ = 'Scott Carpenter'
-__license__ = 'gpl v3 or greater'
-__email__ = 'scottc@movingtofreedom.org'
+from .ledgerbilexceptions import (LdgReconcilerMoreThanOneMatchingAccount,
+                                  LdgReconcilerMultipleStatuses)
+from .ledgerthing import LedgerThing
 
 
 class LedgerFile(object):

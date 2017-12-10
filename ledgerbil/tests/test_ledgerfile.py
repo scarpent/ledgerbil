@@ -3,14 +3,10 @@
 from os import chmod, remove
 from unittest import TestCase
 
-from filetester import FileTester
-from helpers import Redirector
-from ledgerfile import LedgerFile
-from ledgerthing import LedgerThing
-
-__author__ = 'Scott Carpenter'
-__license__ = 'gpl v3 or greater'
-__email__ = 'scottc@movingtofreedom.org'
+from ..ledgerfile import LedgerFile
+from ..ledgerthing import LedgerThing
+from .filetester import FileTester
+from .helpers import Redirector
 
 
 class FileStuff(Redirector):

@@ -1,11 +1,11 @@
-python-dateutil
+python-dateutil==2.6.0
 
 # test
-pytest
-pytest-cov
+pytest==3.0.7
+pytest-cov==2.4.0
 
 # utils
-flake8
-ipdb
-ipython
-isort
+flake8==3.5.0
+ipdb==0.10.3
+ipython==6.0.0
+isort==4.2.5

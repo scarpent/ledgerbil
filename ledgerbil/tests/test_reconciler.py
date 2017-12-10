@@ -5,17 +5,11 @@ from unittest import TestCase
 
 from dateutil.relativedelta import relativedelta
 
-import reconciler
-import util
-from filetester import FileTester
-from helpers import OutputFileTester, Redirector
-from ledgerfile import LedgerFile
-from reconciler import Reconciler
-
-__author__ = 'Scott Carpenter'
-__license__ = 'gpl v3 or greater'
-__email__ = 'scottc@movingtofreedom.org'
-
+from .. import reconciler, util
+from ..ledgerfile import LedgerFile
+from ..reconciler import Reconciler
+from .filetester import FileTester
+from .helpers import OutputFileTester, Redirector
 
 next_week = date.today() + relativedelta(weeks=1)
 testdata = dedent('''\

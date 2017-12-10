@@ -1,22 +1,15 @@
-"""unit tests for ledgerbil.py"""
-
 import os
 from datetime import date
 from unittest import TestCase
 
 from dateutil.relativedelta import relativedelta
 
-import ledgerbil
-import util
-from filetester import FileTester as FT
-from helpers import Redirector
-from ledgerthing import REC_STATUS_ERROR_MESSAGE
-from schedulething_tester import ScheduleThingTester
-from test_schedulefile import ScheduleFileTests
-
-__author__ = 'Scott Carpenter'
-__license__ = 'gpl v3 or greater'
-__email__ = 'scottc@movingtofreedom.org'
+from .. import ledgerbil, util
+from ..ledgerthing import REC_STATUS_ERROR_MESSAGE
+from .filetester import FileTester as FT
+from .helpers import Redirector
+from .schedulething_tester import ScheduleThingTester
+from .test_schedulefile import ScheduleFileTests
 
 
 class MainBasicInput(TestCase):

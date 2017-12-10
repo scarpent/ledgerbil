@@ -1,21 +1,15 @@
-"""unit test for schedule_thing.py"""
-
 from datetime import date, datetime
 from unittest import TestCase
 
 from dateutil.relativedelta import relativedelta
 
-import util
-from helpers import Redirector
-from ledgerbilexceptions import (LdgScheduleFileConfigError,
-                                 LdgScheduleThingLabelError,
-                                 LdgScheduleThingParametersError,
-                                 LdgScheduleUnrecognizedIntervalUom)
-from schedulething import ScheduleThing
-
-__author__ = 'Scott Carpenter'
-__license__ = 'gpl v3 or greater'
-__email__ = 'scottc@movingtofreedom.org'
+from .. import util
+from ..ledgerbilexceptions import (LdgScheduleFileConfigError,
+                                   LdgScheduleThingLabelError,
+                                   LdgScheduleThingParametersError,
+                                   LdgScheduleUnrecognizedIntervalUom)
+from ..schedulething import ScheduleThing
+from .helpers import Redirector
 
 
 class GetSafeDate(Redirector):

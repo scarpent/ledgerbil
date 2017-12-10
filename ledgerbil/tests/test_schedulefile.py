@@ -1,12 +1,8 @@
 from textwrap import dedent
 
-from filetester import FileTester
-from schedulefile import ScheduleFile
-from schedulething_tester import ScheduleThingTester
-
-__author__ = 'Scott Carpenter'
-__license__ = 'gpl v3 or greater'
-__email__ = 'scottc@movingtofreedom.org'
+from ..schedulefile import ScheduleFile
+from .filetester import FileTester
+from .schedulething_tester import ScheduleThingTester
 
 
 class ScheduleFileTests(ScheduleThingTester):

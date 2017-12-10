@@ -4,11 +4,6 @@ import re
 import shlex
 from datetime import datetime
 
-__author__ = 'Scott Carpenter'
-__license__ = 'gpl v3 or greater'
-__email__ = 'scottc@movingtofreedom.org'
-
-
 DATE_FORMAT = '%Y/%m/%d'
 
 # supported operators

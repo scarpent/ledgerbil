@@ -1,4 +1,4 @@
-"""objects in ledger file: transactions, etc"""
+"""objects in schedule file: recurring transactions"""
 
 import re
 from calendar import monthrange
@@ -7,15 +7,11 @@ from datetime import date
 
 from dateutil.relativedelta import relativedelta
 
-from ledgerbilexceptions import (LdgScheduleFileConfigError,
-                                 LdgScheduleThingLabelError,
-                                 LdgScheduleThingParametersError,
-                                 LdgScheduleUnrecognizedIntervalUom)
-from ledgerthing import LedgerThing
-
-__author__ = 'Scott Carpenter'
-__license__ = 'gpl v3 or greater'
-__email__ = 'scottc@movingtofreedom.org'
+from .ledgerbilexceptions import (LdgScheduleFileConfigError,
+                                  LdgScheduleThingLabelError,
+                                  LdgScheduleThingParametersError,
+                                  LdgScheduleUnrecognizedIntervalUom)
+from .ledgerthing import LedgerThing
 
 
 class ScheduleThing(LedgerThing):

@@ -8,6 +8,7 @@ OutputFileTester: Redirect standard out to file for easier diffing and
 """
 
 import filecmp
+import os
 import re
 import sys
 from io import StringIO
@@ -16,9 +17,10 @@ from unittest import TestCase
 
 class OutputFileTester(TestCase):
 
-    TEST_FILES_DIR = 'tests/files/'
+    path = os.path.dirname(__file__)
+    TEST_FILES_DIR = os.path.join(path, 'files')
     OUT_SUFFIX = '.out'
-    EXPECTED_SUFFIX = OUT_SUFFIX + '_expected'
+    EXPECTED_SUFFIX = '{}_expected'.format(OUT_SUFFIX)
 
     def setUp(self):
         self.savestdout = sys.stdout
@@ -27,9 +29,9 @@ class OutputFileTester(TestCase):
         sys.stdout = self.savestdout
 
     def init_test(self, testfile):
-        testfile = self.TEST_FILES_DIR + testfile
-        self.expected = testfile + self.EXPECTED_SUFFIX
-        self.actual = testfile + self.OUT_SUFFIX
+        testfile = os.path.join(self.TEST_FILES_DIR, testfile)
+        self.expected = '{}{}'.format(testfile, self.EXPECTED_SUFFIX)
+        self.actual = '{}{}'.format(testfile, self.OUT_SUFFIX)
         sys.stdout = open(self.actual, 'w')
 
     def conclude_test(self, strip_ansi_color=False):

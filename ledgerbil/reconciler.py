@@ -3,11 +3,7 @@ import json
 import os
 from datetime import date
 
-import util
-
-__author__ = 'Scott Carpenter'
-__license__ = 'gpl v3 or greater'
-__email__ = 'scottc@movingtofreedom.org'
+from . import util
 
 
 class Reconciler(cmd.Cmd, object):
@@ -176,7 +172,7 @@ class Reconciler(cmd.Cmd, object):
                 print(line)
 
         if messages:
-            print(messages, end='')
+            print(messages, end='')  # noqa flake8 is high, perhaps
 
     def populate_open_transactions(self):
         self.open_transactions = []

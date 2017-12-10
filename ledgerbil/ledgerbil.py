@@ -1,18 +1,10 @@
-#!/usr/bin/env python3
-
-"""main ledgerbil program file"""
-
 import sys
 
-from arghandler import ArgHandler
-from ledgerfile import LedgerFile
-from reconciler import Reconciler
-from schedulefile import ScheduleFile
-from scheduler import Scheduler
-
-__author__ = 'Scott Carpenter'
-__license__ = 'gpl v3 or greater'
-__email__ = 'scottc@movingtofreedom.org'
+from .arghandler import ArgHandler
+from .ledgerfile import LedgerFile
+from .reconciler import Reconciler
+from .schedulefile import ScheduleFile
+from .scheduler import Scheduler
 
 
 class Ledgerbil(object):
@@ -69,7 +61,3 @@ def main(argv=None):
     ledgerbil = Ledgerbil(args)
 
     return ledgerbil.process_file()
-
-
-if __name__ == "__main__":
-    sys.exit(main())        # pragma: no cover
