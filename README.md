@@ -105,7 +105,7 @@ treated as one amount and line item while reconciling. If they have
 different statuses initially, there'll be an error. (When in sync,
 they'll be updated to pending/cleared status together.)
 
-The reconciler will total up all cleared (*) transactions to get what
+The reconciler will total up all cleared (\*) transactions to get what
 should be the "last statement balance," but only shows pending and
 uncleared transactions.
 
@@ -213,7 +213,7 @@ to restart the program.
 ##### finish
 
 If "to zero" is 0, this command will update all pending (!) entries for
-the account to cleared (*) and save the file.
+the account to cleared (\*) and save the file.
 
     > finish
 
