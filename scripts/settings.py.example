@@ -1,0 +1,27 @@
+import os
+
+LEDGERDIR = os.path.join(os.path.expanduser('~'), 'some', 'place')
+
+LEDGER_FILES = [
+    'accounts.ldg',
+    'payees.ldg',
+    'investments.ledger',
+    'journal.ledger',
+]
+
+PRICES_FILE = prices.db.ldg
+
+LEDGER_COMMAND = ('ledger --strict --check-payees --pedantic '
+                  '--explicit --columns 120')
+
+INVESTMENT_COMMAND_OPTIONS = (
+    '--market --price-db {prices} '
+    'bal 401k or mutual or ira -e tomorrow'.format(
+        prices=os.path.join(LEDGERDIR, PRICES_FILE)
+    )
+)
+
+SYMBOLS = [
+    'aapl',    # apple
+    'googl',   # alphabet
+]
