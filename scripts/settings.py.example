@@ -1,5 +1,6 @@
 import os
 
+# This is where your ledger files live
 LEDGERDIR = os.path.join(os.path.expanduser('~'), 'some', 'place')
 
 LEDGER_FILES = [

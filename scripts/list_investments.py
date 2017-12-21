@@ -17,6 +17,7 @@ SHARES = ' -X'
 
 def check_for_negative_dollars(amount, name):
     if amount[:3] == '$ -':
+        # todo: or looking at a slice of dates...
         print(
             'WARNING: Negative dollar amount {amount} for {name}. '
             'This is likely caused by a data entry mistake.'.format(
@@ -34,10 +35,16 @@ def get_dollars():
     for line in lines:
         if line[0] == '-':
             break
-        match = re.match(r'^\s*(\$ -?[\d,.]+)(.*)$', line)
-        amount, name = match.groups()
-        check_for_negative_dollars(amount, name)
-        listing.append((amount, name))
+        # todo: test for 0
+        #       (e.g. specifying begin and end date and things balance to 0)
+        match = re.match(r'^\s*(?:(\$ -?[\d,.]+|0))(.*)$', line)
+        if match:
+            amount, name = match.groups()
+            check_for_negative_dollars(amount, name)
+            listing.append((amount, name))
+        else:
+            err = "Didn't match for $ amount and name on: {}".format(line)
+            raise Exception(err)
 
     return listing
 
