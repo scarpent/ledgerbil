@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import os
+import shlex
 import subprocess
 import sys
 
@@ -22,7 +23,7 @@ def get_ledger_command(options=''):
 
 def get_ledger_output(options=''):
     cmd = get_ledger_command(options)
-    process = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
+    process = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE)
     output, error = process.communicate()
     if error:
         print(error)
