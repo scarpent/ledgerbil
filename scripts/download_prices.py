@@ -11,7 +11,7 @@ from datetime import datetime
 import requests
 from dateutil.relativedelta import relativedelta
 
-from settings import SYMBOLS
+from settings import Settings
 
 quote_url = 'https://finance.google.com/finance?q={}&output=json'
 
@@ -24,10 +24,12 @@ date_parts_regex = re.compile(date_regex_pattern)
 
 PRICE_FILE_FORMAT = 'P {date} {inv:10} ${price}\n'
 
+s = Settings()
+
 
 def download(price_file=None):
 
-    for symbol in SYMBOLS:
+    for symbol in s.SYMBOLS:
         response = requests.get(quote_url.format(symbol))
         if response.status_code == 200:
             try:

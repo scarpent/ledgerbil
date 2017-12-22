@@ -7,19 +7,21 @@ import os
 import subprocess
 import sys
 
-from settings import LEDGER_COMMAND, LEDGER_FILES, LEDGERDIR
+from settings import Settings
+
+s = Settings()
 
 
-def get_ledger_command(command_options=''):
-    cmd = LEDGER_COMMAND
-    for f in LEDGER_FILES:
-        cmd += ' -f {}'.format(os.path.join(LEDGERDIR, f))
-    cmd += ' {} '.format(command_options)
+def get_ledger_command(options=''):
+    cmd = s.LEDGER_COMMAND
+    for f in s.LEDGER_FILES:
+        cmd += ' -f {}'.format(os.path.join(s.LEDGER_DIR, f))
+    cmd += ' {} '.format(options)
     return cmd
 
 
-def get_ledger_output(command_options=''):
-    cmd = get_ledger_command(command_options)
+def get_ledger_output(options=''):
+    cmd = get_ledger_command(options)
     process = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
     output, error = process.communicate()
     if error:

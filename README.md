@@ -74,7 +74,26 @@ before any dated transactions, they will be given a date in 1899 to
 
 ### --schedule-file
 
-to do: documenting of this thing
+The schedule file handles recurring transactions and has two levels of configuration.
+
+And the top of the file, for example::
+
+    ;; scheduler ; enter 40 days
+
+This determines how many days ahead transactions should be entered into the specified ledger file. Perhaps you'll run:
+
+    python main.py --file journal.ledger --schedule-file schedule.ldg
+
+This will read the ``schedule.ldg`` file and create new entries in ``journal.ledger`` up to 40 days into THE FUTURE. ``schedule.ldg`` will also be updated to reflect next dates.
+
+
+
+
+
+
+
+
+
 
 ### --reconcile ACCT
 

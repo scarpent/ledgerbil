@@ -1,28 +1,28 @@
 import os
 
-# This is where your ledger files live
-LEDGERDIR = os.path.join(os.path.expanduser('~'), 'some', 'place')
 
-LEDGER_FILES = [
-    'accounts.ldg',
-    'payees.ldg',
-    'investments.ledger',
-    'journal.ledger',
-]
+class Settings(object):
 
-PRICES_FILE = prices.db.ldg
+    # This is where your ledger files live
+    LEDGER_DIR = os.path.join(os.path.expanduser('~'), 'some', 'place')
 
-LEDGER_COMMAND = ('ledger --strict --check-payees --pedantic '
-                  '--explicit --columns 120')
+    LEDGER_FILES = [
+        'accounts.ldg',
+        'payees.ldg',
+        'investments.ledger',
+        'journal.ledger',
+    ]
 
-INVESTMENT_COMMAND_OPTIONS = (
-    '--market --price-db {prices} '
-    'bal 401k or mutual or ira -e tomorrow'.format(
-        prices=os.path.join(LEDGERDIR, PRICES_FILE)
-    )
-)
+    PRICES_FILE = prices.db.ldg
 
-SYMBOLS = [
-    'aapl',    # apple
-    'googl',   # alphabet
-]
+    LEDGER_OPTIONS = '--strict --check-payees --pedantic --explicit --columns 120'
+    LEDGER_COMMAND = 'ledger {}'.format(LEDGER_OPTIONS)
+
+    INVESTMENT_DEFAULT_ACCOUNTS = '401k or mutual or ira'
+    INVESTMENT_DEFAULT_DATE = 'tomorrow'
+
+    # Price downloader
+    SYMBOLS = [
+        'aapl',    # apple
+        'googl',   # alphabet
+    ]

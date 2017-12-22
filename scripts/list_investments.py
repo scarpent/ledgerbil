@@ -5,33 +5,60 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import argparse
+import os
 import re
 import sys
 
 from ledger_util import get_ledger_output
-from settings import INVESTMENT_COMMAND_OPTIONS
+from settings import Settings
 
 DOLLARS = ' -V'
 SHARES = ' -X'
+s = Settings()
+
+
+def get_investment_command_options(accounts=s.INVESTMENT_DEFAULT_ACCOUNTS,
+                                   begin_date='',
+                                   end_date=s.INVESTMENT_DEFAULT_END_DATE):
+    if begin_date:
+        begin_date = '--begin {}'.format(begin_date)
+    end_date = '--end {}'.format(end_date)
+
+    return '--market --price-db {prices} bal {accounts} {begin} {end}'.format(
+        prices=os.path.join(s.LEDGER_DIR, s.PRICES_FILE),
+        accounts=accounts,
+        begin=begin_date,
+        end=end_date
+    )
 
 
 def check_for_negative_dollars(amount, name):
     if amount[:3] == '$ -':
-        # todo: or looking at a slice of dates...
         print(
             'WARNING: Negative dollar amount {amount} for {name}. '
-            'This is likely caused by a data entry mistake.'.format(
+            'This may be a data entry mistake, or because we are '
+            'looking at a date range.'.format(
                 amount=amount,
                 name=name.strip()
             )
         )
 
 
-def get_dollars():
+def get_lines(report_type, args):
+    return get_ledger_output('{report} {options}'.format(
+        report=report_type,
+        options=get_investment_command_options(
+            args.accounts,
+            args.begin,
+            args.end
+        )
+    )).split('\n')
+
+
+def get_dollars(args):
     listing = []
-    lines = get_ledger_output(
-        '{} {}'.format(DOLLARS, INVESTMENT_COMMAND_OPTIONS)
-    ).split('\n')
+    lines = get_lines(DOLLARS, args)
     for line in lines:
         if line[0] == '-':
             break
@@ -49,12 +76,10 @@ def get_dollars():
     return listing
 
 
-def get_shares():
+def get_shares(args):
     listing = []
     index = []
-    lines = get_ledger_output(
-        '{} {}'.format(SHARES, INVESTMENT_COMMAND_OPTIONS)
-    ).split('\n')
+    lines = get_lines(SHARES, args)
     # Filter out all the extra bogus lines
     lines = [x for x in lines if re.search(r'\S  ', x)]
     for line in reversed(lines):
@@ -78,10 +103,10 @@ def get_shares():
     return listing
 
 
-def run():
+def run(args):
 
-    share_listing = get_shares()
-    dollar_listing = get_dollars()
+    share_listing = get_shares(args)
+    dollar_listing = get_dollars(args)
 
     for share, dollar in zip(share_listing, dollar_listing):
 
@@ -97,12 +122,52 @@ def run():
         ))
 
 
+class ArgHandler(object):
+
+    @staticmethod
+    def get_args(args):
+        parser = argparse.ArgumentParser(
+            prog='list_investments.py',
+            formatter_class=(
+                lambda prog: argparse.HelpFormatter(
+                    prog,
+                    max_help_position=36
+                )
+            )
+        )
+
+        # todo: specify default
+        parser.add_argument(
+            '-a', '--accounts',
+            type=str,
+            default=s.INVESTMENT_DEFAULT_ACCOUNTS,
+            help='balances for accounts'
+        )
+        parser.add_argument(
+            '-b', '--begin',
+            type=str,
+            default='',
+            help='begin date'
+        )
+        # todo: specify default (tomorrow)
+        parser.add_argument(
+            '-e', '--end',
+            type=str,
+            default=s.INVESTMENT_DEFAULT_END_DATE,
+            help='end date'
+        )
+
+        return parser.parse_args(args)
+
+
 def main(argv=None):  # pragma: no cover
 
     if argv is None:
         argv = sys.argv[1:]
 
-    run()
+    args = ArgHandler.get_args(argv)
+
+    run(args)
 
 
 if __name__ == '__main__':  # pragma: no cover
