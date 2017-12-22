@@ -60,7 +60,7 @@ def get_dollars(args):
     listing = []
     lines = get_lines(DOLLARS, args)
     for line in lines:
-        if line[0] == '-':
+        if line == '' or line[0] == '-':
             break
         # todo: test for 0
         #       (e.g. specifying begin and end date and things balance to 0)
