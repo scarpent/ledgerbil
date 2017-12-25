@@ -85,20 +85,6 @@ class UtilTests(TestCase):
             util.get_colored_amount(9.99, column_width=10)
         )
 
-    def test_get_cyan_text(self):
-        self.assertEqual(
-            '\x1b[0;36mMEEP\x1b[0m',
-            util.get_cyan_text('MEEP')
-        )
-        self.assertEqual(
-            '\x1b[0;36mMEEP                \x1b[0m',
-            util.get_cyan_text('MEEP', column_width=20)
-        )
-        self.assertEqual(
-            '\x1b[0;36mMEEP                \x1b[0m',
-            util.get_cyan_text('MEEP', column_width=20)
-        )
-
 
 class OutputTests(Redirector):
 

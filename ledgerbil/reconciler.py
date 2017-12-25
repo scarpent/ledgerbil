@@ -4,6 +4,7 @@ import os
 from datetime import date
 
 from . import util
+from .colorable import Colorable
 
 
 class Reconciler(cmd.Cmd, object):
@@ -262,10 +263,11 @@ class Reconciler(cmd.Cmd, object):
             print(
                 '{number} {date} {amount} {status:1} {payee} '
                 '{code:>7}'.format(
-                    number=util.get_cyan_text(count_str),
+                    number=Colorable('cyan', count_str),
                     date=thing.get_date_string(),
                     code=thing.transaction_code,
-                    payee=util.get_cyan_text(
+                    payee=util.Colorable(
+                        'cyan',
                         thing.payee,
                         column_width=40
                     ),
@@ -277,21 +279,20 @@ class Reconciler(cmd.Cmd, object):
                 )
             )
 
-        end_date = util.get_cyan_text(
-            util.get_date_string(self.ending_date)
-        )
-
         if self.ending_balance is None:
-            end_balance = util.get_cyan_text('(not set)')
+            end_balance = Colorable('cyan', '(not set)')
         else:
             end_balance = util.get_colored_amount(self.ending_balance)
 
         print(
             '\nending date: {end_date} ending balance: {end_balance} '
             'cleared: {cleared}'.format(
-                end_date=end_date,
+                cleared=util.get_colored_amount(self.total_cleared),
                 end_balance=end_balance,
-                cleared=util.get_colored_amount(self.total_cleared)
+                end_date=Colorable(
+                    'cyan',
+                    util.get_date_string(self.ending_date)
+                )
             )
         )
 

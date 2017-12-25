@@ -4,6 +4,8 @@ import re
 import shlex
 from datetime import datetime
 
+from .colorable import Colorable
+
 DATE_FORMAT = '%Y/%m/%d'
 
 # supported operators
@@ -80,23 +82,11 @@ def get_colored_amount(amount, column_width=1):
     if amount_formatted == '$0.00':
         amount = 0
 
-    if amount < 0:
-        color = '\033[0;31m'  # red
-    else:
-        color = '\033[0;32m'  # green
+    color = 'red' if amount < 0 else 'green'
 
-    return '{start}{amount:>{width}}{end}'.format(
-        width=column_width,
-        start=color,
-        amount=amount_formatted,
-        end='\033[0m'
-    )
-
-
-def get_cyan_text(text, column_width=1):
-    return '{start}{text:{width}}{end}'.format(
-        width=column_width,
-        start='\033[0;36m',
-        text=text,
-        end='\033[0m'
-    )
+    return str(Colorable(
+        color,
+        text=amount_formatted,
+        column_width=column_width,
+        right_adjust=True
+    ))
