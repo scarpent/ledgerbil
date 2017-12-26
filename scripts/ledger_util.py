@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import os
 import shlex
 import subprocess
@@ -28,4 +23,4 @@ def get_ledger_output(options=''):
     if error:
         print(error)
         sys.exit(1)
-    return str(output)
+    return output.decode('unicode_escape')
