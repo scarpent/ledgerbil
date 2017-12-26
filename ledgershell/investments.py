@@ -1,11 +1,11 @@
-#!/usr/bin/env python3
 import argparse
 import os
 import re
-import sys
 
-from ledger_util import get_ledger_output
-from settings import Settings
+from ledgerbil.colorable import Colorable
+
+from .ledger_util import get_ledger_output
+from .settings import Settings
 
 DOLLARS = ' -V'
 SHARES = ' -X'
@@ -112,7 +112,7 @@ def run(args):
         print('{shares:>18} {dollars:>16} {investment}'.format(
             shares=share[0],
             dollars=dollar[0],
-            investment=dollar[1]
+            investment=Colorable('blue', dollar[1])
         ))
 
 
@@ -154,15 +154,6 @@ class ArgHandler(object):
         return parser.parse_args(args)
 
 
-def main(argv=None):  # pragma: no cover
-
-    if argv is None:
-        argv = sys.argv[1:]
-
+def main(argv):
     args = ArgHandler.get_args(argv)
-
     run(args)
-
-
-if __name__ == '__main__':  # pragma: no cover
-    sys.exit(main())

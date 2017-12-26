@@ -1,13 +1,11 @@
-#!/usr/bin/env python3
 import argparse
 import re
-import sys
 from datetime import datetime
 
 import requests
 from dateutil.relativedelta import relativedelta
 
-from settings import Settings
+from .settings import Settings
 
 # This appears to work for mutual funds, and not indivudal stocks.
 
@@ -111,15 +109,6 @@ class ArgHandler(object):
         return parser.parse_args(args)
 
 
-def main(argv=None):  # pragma: no cover
-
-    if argv is None:
-        argv = sys.argv[1:]
-
+def main(argv):
     args = ArgHandler.get_args(argv)
-
     download(args.file)
-
-
-if __name__ == '__main__':  # pragma: no cover
-    sys.exit(main())
