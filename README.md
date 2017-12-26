@@ -86,14 +86,7 @@ This determines how many days ahead transactions should be entered into the spec
 
 This will read the ``schedule.ldg`` file and create new entries in ``journal.ledger`` up to 40 days into THE FUTURE. ``schedule.ldg`` will also be updated to reflect next dates.
 
-
-
-
-
-
-
-
-
+(More to doc here...)
 
 ### --reconcile ACCT
 
