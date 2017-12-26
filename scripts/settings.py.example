@@ -9,17 +9,18 @@ class Settings(object):
     LEDGER_FILES = [
         'accounts.ldg',
         'payees.ldg',
+        'misc.ldg',
         'investments.ledger',
         'journal.ledger',
     ]
 
-    PRICES_FILE = prices.db.ldg
+    PRICES_FILE = 'prices.db.ldg'
 
     LEDGER_OPTIONS = '--strict --check-payees --pedantic --explicit --columns 120'
     LEDGER_COMMAND = 'ledger {}'.format(LEDGER_OPTIONS)
 
-    INVESTMENT_DEFAULT_ACCOUNTS = '401k or mutual or ira'
-    INVESTMENT_DEFAULT_DATE = 'tomorrow'
+    INVESTMENT_DEFAULT_ACCOUNTS = '401k or ira or mutual'
+    INVESTMENT_DEFAULT_END_DATE = 'tomorrow'
 
     # Price downloader
     SYMBOLS = [
