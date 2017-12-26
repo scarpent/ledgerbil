@@ -1,0 +1,91 @@
+;; * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+;; *                                                                         *
+;; *                             ledger: accounts                            *
+;; *                                                                         *
+;; * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+account equity
+account equity: opening balances
+
+account income
+    alias i
+account income: investment: dividends
+account income: investment: fees
+account income: investment: interest
+account income: misc: gift
+account income: misc: misc
+account income: wages: bonus
+account income: wages: employer match
+account income: wages: gross pay
+
+account assets
+    alias a
+account assets: cash
+account assets: checking
+account assets: fsa
+account assets: home escrow
+account assets: 401k: cash
+account assets: 401k: big co 500 idx
+account assets: 401k: bonds idx
+account assets: ira: cash
+account assets: ira: glass idx
+account assets: mutual: cash
+account assets: mutual: total idx
+
+account liabilities
+    alias l
+account liabilities: car loan: herbie
+account liabilities: credit card: mega
+account liabilities: mortgage
+
+account expenses
+    alias e
+account expenses: bank: fees
+account expenses: bank: loan interest
+account expenses: bank: mortgage interest
+account expenses: bank: services
+account expenses: bills: electricity
+account expenses: bills: garbage
+account expenses: bills: internet
+account expenses: bills: natural gas
+account expenses: bills: phone
+account expenses: bills: tv
+account expenses: bills: water
+account expenses: car: gas
+account expenses: car: insurance
+account expenses: car: maintenance
+account expenses: car: payment
+account expenses: clothing
+account expenses: charity
+account expenses: education: books
+account expenses: education: training
+account expenses: education: tuition
+account expenses: food: dining out
+account expenses: food: take home
+account expenses: food: groceries
+account expenses: gifts
+account expenses: healthcare: dental
+account expenses: healthcare: dental insurance
+account expenses: healthcare: medical insurance
+account expenses: healthcare: prescriptions
+account expenses: healthcare: provider
+account expenses: healthcare: vision
+account expenses: home: appliance
+account expenses: home: furniture
+account expenses: home: insurance
+account expenses: home: maintenance: in
+account expenses: home: maintenance: out
+account expenses: home: stuff: in
+account expenses: home: stuff: out
+account expenses: leisure: books
+account expenses: leisure: games
+account expenses: leisure: movies
+account expenses: leisure: music
+account expenses: pets: food
+account expenses: pets: misc
+account expenses: pets: vet
+account expenses: taxes: federal
+account expenses: taxes: medicare
+account expenses: taxes: property
+account expenses: taxes: social security
+account expenses: taxes: state

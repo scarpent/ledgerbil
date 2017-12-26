@@ -1,0 +1,28 @@
+;; * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+;; *                                                                         *
+;; *                             ledger: misc                                *
+;; *                                                                         *
+;; * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+tag car
+tag argh
+
+commodity $
+    format $ 1,000.00
+    default
+
+commodity abcdx
+    format 1,000.000
+    note big co 500 idx
+
+commodity lmnop  ; a comment
+    format 1,000.000
+    note bonds idx
+
+commodity qwrty
+    format 1,000.000000
+    note ira glass idx
+
+commodity yyzxx
+    format 1,000.0000
+    note total idx
