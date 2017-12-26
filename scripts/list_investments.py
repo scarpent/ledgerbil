@@ -1,10 +1,4 @@
-#!/usr/bin/env python
-
-""" A better listing of investment share and dollar totals """
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
+#!/usr/bin/env python3
 import argparse
 import os
 import re

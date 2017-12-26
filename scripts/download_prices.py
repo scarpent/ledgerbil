@@ -1,8 +1,4 @@
-#!/usr/bin/env python
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
+#!/usr/bin/env python3
 import argparse
 import re
 import sys
@@ -12,6 +8,8 @@ import requests
 from dateutil.relativedelta import relativedelta
 
 from settings import Settings
+
+# This appears to work for mutual funds, and not indivudal stocks.
 
 quote_url = 'https://finance.google.com/finance?q={}&output=json'
 

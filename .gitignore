@@ -8,6 +8,7 @@
 .ledgerbil_cache_test
 .python-version
 /temp
+dev-bash.sh
 htmlcov
 pycallgraph.png
 settings.py
