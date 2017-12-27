@@ -5,6 +5,8 @@ from datetime import datetime
 import requests
 from dateutil.relativedelta import relativedelta
 
+from ledgerbil.colorable import Colorable
+
 from .settings import Settings
 
 # This appears to work for mutual funds, and not indivudal stocks.
@@ -40,9 +42,9 @@ def download(price_file=None):
             ))
             continue
 
-        print('{date:12} {inv:8}   ${price}'.format(
-            date=the_date,
-            inv=symbol,
+        print('{date} {inv}   ${price}'.format(
+            date=Colorable('blue', the_date, column_width=12, bright=True),
+            inv=Colorable('purple', symbol, column_width=8),
             price=the_price
         ))
 
