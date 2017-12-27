@@ -10,7 +10,7 @@ account equity: opening balances
 account income
     alias i
 account income: investment: dividends
-account income: investment: fees
+account income: investment: adjustment
 account income: investment: interest
 account income: misc: gift
 account income: misc: misc

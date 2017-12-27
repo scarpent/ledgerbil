@@ -9,6 +9,7 @@ from .settings import Settings
 
 DOLLARS = ' -V'
 SHARES = ' -X'
+
 s = Settings()
 
 
@@ -30,10 +31,11 @@ def get_investment_command_options(accounts=s.INVESTMENT_DEFAULT_ACCOUNTS,
 def check_for_negative_dollars(amount, name):
     if amount[:3] == '$ -':
         print(
-            'WARNING: Negative dollar amount {amount} for {name}. '
+            '{warning} Negative dollar amount {amount} for "{name}." '
             'This may be a data entry mistake, or because we are '
-            'looking at a date range.'.format(
-                amount=amount,
+            'looking at a date range.\n'.format(
+                warning=Colorable('red', 'WARNING:'),
+                amount=Colorable('red', amount),
                 name=name.strip()
             )
         )
@@ -85,7 +87,7 @@ def get_shares(args):
             listing.append(('', name))
         else:
             # Only use the shares from the last instance
-            match = re.match(r'\s*([\d,.]+ [a-zA-Z]+)(.*)$', line)
+            match = re.match(r'\s*-?([\d,.]+ [a-zA-Z]+)(.*)$', line)
             shares, name = match.groups()
             if shares in index:
                 shares = ''
@@ -95,6 +97,14 @@ def get_shares(args):
 
     listing.reverse()
     return listing
+
+
+def share_split(shares):
+    match = re.match(r'^(.*\S\s)(.*)$', shares)
+    if match:
+        return match.groups()
+    else:
+        return shares, ''
 
 
 def run(args):
@@ -109,9 +119,29 @@ def run(args):
             dollar[1]
         )
 
-        print('{shares:>18} {dollars:>16} {investment}'.format(
-            shares=share[0],
-            dollars=dollar[0],
+        shares, symbol = share_split(share[0])
+
+        dollar_color = 'red' if '-' in dollar[0] else 'green'
+
+        print('{shares}{symbol} {dollars} {investment}'.format(
+            shares=Colorable(
+                'gray',
+                shares,
+                column_width=13,
+                right_adjust=True,
+                bright=True
+            ),
+            symbol=Colorable(
+                'purple',
+                symbol,
+                column_width=5
+            ),
+            dollars=Colorable(
+                dollar_color,
+                dollar[0],
+                column_width=16,
+                right_adjust=True
+            ),
             investment=Colorable('blue', dollar[1])
         ))
 
