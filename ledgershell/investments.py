@@ -159,8 +159,6 @@ class ArgHandler(object):
                 )
             )
         )
-
-        # todo: specify default
         parser.add_argument(
             '-a', '--accounts',
             type=str,
@@ -173,7 +171,6 @@ class ArgHandler(object):
             default='',
             help='begin date'
         )
-        # todo: specify default (tomorrow)
         parser.add_argument(
             '-e', '--end',
             type=str,
