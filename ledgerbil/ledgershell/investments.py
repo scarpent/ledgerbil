@@ -2,8 +2,7 @@ import argparse
 import os
 import re
 
-from ledgerbil.colorable import Colorable
-
+from ..colorable import Colorable
 from .runner import get_ledger_output
 from .settings import Settings
 

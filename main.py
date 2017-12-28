@@ -2,7 +2,7 @@
 import sys
 
 from ledgerbil import ledgerbil
-from ledgershell import investments, prices
+from ledgerbil.ledgershell import investments, prices
 
 argv = sys.argv[1:]
 
