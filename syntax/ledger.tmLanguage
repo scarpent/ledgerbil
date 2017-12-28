@@ -294,7 +294,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(\ba(?:ssets)?:) ((?:\w+\W)+).*?(-[\d\.,_]+)\s+([a-zA-z_]+)\s+(@)\s+</string>
+			<string>(\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(-[\d\.,_]+)\s+([a-zA-z_]+)\s+(@)\s+</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -326,7 +326,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(\ba(?:ssets)?:) ((?:\w+\W)+).*?([\d\.,_]+)\s+([a-zA-z_]+)\s+(@)\s+</string>
+			<string>(\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?([\d\.,_]+)\s+([a-zA-z_]+)\s+(@)\s+</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -348,7 +348,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(\ba(?:ssets)?:) ((?:\w+\W)+).*?(\(?\$ ?-(?:[\d\.,()+*/$-]| (?! )|$)+)</string>
+			<string>(\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\(?\$ ?-(?:[\d\.,()+*/$-]| (?! )|$)+)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -370,7 +370,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(\ba(?:ssets)?:) ((?:\w+\W)+).*?(\(?\$ ?(?:[\d\.,()+*/$]| (?! )|(?&lt;= )-(?= ))+)</string>
+			<string>(\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\(?\$ ?(?:[\d\.,()+*/$]| (?! )|(?&lt;= )-(?= ))+)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -387,7 +387,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(\ba(?:ssets)?:) ((?:\w+\W)+)[^;]*</string>
+			<string>(\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )|$))[^;]*</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -409,7 +409,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(\bl(?:iabilities)?:) ((?:\w+\W)+).*?(\(?\$ ?-(?:[\d\.,()+*/$-]| (?! )|$)+)</string>
+			<string>(\bl(?:iabilities)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\(?\$ ?-(?:[\d\.,()+*/$-]| (?! )|$)+)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -431,7 +431,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(\bl(?:iabilities)?:) ((?:\w+\W)+).*?(\(?\$ ?(?:[\d\.,()+*/$]| (?! )|(?&lt;= )-(?= ))+)</string>
+			<string>(\bl(?:iabilities)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\(?\$ ?(?:[\d\.,()+*/$]| (?! )|(?&lt;= )-(?= ))+)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -448,7 +448,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(\bl(?:iabilities)?:) ((?:\w+\W)+)[^;]*</string>
+			<string>(\bl(?:iabilities)?:) ?([^:;]+?(?::|(?=  )|$))[^;]*</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -470,7 +470,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^\s+[!*]?\s+(e(?:xpenses)?:) (?:(\w+\W)+).*?(\(?\$ ?-(?:[\d\.,()+*/$-]| (?! ))+)</string>
+			<string>^\s+[!*]?\s+(e(?:xpenses)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\(?\$ ?-(?:[\d\.,()+*/$-]| (?! ))+)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -492,7 +492,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^\s+[!*]?\s+(e(?:xpenses)?:) (?:(\w+\W)+).*?(\(?\$ ?(?:[\d\.,()+*/$-]| (?! ))+)</string>
+			<string>^\s+[!*]?\s+(e(?:xpenses)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\(?\$ ?(?:[\d\.,()+*/$-]| (?! ))+)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -509,7 +509,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^\s+[!*]?\s+(e(?:xpenses)?:) (?:(\w+\W)+)[^;]*</string>
+			<string>^\s+[!*]?\s+(e(?:xpenses)?:) ?([^:;]+?(?::|(?=  )|$))[^;]*</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -531,7 +531,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^\s+[!*]?\s+(i(?:ncome)?:) (?:(\w+\W)+).*?(\(?\$ ?-(?:[\d\.,()+*/$-]| (?! ))+)</string>
+			<string>^\s+[!*]?\s+(i(?:ncome)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\(?\$ ?-(?:[\d\.,()+*/$-]| (?! ))+)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -553,7 +553,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^\s+[!*]?\s+(i(?:ncome)?:) (?:(\w+\W)+).*?(\(?\$ ?(?:[\d\.,()+*/$-]| (?! ))+)</string>
+			<string>^\s+[!*]?\s+(i(?:ncome)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\(?\$ ?(?:[\d\.,()+*/$-]| (?! ))+)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -570,7 +570,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^\s+[!*]?\s+(i(?:ncome)?:) (?:(\w+\W)+)[^;]*</string>
+			<string>^\s+[!*]?\s+(i(?:ncome)?:) ?([^:;]+?(?::|(?=  )|$))[^;]*</string>
 		</dict>
 	</array>
 	<key>scopeName</key>

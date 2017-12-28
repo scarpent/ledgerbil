@@ -111,7 +111,7 @@
         }
     },
     {
-        "match": "(\\ba(?:ssets)?:) ((?:\\w+\\W)+).*?(-[\\d\\.,_]+)\\s+([a-zA-z_]+)\\s+(@)\\s+",
+        "match": "(\\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(-[\\d\\.,_]+)\\s+([a-zA-z_]+)\\s+(@)\\s+",
         "captures": {
           "1": { "name": "entity.name.function.assets-hilite-the-label" },
           "2": { "name": "support.class.assets-hilite-the-asset" },
@@ -121,7 +121,7 @@
         }
     },
     {
-        "match": "(\\ba(?:ssets)?:) ((?:\\w+\\W)+).*?([\\d\\.,_]+)\\s+([a-zA-z_]+)\\s+(@)\\s+",
+        "match": "(\\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?([\\d\\.,_]+)\\s+([a-zA-z_]+)\\s+(@)\\s+",
         "captures": {
           "1": { "name": "entity.name.function.assets-hilite-the-label" },
           "2": { "name": "support.class.assets-hilite-the-asset" },
@@ -131,7 +131,7 @@
         }
     },
     {
-        "match": "(\\ba(?:ssets)?:) ((?:\\w+\\W)+).*?(\\(?\\$ ?-(?:[\\d\\.,()+*/$-]| (?! )|$)+)",
+        "match": "(\\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\\(?\\$ ?-(?:[\\d\\.,()+*/$-]| (?! )|$)+)",
         "captures": {
           "1": { "name": "entity.name.function.assets-hilite-the-label" },
           "2": { "name": "support.class.assets-hilite-the-asset" },
@@ -139,7 +139,7 @@
         }
     },
     {
-        "match": "(\\ba(?:ssets)?:) ((?:\\w+\\W)+).*?(\\(?\\$ ?(?:[\\d\\.,()+*/$]| (?! )|(?<= )-(?= ))+)",
+        "match": "(\\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\\(?\\$ ?(?:[\\d\\.,()+*/$]| (?! )|(?<= )-(?= ))+)",
         "captures": {
           "1": { "name": "entity.name.function.assets-hilite-the-label" },
           "2": { "name": "support.class.assets-hilite-the-asset" },
@@ -147,14 +147,14 @@
         }
     },
     {
-        "match": "(\\ba(?:ssets)?:) ((?:\\w+\\W)+)[^;]*",
+        "match": "(\\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )|$))[^;]*",
         "captures": {
           "1": { "name": "entity.name.function.assets-hilite-the-label" },
           "2": { "name": "support.class.assets-hilite-the-asset" }
         }
     },
     {
-        "match": "(\\bl(?:iabilities)?:) ((?:\\w+\\W)+).*?(\\(?\\$ ?-(?:[\\d\\.,()+*/$-]| (?! )|$)+)",
+        "match": "(\\bl(?:iabilities)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\\(?\\$ ?-(?:[\\d\\.,()+*/$-]| (?! )|$)+)",
         "captures": {
           "1": { "name": "message.error.liabilities-hilite-the-label" },
           "2": { "name": "support.class.liabilities-the-liability" },
@@ -162,7 +162,7 @@
         }
     },
     {
-        "match": "(\\bl(?:iabilities)?:) ((?:\\w+\\W)+).*?(\\(?\\$ ?(?:[\\d\\.,()+*/$]| (?! )|(?<= )-(?= ))+)",
+        "match": "(\\bl(?:iabilities)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\\(?\\$ ?(?:[\\d\\.,()+*/$]| (?! )|(?<= )-(?= ))+)",
         "captures": {
           "1": { "name": "message.error.liabilities-hilite-the-label" },
           "2": { "name": "support.class.liabilities-the-liability" },
@@ -170,14 +170,14 @@
         }
     },
     {
-        "match": "(\\bl(?:iabilities)?:) ((?:\\w+\\W)+)[^;]*",
+        "match": "(\\bl(?:iabilities)?:) ?([^:;]+?(?::|(?=  )|$))[^;]*",
         "captures": {
           "1": { "name": "message.error.liabilities-hilite-the-label" },
           "2": { "name": "support.class.liabilities-the-liability" }
         }
     },
     {
-        "match": "^\\s+[!*]?\\s+(e(?:xpenses)?:) (?:(\\w+\\W)+).*?(\\(?\\$ ?-(?:[\\d\\.,()+*/$-]| (?! ))+)",
+        "match": "^\\s+[!*]?\\s+(e(?:xpenses)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\\(?\\$ ?-(?:[\\d\\.,()+*/$-]| (?! ))+)",
         "captures": {
           "1": { "name": "string.unquoted.expenses" },
           "2": { "name": "string.unquoted.expenses" },
@@ -185,7 +185,7 @@
         }
     },
     {
-        "match": "^\\s+[!*]?\\s+(e(?:xpenses)?:) (?:(\\w+\\W)+).*?(\\(?\\$ ?(?:[\\d\\.,()+*/$-]| (?! ))+)",
+        "match": "^\\s+[!*]?\\s+(e(?:xpenses)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\\(?\\$ ?(?:[\\d\\.,()+*/$-]| (?! ))+)",
         "captures": {
           "1": { "name": "string.unquoted.expenses" },
           "2": { "name": "string.unquoted.expenses" },
@@ -193,14 +193,14 @@
         }
     },
     {
-        "match": "^\\s+[!*]?\\s+(e(?:xpenses)?:) (?:(\\w+\\W)+)[^;]*",
+        "match": "^\\s+[!*]?\\s+(e(?:xpenses)?:) ?([^:;]+?(?::|(?=  )|$))[^;]*",
         "captures": {
           "1": { "name": "string.unquoted.expenses" },
           "2": { "name": "string.unquoted.expenses" }
         }
     },
     {
-        "match": "^\\s+[!*]?\\s+(i(?:ncome)?:) (?:(\\w+\\W)+).*?(\\(?\\$ ?-(?:[\\d\\.,()+*/$-]| (?! ))+)",
+        "match": "^\\s+[!*]?\\s+(i(?:ncome)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\\(?\\$ ?-(?:[\\d\\.,()+*/$-]| (?! ))+)",
         "captures": {
           "1": { "name": "entity.name.function.income" },
           "2": { "name": "entity.name.function.income" },
@@ -208,7 +208,7 @@
         }
     },
     {
-        "match": "^\\s+[!*]?\\s+(i(?:ncome)?:) (?:(\\w+\\W)+).*?(\\(?\\$ ?(?:[\\d\\.,()+*/$-]| (?! ))+)",
+        "match": "^\\s+[!*]?\\s+(i(?:ncome)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\\(?\\$ ?(?:[\\d\\.,()+*/$-]| (?! ))+)",
         "captures": {
           "1": { "name": "entity.name.function.income" },
           "2": { "name": "entity.name.function.income" },
@@ -216,7 +216,7 @@
         }
     },
     {
-        "match": "^\\s+[!*]?\\s+(i(?:ncome)?:) (?:(\\w+\\W)+)[^;]*",
+        "match": "^\\s+[!*]?\\s+(i(?:ncome)?:) ?([^:;]+?(?::|(?=  )|$))[^;]*",
         "captures": {
           "1": { "name": "entity.name.function.income" },
           "2": { "name": "entity.name.function.income" }
