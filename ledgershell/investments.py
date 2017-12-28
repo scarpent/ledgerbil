@@ -4,7 +4,7 @@ import re
 
 from ledgerbil.colorable import Colorable
 
-from .ledger_util import get_ledger_output
+from .runner import get_ledger_output
 from .settings import Settings
 
 DOLLARS = ' -V'
