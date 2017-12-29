@@ -9,18 +9,20 @@ from .settings import Settings
 DOLLARS = ' -V'
 SHARES = ' -X'
 
-s = Settings()
+settings = Settings()
 
 
-def get_investment_command_options(accounts=s.INVESTMENT_DEFAULT_ACCOUNTS,
-                                   begin_date='',
-                                   end_date=s.INVESTMENT_DEFAULT_END_DATE):
+def get_investment_command_options(
+        accounts=settings.INVESTMENT_DEFAULT_ACCOUNTS,
+        begin_date='',
+        end_date=settings.INVESTMENT_DEFAULT_END_DATE):
+
     if begin_date:
-        begin_date = '--begin {}'.format(begin_date)
+        begin_date = ' --begin {}'.format(begin_date)
     end_date = '--end {}'.format(end_date)
 
-    return '--market --price-db {prices} bal {accounts} {begin} {end}'.format(
-        prices=os.path.join(s.LEDGER_DIR, s.PRICES_FILE),
+    return '--market --price-db {prices} bal {accounts}{begin} {end}'.format(
+        prices=os.path.join(settings.LEDGER_DIR, settings.PRICES_FILE),
         accounts=accounts,
         begin=begin_date,
         end=end_date
@@ -161,7 +163,7 @@ class ArgHandler(object):
         parser.add_argument(
             '-a', '--accounts',
             type=str,
-            default=s.INVESTMENT_DEFAULT_ACCOUNTS,
+            default=settings.INVESTMENT_DEFAULT_ACCOUNTS,
             help='balances for accounts'
         )
         parser.add_argument(
@@ -173,7 +175,7 @@ class ArgHandler(object):
         parser.add_argument(
             '-e', '--end',
             type=str,
-            default=s.INVESTMENT_DEFAULT_END_DATE,
+            default=settings.INVESTMENT_DEFAULT_END_DATE,
             help='end date'
         )
 
