@@ -58,5 +58,13 @@ def test_get_investment_command_options_defaults_plus_begin_date():
     assert actual == expected
 
 
-def test_get_lines():
-    pass
+@mock.patch(__name__ + '.investments.get_ledger_output')
+def test_get_lines_default_args(mock_get_ledger_output):
+    investments.settings = TestSettings()
+    args = investments.ArgHandler.get_args([])
+    mock_get_ledger_output.return_value = '1\n2\n3\n'
+    lines = investments.get_lines('XYZ', args)
+    assert lines == ['1', '2', '3', '']
+    mock_get_ledger_output.assert_called_once_with(
+        'XYZ --market --price-db lmn/ijk bal abc --end xyz'
+    )
