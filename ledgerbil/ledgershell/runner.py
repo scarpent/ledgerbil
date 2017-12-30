@@ -5,13 +5,13 @@ import sys
 
 from .settings import Settings
 
-s = Settings()
+settings = Settings()
 
 
 def get_ledger_command(options=''):
-    cmd = s.LEDGER_COMMAND
-    for f in s.LEDGER_FILES:
-        cmd += ' -f {}'.format(os.path.join(s.LEDGER_DIR, f))
+    cmd = settings.LEDGER_COMMAND
+    for f in settings.LEDGER_FILES:
+        cmd += ' -f {}'.format(os.path.join(settings.LEDGER_DIR, f))
     cmd += ' {} '.format(options)
     return cmd
 

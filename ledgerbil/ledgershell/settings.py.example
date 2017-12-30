@@ -16,7 +16,7 @@ class Settings(object):
 
     PRICES_FILE = 'prices.db.ldg'
 
-    LEDGER_OPTIONS = ('--strict --check-payees --pedantic --explicit
+    LEDGER_OPTIONS = ('--strict --check-payees --pedantic --explicit '
                       '--columns 120')
     LEDGER_COMMAND = 'ledger {}'.format(LEDGER_OPTIONS)
 

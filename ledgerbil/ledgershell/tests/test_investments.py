@@ -33,6 +33,8 @@ def test_get_investment_command_options_defaults():
             TestSettings.PRICES_FILE
         )
     )
+    # It would be nice to test with actual defaults but they appear
+    # to be set at import time so we'll do this
     actual = investments.get_investment_command_options(
         accounts=TestSettings.INVESTMENT_DEFAULT_ACCOUNTS,
         end_date=TestSettings.INVESTMENT_DEFAULT_END_DATE
@@ -54,3 +56,7 @@ def test_get_investment_command_options_defaults_plus_begin_date():
         end_date=TestSettings.INVESTMENT_DEFAULT_END_DATE
     )
     assert actual == expected
+
+
+def test_get_lines():
+    pass

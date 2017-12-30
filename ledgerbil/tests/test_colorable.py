@@ -84,5 +84,5 @@ def test_unsupported_color_error():
     """A color string that doesn't exist in COLORS dict should error"""
     with pytest.raises(UnsupportedColorError) as excinfo:
         Colorable('badcolor')
-    assert ("colorable.UnsupportedColorError: I don't know what to do with "
-            "this color: badcolor" in str(excinfo))
+    expected = "I don't know what to do with this color: badcolor"
+    assert str(excinfo.value) == expected
