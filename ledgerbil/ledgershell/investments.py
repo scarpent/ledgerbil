@@ -1,6 +1,7 @@
 import argparse
 import os
 import re
+from collections import namedtuple
 
 from ..colorable import Colorable
 from .runner import get_ledger_output
@@ -8,6 +9,9 @@ from .settings import Settings
 
 DOLLARS = ' -V'
 SHARES = ' -X'
+
+Dollars = namedtuple('Dollar', 'amount account')
+Shares = namedtuple('Shares', 'num symbol account')
 
 settings = Settings()
 
@@ -85,27 +89,20 @@ def get_shares(args):
             # Cash lines don't have share amounts, just dollars
             amount, name = match.groups()
             check_for_negative_dollars(amount, name)
-            listing.append(('', name))
+            listing.append(('', '', name))
         else:
             # Only use the shares from the last instance
-            match = re.match(r'\s*-?([\d,.]+ [a-zA-Z]+)(.*)$', line)
-            shares, name = match.groups()
-            if shares in index:
+            match = re.match(r'\s*(-?[\d,.]+) ([a-zA-Z]+)(.*)$', line)
+            shares, symbol, name = match.groups()
+            if (shares, symbol) in index:
                 shares = ''
+                symbol = ''
             else:
-                index.append(shares)
-            listing.append((shares, name))
+                index.append((shares, symbol))
+            listing.append((shares, symbol, name))
 
     listing.reverse()
     return listing
-
-
-def share_split(shares):
-    match = re.match(r'^(.*\S\s)(.*)$', shares)
-    if match:
-        return match.groups()
-    else:
-        return shares, ''
 
 
 def run(args):
@@ -115,20 +112,20 @@ def run(args):
 
     for share, dollar in zip(share_listing, dollar_listing):
 
-        assert share[1] == dollar[1], 'share: {}, dollar: {}'.format(
-            share[1],
+        assert share[2] == dollar[1], 'share: {}, dollar: {}'.format(
+            share[2],
             dollar[1]
         )
 
-        shares, symbol = share_split(share[0])
+        shares, symbol = share[0], share[1]  # share_split(share[0])
 
         dollar_color = 'red' if '-' in dollar[0] else 'green'
 
-        print('{shares}{symbol} {dollars} {investment}'.format(
+        print('{shares} {symbol} {dollars} {investment}'.format(
             shares=Colorable(
                 'gray',
                 shares,
-                column_width=13,
+                column_width=12,
                 right_adjust=True,
                 bright=True
             ),
