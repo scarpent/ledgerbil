@@ -10,7 +10,7 @@ from .settings import Settings
 DOLLARS = ' -V'
 SHARES = ' -X'
 
-Dollars = namedtuple('Dollar', 'amount account')
+Dollars = namedtuple('Dollars', 'amount account')
 Shares = namedtuple('Shares', 'num symbol account')
 
 settings = Settings()
@@ -33,15 +33,15 @@ def get_investment_command_options(
     )
 
 
-def check_for_negative_dollars(amount, name):
+def check_for_negative_dollars(amount, account):
     if amount[:3] == '$ -':
         print(
-            '{warning} Negative dollar amount {amount} for "{name}." '
+            '{warning} Negative dollar amount {amount} for "{account}." '
             'This may be a data entry mistake, or because we are '
             'looking at a date range.\n'.format(
                 warning=Colorable('red', 'WARNING:'),
                 amount=Colorable('red', amount),
-                name=name.strip()
+                account=account.strip()
             )
         )
 
@@ -67,9 +67,9 @@ def get_dollars(args):
         #       (e.g. specifying begin and end date and things balance to 0)
         match = re.match(r'^\s*(?:(\$ -?[\d,.]+|0))(.*)$', line)
         if match:
-            amount, name = match.groups()
-            check_for_negative_dollars(amount, name)
-            listing.append((amount, name))
+            dollars = Dollars(*match.groups())
+            check_for_negative_dollars(dollars.amount, dollars.account)
+            listing.append(dollars)
         else:
             err = "Didn't match for $ amount and name on: {}".format(line)
             raise Exception(err)
@@ -87,19 +87,18 @@ def get_shares(args):
         match = re.match(r'\s*(\$ -?[\d,.]+)(.*)$', line)
         if match:
             # Cash lines don't have share amounts, just dollars
-            amount, name = match.groups()
-            check_for_negative_dollars(amount, name)
-            listing.append(('', '', name))
+            dollars = Dollars(*match.groups())
+            check_for_negative_dollars(dollars.amount, dollars.account)
+            listing.append(Shares('', '', dollars.account))
         else:
             # Only use the shares from the last instance
             match = re.match(r'\s*(-?[\d,.]+) ([a-zA-Z]+)(.*)$', line)
-            shares, symbol, name = match.groups()
-            if (shares, symbol) in index:
-                shares = ''
-                symbol = ''
+            shares = Shares(*match.groups())
+            if (shares.num, shares.symbol) in index:
+                shares = Shares('', '', shares.account)
             else:
-                index.append((shares, symbol))
-            listing.append((shares, symbol, name))
+                index.append((shares.num, shares.symbol))
+            listing.append(shares)
 
     listing.reverse()
     return listing
@@ -110,37 +109,36 @@ def run(args):
     share_listing = get_shares(args)
     dollar_listing = get_dollars(args)
 
-    for share, dollar in zip(share_listing, dollar_listing):
+    for shares, dollars in zip(share_listing, dollar_listing):
 
-        assert share[2] == dollar[1], 'share: {}, dollar: {}'.format(
-            share[2],
-            dollar[1]
-        )
+        assert shares.account == dollars.account, \
+            'shares: {}, dollars: {}'.format(
+                shares.account,
+                dollars.account
+            )
 
-        shares, symbol = share[0], share[1]  # share_split(share[0])
-
-        dollar_color = 'red' if '-' in dollar[0] else 'green'
+        dollar_color = 'red' if '-' in dollars.amount else 'green'
 
         print('{shares} {symbol} {dollars} {investment}'.format(
             shares=Colorable(
                 'gray',
-                shares,
+                shares.num,
                 column_width=12,
                 right_adjust=True,
                 bright=True
             ),
             symbol=Colorable(
                 'purple',
-                symbol,
+                shares.symbol,
                 column_width=5
             ),
             dollars=Colorable(
                 dollar_color,
-                dollar[0],
+                dollars.amount,
                 column_width=16,
                 right_adjust=True
             ),
-            investment=Colorable('blue', dollar[1])
+            investment=Colorable('blue', dollars.account)
         ))
 
 
