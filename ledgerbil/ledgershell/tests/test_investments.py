@@ -1,10 +1,15 @@
 import os
 from unittest import mock
 
-from .. import investments
+from .. import investments, runner
 
 
 class TestSettings(object):
+    LEDGER_COMMAND = 'ledger'
+    LEDGER_FILES = [
+        'blarg.ldg',
+        'glurg.ldg',
+    ]
     INVESTMENT_DEFAULT_ACCOUNTS = 'abc'
     INVESTMENT_DEFAULT_END_DATE = 'xyz'
     LEDGER_DIR = 'lmn'
@@ -58,8 +63,9 @@ def test_get_investment_command_options_defaults_plus_begin_date():
     assert actual == expected
 
 
+@mock.patch(__name__ + '.investments.print')
 @mock.patch(__name__ + '.investments.get_ledger_output')
-def test_get_lines_default_args(mock_get_ledger_output):
+def test_get_lines_default_args(mock_get_ledger_output, mock_print):
     investments.settings = TestSettings()
     args = investments.ArgHandler.get_args([])
     mock_get_ledger_output.return_value = '1\n2\n3\n'
@@ -68,3 +74,21 @@ def test_get_lines_default_args(mock_get_ledger_output):
     mock_get_ledger_output.assert_called_once_with(
         'XYZ --market --price-db lmn/ijk bal abc --end xyz'
     )
+    assert not mock_print.called
+
+
+@mock.patch(__name__ + '.investments.print')
+@mock.patch(__name__ + '.investments.get_ledger_output')
+def test_get_lines_print_command(mock_get_ledger_output, mock_print):
+    investments.settings = TestSettings()
+    runner.settings = TestSettings()
+    args = investments.ArgHandler.get_args(['--command'])
+    mock_get_ledger_output.return_value = '1\n2\n3\n'
+    lines = investments.get_lines('XYZ', args)
+    assert lines == ['1', '2', '3', '']
+    mock_get_ledger_output.assert_called_once_with(
+        'XYZ --market --price-db lmn/ijk bal abc --end xyz'
+    )
+    expected_print = ('ledger -f lmn/blarg.ldg -f lmn/glurg.ldg XYZ '
+                      '--market --price-db lmn/ijk bal abc --end xyz ')
+    mock_print.assert_called_once_with(expected_print)

@@ -57,7 +57,16 @@ def test_mock_process_object():
 def test_get_ledger_output(mock_popen):
     runner.settings = TestSettings()
     mock_popen.return_value = MockProcess(output=b'blargle')
-    assert runner.get_ledger_output() == 'blargle'
+    output = runner.get_ledger_output()
+    assert output == 'blargle'
+
+
+@mock.patch(__name__ + '.runner.subprocess.Popen')
+def test_get_ledger_output_with_options(mock_popen):
+    runner.settings = TestSettings()
+    mock_popen.return_value = MockProcess(output=b'blargle')
+    output = runner.get_ledger_output('--arghh hooey')
+    assert output == 'blargle'
 
 
 @mock.patch(__name__ + '.runner.print')
