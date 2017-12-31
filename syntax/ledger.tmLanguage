@@ -129,7 +129,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^(\d{4}[/-]\d{2}[/-]\d{2}) (\([^)]*\) )?((?:[\w.'$&amp;|()]| (?! ))+)</string>
+			<string>^(\d{4}[/-]\d{2}[/-]\d{2}) (\([^)]*\) )?((?:[-\w.'$&amp;()]|(?&lt;! ) (?! ))+)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -294,7 +294,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(-[\d\.,_]+)\s+([a-zA-z_]+)\s+(@)\s+</string>
+			<string>(\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(- ?[\d\.,_]+)\s+([a-zA-z_]+)\s+(@)\s+</string>
 		</dict>
 		<dict>
 			<key>captures</key>

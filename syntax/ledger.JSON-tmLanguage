@@ -44,7 +44,7 @@
       }
     },
     {
-        "match": "^(\\d{4}[/-]\\d{2}[/-]\\d{2}) (\\([^)]*\\) )?((?:[\\w.'$&|()]| (?! ))+)",
+        "match": "^(\\d{4}[/-]\\d{2}[/-]\\d{2}) (\\([^)]*\\) )?((?:[-\\w.'$&()]|(?<! ) (?! ))+)",
         "captures": {
           "1": { "name": "variable.parameter.date" },
           "2": { "name": "string.quoted.transacton-number" },
@@ -111,7 +111,7 @@
         }
     },
     {
-        "match": "(\\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(-[\\d\\.,_]+)\\s+([a-zA-z_]+)\\s+(@)\\s+",
+        "match": "(\\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(- ?[\\d\\.,_]+)\\s+([a-zA-z_]+)\\s+(@)\\s+",
         "captures": {
           "1": { "name": "entity.name.function.assets-hilite-the-label" },
           "2": { "name": "support.class.assets-hilite-the-asset" },
