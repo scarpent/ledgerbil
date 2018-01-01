@@ -96,20 +96,17 @@ def get_date(quote_date):
     return the_date.strftime('%Y/%m/%d')
 
 
-class ArgHandler(object):
+def get_args(args):
+    parser = argparse.ArgumentParser()
 
-    @staticmethod
-    def get_args(args):
-        parser = argparse.ArgumentParser()
-
-        parser.add_argument(
-            '-f', '--file',
-            type=str,
-            help='save to this prices db file',
-        )
-        return parser.parse_args(args)
+    parser.add_argument(
+        '-f', '--file',
+        type=str,
+        help='save to this prices db file',
+    )
+    return parser.parse_args(args)
 
 
 def main(argv):
-    args = ArgHandler.get_args(argv)
+    args = get_args(argv)
     download(args.file)

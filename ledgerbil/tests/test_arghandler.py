@@ -1,4 +1,4 @@
-from ..arghandler import ArgHandler
+from ..arghandler import get_args
 from .helpers import Redirector
 
 filename = 'dummy.ldg'
@@ -7,16 +7,16 @@ filename = 'dummy.ldg'
 class Arguments(Redirector):
 
     def test_file_option(self):
-        args = ArgHandler.get_args(['-f', filename])
+        args = get_args(['-f', filename])
         self.assertTrue(args.file)
-        args = ArgHandler.get_args(['--file', filename])
+        args = get_args(['--file', filename])
         self.assertTrue(args.file)
 
     def test_file_option_and_filename_both_required(self):
         """should cause argparse error if file opt specified w/o file"""
         expected = 'error: argument -f/--file: expected one argument'
         try:
-            ArgHandler.get_args(['--file'])
+            get_args(['--file'])
         except SystemExit:
             pass
 
@@ -25,20 +25,20 @@ class Arguments(Redirector):
         self.assertTrue(expected in actual)
 
     def test_sort_option(self):
-        args = ArgHandler.get_args(['-f', filename, '-s'])
+        args = get_args(['-f', filename, '-s'])
         self.assertTrue(args.sort)
-        args = ArgHandler.get_args(['--file', filename, '--sort'])
+        args = get_args(['--file', filename, '--sort'])
         self.assertTrue(args.sort)
 
     def test_no_sorting_option(self):
         """should not set parse args 'sort' var"""
-        args = ArgHandler.get_args(['--file', filename])
+        args = get_args(['--file', filename])
         self.assertFalse(args.sort)
 
     def test_schedule_file_option(self):
-        args = ArgHandler.get_args(['-f', filename, '-S', filename])
+        args = get_args(['-f', filename, '-S', filename])
         self.assertTrue(args.schedule_file)
-        args = ArgHandler.get_args([
+        args = get_args([
             '--file', filename,
             '--schedule-file', filename,
         ])
@@ -50,7 +50,7 @@ class Arguments(Redirector):
             'error: argument -S/--schedule-file: expected one argument'
         )
         try:
-            ArgHandler.get_args(['--file', filename, '--schedule-file'])
+            get_args(['--file', filename, '--schedule-file'])
         except SystemExit:
             pass
 

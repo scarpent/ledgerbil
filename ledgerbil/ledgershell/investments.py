@@ -213,52 +213,49 @@ def get_investment_report(args):
     return report
 
 
-class ArgHandler(object):
+def get_args(args):
+    parser = argparse.ArgumentParser(
+        prog='list_investments.py',
+        formatter_class=(
+            lambda prog: argparse.HelpFormatter(
+                prog,
+                max_help_position=36
+            )
+        )
+    )
+    parser.add_argument(
+        '-a', '--accounts',
+        type=str,
+        default=settings.INVESTMENT_DEFAULT_ACCOUNTS,
+        help='balances for specified accounts, default = {}'.format(
+            settings.INVESTMENT_DEFAULT_ACCOUNTS
+        )
+    )
+    parser.add_argument(
+        '-b', '--begin',
+        type=str,
+        metavar='DATE',
+        default='',
+        help='begin date'
+    )
+    parser.add_argument(
+        '-e', '--end',
+        type=str,
+        metavar='DATE',
+        default=settings.INVESTMENT_DEFAULT_END_DATE,
+        help='end date, default = {}'.format(
+            settings.INVESTMENT_DEFAULT_END_DATE
+        )
+    )
+    parser.add_argument(
+        '-c', '--command',
+        action='store_true',
+        help='print ledger commands used'
+    )
 
-    @staticmethod
-    def get_args(args):
-        parser = argparse.ArgumentParser(
-            prog='list_investments.py',
-            formatter_class=(
-                lambda prog: argparse.HelpFormatter(
-                    prog,
-                    max_help_position=36
-                )
-            )
-        )
-        parser.add_argument(
-            '-a', '--accounts',
-            type=str,
-            default=settings.INVESTMENT_DEFAULT_ACCOUNTS,
-            help='balances for specified accounts, default = {}'.format(
-                settings.INVESTMENT_DEFAULT_ACCOUNTS
-            )
-        )
-        parser.add_argument(
-            '-b', '--begin',
-            type=str,
-            metavar='DATE',
-            default='',
-            help='begin date'
-        )
-        parser.add_argument(
-            '-e', '--end',
-            type=str,
-            metavar='DATE',
-            default=settings.INVESTMENT_DEFAULT_END_DATE,
-            help='end date, default = {}'.format(
-                settings.INVESTMENT_DEFAULT_END_DATE
-            )
-        )
-        parser.add_argument(
-            '-c', '--command',
-            action='store_true',
-            help='print ledger commands used'
-        )
-
-        return parser.parse_args(args)
+    return parser.parse_args(args)
 
 
 def main(argv):
-    args = ArgHandler.get_args(argv)
+    args = get_args(argv)
     print(get_investment_report(args))

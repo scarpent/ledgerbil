@@ -1,6 +1,6 @@
 import sys
 
-from .arghandler import ArgHandler
+from .arghandler import get_args
 from .ledgerfile import LedgerFile
 from .reconciler import Reconciler
 from .schedulefile import ScheduleFile
@@ -57,7 +57,7 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv[1:]  # pragma: no cover
 
-    args = ArgHandler.get_args(argv)
+    args = get_args(argv)
     ledgerbil = Ledgerbil(args)
 
     return ledgerbil.process_file()

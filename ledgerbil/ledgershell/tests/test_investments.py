@@ -67,7 +67,7 @@ def test_get_investment_command_options_defaults_plus_begin_date():
 @mock.patch(__name__ + '.investments.get_ledger_output')
 def test_get_lines_default_args(mock_get_ledger_output, mock_print):
     investments.settings = TestSettings()
-    args = investments.ArgHandler.get_args([])
+    args = investments.get_args([])
     mock_get_ledger_output.return_value = '1\n2\n3\n'
     lines = investments.get_lines('XYZ', args)
     assert lines == ['1', '2', '3', '']
@@ -82,7 +82,7 @@ def test_get_lines_default_args(mock_get_ledger_output, mock_print):
 def test_get_lines_print_command(mock_get_ledger_output, mock_print):
     investments.settings = TestSettings()
     runner.settings = TestSettings()
-    args = investments.ArgHandler.get_args(['--command'])
+    args = investments.get_args(['--command'])
     mock_get_ledger_output.return_value = '1\n2\n3\n'
     lines = investments.get_lines('XYZ', args)
     assert lines == ['1', '2', '3', '']
@@ -131,7 +131,7 @@ def test_get_investment_report(mock_ledger_output):
         ''
     ]
     mock_ledger_output.side_effect = [shares, dollars]
-    args = investments.ArgHandler.get_args([])
+    args = investments.get_args([])
     report = investments.Colorable.get_plain_text(
         investments.get_investment_report(args)
     )
@@ -150,7 +150,7 @@ def test_get_investment_report_single_line(mock_ledger_output):
     shares = ['        15.000 qwrty  assets: ira: glass idx', '']
     dollars = ['            $ 150.00  assets: ira: glass idx', '']
     mock_ledger_output.side_effect = [shares, dollars]
-    args = investments.ArgHandler.get_args([])
+    args = investments.get_args([])
     report = investments.Colorable.get_plain_text(
         investments.get_investment_report(args)
     )
@@ -164,7 +164,7 @@ def test_less_than_zero(mock_ledger_output, mock_print):
     shares = ['        -0.103 abcdx  assets: 401k: big co 500 idx', '']
     dollars = ['             $ -8.31  assets: 401k: big co 500 idx', '']
     mock_ledger_output.side_effect = [shares, dollars]
-    args = investments.ArgHandler.get_args([])
+    args = investments.get_args([])
 
     expected_report = ('-0.103 abcdx          $ -8.31'
                        '   assets: 401k: big co 500 idx')
@@ -186,7 +186,7 @@ def test_less_than_one_share(mock_ledger_output):
     shares = ['         0.001 abcdx  assets: 401k: big co 500 idx', '']
     dollars = ['              $ 0.08  assets: 401k: big co 500 idx', '']
     mock_ledger_output.side_effect = [shares, dollars]
-    args = investments.ArgHandler.get_args([])
+    args = investments.get_args([])
     report = investments.Colorable.get_plain_text(
         investments.get_investment_report(args)
     )
@@ -207,4 +207,8 @@ def test_non_matching_shares_regex():
 
 
 def test_main():
+    pass
+
+
+def test_arg_handler():
     pass
