@@ -159,11 +159,11 @@ def get_shares(args):
                 index.append((shares.num, shares.symbol))
             listing.append(shares)
 
-    listing.reverse()
+    listing.reverse()  # Reverse back to match dollars list order
     return listing
 
 
-def run(args):
+def get_investment_report(args):
     """ We want to put the separate shares and dollars reports
         together to get something like this:
 
@@ -179,6 +179,8 @@ def run(args):
     share_listing = get_shares(args)
     dollar_listing = get_dollars(args)
 
+    report = ''
+
     for shares, dollars in zip(share_listing, dollar_listing):
 
         assert shares.account == dollars.account, \
@@ -189,7 +191,7 @@ def run(args):
 
         dollar_color = 'red' if '-' in dollars.amount else 'green'
 
-        print('{shares} {symbol} {dollars} {investment}'.format(
+        report += ('{shares} {symbol} {dollars} {investment}\n'.format(
             shares=Colorable(
                 'gray',
                 shares.num,
@@ -210,6 +212,8 @@ def run(args):
             ),
             investment=Colorable('blue', dollars.account)
         ))
+
+    return report
 
 
 class ArgHandler(object):
@@ -260,4 +264,4 @@ class ArgHandler(object):
 
 def main(argv):
     args = ArgHandler.get_args(argv)
-    run(args)
+    print(get_investment_report(args))
