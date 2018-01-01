@@ -4,18 +4,24 @@ import sys
 from ledgerbil import ledgerbil
 from ledgerbil.ledgershell import investments, prices
 
-argv = sys.argv[1:]
 
-if argv:
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv[1:]  # pragma: no cover
 
-    if argv[0] == 'inv' or argv[0] == 'investments':
-        investments.main(argv[1:])
+    if argv:
+        if argv[0] == 'inv' or argv[0] == 'investments':
+            investments.main(argv[1:])
 
-    elif argv[0] == 'prices':
-        prices.main(argv[1:])
+        elif argv[0] == 'prices':
+            prices.main(argv[1:])
+
+        else:
+            ledgerbil.main(argv)
 
     else:
         ledgerbil.main(argv)
 
-else:
-    ledgerbil.main(argv)
+
+if __name__ == '__main__':
+    sys.exit(main())  # pragma: no cover
