@@ -10,7 +10,8 @@ from .settings import Settings
 DOLLARS = ' -V'
 SHARES = ' -X'
 
-DOLLARS_REGEX = r'^\s*(?:(\$ -?[\d,.]+|0))(.*)$'
+# todo: figure out how I got 0 dollar amount with no dollar sign...
+DOLLARS_REGEX = r'^\s*(?:(\$ -?[\d,.]+|0(?=  )))(.*)$'
 SHARES_REGEX = r'\s*(-?[\d,.]+) ([a-zA-Z]+)(.*)$'
 
 Dollars = namedtuple('Dollars', 'amount account')
@@ -84,8 +85,6 @@ def get_dollars(args):
     for line in lines:
         if line == '' or line[0] == '-':
             break
-        # todo: test for 0
-        #       (e.g. specifying begin and end date and things balance to 0)
         match = re.match(DOLLARS_REGEX, line)
         if match:
             dollars = Dollars(*match.groups())
@@ -123,7 +122,6 @@ def get_shares(args):
                 15.000 qwrty
                  5.000 yyzxx
     """
-
     listing = []
     index = []
     lines = get_lines(SHARES, args)
@@ -175,7 +173,6 @@ def get_investment_report(args):
         15.000 qwrty         $ 150.00      ira: glass idx
          5.000 yyzxx         $ 200.00      mutual: total idx
     """
-
     share_listing = get_shares(args)
     dollar_listing = get_dollars(args)
 
@@ -184,7 +181,7 @@ def get_investment_report(args):
     for shares, dollars in zip(share_listing, dollar_listing):
 
         assert shares.account == dollars.account, \
-            'shares: {}, dollars: {}'.format(
+            'shares account: {}, dollars account: {}'.format(
                 shares.account,
                 dollars.account
             )
