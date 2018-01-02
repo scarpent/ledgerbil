@@ -11,7 +11,6 @@ def get_args(args):
             )
         )
     )
-
     parser.add_argument(
         '-f', '--file',
         type=str,
@@ -24,16 +23,15 @@ def get_args(args):
     )
     parser.add_argument(
         '-r', '--reconcile',
-        type=str, metavar='ACCT',
+        type=str,
+        metavar='ACCT',
         help='interactively reconcile the specified account'
     )
     parser.add_argument(
         '-S', '--schedule-file',
-        type=str, metavar='FILE',
-        help=(
-            'file with scheduled transactions '
-            '(to be added to -f ledger file)'
-        )
+        type=str,
+        metavar='FILE',
+        help='file with scheduled transactions (to be added to -f ledger file)'
     )
     parser.add_argument(
         '-n', '--next-scheduled-date',

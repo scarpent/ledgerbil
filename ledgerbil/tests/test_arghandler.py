@@ -1,3 +1,5 @@
+import pytest
+
 from ..arghandler import get_args
 from .helpers import Redirector
 
@@ -57,3 +59,16 @@ class Arguments(Redirector):
         self.redirecterr.seek(0)
         actual = self.redirecterr.read()
         self.assertTrue(expected in actual)
+
+
+@pytest.mark.parametrize('test_input,expected', [
+    ('-n', True),
+    ('--next-scheduled-date', True),
+    ('', False),
+])
+def test_next_scheduled_date(test_input, expected):
+    options = ['-f', filename]
+    if test_input:
+        options.append(test_input)
+    args = get_args(options)
+    assert args.next_scheduled_date == expected
