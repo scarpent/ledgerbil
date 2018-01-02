@@ -1,6 +1,8 @@
 import os
 from unittest import mock
 
+import pytest
+
 from .. import investments, runner
 
 
@@ -194,21 +196,97 @@ def test_less_than_one_share(mock_ledger_output):
     assert report.strip() == expected
 
 
-def test_zero_dollar():
-    pass
+@mock.patch(__name__ + '.investments.get_lines')
+def test_assertion_for_non_matching_shares_regex(mock_ledger_output):
+    shares = ['bad abcdx  assets: blah: blah', '']
+    dollars = ['              $ 0.08  assets: 401k: big co 500 idx', '']
+    mock_ledger_output.side_effect = [shares, dollars]
+    args = investments.get_args([])
+    with pytest.raises(AssertionError) as excinfo:
+        investments.get_investment_report(args)
+    expected = "Didn't match on shares regex: bad abcdx  assets: blah: blah"
+    assert str(excinfo.value) == expected
 
 
-def test_non_matching_dollar_regex():
-    pass
+@mock.patch(__name__ + '.investments.get_lines')
+def test_assertion_for_non_matching_dollar_regex(mock_ledger_output):
+    shares = ['         0.001 abcdx  assets: 401k: big co 500 idx', '']
+    dollars = ['bad assets: fu: bar', '']
+    mock_ledger_output.side_effect = [shares, dollars]
+    args = investments.get_args([])
+    with pytest.raises(AssertionError) as excinfo:
+        investments.get_investment_report(args)
+    expected = "Didn't match on dollars regex: bad assets: fu: bar"
+    assert str(excinfo.value) == expected
 
 
-def test_non_matching_shares_regex():
-    pass
+@mock.patch(__name__ + '.investments.get_lines')
+def test_assertion_for_non_matching_accounts(mock_ledger_output):
+    shares = ['         0.001 abcdx  assets: fu', '']
+    dollars = ['              $ 0.08  assets: bar', '']
+    mock_ledger_output.side_effect = [shares, dollars]
+    args = investments.get_args([])
+    with pytest.raises(AssertionError) as excinfo:
+        investments.get_investment_report(args)
+    expected = ('Non-matching accounts. '
+                'Shares:   assets: fu, Dollars:   assets: bar')
+    assert str(excinfo.value) == expected
 
 
-def test_main():
-    pass
+@mock.patch(__name__ + '.investments.print')
+@mock.patch(__name__ + '.investments.get_lines')
+def test_main(mock_ledger_output, mock_print):
+    shares = ['        15.000 qwrty  assets: ira: glass idx', '']
+    dollars = ['            $ 150.00  assets: ira: glass idx', '']
+    mock_ledger_output.side_effect = [shares, dollars]
+    investments.main([])
+    output = investments.Colorable.get_plain_text(mock_print.call_args[0][0])
+    expected = '15.000 qwrty         $ 150.00   assets: ira: glass idx'
+    assert output.strip() == expected
 
 
-def test_arg_handler():
+@pytest.mark.parametrize('test_input, expected', [
+    (['-a', 'blah or blarg'], 'blah or blarg'),
+    (['--accounts', 'fu or bar'], 'fu or bar'),
+    ([], 'abc'),  # default in TestSettings
+])
+def test_args_accounts(test_input, expected):
+    investments.settings = TestSettings()
+    args = investments.get_args(test_input)
+    assert args.accounts == expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (['-b', 'today'], 'today'),
+    (['--begin', '2016/01/12'], '2016/01/12'),
+    ([], ''),  # default in get_args
+])
+def test_args_begin_date(test_input, expected):
+    investments.settings = TestSettings()
+    args = investments.get_args(test_input)
+    assert args.begin == expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (['-e', 'yesterday'], 'yesterday'),
+    (['--end', '2017/10/05'], '2017/10/05'),
+    ([], 'xyz'),  # default in TestSettings
+])
+def test_args_end_date(test_input, expected):
+    investments.settings = TestSettings()
+    args = investments.get_args(test_input)
+    assert args.end == expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (['-c'], True),
+    (['--command'], True),
+    ([], False),
+])
+def test_args_command(test_input, expected):
+    args = investments.get_args(test_input)
+    assert args.command == expected
+
+
+def test_zero_dollar():  # if can figure out how that happened...
     pass

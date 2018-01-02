@@ -10,8 +10,10 @@ from .settings import Settings
 DOLLARS = ' -V'
 SHARES = ' -X'
 
-# todo: figure out how I got 0 dollar amount with no dollar sign...
-DOLLARS_REGEX = r'^\s*(?:(\$ -?[\d,.]+|0(?=  )))(.*)$'
+# todo: figure out how I got 0 dollar amount with no dollar sign
+#       adding this was the fix, but leaving out for now: |0(?=  )
+# DOLLARS_REGEX = r'^\s*(?:(\$ -?[\d,.]+|0(?=  )))(.*)$'
+DOLLARS_REGEX = r'^\s*(?:(\$ -?[\d,.]+))(.*)$'
 SHARES_REGEX = r'\s*(-?[\d,.]+) ([a-zA-Z]+)(.*)$'
 
 Dollars = namedtuple('Dollars', 'amount account')
@@ -86,13 +88,12 @@ def get_dollars(args):
         if line == '' or line[0] == '-':
             break
         match = re.match(DOLLARS_REGEX, line)
-        if match:
-            dollars = Dollars(*match.groups())
-            check_for_negative_dollars(dollars.amount, dollars.account)
-            listing.append(dollars)
-        else:
-            err = "Didn't match for $ amount and name on: {}".format(line)
-            raise Exception(err)
+
+        assert match, "Didn't match on dollars regex: {}".format(line)
+
+        dollars = Dollars(*match.groups())
+        check_for_negative_dollars(dollars.amount, dollars.account)
+        listing.append(dollars)
 
     return listing
 
@@ -150,11 +151,15 @@ def get_shares(args):
             # things up. NOTE THAT WE'RE MAKING A BIG ASSUMPTION that
             # the shares/symbol combo will be unique across accounts.
             match = re.match(SHARES_REGEX, line)
+
+            assert match, "Didn't match on shares regex: {}".format(line)
+
             shares = Shares(*match.groups())
             if (shares.num, shares.symbol) in index:
                 shares = Shares('', '', shares.account)
             else:
                 index.append((shares.num, shares.symbol))
+
             listing.append(shares)
 
     listing.reverse()  # Reverse back to match dollars list order
@@ -181,7 +186,7 @@ def get_investment_report(args):
     for shares, dollars in zip(share_listing, dollar_listing):
 
         assert shares.account == dollars.account, \
-            'shares account: {}, dollars account: {}'.format(
+            'Non-matching accounts. Shares: {}, Dollars: {}'.format(
                 shares.account,
                 dollars.account
             )
