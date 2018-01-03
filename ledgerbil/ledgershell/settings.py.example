@@ -28,3 +28,4 @@ class Settings(object):
         'fusex',    # fidelity 500 index
         'vbtlx',    # vanguard total bond index
     ]
+    PRICE_FILE_FORMAT = 'P {date} {inv:10} ${price}\n'

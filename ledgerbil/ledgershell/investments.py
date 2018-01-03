@@ -218,7 +218,7 @@ def get_investment_report(args):
     return report
 
 
-def get_args(args):
+def get_args(args=[]):
     parser = argparse.ArgumentParser(
         prog='list_investments.py',
         formatter_class=(
@@ -261,6 +261,6 @@ def get_args(args):
     return parser.parse_args(args)
 
 
-def main(argv):
+def main(argv=[]):
     args = get_args(argv)
     print(get_investment_report(args))

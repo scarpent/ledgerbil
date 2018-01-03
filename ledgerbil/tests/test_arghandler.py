@@ -61,7 +61,7 @@ class Arguments(Redirector):
         self.assertTrue(expected in actual)
 
 
-@pytest.mark.parametrize('test_input,expected', [
+@pytest.mark.parametrize('test_input, expected', [
     ('-n', True),
     ('--next-scheduled-date', True),
     ('', False),
