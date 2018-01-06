@@ -27,6 +27,8 @@ account assets: home escrow
 account assets: 401k: cash
 account assets: 401k: big co 500 idx
 account assets: 401k: bonds idx
+account assets: abc: xyz: big co 500 idx
+account assets: abc: xyz: bonds idx
 account assets: ira: cash
 account assets: ira: glass idx
 account assets: mutual: cash
