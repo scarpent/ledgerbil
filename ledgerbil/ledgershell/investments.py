@@ -124,43 +124,39 @@ def get_shares(args):
                  5.000 yyzxx
     """
     listing = []
-    index = []
     lines = get_lines(SHARES, args)
     # Filter out all the extra bogus lines; after this our share list
     # will be the same length as our dollars list, with one line per
     # account "level"
     lines = [x for x in lines if re.search(r'\S  ', x)]
-    # Reverse the list because we only want to use the shares for the
-    # lowest matching level, so we want to encounter that first and then
-    # appropriately not use later instances
+    # Reverse the list to make it easier to find leaf nodes in the
+    # indented tree structure of account names
+    last_indent = 0
     for line in reversed(lines):
         match = re.match(DOLLARS_REGEX, line)
         if match:
             # Cash lines don't have share amounts, just dollars; we'll
-            # make shares/symbols be empty and just have the account
+            # make shares/symbol be empty and just have the account
             # to keep our lists lined up
             dollars = Dollars(*match.groups())
             check_for_negative_dollars(dollars.amount, dollars.account)
-            listing.append(Shares('', '', dollars.account))
+            shares = Shares('', '', dollars.account)
         else:
-            # Only use the shares from the last/lowest instance, e.g.
-            # we want "5.000 yyzxx" to match up with "mutual: total idx";
-            # if we've already found that shares/symbol combo, e.g.
-            # when we again see "5.000 yyzxx" with assets, we'll again
-            # make shares/symbols be empty and keep the account to line
-            # things up. NOTE THAT WE'RE MAKING A BIG ASSUMPTION that
-            # the shares/symbol combo will be unique across accounts.
             match = re.match(SHARES_REGEX, line)
 
             assert match, "Didn't match on shares regex: {}".format(line)
 
             shares = Shares(*match.groups())
-            if (shares.num, shares.symbol) in index:
-                shares = Shares('', '', shares.account)
-            else:
-                index.append((shares.num, shares.symbol))
 
-            listing.append(shares)
+        # Only use the shares from the leaf nodes, which will be
+        # at the same indent or further indented
+        indent = len(shares.account) - len(shares.account.strip())
+        if indent < last_indent:
+            # Same as with cash lines, make shares/symbol empty
+            shares = Shares('', '', shares.account)
+        last_indent = indent
+
+        listing.append(shares)
 
     listing.reverse()  # Reverse back to match dollars list order
     return listing

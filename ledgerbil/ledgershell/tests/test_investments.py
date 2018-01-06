@@ -148,6 +148,57 @@ def test_get_investment_report(mock_ledger_output):
 
 
 @mock.patch(__name__ + '.investments.get_lines')
+def test_get_investment_report_matching_shares_and_symbol(mock_ledger_output):
+    shares = [
+        '            $ 189.00',
+        '        19.796 abcdx',
+        '        40.000 lmnop  assets',
+        '            $ 189.00',
+        '         9.898 abcdx',
+        '        20.000 lmnop     401k',
+        '         9.898 abcdx       big co 500 idx',
+        '        20.000 lmnop       bonds idx',
+        '            $ 189.00       cash',
+        '         9.898 abcdx',
+        '        20.000 lmnop     abc: xyz',
+        '         9.898 abcdx       big co 500 idx',
+        '        20.000 lmnop       bonds idx',
+        '--------------------',
+        '            $ 189.00',
+        '        19.796 abcdx',
+        '        40.000 lmnop',
+        ''
+    ]
+    dollars = [
+        '          $ 2,592.87  assets',
+        '          $ 1,390.94     401k',
+        '            $ 801.94       big co 500 idx',
+        '            $ 400.00       bonds idx',
+        '            $ 189.00       cash',
+        '          $ 1,201.94     abc: xyz',
+        '            $ 801.94       big co 500 idx',
+        '            $ 400.00       bonds idx',
+        '--------------------',
+        '          $ 2,592.87',
+        ''
+    ]
+    mock_ledger_output.side_effect = [shares, dollars]
+    args = investments.get_args([])
+    report = investments.Colorable.get_plain_text(
+        investments.get_investment_report(args)
+    )
+    expected = '''$ 2,592.87   assets
+                         $ 1,390.94      401k
+       9.898 abcdx         $ 801.94        big co 500 idx
+      20.000 lmnop         $ 400.00        bonds idx
+                           $ 189.00        cash
+                         $ 1,201.94      abc: xyz
+       9.898 abcdx         $ 801.94        big co 500 idx
+      20.000 lmnop         $ 400.00        bonds idx'''
+    assert report.strip() == expected
+
+
+@mock.patch(__name__ + '.investments.get_lines')
 def test_get_investment_report_single_line(mock_ledger_output):
     shares = ['        15.000 qwrty  assets: ira: glass idx', '']
     dollars = ['            $ 150.00  assets: ira: glass idx', '']
