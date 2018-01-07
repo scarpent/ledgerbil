@@ -7,10 +7,7 @@ from ..colorable import Colorable
 from .runner import get_ledger_command, get_ledger_output
 from .settings import Settings
 
-# todo: figure out how I got 0 dollar amount with no dollar sign
-#       adding this was the fix, but leaving out for now: |0(?=  )
-# DOLLARS_REGEX = r'^\s*(?:(\$ -?[\d,.]+|0(?=  )))(.*)$'
-DOLLARS_REGEX = r'^\s*(?:(\$ -?[\d,.]+))(.*)$'
+DOLLARS_REGEX = r'^\s*(?:(\$ -?[\d,.]+|0(?=  )))(.*)$'
 SHARES_REGEX = r'\s*(-?[\d,.]+) ([a-zA-Z]+)(.*)$'
 
 Dollars = namedtuple('Dollars', 'amount account')

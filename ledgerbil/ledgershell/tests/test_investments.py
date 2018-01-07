@@ -213,6 +213,38 @@ def test_get_investment_report_matching_shares_and_symbol(mock_ledger_output):
 
 
 @mock.patch(__name__ + '.investments.get_lines')
+def test_zero_dollar_amount(mock_ledger_output):
+    shares = [
+        '        10.000 abcdx',
+        '       -40.000 lmnop  assets: 401k',
+        '        10.000 abcdx     big co 500 idx',
+        '       -40.000 lmnop     bonds idx',
+        '--------------------',
+        '        10.000 abcdx',
+        '       -40.000 lmnop',
+        '',
+        ''
+    ]
+    dollars = [
+        '                   0  assets: 401k',
+        '            $ 800.00     big co 500 idx',
+        '           $ -800.00     bonds idx',
+        '--------------------',
+        '                   0',
+        ''
+    ]
+    mock_ledger_output.side_effect = [shares, dollars]
+    args = investments.get_args([])
+    report = investments.Colorable.get_plain_text(
+        investments.get_investment_report(args)
+    )
+    expected = '''0   assets: 401k
+      10.000 abcdx         $ 800.00      big co 500 idx
+     -40.000 lmnop        $ -800.00      bonds idx'''
+    assert report.strip() == expected
+
+
+@mock.patch(__name__ + '.investments.get_lines')
 def test_get_investment_report_single_line(mock_ledger_output):
     shares = ['        15.000 qwrty  assets: ira: glass idx', '']
     dollars = ['            $ 150.00  assets: ira: glass idx', '']
@@ -351,7 +383,3 @@ def test_args_end_date(test_input, expected):
 def test_args_command(test_input, expected):
     args = investments.get_args(test_input)
     assert args.command == expected
-
-
-def test_zero_dollar():  # if can figure out how that happened...
-    pass
