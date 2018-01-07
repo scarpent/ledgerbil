@@ -7,8 +7,8 @@ from ..colorable import Colorable
 from .runner import get_ledger_command, get_ledger_output
 from .settings import Settings
 
-DOLLARS_REGEX = r'^\s*(?:(\$ -?[\d,.]+|0(?=  )))(.*)$'
-SHARES_REGEX = r'\s*(-?[\d,.]+) ([a-zA-Z]+)(.*)$'
+DOLLARS_REGEX = re.compile(r'^\s*(?:(\$ -?[\d,.]+|0(?=  )))(.*)$')
+SHARES_REGEX = re.compile(r'\s*(-?[\d,.]+) ([a-zA-Z]+)(.*)$')
 
 Dollars = namedtuple('Dollars', 'amount account')
 Shares = namedtuple('Shares', 'num symbol account')
