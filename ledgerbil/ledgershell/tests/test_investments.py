@@ -71,10 +71,24 @@ def test_get_lines_default_args(mock_get_ledger_output, mock_print):
     investments.settings = TestSettings()
     args = investments.get_args([])
     mock_get_ledger_output.return_value = '1\n2\n3\n'
-    lines = investments.get_lines('XYZ', args)
+    lines = investments.get_lines(args)
     assert lines == ['1', '2', '3', '']
     mock_get_ledger_output.assert_called_once_with(
-        'XYZ --market --price-db lmn/ijk bal abc --end xyz'
+        '--market --price-db lmn/ijk bal abc --end xyz'
+    )
+    assert not mock_print.called
+
+
+@mock.patch(__name__ + '.investments.print')
+@mock.patch(__name__ + '.investments.get_ledger_output')
+def test_get_lines_shares(mock_get_ledger_output, mock_print):
+    investments.settings = TestSettings()
+    args = investments.get_args([])
+    mock_get_ledger_output.return_value = '1\n2\n3\n'
+    lines = investments.get_lines(args, shares=True)
+    assert lines == ['1', '2', '3', '']
+    mock_get_ledger_output.assert_called_once_with(
+        '--exchange --market --price-db lmn/ijk bal abc --end xyz'
     )
     assert not mock_print.called
 
@@ -86,12 +100,12 @@ def test_get_lines_print_command(mock_get_ledger_output, mock_print):
     runner.settings = TestSettings()
     args = investments.get_args(['--command'])
     mock_get_ledger_output.return_value = '1\n2\n3\n'
-    lines = investments.get_lines('XYZ', args)
+    lines = investments.get_lines(args)
     assert lines == ['1', '2', '3', '']
     mock_get_ledger_output.assert_called_once_with(
-        'XYZ --market --price-db lmn/ijk bal abc --end xyz'
+        '--market --price-db lmn/ijk bal abc --end xyz'
     )
-    expected_print = ('ledger -f lmn/blarg.ldg -f lmn/glurg.ldg XYZ '
+    expected_print = ('ledger -f lmn/blarg.ldg -f lmn/glurg.ldg '
                       '--market --price-db lmn/ijk bal abc --end xyz ')
     mock_print.assert_called_once_with(expected_print)
 

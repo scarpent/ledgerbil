@@ -7,9 +7,6 @@ from ..colorable import Colorable
 from .runner import get_ledger_command, get_ledger_output
 from .settings import Settings
 
-DOLLARS = ' -V'
-SHARES = ' -X'
-
 # todo: figure out how I got 0 dollar amount with no dollar sign
 #       adding this was the fix, but leaving out for now: |0(?=  )
 # DOLLARS_REGEX = r'^\s*(?:(\$ -?[\d,.]+|0(?=  )))(.*)$'
@@ -23,19 +20,25 @@ settings = Settings()
 
 
 def get_investment_command_options(
+        shares=False,
         accounts=settings.INVESTMENT_DEFAULT_ACCOUNTS,
         begin_date='',
         end_date=settings.INVESTMENT_DEFAULT_END_DATE):
 
+    shares = '--exchange ' if shares else ''
     if begin_date:
         begin_date = ' --begin {}'.format(begin_date)
     end_date = '--end {}'.format(end_date)
 
-    return '--market --price-db {prices} bal {accounts}{begin} {end}'.format(
-        prices=os.path.join(settings.LEDGER_DIR, settings.PRICES_FILE),
-        accounts=accounts,
-        begin=begin_date,
-        end=end_date
+    return (
+        '{shares}--market --price-db {prices} '
+        'bal {accounts}{begin} {end}'.format(
+            shares=shares,
+            prices=os.path.join(settings.LEDGER_DIR, settings.PRICES_FILE),
+            accounts=accounts,
+            begin=begin_date,
+            end=end_date
+        )
     )
 
 
@@ -52,14 +55,12 @@ def check_for_negative_dollars(amount, account):
         )
 
 
-def get_lines(report_type, args):
-    options = '{report} {options}'.format(
-        report=report_type,
-        options=get_investment_command_options(
-            args.accounts,
-            args.begin,
-            args.end
-        )
+def get_lines(args, shares=False):
+    options = get_investment_command_options(
+        shares,
+        args.accounts,
+        args.begin,
+        args.end
     )
     output = get_ledger_output(options)
 
@@ -83,7 +84,7 @@ def get_dollars(args):
                   $ 1,737.19
     """
     listing = []
-    lines = get_lines(DOLLARS, args)
+    lines = get_lines(args)
     for line in lines:
         if line == '' or line[0] == '-':
             break
@@ -122,7 +123,7 @@ def get_shares(args):
                  5.000 yyzxx
     """
     listing = []
-    lines = get_lines(SHARES, args)
+    lines = get_lines(args, shares=True)
     # Filter out all the extra bogus lines; after this our share list
     # will be the same length as our dollars list, with one line per
     # account "level"
