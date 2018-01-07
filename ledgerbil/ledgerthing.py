@@ -28,6 +28,10 @@ class LedgerThing(object):
         r'([!*])?'                    # optional pending/cleared
         r'(?:\s*)?'                   # optional whitespace after p/c
         r'([^;]*?)(?=  |$)'           # account (2 spaces ends acct)
+        r'(?:\s*'                     # optional share info, leading whitespace
+        r'(-?\s*[.,0-9]+)'            # num shares
+        r'([^@;]+(?:@\s+)?)'          # share symbol, optional @, whitespace
+        r')?'                         # close of optional share stuff
         r'\(?([-+*/()$\d.,\s]+)?\)?'  # optional amount expression
         r'(?:;.*$|$)'                 # optional end comment
     )
@@ -49,6 +53,8 @@ class LedgerThing(object):
         self.rec_account_matches = []  # should be only one match
         self.rec_status = ''
         self.rec_amount = 0
+        self.rec_shares = 0
+        self.rec_symbol = ''
 
         if self.is_transaction_start(lines[0]):
             self.is_transaction = True
@@ -93,16 +99,18 @@ class LedgerThing(object):
             if not m:
                 continue
 
-            status, account, amount = m.groups()
+            status, account, shares, symbol, amount = m.groups()
 
             if amount is not None:
                 amount = amount.strip()
                 if amount == '':
                     amount = None
                 else:
-                    amount = util.eval_expr(
-                        re.sub(r'[$,]', '', amount)
-                    )
+                    amount = util.eval_expr(re.sub(r'[$,]', '', amount))
+                    if shares:
+                        shares = util.eval_expr(re.sub(r'[,]', '', shares))
+                        amount = amount * shares
+
                     transaction_total += amount
 
             if self.rec_account not in account:
@@ -131,6 +139,11 @@ class LedgerThing(object):
 
             if amount is None:
                 need_math = True
+                if shares:
+                    pass
+                    # todo: raise exception? I think this would be an
+                    # invalid entry, so do we rely on valid journal or
+                    # should we complain for good measure?
             else:
                 account_total += amount
 
@@ -168,7 +181,7 @@ class LedgerThing(object):
                 lines_out.append(line)
                 continue
 
-            status, account, amount = m.groups()
+            status, account, shares, symbol, amount = m.groups()
             if self.rec_account in account:
                 m = re.match(r'^\s+[!*]?\s*(.*)$', line)
                 assert m
