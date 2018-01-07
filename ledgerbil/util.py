@@ -69,17 +69,26 @@ def parse_args(args):
         return None
 
 
-def get_amount_str(amount):
+def get_amount_str(amount, decimals=2):
     # avoid inconsistent zero signage from floating point machinations
     # (especially important for establishing if we're at zero for a
     # balanced statement)
-    return re.sub(r'^-0.00$', '0.00', '{:.2f}'.format(amount))
+    zero_amount = '{:.{}f}'.format(0, decimals)
+    return re.sub(r'^-0.0+$', zero_amount, '{amount:.{decimals}f}'.format(
+        amount=amount,
+        decimals=decimals
+    ))
 
 
-def get_colored_amount(amount, column_width=1):
-    amount_formatted = '$' + get_amount_str(amount)
+def get_colored_amount(amount, column_width=1, is_shares=False):
+    decimals = 6 if is_shares else 2
+    dollar_sign = '' if is_shares else '$'
+    amount_formatted = '{}{}'.format(
+        dollar_sign,
+        get_amount_str(amount, decimals)
+    )
     # avoid inconsistent 0 coloring from round/float intrigue
-    if amount_formatted == '$0.00':
+    if amount_formatted == '{}{:.{}f}'.format(dollar_sign, 0, decimals):
         amount = 0
 
     color = 'red' if amount < 0 else 'green'

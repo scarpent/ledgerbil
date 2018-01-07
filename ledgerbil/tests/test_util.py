@@ -55,6 +55,13 @@ class UtilTests(TestCase):
         self.assertEqual('3.56', util.get_amount_str(3.561111111111111))
         self.assertEqual('5.00', util.get_amount_str(5))
 
+    def test_get_amount_str_num_decimals(self):
+        self.assertEqual('0.0000', util.get_amount_str(-0.00000000000001, 4))
+        self.assertEqual('0.00000', util.get_amount_str(0.000000000000001, 5))
+        self.assertEqual('0.0060', util.get_amount_str(0.006000, 4))
+        self.assertEqual('3.5679', util.get_amount_str(3.56789, 4))
+        self.assertEqual('5.000000', util.get_amount_str(5, 6))
+
     def test_get_colored_amount(self):
         self.assertEqual(
             '\x1b[0;32m$0.00\x1b[0m',
@@ -83,6 +90,36 @@ class UtilTests(TestCase):
         self.assertEqual(
             '\x1b[0;32m     $9.99\x1b[0m',
             util.get_colored_amount(9.99, column_width=10)
+        )
+
+    def test_get_colored_amount_for_shares(self):
+        self.assertEqual(
+            '\x1b[0;32m0.000000\x1b[0m',
+            util.get_colored_amount(-0.00000000000000000000001, is_shares=True)
+        )
+        self.assertEqual(
+            '\x1b[0;32m0.000000\x1b[0m',
+            util.get_colored_amount(0.00000000000000000000001, is_shares=True)
+        )
+        self.assertEqual(
+            '\x1b[0;31m-3.140000\x1b[0m',
+            util.get_colored_amount(-3.14, is_shares=True)
+        )
+        self.assertEqual(
+            '\x1b[0;32m3.140000\x1b[0m',
+            util.get_colored_amount(3.14, is_shares=True)
+        )
+        self.assertEqual(
+            '\x1b[0;31m-5.678988\x1b[0m',
+            util.get_colored_amount(-5.6789876, is_shares=True)
+        )
+        self.assertEqual(
+            '\x1b[0;32m5.672000\x1b[0m',
+            util.get_colored_amount(5.672, is_shares=True)
+        )
+        self.assertEqual(
+            '\x1b[0;32m        9.990000\x1b[0m',
+            util.get_colored_amount(9.99, column_width=16, is_shares=True)
         )
 
 
