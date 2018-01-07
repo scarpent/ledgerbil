@@ -111,7 +111,7 @@
         }
     },
     {
-        "match": "(\\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(- ?[\\d\\.,_]+)\\s+([a-zA-z_]+)\\s+(@)\\s+",
+        "match": "(\\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(- ?[\\d\\.,_]+)\\s+([a-zA-z_]+)(?:\\s+(@)\\s+|\\s+(?=;)|\\s*$)",
         "captures": {
           "1": { "name": "entity.name.function.assets-hilite-the-label" },
           "2": { "name": "support.class.assets-hilite-the-asset" },
@@ -121,7 +121,7 @@
         }
     },
     {
-        "match": "(\\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?([\\d\\.,_]+)\\s+([a-zA-z_]+)\\s+(@)\\s+",
+        "match": "(\\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?([\\d\\.,_]+)\\s+([a-zA-z_]+)(?:\\s+(@)\\s+|\\s+(?=;)|\\s*$)",
         "captures": {
           "1": { "name": "entity.name.function.assets-hilite-the-label" },
           "2": { "name": "support.class.assets-hilite-the-asset" },
