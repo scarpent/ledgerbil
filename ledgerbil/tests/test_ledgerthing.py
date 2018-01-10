@@ -448,7 +448,7 @@ class ReconcilerParsing(Redirector):
             expected_status=LedgerThing.REC_CLEARED
         )
 
-    def test_multiple_statuses(self):
+    def test_multiple_statuses_raises_exception(self):
         with self.assertRaises(LdgReconcilerMultipleStatuses) as e:
             LedgerThing(
                 [
@@ -486,7 +486,7 @@ class ReconcilerParsing(Redirector):
             str(e.exception)
         )
 
-    def test_multiple_matches(self):
+    def test_multiple_matches_raises_exception(self):
         with self.assertRaises(
                 LdgReconcilerMoreThanOneMatchingAccount
         ) as e:
@@ -528,7 +528,7 @@ class ReconcilerParsing(Redirector):
         )
         self.assertEqual('', self.redirect.getvalue().rstrip())
 
-    def test_multiple_matches_and_statuses(self):
+    def test_multiple_matches_and_statuses_raises_exception(self):
         with self.assertRaises(
                 LdgReconcilerMoreThanOneMatchingAccount
         ) as e:
@@ -660,7 +660,7 @@ class ReconcilerParsing(Redirector):
         self.assertFalse(thing.is_cleared())
 
 
-def test_mixed_shares_and_non_shares():
+def test_mixed_shares_and_non_shares_raises_exception():
     lines = [
         '2018/01/08 blah',
         '    a: xyz  1.234 abc @ $10',
@@ -708,7 +708,7 @@ def test_even_more_shares():
     assert thing.rec_amount == 7
 
 
-def test_mixed_symbols():
+def test_mixed_symbols_raises_exception():
     lines = [
         '2018/01/08 blah',
         '    a: xyz  1.234 abc @ $10',

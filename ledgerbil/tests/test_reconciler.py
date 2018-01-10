@@ -233,7 +233,7 @@ class OutputTests(Redirector):
         assert self.redirect.getvalue().rstrip() == expected
 
 
-def test_mixed_shares_and_non_shares():
+def test_mixed_shares_and_non_shares_raises_exception():
     ledgerfile_data = dedent('''
         2017/11/28 zombie investments
             a: 401k: bonds idx            12.357 qwrty @   $20.05
@@ -254,10 +254,10 @@ def test_mixed_shares_and_non_shares():
 
 class DataTests(Redirector):
 
-    def verify_equal_floats(self, float1, float2):
+    def verify_equal_floats(self, float1, float2, decimals=2):
         self.assertEqual(
-            '{:.2f}'.format(float1),
-            '{:.2f}'.format(float2)
+            '{:.{}f}'.format(float1, decimals),
+            '{:.{}f}'.format(float2, decimals)
         )
 
     def test_init_things(self):
@@ -308,6 +308,40 @@ class DataTests(Redirector):
         )
         self.verify_equal_floats(-15, recon.total_cleared)
         self.verify_equal_floats(-32.12, recon.total_pending)
+
+    def test_list_shares(self):
+        ledgerfile_data = dedent('''
+            2017/11/05 zombie investments
+              ! a: 401k: big co 500 idx       1.555555 abcdx @   $81.02
+                i: investment: adjustment
+
+            2017/11/06 zombie investments
+              ! a: 401k: big co 500 idx       1.666666 abcdx @   $82.50
+                i: investment: adjustment
+
+            2017/11/07 zombie investments
+              * a: 401k: big co 500 idx       1.777777 abcdx @   $87.78
+                i: investment: adjustment
+
+            2017/11/09 zombie investments
+              * a: 401k: big co 500 idx       2.123456 abcdx @   $88.98
+                i: investment: adjustment
+
+            2017/11/11 zombie investments
+                a: 401k: big co 500 idx       2.181818 abcdx @   $89.29
+                i: investment: adjustment
+
+            2017/11/13 zombie investments
+                a: 401k: big co 500 idx       3.123321 abcdx @   $90.11
+                i: investment: adjustment
+        ''')
+
+        with FileTester.temp_input(ledgerfile_data) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, '401k: big co'))
+
+        recon.do_list('')
+        self.verify_equal_floats(3.901233, recon.total_cleared, decimals=6)
+        self.verify_equal_floats(3.222221, recon.total_pending, decimals=6)
 
     def test_list_all(self):
         with FileTester.temp_input(testdata) as tempfilename:
