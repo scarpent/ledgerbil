@@ -184,10 +184,12 @@ class Reconciler(cmd.Cmd, object):
         self.total_pending = 0
 
         is_shares_list = []
+        symbols = set()
 
         for thing in self.ledgerfile.get_things():
             if thing.rec_account_matches:
                 is_shares_list.append(thing.rec_is_shares)
+                symbols.add(thing.rec_symbol)
                 if thing.is_cleared():
                     self.total_cleared += thing.rec_amount
                     continue
@@ -206,6 +208,13 @@ class Reconciler(cmd.Cmd, object):
                 raise LdgReconcilerUnhandledSharesScenario(
                     'Unhandled: shares with non-shares: "{}"'.format(
                         self.ledgerfile.rec_account_matches[0]
+                    )
+                )
+            if self.is_shares and len(symbols) != 1:
+                raise LdgReconcilerUnhandledSharesScenario(
+                    'Unhandled non-matching symbols for "{}": {}'.format(
+                        self.ledgerfile.rec_account_matches[0],
+                        sorted(list(symbols))
                     )
                 )
 

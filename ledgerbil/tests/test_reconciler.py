@@ -259,6 +259,26 @@ def test_mixed_shares_and_non_shares_raises_exception():
     assert str(excinfo.value) == expected
 
 
+def test_mixed_symbols_raises_exception():
+    ledgerfile_data = dedent('''
+        2017/11/28 zombie investments
+            a: 401k: bonds idx            12.357 qwrty @   $20.05
+            i: investment: adjustment
+
+        2017/11/28 zombie investments
+            a: 401k: bonds idx            12.357 abcde @   $20.05
+            i: investment: adjustment
+    ''')
+
+    with FileTester.temp_input(ledgerfile_data) as tempfilename:
+        with pytest.raises(LdgReconcilerUnhandledSharesScenario) as excinfo:
+            Reconciler(LedgerFile(tempfilename, '401k: bonds'))
+
+    expected = ('Unhandled non-matching symbols for "a: 401k: bonds idx": '
+                "['abcde', 'qwrty']")
+    assert str(excinfo.value) == expected
+
+
 def test_init_things():
     with FileTester.temp_input(testdata) as tempfilename:
         ledgerfile = LedgerFile(tempfilename, 'cash')

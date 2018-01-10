@@ -56,6 +56,7 @@ class LedgerThing(object):
         self.rec_status = ''
         self.rec_amount = 0  # can be dollars or num shares if rec_is_shares
         self.rec_is_shares = False
+        self.rec_symbol = None
 
         if self.is_transaction_start(lines[0]):
             self.is_transaction = True
@@ -160,6 +161,7 @@ class LedgerThing(object):
                         lines
                     )
                 )
+            self.rec_symbol = symbols_list[0]
 
         if len(self.rec_account_matches) > 1:
             raise LdgReconcilerMoreThanOneMatchingAccount(
