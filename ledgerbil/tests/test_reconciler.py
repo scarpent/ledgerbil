@@ -259,174 +259,6 @@ def test_mixed_shares_and_non_shares_raises_exception():
     assert str(excinfo.value) == expected
 
 
-class DataTests(Redirector):
-
-    def test_list_all(self):
-        with FileTester.temp_input(testdata) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
-
-        recon.do_list('')
-        payees = {
-            thing.payee for k, thing in
-            recon.current_listing.items()
-        }
-        # future items included only if pending ('three')
-        self.assertEqual(
-            ({'two', 'two pt five', 'three'}),
-            payees
-        )
-        recon.do_list('aLL')
-        payees = {
-            thing.payee for k, thing in
-            recon.current_listing.items()
-        }
-        self.assertEqual(
-            ({'two', 'two pt five', 'three', 'four'}),
-            payees
-        )
-
-    def test_list_and_modify(self):
-
-        with FileTester.temp_input(testdata) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
-            verify_equal_floats(-15, recon.total_cleared)
-            verify_equal_floats(-32.12, recon.total_pending)
-            recon.do_list('')
-            payees = {
-                thing.payee for k, thing in
-                recon.current_listing.items()
-            }
-            self.assertEqual(
-                ({'two', 'two pt five', 'three'}),
-                payees
-            )
-            recon.do_unmark('3')
-
-        # 3 was a pending future transaction, so:
-        # pending total is adjusted and one less current listing
-        # (also, the mark should have triggered a new listing...)
-        payees = {
-            thing.payee for k, thing in
-            recon.current_listing.items()
-        }
-        self.assertEqual(({'two', 'two pt five'}), payees)
-        verify_equal_floats(-15, recon.total_cleared)
-        verify_equal_floats(-2.12, recon.total_pending)
-
-        # open transactions shouldn't change
-        payees = {
-            thing.payee for thing in recon.open_transactions
-        }
-        self.assertEqual(
-            ({'two', 'two pt five', 'three', 'four'}),
-            payees
-        )
-
-    def test_mark_and_unmark(self):
-
-        with FileTester.temp_input(testdata) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
-
-            verify_equal_floats(-15, recon.total_cleared)
-            verify_equal_floats(-32.12, recon.total_pending)
-            recon.do_mark('1')
-            verify_equal_floats(-15, recon.total_cleared)
-            verify_equal_floats(-52.12, recon.total_pending)
-            recon.do_unmark('1 2')
-            verify_equal_floats(-15, recon.total_cleared)
-            verify_equal_floats(-30, recon.total_pending)
-            recon.do_mark('1 2')
-            verify_equal_floats(-15, recon.total_cleared)
-            verify_equal_floats(-52.12, recon.total_pending)
-            recon.do_unmark('2')
-            verify_equal_floats(-15, recon.total_cleared)
-            verify_equal_floats(-50, recon.total_pending)
-            recon.do_mark('1 2 blurg')
-            verify_equal_floats(-15, recon.total_cleared)
-            verify_equal_floats(-52.12, recon.total_pending)
-            recon.do_unmark('blarg 2')
-            verify_equal_floats(-15, recon.total_cleared)
-            verify_equal_floats(-50, recon.total_pending)
-            recon.do_unmark('1 sdjfkljsdfkljsdl 2')
-            verify_equal_floats(-15, recon.total_cleared)
-            verify_equal_floats(-30, recon.total_pending)
-            recon.default('1')
-            verify_equal_floats(-15, recon.total_cleared)
-            verify_equal_floats(-50, recon.total_pending)
-
-        # entry with account on multiple lines
-        with FileTester.temp_input(testdata) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'credit'))
-
-            verify_equal_floats(0, recon.total_cleared)
-            verify_equal_floats(0, recon.total_pending)
-            recon.do_mark('1')
-            verify_equal_floats(0, recon.total_cleared)
-            verify_equal_floats(-33, recon.total_pending)
-            recon.do_unmark('1')
-            verify_equal_floats(0, recon.total_cleared)
-            verify_equal_floats(0, recon.total_pending)
-
-    def test_mark_and_unmark_all(self):
-
-        with FileTester.temp_input(testdata) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
-
-            verify_equal_floats(-15, recon.total_cleared)
-            verify_equal_floats(-32.12, recon.total_pending)
-            recon.do_unmark('all')
-            verify_equal_floats(-15, recon.total_cleared)
-            verify_equal_floats(0, recon.total_pending)
-            recon.do_mark('all')
-            verify_equal_floats(-15, recon.total_cleared)
-            verify_equal_floats(-22.12, recon.total_pending)
-
-    def test_finish_balancing_with_errors(self):
-        """Verify things don't change when there are errors"""
-        with FileTester.temp_input(testdata) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
-
-            recon.finish_balancing()
-
-            payees = {
-                thing.payee for thing in recon.open_transactions
-            }
-            self.assertEqual(
-                ({'two', 'two pt five', 'three', 'four'}),
-                payees
-            )
-            payees = {
-                thing.payee for k, thing in
-                recon.current_listing.items()
-            }
-            # future items included only if pending ('three')
-            self.assertEqual(
-                ({'two', 'two pt five', 'three'}),
-                payees
-            )
-
-            recon.ending_balance = -1234.56
-            recon.finish_balancing()
-
-            self.assertEqual(-1234.56, recon.ending_balance)
-            payees = {
-                thing.payee for thing in recon.open_transactions
-            }
-            self.assertEqual(
-                ({'two', 'two pt five', 'three', 'four'}),
-                payees
-            )
-            payees = {
-                thing.payee for k, thing in
-                recon.current_listing.items()
-            }
-            # future items included only if pending ('three')
-            self.assertEqual(
-                ({'two', 'two pt five', 'three'}),
-                payees
-            )
-
-
 def test_init_things():
     with FileTester.temp_input(testdata) as tempfilename:
         ledgerfile = LedgerFile(tempfilename, 'cash')
@@ -449,6 +281,25 @@ def test_init_things():
     assert recon.ending_balance is None
     assert len(recon.current_listing) == 3
     assert ledgerfile.get_reconciliation_account() == 'a: cash'
+
+
+def test_list_all():
+    with FileTester.temp_input(testdata) as tempfilename:
+        recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+    recon.do_list('')
+    payees = {
+        thing.payee for k, thing in
+        recon.current_listing.items()
+    }
+    # future items included only if pending ('three')
+    assert payees == ({'two', 'two pt five', 'three'})
+    recon.do_list('aLL')
+    payees = {
+        thing.payee for k, thing in
+        recon.current_listing.items()
+    }
+    assert payees == ({'two', 'two pt five', 'three', 'four'})
 
 
 def test_list():
@@ -499,6 +350,127 @@ def test_list_shares():
     recon.do_list('')
     verify_equal_floats(3.901233, recon.total_cleared, decimals=6)
     verify_equal_floats(3.222221, recon.total_pending, decimals=6)
+
+
+def test_list_and_modify():
+
+    with FileTester.temp_input(testdata) as tempfilename:
+        recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+    verify_equal_floats(-15, recon.total_cleared)
+    verify_equal_floats(-32.12, recon.total_pending)
+    recon.do_list('')
+    payees = {
+        thing.payee for k, thing in
+        recon.current_listing.items()
+    }
+    assert payees == ({'two', 'two pt five', 'three'})
+    recon.do_unmark('3')
+
+    # 3 was a pending future transaction, so:
+    # pending total is adjusted and one less current listing
+    # (also, the mark should have triggered a new listing...)
+    payees = {
+        thing.payee for k, thing in
+        recon.current_listing.items()
+    }
+    assert payees == ({'two', 'two pt five'})
+    verify_equal_floats(-15, recon.total_cleared)
+    verify_equal_floats(-2.12, recon.total_pending)
+
+    # open transactions shouldn't change
+    payees = {thing.payee for thing in recon.open_transactions}
+    assert payees == ({'two', 'two pt five', 'three', 'four'})
+
+
+def test_mark_and_unmark():
+
+    with FileTester.temp_input(testdata) as tempfilename:
+        recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+    verify_equal_floats(-15, recon.total_cleared)
+    verify_equal_floats(-32.12, recon.total_pending)
+    recon.do_mark('1')
+    verify_equal_floats(-15, recon.total_cleared)
+    verify_equal_floats(-52.12, recon.total_pending)
+    recon.do_unmark('1 2')
+    verify_equal_floats(-15, recon.total_cleared)
+    verify_equal_floats(-30, recon.total_pending)
+    recon.do_mark('1 2')
+    verify_equal_floats(-15, recon.total_cleared)
+    verify_equal_floats(-52.12, recon.total_pending)
+    recon.do_unmark('2')
+    verify_equal_floats(-15, recon.total_cleared)
+    verify_equal_floats(-50, recon.total_pending)
+    recon.do_mark('1 2 blurg')
+    verify_equal_floats(-15, recon.total_cleared)
+    verify_equal_floats(-52.12, recon.total_pending)
+    recon.do_unmark('blarg 2')
+    verify_equal_floats(-15, recon.total_cleared)
+    verify_equal_floats(-50, recon.total_pending)
+    recon.do_unmark('1 sdjfkljsdfkljsdl 2')
+    verify_equal_floats(-15, recon.total_cleared)
+    verify_equal_floats(-30, recon.total_pending)
+    recon.default('1')
+    verify_equal_floats(-15, recon.total_cleared)
+    verify_equal_floats(-50, recon.total_pending)
+
+    # entry with account on multiple lines
+    with FileTester.temp_input(testdata) as tempfilename:
+        recon = Reconciler(LedgerFile(tempfilename, 'credit'))
+
+    verify_equal_floats(0, recon.total_cleared)
+    verify_equal_floats(0, recon.total_pending)
+    recon.do_mark('1')
+    verify_equal_floats(0, recon.total_cleared)
+    verify_equal_floats(-33, recon.total_pending)
+    recon.do_unmark('1')
+    verify_equal_floats(0, recon.total_cleared)
+    verify_equal_floats(0, recon.total_pending)
+
+
+def test_mark_and_unmark_all():
+
+    with FileTester.temp_input(testdata) as tempfilename:
+        recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+    verify_equal_floats(-15, recon.total_cleared)
+    verify_equal_floats(-32.12, recon.total_pending)
+    recon.do_unmark('all')
+    verify_equal_floats(-15, recon.total_cleared)
+    verify_equal_floats(0, recon.total_pending)
+    recon.do_mark('all')
+    verify_equal_floats(-15, recon.total_cleared)
+    verify_equal_floats(-22.12, recon.total_pending)
+
+
+def test_finish_balancing_with_errors():
+    """Verify things don't change when there are errors"""
+    with FileTester.temp_input(testdata) as tempfilename:
+        recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+    recon.finish_balancing()
+
+    payees = {thing.payee for thing in recon.open_transactions}
+    assert payees == ({'two', 'two pt five', 'three', 'four'})
+    payees = {
+        thing.payee for k, thing in
+        recon.current_listing.items()
+    }
+    # future items included only if pending ('three')
+    assert payees == ({'two', 'two pt five', 'three'})
+
+    recon.ending_balance = -1234.56
+    recon.finish_balancing()
+    assert recon.ending_balance == -1234.56
+    payees = {thing.payee for thing in recon.open_transactions}
+    assert payees == ({'two', 'two pt five', 'three', 'four'})
+    payees = {
+        thing.payee for k, thing in
+        recon.current_listing.items()
+    }
+    # future items included only if pending ('three')
+    assert payees == ({'two', 'two pt five', 'three'})
 
 
 class MockInput(TestCase):
