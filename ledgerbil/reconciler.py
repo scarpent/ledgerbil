@@ -102,7 +102,7 @@ class Reconciler(cmd.Cmd, object):
 
     def do_account(self, args):
         """Print the account being reconciled"""
-        print(self.ledgerfile.get_reconciliation_account())
+        print(self.ledgerfile.rec_account_matched)
 
     def do_mark(self, args):
         """Mark a transaction as pending (!)
@@ -187,7 +187,7 @@ class Reconciler(cmd.Cmd, object):
         symbols = set()
 
         for thing in self.ledgerfile.get_things():
-            if thing.rec_account_matches:
+            if thing.rec_account_matched:
                 is_shares_list.append(thing.rec_is_shares)
                 symbols.add(thing.rec_symbol)
                 if thing.is_cleared():
@@ -207,13 +207,13 @@ class Reconciler(cmd.Cmd, object):
             else:
                 raise LdgReconcilerUnhandledSharesScenario(
                     'Unhandled: shares with non-shares: "{}"'.format(
-                        self.ledgerfile.rec_account_matches[0]
+                        self.ledgerfile.rec_account_matched
                     )
                 )
             if self.is_shares and len(symbols) != 1:
                 raise LdgReconcilerUnhandledSharesScenario(
                     'Unhandled non-matching symbols for "{}": {}'.format(
-                        self.ledgerfile.rec_account_matches[0],
+                        self.ledgerfile.rec_account_matched,
                         sorted(list(symbols))
                     )
                 )
@@ -458,7 +458,7 @@ class Reconciler(cmd.Cmd, object):
         return response
 
     def get_key_and_cache(self):
-        key = self.ledgerfile.get_reconciliation_account()
+        key = self.ledgerfile.rec_account_matched
 
         if os.path.exists(Reconciler.CACHE_FILE):
             try:

@@ -49,7 +49,7 @@ class FileParsingOnInit(Redirector):
         ledgerfile.print_file()
         self.redirect.seek(0)
         self.assertEqual(expected, self.redirect.read())
-        self.assertIsNone(ledgerfile.get_reconciliation_account())
+        self.assertIsNone(ledgerfile.rec_account_matched)
 
     def test_parsed_file_unchanged_via_write(self):
         """file output after parsing should be identical to input"""
@@ -199,7 +199,7 @@ class ReconcilerParsing(Redirector):
             FileTester.test_rec_multiple_match,
             'checking up'
         )
-        self.assertEqual(['a: checking up'], ledgerfile.rec_account_matches)
+        self.assertEqual('a: checking up', ledgerfile.rec_account_matched)
         self.assertEqual('', self.redirect.getvalue().rstrip())
         # multiple matches within a single transaction
         self.reset_redirect()

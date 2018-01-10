@@ -260,14 +260,13 @@ class IsTransactionStart(TestCase):
 
 class ReconcilerParsing(Redirector):
 
-    def verify_reconcile_vars(
-            self,
-            lines,
-            account='not given GyibM3nob1kwJ',
-            expected_matches=(),
-            expected_amount=0.0,
-            expected_status=''
-    ):
+    def verify_reconcile_vars(self,
+                              lines,
+                              account='not given GyibM3nob1kwJ',
+                              expected_match=None,
+                              expected_amount=0.0,
+                              expected_status=''):
+
         if account == 'not given GyibM3nob1kwJ':
             t = LedgerThing(lines)
             account = None
@@ -279,11 +278,7 @@ class ReconcilerParsing(Redirector):
         else:
             self.assertEqual(account, t.rec_account)
 
-        self.assertEqual(
-            len(expected_matches),
-            len(t.rec_account_matches)
-        )
-        self.assertEqual(expected_matches, tuple(t.rec_account_matches))
+        self.assertEqual(expected_match, t.rec_account_matched)
         self.assertEqual(expected_amount, t.rec_amount)
         self.assertEqual(expected_status, t.rec_status)
 
@@ -310,7 +305,7 @@ class ReconcilerParsing(Redirector):
                 '    a: checking   $-25',
             ],
             account='check',
-            expected_matches=('a: checking',),
+            expected_match='a: checking',
             expected_amount=-25
         )
         self.verify_reconcile_vars(
@@ -320,7 +315,7 @@ class ReconcilerParsing(Redirector):
                 '    a: checking   $50  ; this one has a comment',
             ],
             account='check',
-            expected_matches=('a: checking',),
+            expected_match='a: checking',
             expected_amount=50
         )
         # not a matching account
@@ -341,7 +336,7 @@ class ReconcilerParsing(Redirector):
                 '    a: checking',
             ],
             account='check',
-            expected_matches=('a: checking',),
+            expected_match='a: checking',
             expected_amount=-25
         )
         self.verify_reconcile_vars(
@@ -351,7 +346,7 @@ class ReconcilerParsing(Redirector):
                 '    a: checking          ; this one has a comment',
             ],
             account='check',
-            expected_matches=('a: checking',),
+            expected_match='a: checking',
             expected_amount=50
         )
 
@@ -363,7 +358,7 @@ class ReconcilerParsing(Redirector):
                 '    a: checking   $-1,000',
             ],
             account='check',
-            expected_matches=('a: checking',),
+            expected_match='a: checking',
             expected_amount=-1000
         )
 
@@ -384,7 +379,7 @@ class ReconcilerParsing(Redirector):
                 'account assets: checking up'
             ],
             account='a: checking',
-            expected_matches=('a: checking',),
+            expected_match='a: checking',
             expected_amount=-25
         )
 
@@ -396,7 +391,7 @@ class ReconcilerParsing(Redirector):
                 '  ! a: checking   $-25',
             ],
             account='check',
-            expected_matches=('a: checking',),
+            expected_match='a: checking',
             expected_amount=-25,
             expected_status=LedgerThing.REC_PENDING
         )
@@ -407,7 +402,7 @@ class ReconcilerParsing(Redirector):
                 '  * a: checking   $-25',
             ],
             account='check',
-            expected_matches=('a: checking',),
+            expected_match='a: checking',
             expected_amount=-25,
             expected_status=LedgerThing.REC_CLEARED
         )
@@ -418,7 +413,7 @@ class ReconcilerParsing(Redirector):
                 '  ! a: checking   $-25        ; with comment',
             ],
             account='check',
-            expected_matches=('a: checking',),
+            expected_match='a: checking',
             expected_amount=-25,
             expected_status=LedgerThing.REC_PENDING
         )
@@ -432,7 +427,7 @@ class ReconcilerParsing(Redirector):
                 '  ! a: checking',
             ],
             account='check',
-            expected_matches=('a: checking',),
+            expected_match='a: checking',
             expected_amount=-25,
             expected_status=LedgerThing.REC_PENDING
         )
@@ -443,7 +438,7 @@ class ReconcilerParsing(Redirector):
                 '  * a: checking          ; this one has a comment',
             ],
             account='check',
-            expected_matches=('a: checking',),
+            expected_match='a: checking',
             expected_amount=50,
             expected_status=LedgerThing.REC_CLEARED
         )
@@ -500,11 +495,11 @@ class ReconcilerParsing(Redirector):
                 ],
                 'checking'
             )
+        # Exception is raised when second match is found
         self.assertEqual(
             str([
                 'a: checking up',
                 'a: checking down',
-                'a: checking out'
             ]),
             str(e.exception)
         )
@@ -542,19 +537,14 @@ class ReconcilerParsing(Redirector):
                 ],
                 'checking'
             )
+        # Exception is raised when second match is found, before status check
         self.assertEqual(
             str([
                 'a: checking up',
                 'a: checking down',
-                'a: checking out'
             ]),
             str(e.exception)
         )
-        # we don't print the error message for multiple statuses when
-        # there are multiple matches; it's all blowing up anyway, and
-        # a good chance it's because of the multiple matches that we
-        # have multiple statuses
-        self.assertEqual('', self.redirect.getvalue().rstrip())
 
     def test_multiple_lines_for_same_account(self):
         self.verify_reconcile_vars(
@@ -565,7 +555,7 @@ class ReconcilerParsing(Redirector):
                 '    a: checking   $-25'
             ],
             account='a: checking',
-            expected_matches=('a: checking',),
+            expected_match='a: checking',
             expected_amount=-35
         )
         self.assertEqual('', self.redirect.getvalue().rstrip())
@@ -579,7 +569,7 @@ class ReconcilerParsing(Redirector):
                 '  ! a: checking   $-25'
             ],
             account='a: checking',
-            expected_matches=('a: checking',),
+            expected_match='a: checking',
             expected_amount=-35,
             expected_status=LedgerThing.REC_PENDING
         )
@@ -594,7 +584,7 @@ class ReconcilerParsing(Redirector):
                 '    a: checking                       ; todo',
             ],
             account='check',
-            expected_matches=('a: checking',),
+            expected_match='a: checking',
             expected_amount=-42.48875
         )
         self.verify_reconcile_vars(
@@ -605,7 +595,7 @@ class ReconcilerParsing(Redirector):
                 '    a: checking                       ; todo',
             ],
             account='check',
-            expected_matches=('a: checking',),
+            expected_match='a: checking',
             expected_amount=-161.81875
         )
         self.verify_reconcile_vars(
@@ -616,7 +606,7 @@ class ReconcilerParsing(Redirector):
                 '    a: checking',
             ],
             account='check',
-            expected_matches=('a: checking',),
+            expected_match='a: checking',
             expected_amount=-179.99
         )
 
@@ -633,7 +623,7 @@ class ReconcilerParsing(Redirector):
                 '    a: checking  ($5 * 2); comment',
             ],
             account='check',
-            expected_matches=('a: checking',),
+            expected_match='a: checking',
             expected_amount=60
         )
 

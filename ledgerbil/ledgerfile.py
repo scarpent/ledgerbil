@@ -19,7 +19,7 @@ class LedgerFile(object):
     def reset(self):
         self.thing_counter = 0
         self.things = []
-        self.rec_account_matches = []  # should be only one match
+        self.rec_account_matched = None  # full account name
 
         try:
             self._read_file()
@@ -79,20 +79,14 @@ class LedgerFile(object):
 
     def add_things(self, things):
         for thing in things:
-
-            if self.rec_account and len(thing.rec_account_matches) > 0:
-                assert len(thing.rec_account_matches) == 1
-                thing_account = thing.rec_account_matches[0]
-                if thing_account not in self.rec_account_matches:
-                    self.rec_account_matches.append(thing_account)
-
-                # unlike LedgerThing multiple match checking, we'll
-                # raise this one right away, since we don't know how
-                # many things are still to be added, if any
-                if len(self.rec_account_matches) > 1:
-                    raise LdgReconcilerMoreThanOneMatchingAccount(
-                        self.rec_account_matches
-                    )
+            if self.rec_account and thing.rec_account_matched:
+                if not self.rec_account_matched:
+                    self.rec_account_matched = thing.rec_account_matched
+                elif self.rec_account_matched != thing.rec_account_matched:
+                    raise LdgReconcilerMoreThanOneMatchingAccount([
+                        self.rec_account_matched,
+                        thing.rec_account_matched
+                    ])
 
             thing.thing_number = self.thing_counter
             self.get_things().append(thing)
@@ -127,9 +121,3 @@ class LedgerFile(object):
                 for line in thing.get_lines():
                     the_file.write(line + '\n')
                 the_file.write('\n')
-
-    def get_reconciliation_account(self):
-        if len(self.rec_account_matches) == 1:
-            return self.rec_account_matches[0]
-        else:
-            return None

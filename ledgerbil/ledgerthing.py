@@ -52,7 +52,7 @@ class LedgerThing(object):
 
         # reconciliation
         self.rec_account = reconcile_account  # could be partial
-        self.rec_account_matches = []  # should be only one match
+        self.rec_account_matched = None  # full account name
         self.rec_status = ''
         self.rec_amount = 0  # can be dollars or num shares if rec_is_shares
         self.rec_is_shares = False
@@ -96,6 +96,7 @@ class LedgerThing(object):
         account_total = 0
         need_math = False
         previous_status = None
+        account_list = []  # To check if all recon accounts match
         shares_list = []  # To check if all recon entries are shares
         symbols_list = []  # To check if all symbols are the same
         for line in lines:
@@ -116,6 +117,13 @@ class LedgerThing(object):
 
             if self.rec_account not in account:
                 continue
+            else:
+                self.rec_account_matched = account
+                account_list.append(account)
+                if len(set(account_list)) > 1:
+                    raise LdgReconcilerMoreThanOneMatchingAccount(
+                        account_list
+                    )
 
             shares_list.append(shares)
             if shares is not None:
@@ -123,20 +131,12 @@ class LedgerThing(object):
                 self.rec_is_shares = True
                 amount = float(re.sub(r'[, ]', '', shares))
 
-            if account.strip() not in self.rec_account_matches:
-                self.rec_account_matches.append(account.strip())
-
             status = status if status else ''
             if previous_status is None:
                 self.rec_status = status
                 previous_status = status
             else:
-                if previous_status != status \
-                        and len(self.rec_account_matches) < 2:
-
-                    # not going to raise this if multiple account
-                    # matches since it's blowing up anyway, and maybe
-                    # multiple statuses because of multiple accounts
+                if previous_status != status:
                     raise LdgReconcilerMultipleStatuses(
                         REC_STATUS_ERROR_MESSAGE.format(
                             date=self.get_date_string(),
@@ -163,18 +163,13 @@ class LedgerThing(object):
                 )
             self.rec_symbol = symbols_list[0]
 
-        if len(self.rec_account_matches) > 1:
-            raise LdgReconcilerMoreThanOneMatchingAccount(
-                self.rec_account_matches
-            )
+        if need_math:
+            # transaction_total should be 0; use it to adjust
+            account_total -= transaction_total
+            transaction_total -= transaction_total
+            assert transaction_total == 0
 
-        if len(self.rec_account_matches) > 0:
-            if need_math:
-                # transaction_total should be 0; use it to adjust
-                account_total -= transaction_total
-                transaction_total -= transaction_total
-                assert transaction_total == 0
-            self.rec_amount = account_total
+        self.rec_amount = account_total
 
     def get_lines(self):
         if not self.is_transaction:
@@ -186,7 +181,7 @@ class LedgerThing(object):
             self.lines[0]
         )]
 
-        if not self.rec_account_matches:
+        if self.rec_account_matched is None:
             return lines_out + self.lines[1:]
 
         current_status = ' ' if not self.rec_status else self.rec_status

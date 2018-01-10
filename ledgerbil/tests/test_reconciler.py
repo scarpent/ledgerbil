@@ -300,7 +300,7 @@ def test_init_things():
     assert recon.ending_date == date.today()
     assert recon.ending_balance is None
     assert len(recon.current_listing) == 3
-    assert ledgerfile.get_reconciliation_account() == 'a: cash'
+    assert ledgerfile.rec_account_matched == 'a: cash'
 
 
 def test_list_all():
