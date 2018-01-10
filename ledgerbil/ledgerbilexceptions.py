@@ -25,3 +25,7 @@ class LdgReconcilerMoreThanOneMatchingAccount(LdgException):
 
 class LdgReconcilerMultipleStatuses(LdgException):
     pass
+
+
+class LdgReconcilerUnhandledSharesScenario(LdgException):
+    pass

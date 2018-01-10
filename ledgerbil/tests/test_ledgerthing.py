@@ -1,10 +1,11 @@
-"""unit test for ledgerthing.py"""
-
 from datetime import date
 from unittest import TestCase
 
+import pytest
+
 from ..ledgerbilexceptions import (LdgReconcilerMoreThanOneMatchingAccount,
-                                   LdgReconcilerMultipleStatuses)
+                                   LdgReconcilerMultipleStatuses,
+                                   LdgReconcilerUnhandledSharesScenario)
 from ..ledgerthing import (REC_STATUS_ERROR_MESSAGE, UNSPECIFIED_PAYEE,
                            LedgerThing)
 from .helpers import Redirector
@@ -657,3 +658,67 @@ class ReconcilerParsing(Redirector):
         thing.set_uncleared()
         self.assertFalse(thing.is_pending())
         self.assertFalse(thing.is_cleared())
+
+
+def test_mixed_shares_and_non_shares():
+    lines = [
+        '2018/01/08 blah',
+        '    a: xyz  1.234 abc @ $10',
+        '    a: xyz',
+    ]
+    with pytest.raises(LdgReconcilerUnhandledSharesScenario) as excinfo:
+        LedgerThing(lines, reconcile_account='xyz')
+    expected = 'Unhandled: shares with non-shares: {}'.format(lines[1:])
+    assert str(excinfo.value) == expected
+
+
+def test_shares():
+    lines = [
+        '2018/01/08 blah',
+        '    a: xyz  1.234 abc @ $10',
+        '    a: abc',
+    ]
+    thing = LedgerThing(lines, reconcile_account='xyz')
+    assert thing.rec_is_shares is True
+    assert thing.rec_amount == 1.234
+
+
+def test_more_shares():
+    lines = [
+        '2018/01/08 blah',
+        '    a: xyz  1.234 abc @ $10',
+        '    a: xyz  -0.234 abc',
+        '    a: abc',
+    ]
+    thing = LedgerThing(lines, reconcile_account='xyz')
+    assert thing.rec_is_shares is True
+    assert thing.rec_amount == 1
+
+
+def test_even_more_shares():
+    lines = [
+        '2018/01/08 blah',
+        '    a: xyz  1.000 abc@ $10',
+        '    a: xyz  2.000 abc @$10',
+        '    a: xyz  4.000 abc@$10',
+        '    a: abc',
+    ]
+    thing = LedgerThing(lines, reconcile_account='xyz')
+    assert thing.rec_is_shares is True
+    assert thing.rec_amount == 7
+
+
+def test_mixed_symbols():
+    lines = [
+        '2018/01/08 blah',
+        '    a: xyz  1.234 abc @ $10',
+        '    a: xyz  4.321 abc @ $10',
+        '    a: xyz  5.678 qqq @ $15',
+    ]
+    with pytest.raises(LdgReconcilerUnhandledSharesScenario) as excinfo:
+        LedgerThing(lines, reconcile_account='xyz')
+    expected = "Unhandled non-matching symbols: {symbols}, {lines}".format(
+        symbols=['abc', 'qqq'],
+        lines=lines[1:]
+    )
+    assert str(excinfo.value) == expected

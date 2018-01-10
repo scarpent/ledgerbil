@@ -3,9 +3,11 @@ from datetime import date
 from textwrap import dedent
 from unittest import TestCase
 
+import pytest
 from dateutil.relativedelta import relativedelta
 
 from .. import reconciler, util
+from ..ledgerbilexceptions import LdgReconcilerUnhandledSharesScenario
 from ..ledgerfile import LedgerFile
 from ..reconciler import Reconciler
 from .filetester import FileTester
@@ -229,6 +231,25 @@ class OutputTests(Redirector):
         self.reset_redirect()
         recon.show_transaction('1 2')
         assert self.redirect.getvalue().rstrip() == expected
+
+
+def test_mixed_shares_and_non_shares():
+    ledgerfile_data = dedent('''
+        2017/11/28 zombie investments
+            a: 401k: bonds idx            12.357 qwrty @   $20.05
+            i: investment: adjustment
+
+        2017/11/28 zombie investments
+            a: 401k: bonds idx
+            i: investment: adjustment     $100,000
+    ''')
+
+    with FileTester.temp_input(ledgerfile_data) as tempfilename:
+        with pytest.raises(LdgReconcilerUnhandledSharesScenario) as excinfo:
+            Reconciler(LedgerFile(tempfilename, '401k: bonds'))
+
+    expected = 'Unhandled: shares with non-shares: "a: 401k: bonds idx"'
+    assert str(excinfo.value) == expected
 
 
 class DataTests(Redirector):

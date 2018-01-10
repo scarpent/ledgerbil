@@ -4,7 +4,8 @@ import re
 
 from . import util
 from .ledgerbilexceptions import (LdgReconcilerMoreThanOneMatchingAccount,
-                                  LdgReconcilerMultipleStatuses)
+                                  LdgReconcilerMultipleStatuses,
+                                  LdgReconcilerUnhandledSharesScenario)
 
 UNSPECIFIED_PAYEE = '<Unspecified payee>'
 
@@ -30,7 +31,8 @@ class LedgerThing(object):
         r'([^;]*?)(?=  |$)'           # account (2 spaces ends acct)
         r'(?:\s*'                     # optional share info, leading whitespace
         r'(-?\s*[.,0-9]+)'            # num shares
-        r'([^@;]+(?:@\s+)?)'          # share symbol, optional @, whitespace
+        r'(?:\s+([^@; ]+))'           # symbol
+        r'(?:\s*@\s*)?'               # optional @
         r')?'                         # close of optional share stuff
         r'\(?([-+*/()$\d.,\s]+)?\)?'  # optional amount expression
         r'(?:;.*$|$)'                 # optional end comment
@@ -52,9 +54,8 @@ class LedgerThing(object):
         self.rec_account = reconcile_account  # could be partial
         self.rec_account_matches = []  # should be only one match
         self.rec_status = ''
-        self.rec_amount = 0
-        self.rec_shares = 0
-        self.rec_symbol = ''
+        self.rec_amount = 0  # can be dollars or num shares if rec_is_shares
+        self.rec_is_shares = False
 
         if self.is_transaction_start(lines[0]):
             self.is_transaction = True
@@ -81,7 +82,7 @@ class LedgerThing(object):
 
     def _parse_transaction_lines(self, lines):
         if not self.rec_account or not lines:
-            # currently only care about transaction lines if reconciling
+            # only care about transaction lines if reconciling
             return
 
         # - most likely only one line for the account we're reconciling,
@@ -94,6 +95,8 @@ class LedgerThing(object):
         account_total = 0
         need_math = False
         previous_status = None
+        shares_list = []  # To check if all recon entries are shares
+        symbols_list = []  # To check if all symbols are the same
         for line in lines:
             m = re.match(self.ENTRY_REGEX, line)
             if not m:
@@ -107,14 +110,17 @@ class LedgerThing(object):
                     amount = None
                 else:
                     amount = util.eval_expr(re.sub(r'[$,]', '', amount))
-                    if shares:
-                        shares = util.eval_expr(re.sub(r'[,]', '', shares))
-                        amount = amount * shares
 
                     transaction_total += amount
 
             if self.rec_account not in account:
                 continue
+
+            shares_list.append(shares)
+            if shares is not None:
+                symbols_list.append(symbol)
+                self.rec_is_shares = True
+                amount = float(re.sub(r'[, ]', '', shares))
 
             if account.strip() not in self.rec_account_matches:
                 self.rec_account_matches.append(account.strip())
@@ -139,13 +145,21 @@ class LedgerThing(object):
 
             if amount is None:
                 need_math = True
-                if shares:
-                    pass
-                    # todo: raise exception? I think this would be an
-                    # invalid entry, so do we rely on valid journal or
-                    # should we complain for good measure?
             else:
                 account_total += amount
+
+        if self.rec_is_shares:
+            if None in shares_list:
+                raise LdgReconcilerUnhandledSharesScenario(
+                    'Unhandled: shares with non-shares: {}'.format(lines)
+                )
+            elif len(set(symbols_list)) != 1:
+                raise LdgReconcilerUnhandledSharesScenario(
+                    'Unhandled non-matching symbols: {}, {}'.format(
+                        sorted(list(set(symbols_list))),
+                        lines
+                    )
+                )
 
         if len(self.rec_account_matches) > 1:
             raise LdgReconcilerMoreThanOneMatchingAccount(

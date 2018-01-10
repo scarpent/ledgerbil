@@ -5,6 +5,7 @@ from datetime import date
 
 from . import util
 from .colorable import Colorable
+from .ledgerbilexceptions import LdgReconcilerUnhandledSharesScenario
 
 
 class Reconciler(cmd.Cmd, object):
@@ -42,6 +43,7 @@ class Reconciler(cmd.Cmd, object):
         self.current_listing = {}
         self.total_cleared = 0
         self.total_pending = 0
+        self.is_shares = False
 
         self.populate_open_transactions()
 
@@ -181,8 +183,11 @@ class Reconciler(cmd.Cmd, object):
         self.total_cleared = 0
         self.total_pending = 0
 
+        is_shares_list = []
+
         for thing in self.ledgerfile.get_things():
             if thing.rec_account_matches:
+                is_shares_list.append(thing.rec_is_shares)
                 if thing.is_cleared():
                     self.total_cleared += thing.rec_amount
                     continue
@@ -191,6 +196,18 @@ class Reconciler(cmd.Cmd, object):
                     self.total_pending += thing.rec_amount
 
                 self.open_transactions.append(thing)
+
+        if self.open_transactions:
+            if all(is_shares is True for is_shares in is_shares_list):
+                self.is_shares = True
+            elif all(is_shares is False for is_shares in is_shares_list):
+                self.is_shares = False
+            else:
+                raise LdgReconcilerUnhandledSharesScenario(
+                    'Unhandled: shares with non-shares: "{}"'.format(
+                        self.ledgerfile.rec_account_matches[0]
+                    )
+                )
 
         self.do_list('')
 
@@ -273,7 +290,8 @@ class Reconciler(cmd.Cmd, object):
                     ),
                     amount=util.get_colored_amount(
                         thing.rec_amount,
-                        10
+                        column_width=16 if thing.rec_is_shares else 10,
+                        is_shares=thing.rec_is_shares
                     ),
                     status=thing.rec_status
                 )
@@ -282,12 +300,18 @@ class Reconciler(cmd.Cmd, object):
         if self.ending_balance is None:
             end_balance = Colorable('cyan', '(not set)')
         else:
-            end_balance = util.get_colored_amount(self.ending_balance)
+            end_balance = util.get_colored_amount(
+                self.ending_balance,
+                is_shares=self.is_shares
+            )
 
         print(
             '\nending date: {end_date} ending balance: {end_balance} '
             'cleared: {cleared}'.format(
-                cleared=util.get_colored_amount(self.total_cleared),
+                cleared=util.get_colored_amount(
+                    self.total_cleared,
+                    is_shares=self.is_shares
+                ),
                 end_balance=end_balance,
                 end_date=Colorable(
                     'cyan',
@@ -298,7 +322,10 @@ class Reconciler(cmd.Cmd, object):
 
         if self.ending_balance is not None:
             print('to zero: {}'.format(
-                util.get_colored_amount(self.get_zero_candidate())
+                util.get_colored_amount(
+                    self.get_zero_candidate(),
+                    is_shares=self.is_shares
+                )
             ))
 
         print()
