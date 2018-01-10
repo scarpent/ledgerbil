@@ -121,9 +121,11 @@ def get_shares(args):
     """
     listing = []
     lines = get_lines(args, shares=True)
-    # Filter out all the extra bogus lines; after this our share list
-    # will be the same length as our dollars list, with one line per
-    # account "level"
+    # Filter out all the lines not attached to an account name; after
+    # this our share list will be the same length as our dollars list,
+    # with one line per account "level"
+    # (Note: We can't handle multiple symbols for an account. Should
+    #        we catch this and error out?)
     lines = [x for x in lines if re.search(r'\S  ', x)]
     # Reverse the list to make it easier to find leaf nodes in the
     # indented tree structure of account names
