@@ -8,12 +8,7 @@ from .ledgerbilexceptions import (LdgReconcilerMoreThanOneMatchingAccount,
                                   LdgReconcilerUnhandledSharesScenario)
 
 UNSPECIFIED_PAYEE = '<Unspecified payee>'
-
-REC_STATUS_ERROR_MESSAGE = (
-    "I don't know how to handle different reconciliation statuses "
-    "(pending/cleared) for the same account within a transaction: "
-    "Date: {date}, Payee: {payee}"
-)
+DATE_AND_PAYEE = 'Date: {date}, Payee: {payee}'
 
 
 class LedgerThing(object):
@@ -130,9 +125,11 @@ class LedgerThing(object):
             statuses.add(status)
             if len(statuses) > 1:
                 raise LdgReconcilerMultipleStatuses(
-                    REC_STATUS_ERROR_MESSAGE.format(
-                        date=self.get_date_string(),
-                        payee=self.payee
+                    'Unhandled multiple statuses: {}'.format(
+                        DATE_AND_PAYEE.format(
+                            date=self.get_date_string(),
+                            payee=self.payee
+                        )
                     )
                 )
 

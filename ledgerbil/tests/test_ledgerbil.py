@@ -5,7 +5,7 @@ from unittest import TestCase
 from dateutil.relativedelta import relativedelta
 
 from .. import ledgerbil, util
-from ..ledgerthing import REC_STATUS_ERROR_MESSAGE
+from ..ledgerthing import DATE_AND_PAYEE
 from .filetester import FileTester as FT
 from .helpers import Redirector
 from .schedulething_tester import ScheduleThingTester
@@ -187,9 +187,11 @@ class ReconcilerTests(Redirector):
             ])
         self.assertEqual(-1, cm.exception.code)
         self.assertEqual(
-            REC_STATUS_ERROR_MESSAGE.format(
-                date='2016/10/08',
-                payee='zillion'
+            'Unhandled multiple statuses: {}'.format(
+                DATE_AND_PAYEE.format(
+                    date='2016/10/08',
+                    payee='zillion'
+                )
             ),
             self.redirect.getvalue().rstrip()
         )

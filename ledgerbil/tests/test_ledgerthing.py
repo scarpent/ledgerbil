@@ -6,8 +6,7 @@ import pytest
 from ..ledgerbilexceptions import (LdgReconcilerMoreThanOneMatchingAccount,
                                    LdgReconcilerMultipleStatuses,
                                    LdgReconcilerUnhandledSharesScenario)
-from ..ledgerthing import (REC_STATUS_ERROR_MESSAGE, UNSPECIFIED_PAYEE,
-                           LedgerThing)
+from ..ledgerthing import DATE_AND_PAYEE, UNSPECIFIED_PAYEE, LedgerThing
 from .helpers import Redirector
 
 
@@ -455,9 +454,11 @@ class ReconcilerParsing(Redirector):
                 'checking'
             )
         self.assertEqual(
-            REC_STATUS_ERROR_MESSAGE.format(
-                date='2016/10/23',
-                payee='blah'
+            'Unhandled multiple statuses: {}'.format(
+                DATE_AND_PAYEE.format(
+                    date='2016/10/23',
+                    payee='blah'
+                )
             ),
             str(e.exception)
         )
@@ -474,9 +475,11 @@ class ReconcilerParsing(Redirector):
                 'checking'
             )
         self.assertEqual(
-            REC_STATUS_ERROR_MESSAGE.format(
-                date='2016/10/23',
-                payee='blah'
+            'Unhandled multiple statuses: {}'.format(
+                DATE_AND_PAYEE.format(
+                    date='2016/10/23',
+                    payee='blah'
+                )
             ),
             str(e.exception)
         )
