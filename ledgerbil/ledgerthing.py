@@ -118,6 +118,7 @@ class LedgerThing(object):
             else:
                 matched_accounts.add(account)
                 if len(matched_accounts) > 1:
+                    # todo: include DATE_AND_PAYEE
                     raise LdgReconcilerMoreThanOneMatchingAccount(
                         sorted(list(matched_accounts))
                     )
@@ -138,6 +139,7 @@ class LedgerThing(object):
                 self.rec_is_shares = True
                 symbols.add(symbol)
                 if len(symbols) > 1:
+                    # todo: include DATE_AND_PAYEE
                     raise LdgReconcilerUnhandledSharesScenario(
                         'Unhandled non-matching symbols: {}, {}'.format(
                             sorted(list(set(symbols))),
@@ -147,6 +149,7 @@ class LedgerThing(object):
                 amount = float(re.sub(r'[, ]', '', shares))
 
             if self.rec_is_shares and None in shareses:
+                # todo: include DATE_AND_PAYEE
                 raise LdgReconcilerUnhandledSharesScenario(
                     'Unhandled shares with non-shares: {}'.format(lines)
                 )
