@@ -3,9 +3,7 @@
 import re
 
 from . import util
-from .ledgerbilexceptions import (LdgReconcilerMoreThanOneMatchingAccount,
-                                  LdgReconcilerMultipleStatuses,
-                                  LdgReconcilerUnhandledSharesScenario)
+from .ledgerbilexceptions import LdgReconcilerError
 
 UNSPECIFIED_PAYEE = '<Unspecified payee>'
 DATE_AND_PAYEE = 'Date: {date}, Payee: {payee}'
@@ -119,13 +117,14 @@ class LedgerThing(object):
                 matched_accounts.add(account)
                 if len(matched_accounts) > 1:
                     # todo: include DATE_AND_PAYEE
-                    raise LdgReconcilerMoreThanOneMatchingAccount(
-                        sorted(list(matched_accounts))
-                    )
+                    message = 'More than one matching account:\n'
+                    for account in sorted(list(matched_accounts)):
+                        message += '    {}\n'.format(account)
+                    raise LdgReconcilerError(message[:-1])
 
             statuses.add(status)
             if len(statuses) > 1:
-                raise LdgReconcilerMultipleStatuses(
+                raise LdgReconcilerError(
                     'Unhandled multiple statuses: {}'.format(
                         DATE_AND_PAYEE.format(
                             date=self.get_date_string(),
@@ -140,7 +139,7 @@ class LedgerThing(object):
                 symbols.add(symbol)
                 if len(symbols) > 1:
                     # todo: include DATE_AND_PAYEE
-                    raise LdgReconcilerUnhandledSharesScenario(
+                    raise LdgReconcilerError(
                         'Unhandled non-matching symbols: {}, {}'.format(
                             sorted(list(set(symbols))),
                             lines
@@ -150,7 +149,7 @@ class LedgerThing(object):
 
             if self.rec_is_shares and None in shareses:
                 # todo: include DATE_AND_PAYEE
-                raise LdgReconcilerUnhandledSharesScenario(
+                raise LdgReconcilerError(
                     'Unhandled shares with non-shares: {}'.format(lines)
                 )
 

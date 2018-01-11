@@ -60,14 +60,14 @@ class MainErrors(Redirector):
         ledgerbil.main(['-n'])
         self.assertEqual(
             'error: -S/--schedule-file is required',
-            self.redirect.getvalue().strip()
+            self.redirecterr.getvalue().strip()
         )
 
     def test_main_file_required(self):
         ledgerbil.main([])
         self.assertEqual(
             'error: -f/--file is required',
-            self.redirect.getvalue().strip()
+            self.redirecterr.getvalue().strip()
         )
 
 
@@ -152,40 +152,34 @@ class ReconcilerTests(Redirector):
 
     def test_multiple_matches(self):
         # in different transactions
-        with self.assertRaises(SystemExit) as cm:
-            ledgerbil.main([
-                '--file', FT.test_rec_multiple_match,
-                '--reconcile', 'checking'
-            ])
-        self.assertEqual(-1, cm.exception.code)
+        ledgerbil.main([
+            '--file', FT.test_rec_multiple_match,
+            '--reconcile', 'checking'
+        ])
         self.assertEqual(
-            'Reconcile error. More than one matching account:\n'
+            'More than one matching account:\n'
             '    a: checking down\n'
             '    a: checking up',
             self.redirect.getvalue().rstrip()
         )
         # in same transaction
         self.reset_redirect()
-        with self.assertRaises(SystemExit) as cm:
-            ledgerbil.main([
-                '--file', FT.test_rec_multiple_match,
-                '--reconcile', 'cash'
-            ])
-        self.assertEqual(-1, cm.exception.code)
+        ledgerbil.main([
+            '--file', FT.test_rec_multiple_match,
+            '--reconcile', 'cash'
+        ])
         self.assertEqual(
-            'Reconcile error. More than one matching account:\n'
+            'More than one matching account:\n'
             '    a: cash in\n'
             '    a: cash out',
             self.redirect.getvalue().rstrip()
         )
 
     def test_multiple_statuses(self):
-        with self.assertRaises(SystemExit) as cm:
-            ledgerbil.main([
-                '--file', FT.test_rec_multiple_match,
-                '--reconcile', 'mattress'
-            ])
-        self.assertEqual(-1, cm.exception.code)
+        ledgerbil.main([
+            '--file', FT.test_rec_multiple_match,
+            '--reconcile', 'mattress'
+        ])
         self.assertEqual(
             'Unhandled multiple statuses: {}'.format(
                 DATE_AND_PAYEE.format(

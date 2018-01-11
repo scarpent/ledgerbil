@@ -7,7 +7,7 @@ import pytest
 from dateutil.relativedelta import relativedelta
 
 from .. import reconciler, util
-from ..ledgerbilexceptions import LdgReconcilerUnhandledSharesScenario
+from ..ledgerbilexceptions import LdgReconcilerError
 from ..ledgerfile import LedgerFile
 from ..reconciler import Reconciler
 from .filetester import FileTester
@@ -252,7 +252,7 @@ def test_mixed_shares_and_non_shares_raises_exception():
     ''')
 
     with FileTester.temp_input(ledgerfile_data) as tempfilename:
-        with pytest.raises(LdgReconcilerUnhandledSharesScenario) as excinfo:
+        with pytest.raises(LdgReconcilerError) as excinfo:
             Reconciler(LedgerFile(tempfilename, '401k: bonds'))
 
     expected = 'Unhandled shares with non-shares: "a: 401k: bonds idx"'
@@ -271,7 +271,7 @@ def test_mixed_symbols_raises_exception():
     ''')
 
     with FileTester.temp_input(ledgerfile_data) as tempfilename:
-        with pytest.raises(LdgReconcilerUnhandledSharesScenario) as excinfo:
+        with pytest.raises(LdgReconcilerError) as excinfo:
             Reconciler(LedgerFile(tempfilename, '401k: bonds'))
 
     expected = ('Unhandled non-matching symbols for "a: 401k: bonds idx": '

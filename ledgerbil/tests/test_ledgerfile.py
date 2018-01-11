@@ -1,8 +1,9 @@
-"""unit test for ledgerfile.py"""
-
 from os import chmod, remove
 from unittest import TestCase
 
+import pytest
+
+from ..ledgerbilexceptions import LdgReconcilerError
 from ..ledgerfile import LedgerFile
 from ..ledgerthing import LedgerThing
 from .filetester import FileTester
@@ -184,27 +185,19 @@ class Sorting(TestCase):
         self.assertEqual(expected, actual)
 
 
-class ReconcilerParsing(Redirector):
+def test_reconciler_multiple_matches_across_transactions():
+    # individual checking transactions ok, but multiple across file
+    with pytest.raises(LdgReconcilerError) as excinfo:
+        LedgerFile(FileTester.test_rec_multiple_match, 'checking')
+    expected = ('More than one matching account:\n'
+                '    a: checking down\n    a: checking up')
+    assert str(excinfo.value) == expected
 
-    def test_multiple_matches(self):
-        # individual checking transactions ok, but multiple across file
-        with self.assertRaises(SystemExit):
-            LedgerFile(FileTester.test_rec_multiple_match, 'checking')
-        expected = ('Reconcile error. More than one matching account:\n'
-                    '    a: checking down\n    a: checking up')
-        self.assertEqual(expected, self.redirect.getvalue().rstrip())
-        # expand our account partial for a unique match to avoid error
-        self.reset_redirect()
-        ledgerfile = LedgerFile(
-            FileTester.test_rec_multiple_match,
-            'checking up'
-        )
-        self.assertEqual('a: checking up', ledgerfile.rec_account_matched)
-        self.assertEqual('', self.redirect.getvalue().rstrip())
-        # multiple matches within a single transaction
-        self.reset_redirect()
-        with self.assertRaises(SystemExit):
-            LedgerFile(FileTester.test_rec_multiple_match, 'cash')
-        expected = ('Reconcile error. More than one matching account:\n'
-                    '    a: cash in\n    a: cash out')
-        self.assertEqual(expected, self.redirect.getvalue().rstrip())
+
+def test_reconciler_multiple_matches_within_transaction():
+    # multiple matches within a single transaction
+    with pytest.raises(LdgReconcilerError) as excinfo:
+        LedgerFile(FileTester.test_rec_multiple_match, 'cash')
+    expected = ('More than one matching account:\n'
+                '    a: cash in\n    a: cash out')
+    assert str(excinfo.value) == expected

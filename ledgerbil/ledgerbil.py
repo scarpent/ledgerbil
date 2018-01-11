@@ -1,6 +1,7 @@
 import sys
 
 from .arghandler import get_args
+from .ledgerbilexceptions import LdgReconcilerError
 from .ledgerfile import LedgerFile
 from .reconciler import Reconciler
 from .schedulefile import ScheduleFile
@@ -16,7 +17,7 @@ class Ledgerbil(object):
 
         if self.args.next_scheduled_date:
             if not self.args.schedule_file:
-                print('error: -S/--schedule-file is required')
+                print('error: -S/--schedule-file is required', file=sys.stderr)
                 return -1
 
             schedule_file = ScheduleFile(self.args.schedule_file)
@@ -24,10 +25,14 @@ class Ledgerbil(object):
             return 0
 
         if not self.args.file:
-            print('error: -f/--file is required')
+            print('error: -f/--file is required', file=sys.stderr)
             return -1
 
-        ledgerfile = LedgerFile(self.args.file, self.args.reconcile)
+        try:
+            ledgerfile = LedgerFile(self.args.file, self.args.reconcile)
+        except LdgReconcilerError as e:
+            print(str(e))
+            return -1
 
         if self.args.schedule_file:
             schedule_file = ScheduleFile(self.args.schedule_file)

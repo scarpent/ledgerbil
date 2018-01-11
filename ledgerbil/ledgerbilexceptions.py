@@ -19,13 +19,5 @@ class LdgScheduleUnrecognizedIntervalUom(LdgException):
     pass
 
 
-class LdgReconcilerMoreThanOneMatchingAccount(LdgException):
-    pass
-
-
-class LdgReconcilerMultipleStatuses(LdgException):
-    pass
-
-
-class LdgReconcilerUnhandledSharesScenario(LdgException):
+class LdgReconcilerError(LdgException):
     pass

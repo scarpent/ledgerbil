@@ -5,7 +5,7 @@ from datetime import date
 
 from . import util
 from .colorable import Colorable
-from .ledgerbilexceptions import LdgReconcilerUnhandledSharesScenario
+from .ledgerbilexceptions import LdgReconcilerError
 
 
 class Reconciler(cmd.Cmd, object):
@@ -175,7 +175,7 @@ class Reconciler(cmd.Cmd, object):
                 print(line)
 
         if messages:
-            print(messages, end='')  # noqa flake8 is high, perhaps
+            print(messages, end='')
 
     def populate_open_transactions(self):
         self.open_transactions = []
@@ -205,13 +205,13 @@ class Reconciler(cmd.Cmd, object):
             elif all(is_shares is False for is_shares in is_shares_list):
                 self.is_shares = False
             else:
-                raise LdgReconcilerUnhandledSharesScenario(
+                raise LdgReconcilerError(
                     'Unhandled shares with non-shares: "{}"'.format(
                         self.ledgerfile.rec_account_matched
                     )
                 )
             if self.is_shares and len(symbols) != 1:
-                raise LdgReconcilerUnhandledSharesScenario(
+                raise LdgReconcilerError(
                     'Unhandled non-matching symbols for "{}": {}'.format(
                         self.ledgerfile.rec_account_matched,
                         sorted(list(symbols))

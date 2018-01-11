@@ -3,9 +3,7 @@ from unittest import TestCase
 
 import pytest
 
-from ..ledgerbilexceptions import (LdgReconcilerMoreThanOneMatchingAccount,
-                                   LdgReconcilerMultipleStatuses,
-                                   LdgReconcilerUnhandledSharesScenario)
+from ..ledgerbilexceptions import LdgReconcilerError
 from ..ledgerthing import DATE_AND_PAYEE, UNSPECIFIED_PAYEE, LedgerThing
 from .helpers import Redirector
 
@@ -443,7 +441,7 @@ class ReconcilerParsing(Redirector):
         )
 
     def test_multiple_statuses_raises_exception(self):
-        with self.assertRaises(LdgReconcilerMultipleStatuses) as e:
+        with self.assertRaises(LdgReconcilerError) as e:
             LedgerThing(
                 [
                     '2016/10/23 blah',
@@ -464,7 +462,7 @@ class ReconcilerParsing(Redirector):
         )
         self.assertEqual('', self.redirect.getvalue().rstrip())
         self.reset_redirect()
-        with self.assertRaises(LdgReconcilerMultipleStatuses) as e:
+        with self.assertRaises(LdgReconcilerError) as e:
             LedgerThing(
                 [
                     '2016/10/23 blah',
@@ -485,9 +483,7 @@ class ReconcilerParsing(Redirector):
         )
 
     def test_multiple_matches_raises_exception(self):
-        with self.assertRaises(
-                LdgReconcilerMoreThanOneMatchingAccount
-        ) as e:
+        with self.assertRaises(LdgReconcilerError) as e:
             LedgerThing(
                 [
                     '2016/10/23 blah',
@@ -498,19 +494,11 @@ class ReconcilerParsing(Redirector):
                 ],
                 'checking'
             )
-        # Exception is raised when second match is found
-        self.assertEqual(
-            str([
-                'a: checking down',
-                'a: checking up',
-            ]),
-            str(e.exception)
-        )
-        self.assertEqual('', self.redirect.getvalue().rstrip())
+        expected = ('More than one matching account:\n'
+                    '    a: checking down\n    a: checking up')
+        assert str(e.exception) == expected
         self.reset_redirect()
-        with self.assertRaises(
-                LdgReconcilerMoreThanOneMatchingAccount
-        ) as e:
+        with self.assertRaises(LdgReconcilerError) as e:
             LedgerThing(
                 [
                     '2016/10/23 blah',
@@ -520,16 +508,10 @@ class ReconcilerParsing(Redirector):
                 ],
                 'checking'
             )
-        self.assertEqual(
-            str(['a: checking down', 'a: checking up']),
-            str(e.exception)
-        )
-        self.assertEqual('', self.redirect.getvalue().rstrip())
+        assert str(e.exception) == expected
 
     def test_multiple_matches_and_statuses_raises_exception(self):
-        with self.assertRaises(
-                LdgReconcilerMoreThanOneMatchingAccount
-        ) as e:
+        with self.assertRaises(LdgReconcilerError) as e:
             LedgerThing(
                 [
                     '2016/10/23 blah',
@@ -540,14 +522,9 @@ class ReconcilerParsing(Redirector):
                 ],
                 'checking'
             )
-        # Exception is raised when second match is found, before status check
-        self.assertEqual(
-            str([
-                'a: checking down',
-                'a: checking up',
-            ]),
-            str(e.exception)
-        )
+        expected = ('More than one matching account:\n'
+                    '    a: checking down\n    a: checking up')
+        assert str(e.exception) == expected
 
     def test_multiple_lines_for_same_account(self):
         self.verify_reconcile_vars(
@@ -659,7 +636,7 @@ def test_mixed_shares_and_non_shares_raises_exception():
         '    a: xyz  1.234 abc @ $10',
         '    a: xyz',
     ]
-    with pytest.raises(LdgReconcilerUnhandledSharesScenario) as excinfo:
+    with pytest.raises(LdgReconcilerError) as excinfo:
         LedgerThing(lines, reconcile_account='xyz')
     expected = 'Unhandled shares with non-shares: {}'.format(lines[1:])
     assert str(excinfo.value) == expected
@@ -708,7 +685,7 @@ def test_mixed_symbols_raises_exception():
         '    a: xyz  4.321 abc @ $10',
         '    a: xyz  5.678 qqq @ $15',
     ]
-    with pytest.raises(LdgReconcilerUnhandledSharesScenario) as excinfo:
+    with pytest.raises(LdgReconcilerError) as excinfo:
         LedgerThing(lines, reconcile_account='xyz')
     expected = "Unhandled non-matching symbols: {symbols}, {lines}".format(
         symbols=['abc', 'qqq'],

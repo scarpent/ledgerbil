@@ -2,8 +2,7 @@ import sys
 from datetime import date
 from operator import attrgetter
 
-from .ledgerbilexceptions import (LdgReconcilerMoreThanOneMatchingAccount,
-                                  LdgReconcilerMultipleStatuses)
+from .ledgerbilexceptions import LdgReconcilerError
 from .ledgerthing import LedgerThing
 
 
@@ -20,17 +19,7 @@ class LedgerFile(object):
         self.thing_counter = 0
         self.things = []
         self.rec_account_matched = None  # full account name
-
-        try:
-            self._read_file()
-        except LdgReconcilerMoreThanOneMatchingAccount as e:
-            print('Reconcile error. More than one matching account:')
-            for account in e.value:
-                print('    ' + account)
-            sys.exit(-1)
-        except LdgReconcilerMultipleStatuses as e:
-            print(str(e))
-            sys.exit(-1)
+        self._read_file()
 
     def _read_file(self):
         self._test_writable()
@@ -83,10 +72,14 @@ class LedgerFile(object):
                 if not self.rec_account_matched:
                     self.rec_account_matched = thing.rec_account_matched
                 elif self.rec_account_matched != thing.rec_account_matched:
-                    raise LdgReconcilerMoreThanOneMatchingAccount([
+                    message = 'More than one matching account:\n'
+                    matched_accounts = [
                         self.rec_account_matched,
                         thing.rec_account_matched
-                    ])
+                    ]
+                    for account in sorted(list(matched_accounts)):
+                        message += '    {}\n'.format(account)
+                    raise LdgReconcilerError(message[:-1])
 
             thing.thing_number = self.thing_counter
             self.get_things().append(thing)
