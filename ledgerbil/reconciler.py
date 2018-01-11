@@ -302,7 +302,7 @@ class Reconciler(cmd.Cmd, object):
                         column_width=16 if thing.rec_is_shares else 10,
                         is_shares=thing.rec_is_shares
                     ),
-                    status=thing.rec_status
+                    status=thing.rec_status or ''
                 )
             )
 

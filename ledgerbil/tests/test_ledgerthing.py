@@ -265,7 +265,7 @@ class ReconcilerParsing(Redirector):
                               account='not given GyibM3nob1kwJ',
                               expected_match=None,
                               expected_amount=0.0,
-                              expected_status=''):
+                              expected_status=None):
 
         if account == 'not given GyibM3nob1kwJ':
             t = LedgerThing(lines)
@@ -498,8 +498,8 @@ class ReconcilerParsing(Redirector):
         # Exception is raised when second match is found
         self.assertEqual(
             str([
-                'a: checking up',
                 'a: checking down',
+                'a: checking up',
             ]),
             str(e.exception)
         )
@@ -518,7 +518,7 @@ class ReconcilerParsing(Redirector):
                 'checking'
             )
         self.assertEqual(
-            str(['a: checking up', 'a: checking down']),
+            str(['a: checking down', 'a: checking up']),
             str(e.exception)
         )
         self.assertEqual('', self.redirect.getvalue().rstrip())
@@ -540,8 +540,8 @@ class ReconcilerParsing(Redirector):
         # Exception is raised when second match is found, before status check
         self.assertEqual(
             str([
-                'a: checking up',
                 'a: checking down',
+                'a: checking up',
             ]),
             str(e.exception)
         )

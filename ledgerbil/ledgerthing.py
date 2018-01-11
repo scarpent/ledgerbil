@@ -53,7 +53,7 @@ class LedgerThing(object):
         # reconciliation
         self.rec_account = reconcile_account  # could be partial
         self.rec_account_matched = None  # full account name
-        self.rec_status = ''
+        self.rec_status = None
         self.rec_amount = 0  # can be dollars or num shares if rec_is_shares
         self.rec_is_shares = False
         self.rec_symbol = None
@@ -83,22 +83,26 @@ class LedgerThing(object):
 
     def _parse_transaction_lines(self, lines):
         if not self.rec_account or not lines:
-            # only care about transaction lines if reconciling
+            # We only care about transaction lines if reconciling
             return
 
-        # - most likely only one line for the account we're reconciling,
-        #   but we'll have to handle more than one
-        # - we only care about total for the account, but we need to
-        #   total everything up in case our account doesn't have a
-        #   dollar amount and we need to calculate it
+        # There may be one or  more lines for the account we're
+        # reconciling; We only care about total for the account,
+        # but we need to total everything up in case our account
+        # doesn't have a dollar amount and we need to calculate it
 
         transaction_total = 0
         account_total = 0
         need_math = False
-        previous_status = None
-        account_list = []  # To check if all recon accounts match
-        shares_list = []  # To check if all recon entries are shares
-        symbols_list = []  # To check if all symbols are the same
+
+        # There are lots of scenarios that are valid for ledger but
+        # we're not handling for reconciliation. These sets are for
+        # checking that things are as we desire.
+        statuses = set()
+        matched_accounts = set()
+        shareses = set()
+        symbols = set()
+
         for line in lines:
             m = re.match(self.ENTRY_REGEX, line)
             if not m:
@@ -112,56 +116,48 @@ class LedgerThing(object):
                     amount = None
                 else:
                     amount = util.eval_expr(re.sub(r'[$,]', '', amount))
-
                     transaction_total += amount
 
             if self.rec_account not in account:
                 continue
             else:
-                self.rec_account_matched = account
-                account_list.append(account)
-                if len(set(account_list)) > 1:
+                matched_accounts.add(account)
+                if len(matched_accounts) > 1:
                     raise LdgReconcilerMoreThanOneMatchingAccount(
-                        account_list
+                        sorted(list(matched_accounts))
                     )
 
-            shares_list.append(shares)
-            if shares is not None:
-                symbols_list.append(symbol)
-                self.rec_is_shares = True
-                amount = float(re.sub(r'[, ]', '', shares))
+            statuses.add(status)
+            if len(statuses) > 1:
+                raise LdgReconcilerMultipleStatuses(
+                    REC_STATUS_ERROR_MESSAGE.format(
+                        date=self.get_date_string(),
+                        payee=self.payee
+                    )
+                )
 
-            status = status if status else ''
-            if previous_status is None:
-                self.rec_status = status
-                previous_status = status
-            else:
-                if previous_status != status:
-                    raise LdgReconcilerMultipleStatuses(
-                        REC_STATUS_ERROR_MESSAGE.format(
-                            date=self.get_date_string(),
-                            payee=self.payee
+            shareses.add(shares)
+            if shares is not None:
+                self.rec_is_shares = True
+                symbols.add(symbol)
+                if len(symbols) > 1:
+                    raise LdgReconcilerUnhandledSharesScenario(
+                        'Unhandled non-matching symbols: {}, {}'.format(
+                            sorted(list(set(symbols))),
+                            lines
                         )
                     )
+                amount = float(re.sub(r'[, ]', '', shares))
+
+            if self.rec_is_shares and None in shareses:
+                raise LdgReconcilerUnhandledSharesScenario(
+                    'Unhandled: shares with non-shares: {}'.format(lines)
+                )
 
             if amount is None:
                 need_math = True
             else:
                 account_total += amount
-
-        if self.rec_is_shares:
-            if None in shares_list:
-                raise LdgReconcilerUnhandledSharesScenario(
-                    'Unhandled: shares with non-shares: {}'.format(lines)
-                )
-            elif len(set(symbols_list)) != 1:
-                raise LdgReconcilerUnhandledSharesScenario(
-                    'Unhandled non-matching symbols: {}, {}'.format(
-                        sorted(list(set(symbols_list))),
-                        lines
-                    )
-                )
-            self.rec_symbol = symbols_list[0]
 
         if need_math:
             # transaction_total should be 0; use it to adjust
@@ -170,6 +166,11 @@ class LedgerThing(object):
             assert transaction_total == 0
 
         self.rec_amount = account_total
+        if matched_accounts:
+            self.rec_account_matched = matched_accounts.pop()
+            self.rec_status = statuses.pop()
+            if symbols:
+                self.rec_symbol = symbols.pop()
 
     def get_lines(self):
         if not self.is_transaction:
