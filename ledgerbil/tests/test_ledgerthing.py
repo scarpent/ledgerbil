@@ -661,7 +661,7 @@ def test_mixed_shares_and_non_shares_raises_exception():
     ]
     with pytest.raises(LdgReconcilerUnhandledSharesScenario) as excinfo:
         LedgerThing(lines, reconcile_account='xyz')
-    expected = 'Unhandled: shares with non-shares: {}'.format(lines[1:])
+    expected = 'Unhandled shares with non-shares: {}'.format(lines[1:])
     assert str(excinfo.value) == expected
 
 

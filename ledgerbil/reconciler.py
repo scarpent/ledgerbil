@@ -206,7 +206,7 @@ class Reconciler(cmd.Cmd, object):
                 self.is_shares = False
             else:
                 raise LdgReconcilerUnhandledSharesScenario(
-                    'Unhandled: shares with non-shares: "{}"'.format(
+                    'Unhandled shares with non-shares: "{}"'.format(
                         self.ledgerfile.rec_account_matched
                     )
                 )

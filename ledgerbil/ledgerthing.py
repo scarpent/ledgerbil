@@ -148,7 +148,7 @@ class LedgerThing(object):
 
             if self.rec_is_shares and None in shareses:
                 raise LdgReconcilerUnhandledSharesScenario(
-                    'Unhandled: shares with non-shares: {}'.format(lines)
+                    'Unhandled shares with non-shares: {}'.format(lines)
                 )
 
             if amount is None:

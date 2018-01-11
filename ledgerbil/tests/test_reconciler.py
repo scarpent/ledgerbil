@@ -255,7 +255,7 @@ def test_mixed_shares_and_non_shares_raises_exception():
         with pytest.raises(LdgReconcilerUnhandledSharesScenario) as excinfo:
             Reconciler(LedgerFile(tempfilename, '401k: bonds'))
 
-    expected = 'Unhandled: shares with non-shares: "a: 401k: bonds idx"'
+    expected = 'Unhandled shares with non-shares: "a: 401k: bonds idx"'
     assert str(excinfo.value) == expected
 
 
