@@ -31,7 +31,7 @@ class Ledgerbil(object):
         try:
             ledgerfile = LedgerFile(self.args.file, self.args.reconcile)
         except LdgReconcilerError as e:
-            print(str(e))
+            print(str(e), file=sys.stderr)
             return -1
 
         if self.args.schedule_file:

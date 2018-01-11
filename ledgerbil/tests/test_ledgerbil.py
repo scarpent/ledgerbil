@@ -160,10 +160,10 @@ class ReconcilerTests(Redirector):
             'More than one matching account:\n'
             '    a: checking down\n'
             '    a: checking up',
-            self.redirect.getvalue().rstrip()
+            self.redirecterr.getvalue().rstrip()
         )
         # in same transaction
-        self.reset_redirect()
+        self.reset_err_redirect()
         ledgerbil.main([
             '--file', FT.test_rec_multiple_match,
             '--reconcile', 'cash'
@@ -172,7 +172,7 @@ class ReconcilerTests(Redirector):
             'More than one matching account:\n'
             '    a: cash in\n'
             '    a: cash out',
-            self.redirect.getvalue().rstrip()
+            self.redirecterr.getvalue().rstrip()
         )
 
     def test_multiple_statuses(self):
@@ -187,7 +187,7 @@ class ReconcilerTests(Redirector):
                     payee='zillion'
                 )
             ),
-            self.redirect.getvalue().rstrip()
+            self.redirecterr.getvalue().rstrip()
         )
 
     def test_no_matching_account(self):
