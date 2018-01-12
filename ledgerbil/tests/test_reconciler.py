@@ -274,7 +274,7 @@ def test_mixed_symbols_raises_exception():
         with pytest.raises(LdgReconcilerError) as excinfo:
             Reconciler(LedgerFile(tempfilename, '401k: bonds'))
 
-    expected = ('Unhandled non-matching symbols for "a: 401k: bonds idx": '
+    expected = ('Unhandled non-matching symbols: "a: 401k: bonds idx": '
                 "['abcde', 'qwrty']")
     assert str(excinfo.value) == expected
 

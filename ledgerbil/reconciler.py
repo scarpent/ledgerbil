@@ -212,7 +212,7 @@ class Reconciler(cmd.Cmd, object):
                 )
             if self.is_shares and len(symbols) != 1:
                 raise LdgReconcilerError(
-                    'Unhandled non-matching symbols for "{}": {}'.format(
+                    'Unhandled non-matching symbols: "{}": {}'.format(
                         self.ledgerfile.rec_account_matched,
                         sorted(list(symbols))
                     )

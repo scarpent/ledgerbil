@@ -6,7 +6,6 @@ from . import util
 from .ledgerbilexceptions import LdgReconcilerError
 
 UNSPECIFIED_PAYEE = '<Unspecified payee>'
-DATE_AND_PAYEE = 'Date: {date}, Payee: {payee}'
 
 
 class LedgerThing(object):
@@ -116,20 +115,13 @@ class LedgerThing(object):
             else:
                 matched_accounts.add(account)
                 if len(matched_accounts) > 1:
-                    # todo: include DATE_AND_PAYEE
-                    message = 'More than one matching account:\n'
-                    for account in sorted(list(matched_accounts)):
-                        message += '    {}\n'.format(account)
-                    raise LdgReconcilerError(message[:-1])
+                    self.fail_reconciler_on_multiple_matches(matched_accounts)
 
             statuses.add(status)
             if len(statuses) > 1:
                 raise LdgReconcilerError(
                     'Unhandled multiple statuses: {}'.format(
-                        DATE_AND_PAYEE.format(
-                            date=self.get_date_string(),
-                            payee=self.payee
-                        )
+                        self.get_date_and_payee()
                     )
                 )
 
@@ -138,19 +130,19 @@ class LedgerThing(object):
                 self.rec_is_shares = True
                 symbols.add(symbol)
                 if len(symbols) > 1:
-                    # todo: include DATE_AND_PAYEE
                     raise LdgReconcilerError(
-                        'Unhandled non-matching symbols: {}, {}'.format(
+                        'Unhandled non-matching symbols: {}\n{}'.format(
                             sorted(list(set(symbols))),
-                            lines
+                            '\n'.join(self.lines)
                         )
                     )
                 amount = float(re.sub(r'[, ]', '', shares))
 
             if self.rec_is_shares and None in shareses:
-                # todo: include DATE_AND_PAYEE
                 raise LdgReconcilerError(
-                    'Unhandled shares with non-shares: {}'.format(lines)
+                    'Unhandled shares with non-shares:\n{}'.format(
+                        '\n'.join(self.lines)
+                    )
                 )
 
             if amount is None:
@@ -223,6 +215,16 @@ class LedgerThing(object):
             return util.is_valid_date(match.groups()[0])
         else:
             return False
+
+    @staticmethod
+    def fail_reconciler_on_multiple_matches(accounts):
+        message = 'More than one matching account:\n'
+        for account in sorted(list(accounts)):
+            message += '    {}\n'.format(account)
+        raise LdgReconcilerError(message[:-1])
+
+    def get_date_and_payee(self):
+        return '{} {}'.format(self.get_date_string(), self.payee)
 
     def get_date_string(self):
         return util.get_date_string(self.thing_date)

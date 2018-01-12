@@ -4,7 +4,7 @@ from unittest import TestCase
 import pytest
 
 from ..ledgerbilexceptions import LdgReconcilerError
-from ..ledgerthing import DATE_AND_PAYEE, UNSPECIFIED_PAYEE, LedgerThing
+from ..ledgerthing import UNSPECIFIED_PAYEE, LedgerThing
 from .helpers import Redirector
 
 
@@ -452,12 +452,7 @@ class ReconcilerParsing(Redirector):
                 'checking'
             )
         self.assertEqual(
-            'Unhandled multiple statuses: {}'.format(
-                DATE_AND_PAYEE.format(
-                    date='2016/10/23',
-                    payee='blah'
-                )
-            ),
+            'Unhandled multiple statuses: 2016/10/23 blah',
             str(e.exception)
         )
         self.assertEqual('', self.redirect.getvalue().rstrip())
@@ -473,12 +468,7 @@ class ReconcilerParsing(Redirector):
                 'checking'
             )
         self.assertEqual(
-            'Unhandled multiple statuses: {}'.format(
-                DATE_AND_PAYEE.format(
-                    date='2016/10/23',
-                    payee='blah'
-                )
-            ),
+            'Unhandled multiple statuses: 2016/10/23 blah',
             str(e.exception)
         )
 
@@ -638,7 +628,7 @@ def test_mixed_shares_and_non_shares_raises_exception():
     ]
     with pytest.raises(LdgReconcilerError) as excinfo:
         LedgerThing(lines, reconcile_account='xyz')
-    expected = 'Unhandled shares with non-shares: {}'.format(lines[1:])
+    expected = 'Unhandled shares with non-shares:\n{}'.format('\n'.join(lines))
     assert str(excinfo.value) == expected
 
 
@@ -687,8 +677,8 @@ def test_mixed_symbols_raises_exception():
     ]
     with pytest.raises(LdgReconcilerError) as excinfo:
         LedgerThing(lines, reconcile_account='xyz')
-    expected = "Unhandled non-matching symbols: {symbols}, {lines}".format(
+    expected = "Unhandled non-matching symbols: {symbols}\n{lines}".format(
         symbols=['abc', 'qqq'],
-        lines=lines[1:]
+        lines='\n'.join(lines)
     )
     assert str(excinfo.value) == expected

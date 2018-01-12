@@ -2,7 +2,6 @@ import sys
 from datetime import date
 from operator import attrgetter
 
-from .ledgerbilexceptions import LdgReconcilerError
 from .ledgerthing import LedgerThing
 
 
@@ -72,14 +71,10 @@ class LedgerFile(object):
                 if not self.rec_account_matched:
                     self.rec_account_matched = thing.rec_account_matched
                 elif self.rec_account_matched != thing.rec_account_matched:
-                    message = 'More than one matching account:\n'
-                    matched_accounts = [
+                    LedgerThing.fail_reconciler_on_multiple_matches([
                         self.rec_account_matched,
-                        thing.rec_account_matched
-                    ]
-                    for account in sorted(list(matched_accounts)):
-                        message += '    {}\n'.format(account)
-                    raise LdgReconcilerError(message[:-1])
+                        thing.rec_account_matched,
+                    ])
 
             thing.thing_number = self.thing_counter
             self.get_things().append(thing)

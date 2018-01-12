@@ -5,7 +5,6 @@ from unittest import TestCase
 from dateutil.relativedelta import relativedelta
 
 from .. import ledgerbil, util
-from ..ledgerthing import DATE_AND_PAYEE
 from .filetester import FileTester as FT
 from .helpers import Redirector
 from .schedulething_tester import ScheduleThingTester
@@ -181,12 +180,7 @@ class ReconcilerTests(Redirector):
             '--reconcile', 'mattress'
         ])
         self.assertEqual(
-            'Unhandled multiple statuses: {}'.format(
-                DATE_AND_PAYEE.format(
-                    date='2016/10/08',
-                    payee='zillion'
-                )
-            ),
+            'Unhandled multiple statuses: 2016/10/08 zillion',
             self.redirecterr.getvalue().rstrip()
         )
 

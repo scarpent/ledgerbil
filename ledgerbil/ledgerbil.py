@@ -44,7 +44,11 @@ class Ledgerbil(object):
 
         if self.args.reconcile:
             if ledgerfile.rec_account_matched:  # pragma: no cover
-                reconciler = Reconciler(ledgerfile)
+                try:
+                    reconciler = Reconciler(ledgerfile)
+                except LdgReconcilerError as e:
+                    return self.error(str(e))
+
                 reconciler.cmdloop()
             else:
                 print('No matching account found for "{acct}"'.format(
