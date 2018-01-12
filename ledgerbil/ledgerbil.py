@@ -65,7 +65,7 @@ class Ledgerbil(object):
 def main(argv=None):
 
     if argv is None:
-        argv = sys.argv[1:]  # pragma: no cover
+        argv = sys.argv[1:]
 
     args = get_args(argv)
     ledgerbil = Ledgerbil(args)

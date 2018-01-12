@@ -233,3 +233,12 @@ def test_reconciler_cmdloop_called(mock_cmdloop):
         ])
     mock_cmdloop.assert_called_once()
     assert return_code == 0
+
+
+@mock.patch(__name__ + '.ledgerbil.print')
+def test_main_investments_with_argv_none(mock_print):
+    with mock.patch('sys.argv', ['/script']):
+        return_code = ledgerbil.main()
+    expected = 'error: -f/--file is required'
+    mock_print.assert_called_once_with(expected, file=sys.stderr)
+    assert return_code == -1
