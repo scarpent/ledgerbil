@@ -39,4 +39,7 @@ def get_args(args):
         help='show the date of the next scheduled transaction'
     )
 
+    if not args:
+        parser.print_help()
+
     return parser.parse_args(args)

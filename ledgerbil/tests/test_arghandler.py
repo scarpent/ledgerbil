@@ -1,6 +1,8 @@
+from unittest import mock
+
 import pytest
 
-from ..arghandler import get_args
+from .. import arghandler
 from .helpers import Redirector
 
 filename = 'dummy.ldg'
@@ -9,16 +11,16 @@ filename = 'dummy.ldg'
 class Arguments(Redirector):
 
     def test_file_option(self):
-        args = get_args(['-f', filename])
+        args = arghandler.get_args(['-f', filename])
         self.assertTrue(args.file)
-        args = get_args(['--file', filename])
+        args = arghandler.get_args(['--file', filename])
         self.assertTrue(args.file)
 
     def test_file_option_and_filename_both_required(self):
         """should cause argparse error if file opt specified w/o file"""
         expected = 'error: argument -f/--file: expected one argument'
         try:
-            get_args(['--file'])
+            arghandler.get_args(['--file'])
         except SystemExit:
             pass
 
@@ -27,20 +29,20 @@ class Arguments(Redirector):
         self.assertTrue(expected in actual)
 
     def test_sort_option(self):
-        args = get_args(['-f', filename, '-s'])
+        args = arghandler.get_args(['-f', filename, '-s'])
         self.assertTrue(args.sort)
-        args = get_args(['--file', filename, '--sort'])
+        args = arghandler.get_args(['--file', filename, '--sort'])
         self.assertTrue(args.sort)
 
     def test_no_sorting_option(self):
         """should not set parse args 'sort' var"""
-        args = get_args(['--file', filename])
+        args = arghandler.get_args(['--file', filename])
         self.assertFalse(args.sort)
 
     def test_schedule_file_option(self):
-        args = get_args(['-f', filename, '-S', filename])
+        args = arghandler.get_args(['-f', filename, '-S', filename])
         self.assertTrue(args.schedule_file)
-        args = get_args([
+        args = arghandler.get_args([
             '--file', filename,
             '--schedule-file', filename,
         ])
@@ -52,7 +54,7 @@ class Arguments(Redirector):
             'error: argument -S/--schedule-file: expected one argument'
         )
         try:
-            get_args(['--file', filename, '--schedule-file'])
+            arghandler.get_args(['--file', filename, '--schedule-file'])
         except SystemExit:
             pass
 
@@ -70,5 +72,11 @@ def test_next_scheduled_date(test_input, expected):
     options = ['-f', filename]
     if test_input:
         options.append(test_input)
-    args = get_args(options)
+    args = arghandler.get_args(options)
     assert args.next_scheduled_date == expected
+
+
+@mock.patch(__name__ + '.arghandler.argparse.ArgumentParser.print_help')
+def test_no_parameters(mock_print_help):
+    arghandler.get_args([])
+    mock_print_help.assert_called_once()
