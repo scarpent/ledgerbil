@@ -43,7 +43,7 @@ class Ledgerbil(object):
             ledgerfile.write_file()
 
         if self.args.reconcile:
-            if ledgerfile.rec_account_matched:  # pragma: no cover
+            if ledgerfile.rec_account_matched:
                 try:
                     reconciler = Reconciler(ledgerfile)
                 except LdgReconcilerError as e:

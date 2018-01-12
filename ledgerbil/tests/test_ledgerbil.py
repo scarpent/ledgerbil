@@ -1,6 +1,8 @@
 import os
+import sys
 from datetime import date
-from unittest import TestCase
+from textwrap import dedent
+from unittest import TestCase, mock
 
 from dateutil.relativedelta import relativedelta
 
@@ -194,3 +196,40 @@ class ReconcilerTests(Redirector):
             'No matching account found for "schenectady schmectady"',
             self.redirect.getvalue().rstrip()
         )
+
+
+@mock.patch(__name__ + '.ledgerbil.print')
+def test_reconciler_exception(mock_print):
+    ledgerfile_data = dedent('''
+        2017/11/28 zombie investments
+            a: 401k: bonds idx            12.357 qwrty @   $20.05
+            i: investment: adjustment
+
+        2017/11/28 zombie investments
+            a: 401k: bonds idx
+            i: investment: adjustment     $100,000
+    ''')
+    with FT.temp_input(ledgerfile_data) as tempfilename:
+        return_code = ledgerbil.main([
+            '--file', tempfilename,
+            '--reconcile', 'bonds'
+        ])
+    expected = 'Unhandled shares with non-shares: "a: 401k: bonds idx"'
+    mock_print.assert_called_once_with(expected, file=sys.stderr)
+    assert return_code == -1
+
+
+@mock.patch(__name__ + '.ledgerbil.Reconciler.cmdloop')
+def test_reconciler_cmdloop_called(mock_cmdloop):
+    ledgerfile_data = dedent('''
+        2017/11/28 zombie investments
+            a: 401k: bonds idx            12.357 qwrty @   $20.05
+            i: investment: adjustment
+    ''')
+    with FT.temp_input(ledgerfile_data) as tempfilename:
+        return_code = ledgerbil.main([
+            '--file', tempfilename,
+            '--reconcile', 'bonds'
+        ])
+    mock_cmdloop.assert_called_once()
+    assert return_code == 0
