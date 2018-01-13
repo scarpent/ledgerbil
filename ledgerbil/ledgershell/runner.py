@@ -11,8 +11,8 @@ settings = Settings()
 def get_ledger_command(options=''):
     cmd = settings.LEDGER_COMMAND
     for f in settings.LEDGER_FILES:
-        cmd += ' -f {}'.format(os.path.join(settings.LEDGER_DIR, f))
-    cmd += ' {} '.format(options)
+        cmd += f' -f {os.path.join(settings.LEDGER_DIR, f)}'
+    cmd += f' {options} '
     return cmd
 
 

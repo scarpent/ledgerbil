@@ -18,16 +18,12 @@ class SchedulerRun(TestCase):
     @staticmethod
     def get_schedule_file(the_date, schedule, enter_days=7):
         return (
-            ';; scheduler ; enter {enter_days} days\n'
+            f';; scheduler ; enter {enter_days} days\n'
             '\n'
-            '{date} bananas unlimited\n'
-            '    ;; schedule ; {schedule}\n'
+            f'{the_date} bananas unlimited\n'
+            f'    ;; schedule ; {schedule}\n'
             '    e: misc\n'
-            '    l: credit card                     $-50\n\n'.format(
-                date=the_date,
-                schedule=schedule,
-                enter_days=enter_days
-            )
+            '    l: credit card                     $-50\n\n'
         )
 
     def run_it(self, before_date, after_date, schedule, enter_days=7):

@@ -166,7 +166,7 @@ class Reconciler(cmd.Cmd, object):
         messages = ''
         for num in args:
             if num not in self.current_listing:
-                messages += 'Transaction not found: {}\n'.format(num)
+                messages += f'Transaction not found: {num}\n'
                 continue
 
             thing = self.current_listing[num]
@@ -237,16 +237,16 @@ class Reconciler(cmd.Cmd, object):
         messages = ''
         for num in args:
             if num not in self.current_listing:
-                messages += 'Transaction not found: {}\n'.format(num)
+                messages += f'Transaction not found: {num}\n'
                 continue
 
             thing = self.current_listing[num]
 
             if mark and thing.is_pending():
-                messages += 'Already marked pending: ' + num + '\n'
+                messages += f'Already marked pending: {num}\n'
                 continue
             elif not mark and not thing.is_pending():
-                messages += "Not marked; can't unmark: " + num + '\n'
+                messages += f"Not marked; can't unmark: {num}\n"
                 continue
 
             if mark:
@@ -285,10 +285,9 @@ class Reconciler(cmd.Cmd, object):
 
             count += 1
             self.current_listing[str(count)] = thing
-            count_str = '{:-4}.'.format(count)
+            count_str = f'{count:-4}.'
             print(
-                '{number} {date} {amount} {status:1} {payee} '
-                '{code:>7}'.format(
+                '{number} {date} {amount} {status:1} {payee} {code:>7}'.format(
                     number=Colorable('cyan', count_str),
                     date=thing.get_date_string(),
                     code=thing.transaction_code,
@@ -447,10 +446,7 @@ class Reconciler(cmd.Cmd, object):
     @staticmethod
     def get_response(prompt='', old_value=''):
         default = '' if old_value is None else old_value
-        response = input('{prompt} [{default}]: '.format(
-            prompt=prompt,
-            default=default
-        )).strip()
+        response = input(f'{prompt} [{default}]: ').strip()
 
         if response == '':
             response = old_value
@@ -465,7 +461,7 @@ class Reconciler(cmd.Cmd, object):
                 with open(self.CACHE_FILE, 'r') as the_file:
                     return key, json.loads(the_file.read())
             except (IOError, ValueError) as e:
-                print('Error getting reconciler cache: {}.'.format(e))
+                print(f'Error getting reconciler cache: {e}.')
 
         return key, {}
 
@@ -492,4 +488,4 @@ class Reconciler(cmd.Cmd, object):
             with open(Reconciler.CACHE_FILE, 'w') as the_file:
                 the_file.write(json.dumps(cache))
         except (IOError, ValueError) as e:
-            print('Error writing reconciler cache: {}'.format(e))
+            print(f'Error writing reconciler cache: {e}')

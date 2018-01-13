@@ -69,8 +69,8 @@ class ScheduleThing(LedgerThing):
         match = re.match(config_regex, line)
         if not match:
             raise LdgSchedulerError(
-                'Invalid schedule file config:\n{}\nExpected:\n'
-                ';; scheduler ; enter N days'.format(line)
+                f'Invalid schedule file config:\n{line}\nExpected:\n'
+                ';; scheduler ; enter N days'
             )
 
         if match.group(enter_days_idx):
@@ -99,8 +99,8 @@ class ScheduleThing(LedgerThing):
 
         if len(configitems) < 4:
             raise LdgSchedulerError(
-                'Invalid schedule thing config:\n{}\n'
-                'Not enough parameters'.format(line)
+                f'Invalid schedule thing config:\n{line}\n'
+                'Not enough parameters'
             )
 
         del configitems[0:2]  # remove empty strings from opening ;;

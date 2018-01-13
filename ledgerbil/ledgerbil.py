@@ -56,9 +56,7 @@ class Ledgerbil(object):
 
                 reconciler.cmdloop()
             else:
-                print('No matching account found for "{acct}"'.format(
-                    acct=self.args.reconcile
-                ))
+                print(f'No matching account found for "{self.args.reconcile}"')
 
         return 0
 

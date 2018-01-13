@@ -34,12 +34,8 @@ def test_check_for_negative_dollars_warning(mock_print):
 
 def test_get_investment_command_options_defaults():
     investments.settings = TestSettings()
-    expected = '--market --price-db {prices} bal abc --end xyz'.format(
-        prices=os.path.join(
-            TestSettings.LEDGER_DIR,
-            TestSettings.PRICES_FILE
-        )
-    )
+    prices = os.path.join(TestSettings.LEDGER_DIR, TestSettings.PRICES_FILE)
+    expected = f'--market --price-db {prices} bal abc --end xyz'
     # It would be nice to test with actual defaults but they appear
     # to be set at import time so we'll do this
     actual = investments.get_investment_command_options(
@@ -51,12 +47,8 @@ def test_get_investment_command_options_defaults():
 
 def test_get_investment_command_options_defaults_plus_begin_date():
     investments.settings = TestSettings()
-    expected = '--market --price-db {p} bal abc --begin qrt --end xyz'.format(
-        p=os.path.join(
-            TestSettings.LEDGER_DIR,
-            TestSettings.PRICES_FILE
-        )
-    )
+    prices = os.path.join(TestSettings.LEDGER_DIR, TestSettings.PRICES_FILE)
+    expected = f'--market --price-db {prices} bal abc --begin qrt --end xyz'
     actual = investments.get_investment_command_options(
         accounts=TestSettings.INVESTMENT_DEFAULT_ACCOUNTS,
         begin_date='qrt',

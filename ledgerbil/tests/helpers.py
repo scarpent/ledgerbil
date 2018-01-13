@@ -20,7 +20,7 @@ class OutputFileTester(TestCase):
     path = os.path.dirname(__file__)
     TEST_FILES_DIR = os.path.join(path, 'files')
     OUT_SUFFIX = '.out'
-    EXPECTED_SUFFIX = '{}_expected'.format(OUT_SUFFIX)
+    EXPECTED_SUFFIX = f'{OUT_SUFFIX}_expected'
 
     def setUp(self):
         self.savestdout = sys.stdout
@@ -30,8 +30,8 @@ class OutputFileTester(TestCase):
 
     def init_test(self, testfile):
         testfile = os.path.join(self.TEST_FILES_DIR, testfile)
-        self.expected = '{}{}'.format(testfile, self.EXPECTED_SUFFIX)
-        self.actual = '{}{}'.format(testfile, self.OUT_SUFFIX)
+        self.expected = f'{testfile}{self.EXPECTED_SUFFIX}'
+        self.actual = f'{testfile}{self.OUT_SUFFIX}'
         sys.stdout = open(self.actual, 'w')
 
     def conclude_test(self, strip_ansi_color=False):

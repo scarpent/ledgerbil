@@ -29,10 +29,7 @@ class Scheduler(object):
             things_added += len(things)
 
             for thing in things:
-                print('\t{date} {payee}'.format(
-                    date=thing.thing_date,
-                    payee=thing.payee
-                ))
+                print(f'\t{thing.thing_date} {thing.payee}')
 
         print('Added {num} {entries}'.format(
             num=things_added,

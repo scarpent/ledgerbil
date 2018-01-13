@@ -120,9 +120,7 @@ class LedgerThing(object):
             statuses.add(status)
             if len(statuses) > 1:
                 raise LdgReconcilerError(
-                    'Unhandled multiple statuses: {}'.format(
-                        self.get_date_and_payee()
-                    )
+                    f'Unhandled multiple statuses: {self.get_date_and_payee()}'
                 )
 
             shareses.add(shares)
@@ -220,11 +218,11 @@ class LedgerThing(object):
     def fail_reconciler_on_multiple_matches(accounts):
         message = 'More than one matching account:\n'
         for account in sorted(list(accounts)):
-            message += '    {}\n'.format(account)
+            message += f'    {account}\n'
         raise LdgReconcilerError(message[:-1])
 
     def get_date_and_payee(self):
-        return '{} {}'.format(self.get_date_string(), self.payee)
+        return f'{self.get_date_string()} {self.payee}'
 
     def get_date_string(self):
         return util.get_date_string(self.thing_date)

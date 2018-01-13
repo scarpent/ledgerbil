@@ -76,26 +76,20 @@ class Scheduler(Redirector):
     @staticmethod
     def get_schedule_file(the_date, schedule, enter_days=7):
         return (
-            ';; scheduler ; enter {enter_days} days\n'
+            f';; scheduler ; enter {enter_days} days\n'
             '\n'
-            '{date} bananas unlimited\n'
-            '    ;; schedule ; {schedule}\n'
+            f'{the_date} bananas unlimited\n'
+            f'    ;; schedule ; {schedule}\n'
             '    e: misc\n'
-            '    l: credit card                     $-50\n\n'.format(
-                date=the_date,
-                schedule=schedule,
-                enter_days=enter_days
-            )
+            '    l: credit card                     $-50\n\n'
         )
 
     @staticmethod
     def get_ledger_file(the_date):
         return (
-            '{date} bananas unlimited\n'
+            f'{the_date} bananas unlimited\n'
             '    e: misc\n'
-            '    l: credit card                     $-50\n\n'.format(
-                date=the_date
-            )
+            '    l: credit card                     $-50\n\n'
         )
 
     def test_scheduler(self):

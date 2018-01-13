@@ -56,12 +56,10 @@ def get_quote_data(symbol):
             return get_date(the_date), the_price
 
         except Exception as e:
-            print('Error loading {}: {}'.format(symbol, e))
+            print(f'Error loading {symbol}: {e}')
     else:
-        print('Error downloading {symbol}. Received code {code}.'.format(
-            symbol=symbol,
-            code=response.status_code
-        ))
+        print(f'Error downloading {symbol}. '
+              f'Received code {response.status_code}.')
 
     return None, None
 
@@ -71,13 +69,13 @@ def regex_search(data, regex, label):
     if match:
         return match.groups()[0]
     else:
-        raise Exception("Couldn't find {}.".format(label))
+        raise Exception(f"Couldn't find {label}.")
 
 
 def get_date(quote_date):
     date_parts_match = date_parts_regex.search(quote_date)
     if not date_parts_match:
-        raise Exception("Couldn't parse date parts for {}.".format(quote_date))
+        raise Exception(f"Couldn't parse date parts for {quote_date}.")
 
     the_date = datetime.strptime(
         '{} {} {}'.format(

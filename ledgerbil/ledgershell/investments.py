@@ -24,19 +24,12 @@ def get_investment_command_options(
 
     shares = '--exchange ' if shares else ''
     if begin_date:
-        begin_date = ' --begin {}'.format(begin_date)
-    end_date = '--end {}'.format(end_date)
+        begin_date = f' --begin {begin_date}'
+    end_date = f'--end {end_date}'
+    prices = os.path.join(settings.LEDGER_DIR, settings.PRICES_FILE)
 
-    return (
-        '{shares}--market --price-db {prices} '
-        'bal {accounts}{begin} {end}'.format(
-            shares=shares,
-            prices=os.path.join(settings.LEDGER_DIR, settings.PRICES_FILE),
-            accounts=accounts,
-            begin=begin_date,
-            end=end_date
-        )
-    )
+    return (f'{shares}--market --price-db {prices} '
+            f'bal {accounts}{begin_date} {end_date}')
 
 
 def check_for_negative_dollars(amount, account):
@@ -86,7 +79,7 @@ def get_dollars(args):
         if line == '' or line[0] == '-':
             break
         match = re.match(DOLLARS_REGEX, line)
-        assert match, "Didn't match on dollars regex: {}".format(line)
+        assert match, f"Didn't match on dollars regex: {line}"
         dollars = Dollars(*match.groups())
         check_for_negative_dollars(dollars.amount, dollars.account)
         listing.append(dollars)
@@ -141,7 +134,7 @@ def get_shares(args):
             shares = Shares('', '', dollars.account)
         else:
             match = re.match(SHARES_REGEX, line)
-            assert match, "Didn't match on shares regex: {}".format(line)
+            assert match, f"Didn't match on shares regex: {line}"
             shares = Shares(*match.groups())
 
         # Only use the shares from the leaf nodes, which will be
@@ -177,11 +170,9 @@ def get_investment_report(args):
 
     for shares, dollars in zip(share_listing, dollar_listing):
 
-        assert shares.account == dollars.account, \
-            'Non-matching accounts. Shares: {}, Dollars: {}'.format(
-                shares.account,
-                dollars.account
-            )
+        err_message = (f'Non-matching accounts. Shares: {shares.account}, '
+                       f'Dollars: {dollars.account}')
+        assert shares.account == dollars.account, err_message
 
         dollar_color = 'red' if '-' in dollars.amount else 'green'
 
@@ -240,9 +231,7 @@ def get_args(args=[]):
         type=str,
         metavar='DATE',
         default=settings.INVESTMENT_DEFAULT_END_DATE,
-        help='end date, default = {}'.format(
-            settings.INVESTMENT_DEFAULT_END_DATE
-        )
+        help=f'end date, default = {settings.INVESTMENT_DEFAULT_END_DATE}'
     )
     parser.add_argument(
         '-c', '--command',

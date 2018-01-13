@@ -4,7 +4,7 @@ import re
 class Colorable(object):
 
     START_CODE = '\033'
-    END_CODE = '{}[0m'.format(START_CODE)
+    END_CODE = f'{START_CODE}[0m'
 
     BRIGHT_OFFSET = 60
 
@@ -35,7 +35,7 @@ class Colorable(object):
             self.COLORS[color]
         except KeyError:
             raise UnsupportedColorError(
-                "I don't know what to do with this color: {}".format(color)
+                f"I don't know what to do with this color: {color}"
             )
 
         self.my_color = color

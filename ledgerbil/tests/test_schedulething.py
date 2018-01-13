@@ -126,7 +126,7 @@ class GetScheduledEntries(Redirector):
     def test_one_entry_count(self):
         testdate = util.get_date_string(date.today())
         schedule_lines = [
-            '{date} lightning energy'.format(date=testdate),
+            f'{testdate} lightning energy',
             '    ;; schedule ; monthly',
             '    blah blah blah',
         ]
@@ -140,7 +140,7 @@ class GetScheduledEntries(Redirector):
     def test_one_entry_next_date(self):
         testdate = util.get_date_string(date.today())
         schedule_lines = [
-            '{date} lightning energy'.format(date=testdate),
+            f'{testdate} lightning energy',
             '    ;; schedule ; monthly',
             '    blah blah blah',
         ]
@@ -155,14 +155,14 @@ class GetScheduledEntries(Redirector):
     def test_one_entry_content(self):
         testdate = util.get_date_string(date.today())
         schedule_lines = [
-            '{date} lightning energy'.format(date=testdate),
+            f'{testdate} lightning energy',
             '    ;; schedule ; monthly',
             '    blah blah blah',
         ]
         schedule_thing = ScheduleThing(schedule_lines)
 
         expected = [
-            '{date} lightning energy'.format(date=testdate),
+            f'{testdate} lightning energy',
             '    blah blah blah',
         ]
 
@@ -175,7 +175,7 @@ class GetScheduledEntries(Redirector):
             date.today() - relativedelta(months=1)
         )
         schedule_lines = [
-            '{date} lightning energy'.format(date=testdate),
+            f'{testdate} lightning energy',
             '    ;; schedule ; monthly',
             '    blah blah blah',
         ]
@@ -189,7 +189,7 @@ class GetScheduledEntries(Redirector):
     def test_two_entries_next_date(self):
         testdate = util.get_date_string(date.today())
         schedule_lines = [
-            '{date} lightning energy'.format(date=testdate),
+            f'{testdate} lightning energy',
             '    ;; schedule ; yearly',
             '    blah blah blah',
         ]
@@ -209,7 +209,7 @@ class GetScheduledEntries(Redirector):
             date.today() + relativedelta(months=2)
         )
         schedule_lines = [
-            '{date} lightning energy'.format(date=testdate),
+            f'{testdate} lightning energy',
             '    ;; schedule ; monthly',
             '    blah blah blah',
         ]
@@ -225,7 +225,7 @@ class GetScheduledEntries(Redirector):
             date.today() + relativedelta(months=2)
         )
         schedule_lines = [
-            '{date} lightning energy'.format(date=testdate),
+            f'{testdate} lightning energy',
             '    ;; schedule ; monthly',
             '    blah blah blah',
         ]
@@ -240,7 +240,7 @@ class GetScheduledEntries(Redirector):
     def test_bimonthly_next_date(self):
         testdate = util.get_date_string(date.today())
         schedule_lines = [
-            '{date} lightning energy'.format(date=testdate),
+            f'{testdate} lightning energy',
             '    ;; schedule ; bimonthly',
             '    blah blah blah',
         ]
@@ -255,7 +255,7 @@ class GetScheduledEntries(Redirector):
     def test_quarterly_next_date(self):
         testdate = util.get_date_string(date.today())
         schedule_lines = [
-            '{date} lightning energy'.format(date=testdate),
+            f'{testdate} lightning energy',
             '    ;; schedule ; quarterly',
             '    blah blah blah',
         ]
@@ -270,7 +270,7 @@ class GetScheduledEntries(Redirector):
     def test_biannual_next_date(self):
         testdate = util.get_date_string(date.today())
         schedule_lines = [
-            '{date} lightning energy'.format(date=testdate),
+            f'{testdate} lightning energy',
             '    ;; schedule ; biannual',
             '    blah blah blah',
         ]
@@ -285,7 +285,7 @@ class GetScheduledEntries(Redirector):
     def test_yearly_next_date(self):
         testdate = util.get_date_string(date.today())
         schedule_lines = [
-            '{date} lightning energy'.format(date=testdate),
+            f'{testdate} lightning energy',
             '    ;; schedule ; yearly',
             '    blah blah blah',
         ]

@@ -55,10 +55,7 @@ FileTester.delete_test_cache_file()
 
 
 def verify_equal_floats(float1, float2, decimals=2):
-    assert (
-        '{:.{}f}'.format(float1, decimals)
-        == '{:.{}f}'.format(float2, decimals)
-    )
+    assert f'{float1:.{decimals}f}' == f'{float2:.{decimals}f}'
 
 
 class SimpleOutputTests(Redirector):

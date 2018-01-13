@@ -63,7 +63,7 @@ def parse_args(args):
     try:
         return shlex.split(args if args else '')
     except ValueError as e:
-        print('*** {}'.format(e))
+        print(f'*** {e}')
         return None
 
 
@@ -72,10 +72,7 @@ def get_amount_str(amount, decimals=2):
     # (especially important for establishing if we're at zero for a
     # balanced statement)
     zero_amount = '{:.{}f}'.format(0, decimals)
-    return re.sub(r'^-0.0+$', zero_amount, '{amount:.{decimals}f}'.format(
-        amount=amount,
-        decimals=decimals
-    ))
+    return re.sub(r'^-0.0+$', zero_amount, f'{amount:.{decimals}f}')
 
 
 def get_colored_amount(amount, column_width=1, is_shares=False):
@@ -86,7 +83,7 @@ def get_colored_amount(amount, column_width=1, is_shares=False):
         get_amount_str(amount, decimals)
     )
     # avoid inconsistent 0 coloring from round/float intrigue
-    if amount_formatted == '{}{:.{}f}'.format(dollar_sign, 0, decimals):
+    if amount_formatted == f'{dollar_sign}{0:.{decimals}f}':
         amount = 0
 
     color = 'red' if amount < 0 else 'green'

@@ -35,7 +35,7 @@ class FileTester(object):
     def create_temp_file(testdata):
         temp_file = os.path.join(
             FileTester.testdir,
-            'temp_{}'.format(inspect.stack()[1][3])
+            f'temp_{inspect.stack()[1][3]}'
         )
         with open(temp_file, 'w') as f:
             f.write(testdata)
@@ -45,7 +45,7 @@ class FileTester(object):
     def copy_to_temp_file(filename):
         temp_file = os.path.join(
             FileTester.testdir,
-            'temp_{}'.format(inspect.stack()[1][3])
+            f'temp_{inspect.stack()[1][3]}'
         )
         copyfile(filename, temp_file)
         return temp_file
@@ -57,7 +57,7 @@ class FileTester(object):
 
     @staticmethod
     def write_to_temp_file(filename, testdata):
-        temp_file = '{}_temp'.format(filename)
+        temp_file = f'{filename}_temp'
         with open(temp_file, 'w') as f:
             f.write(testdata)
         return temp_file

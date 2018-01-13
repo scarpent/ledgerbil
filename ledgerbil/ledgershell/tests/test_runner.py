@@ -29,20 +29,18 @@ class MockProcess(object):
 
 def test_get_ledger_command():
     runner.settings = TestSettings()
-    expected = 'ledger -f {f1} -f {f2}  '.format(
-        f1=os.path.join(TestSettings.LEDGER_DIR, 'blarg.ldg'),
-        f2=os.path.join(TestSettings.LEDGER_DIR, 'glurg.ldg')
-    )
+    file1 = os.path.join(TestSettings.LEDGER_DIR, 'blarg.ldg')
+    file2 = os.path.join(TestSettings.LEDGER_DIR, 'glurg.ldg')
+    expected = f'ledger -f {file1} -f {file2}  '
     actual = runner.get_ledger_command()
     assert actual == expected
 
 
 def test_get_ledger_command_with_options():
     runner.settings = TestSettings()
-    expected = 'ledger -f {f1} -f {f2} booga booga '.format(
-        f1=os.path.join(TestSettings.LEDGER_DIR, 'blarg.ldg'),
-        f2=os.path.join(TestSettings.LEDGER_DIR, 'glurg.ldg')
-    )
+    file1 = os.path.join(TestSettings.LEDGER_DIR, 'blarg.ldg')
+    file2 = os.path.join(TestSettings.LEDGER_DIR, 'glurg.ldg')
+    expected = f'ledger -f {file1} -f {file2} booga booga '
     actual = runner.get_ledger_command('booga booga')
     assert actual == expected
 

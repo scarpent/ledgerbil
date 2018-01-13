@@ -28,7 +28,7 @@ def test_ansi_sequence_color_codes():
     """Color codes should equal expected start codes"""
     c = Colorable()
     for key, value in Colorable.COLORS.items():
-        assert c.ansi_sequence(value) == '\033[0;{}m'.format(value)
+        assert c.ansi_sequence(value) == f'\033[0;{value}m'
 
 
 def test_ansi_sequence_bright_colors():
@@ -44,28 +44,28 @@ def test_color():
     """Colorable ansi sequences should equal expected sequences"""
     for key, value in Colorable.COLORS.items():
         c = Colorable(key, 'blarg')
-        assert str(c) == '\x1b[0;{}mblarg\x1b[0m'.format(value)
+        assert str(c) == f'\x1b[0;{value}mblarg\x1b[0m'
 
 
 def test_color_bright():
     """Colorable bright ansi sequences should equal expected sequences"""
     for key, value in Colorable.COLORS.items():
         c = Colorable(key, 'blarg', bright=True)
-        assert str(c) == '\x1b[0;{}mblarg\x1b[0m'.format(value + 60)
+        assert str(c) == f'\x1b[0;{value + 60}mblarg\x1b[0m'
 
 
 def test_color_column_width_ten():
     """Colorable column width should pad appropriately"""
     for key, value in Colorable.COLORS.items():
         c = Colorable(key, 'blarg', column_width=10)
-        assert str(c) == '\x1b[0;{}mblarg     \x1b[0m'.format(value)
+        assert str(c) == f'\x1b[0;{value}mblarg     \x1b[0m'
 
 
 def test_color_column_width_ten_right_adjusted():
     """Colorable column width right adjusted should pad appropriately"""
     for key, value in Colorable.COLORS.items():
         c = Colorable(key, 'blarg', column_width=10, right_adjust=True)
-        assert str(c) == '\x1b[0;{}m     blarg\x1b[0m'.format(value)
+        assert str(c) == f'\x1b[0;{value}m     blarg\x1b[0m'
 
 
 def test_plain():
