@@ -36,9 +36,7 @@ class Ledgerbil(object):
             ledgerfile.write_file()
 
         if self.args.reconcile:
-            error = self.run_reconciler(ledgerfile)
-            if error:
-                return error
+            return self.run_reconciler(ledgerfile)
 
         return 0
 
@@ -76,6 +74,8 @@ class Ledgerbil(object):
             reconciler.cmdloop()
         else:
             print(f'No matching account found for "{self.args.reconcile}"')
+
+        return 0
 
 
 def main(argv=None):
