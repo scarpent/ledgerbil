@@ -97,7 +97,7 @@ class HandleFileConfig(ScheduleThingTester):
 class GetSafeDate(Redirector):
 
     def setUp(self):
-        super(GetSafeDate, self).setUp()
+        super().setUp()
         schedule_lines_test = [
             '2013/06/29 lightning energy',
             '    ;; schedule ; monthly ; 12th ; ; auto'
@@ -122,7 +122,7 @@ class GetSafeDate(Redirector):
 class GetScheduledEntries(Redirector):
 
     def setUp(self):
-        super(GetScheduledEntries, self).setUp()
+        super().setUp()
         schedule_line_file_config = [
             ';; scheduler ; enter 7 days'
         ]
@@ -307,7 +307,7 @@ class GetScheduledEntries(Redirector):
 class GetEntryThing(Redirector):
 
     def setUp(self):
-        super(GetEntryThing, self).setUp()
+        super().setUp()
         schedule_line_file_config = [
             ';; scheduler ; enter 7 days'
         ]
@@ -336,7 +336,7 @@ class GetEntryThing(Redirector):
 class HandleThingConfig(Redirector):
 
     def setUp(self):
-        super(HandleThingConfig, self).setUp()
+        super().setUp()
         schedule_line_file_config = [
             ';; scheduler ; enter 7 days'
         ]
@@ -518,7 +518,7 @@ class HandleThingConfig(Redirector):
 class GetNextDate(Redirector):
 
     def setUp(self):
-        super(GetNextDate, self).setUp()
+        super().setUp()
         schedule_line_file_config = [
             ';; scheduler ; enter 7 days'
         ]
@@ -773,7 +773,7 @@ class GetWeekDay(TestCase):
 class GetMonthDay(Redirector):
 
     def setUp(self):
-        super(GetMonthDay, self).setUp()
+        super().setUp()
         schedule_lines_test = [
             '2013/06/29 lightning energy',
             '    ;; schedule ; monthly ; 12th ; ; auto'
