@@ -22,23 +22,17 @@ class ScheduleThingTester(Redirector):
 class HandleFileConfig(ScheduleThingTester):
     @staticmethod
     def get_expected_config(enterdays):
-        return (
-            '%s | %s' % (
-                enterdays,
-                util.get_date_string(
-                    date.today() + relativedelta(days=enterdays)
-                )
-            )
-        )
+        return ('%s | %s' % (
+            enterdays,
+            util.get_date_string(date.today() + relativedelta(days=enterdays))
+        ))
 
     @staticmethod
     def get_actual_config(schedule_thing):
-        return (
-            '%s | %s' % (
-                schedule_thing.enter_days,
-                util.get_date_string(schedule_thing.entry_boundary_date)
-            )
-        )
+        return ('%s | %s' % (
+            schedule_thing.enter_days,
+            util.get_date_string(schedule_thing.entry_boundary_date)
+        ))
 
     def test_basic_file_config(self):
         schedule_line_file_config = [
