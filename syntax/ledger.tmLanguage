@@ -42,6 +42,23 @@
 				<key>1</key>
 				<dict>
 					<key>name</key>
+					<string>keyword.scheduler.config</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>string.unquoted.scheduler.config</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>^\s*(;;\s*scheduler?)\s*(;[^A-Z]*(\n|$))</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
 					<string>string.unquoted.header</string>
 				</dict>
 			</dict>
@@ -326,7 +343,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?([\d\.,_]+)\s+([a-zA-z_]+)(?:\s+(@)\s+|\s+(?=;)|\s*$)</string>
+			<string>(\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?([\d\.,_]+)\s+([a-zA-z_]+)(?:\s*(@)\s*|\s+(?=;)|\s*$)</string>
 		</dict>
 		<dict>
 			<key>captures</key>

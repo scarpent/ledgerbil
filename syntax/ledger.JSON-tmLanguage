@@ -15,6 +15,13 @@
         }
     },
     {
+        "match": "^\\s*(;;\\s*scheduler?)\\s*(;[^A-Z]*(\\n|$))",
+        "captures": {
+          "1": { "name": "keyword.scheduler.config" },
+          "2": { "name": "string.unquoted.scheduler.config" }
+        }
+    },
+    {
         "match": "^\\s*(;;[^A-Z]*(\\n|$))",
         "captures": {
           "1": { "name": "string.unquoted.header" }
@@ -121,7 +128,7 @@
         }
     },
     {
-        "match": "(\\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?([\\d\\.,_]+)\\s+([a-zA-z_]+)(?:\\s+(@)\\s+|\\s+(?=;)|\\s*$)",
+        "match": "(\\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?([\\d\\.,_]+)\\s+([a-zA-z_]+)(?:\\s*(@)\\s*|\\s+(?=;)|\\s*$)",
         "captures": {
           "1": { "name": "entity.name.function.assets-hilite-the-label" },
           "2": { "name": "support.class.assets-hilite-the-asset" },
