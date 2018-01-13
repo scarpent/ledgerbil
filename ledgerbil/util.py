@@ -33,12 +33,10 @@ def _eval(node):
 
 
 def get_date_string(the_date):
-    """ @type the_date: date """
     return the_date.strftime(DATE_FORMAT)
 
 
 def get_date(date_string):
-    """ @type date_string: str """
     return datetime.strptime(date_string, DATE_FORMAT).date()
 
 

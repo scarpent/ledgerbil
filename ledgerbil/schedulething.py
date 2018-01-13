@@ -86,9 +86,6 @@ class ScheduleThing(LedgerThing):
         )
 
     def _handle_thing_config(self, line):
-        """
-        @type line: string
-        """
 
         cfg_label_idx = 0
         interval_uom_idx = 1
@@ -116,7 +113,7 @@ class ScheduleThing(LedgerThing):
                 ScheduleThing.THING_CONFIG_LABEL:
             raise LdgSchedulerError(
                 'Invalid schedule thing config:\n{line}\n"{label}" '
-                'label not found in expected place.\n'.format(
+                'label not found in expected place.'.format(
                     line=line,
                     label=ScheduleThing.THING_CONFIG_LABEL
                 )
@@ -219,12 +216,8 @@ class ScheduleThing(LedgerThing):
         return LedgerThing(entry_lines)
 
     def _get_next_date(self, previousdate):
-        """
-        @type previousdate: date
-        @rtype: date
-        """
-        if self.interval_uom == ScheduleThing.INTERVAL_MONTH:
 
+        if self.interval_uom == ScheduleThing.INTERVAL_MONTH:
             # first see if any scheduled days remaining in same month
             for scheduleday in self.days:
                 scheduleday = self._get_month_day(
@@ -269,11 +262,6 @@ class ScheduleThing(LedgerThing):
 
     # knows how to handle "eom"
     def _get_month_day(self, scheduleday, currentdate):
-        """
-        @type scheduleday: str
-        @type currentdate: date
-        @rtype: int
-        """
 
         last_day_of_month = monthrange(
             currentdate.year,
