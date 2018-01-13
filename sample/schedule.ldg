@@ -1,0 +1,37 @@
+;; scheduler ; enter 1 days
+; entry format: ;; schedule ; interval uom ; days ; interval ; notes
+; required:     ;; schedule ; interval uom
+
+2018/01/15 johnny paycheck                                              ; todo
+    ;; schedule ; monthly ; 15, eom30
+    i: wages: gross pay                     $-2,100
+    i: wages: employer match                $-63
+    e: taxes: federal                       $171.46
+    e: taxes: state                         $126.66
+    e: taxes: social security               $130.2
+    e: taxes: medicare                      $30.45
+    e: healthcare: medical insurance        $231.89
+    a: 401k: cash                           ($126 + $63)
+    a: fsa                                  $41.67
+    a: checking                             $1,241.67
+
+2018/01/22 lightning electricity                                        ; todo
+    ;; schedule ; monthly
+    e: bills: electricity
+    a: checking                             $75
+
+2018/02/10 mega charge card                                             ; todo
+    ;; schedule ; monthly
+    l: credit card: mega
+    a: checking                             $-500
+
+2018/02/14 hullabaloo
+    ;; schedule ; monthly
+    e: bills: tv
+    a: checking                             $-12.4
+
+2018/02/17 chop chop hair                                               ; todo
+    ;; schedule ; weekly ;; every 6 weeks
+    e: misc: haircuts
+    l: credit card: mega                    $-18
+
