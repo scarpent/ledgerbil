@@ -1,12 +1,97 @@
 from datetime import date, datetime
+from textwrap import dedent
 from unittest import TestCase
 
+import pytest
 from dateutil.relativedelta import relativedelta
 
 from .. import util
 from ..ledgerbilexceptions import LdgSchedulerError
 from ..schedulething import ScheduleThing
 from .helpers import Redirector
+
+
+class ScheduleThingTester(Redirector):
+    def setUp(self):
+        super().setUp()
+        ScheduleThing.do_file_config = True
+        ScheduleThing.enter_days = 0
+        ScheduleThing.entry_boundary_date = None
+
+
+class HandleFileConfig(ScheduleThingTester):
+    @staticmethod
+    def get_expected_config(enterdays):
+        return (
+            '%s | %s' % (
+                enterdays,
+                util.get_date_string(
+                    date.today() + relativedelta(days=enterdays)
+                )
+            )
+        )
+
+    @staticmethod
+    def get_actual_config(schedule_thing):
+        return (
+            '%s | %s' % (
+                schedule_thing.enter_days,
+                util.get_date_string(schedule_thing.entry_boundary_date)
+            )
+        )
+
+    def test_basic_file_config(self):
+        schedule_line_file_config = [
+            ';; scheduler ; enter 7 days'
+        ]
+        schedule_thing = ScheduleThing(schedule_line_file_config)
+        self.assertEqual(
+            self.get_expected_config(7),
+            self.get_actual_config(schedule_thing)
+        )
+
+    def test_invalid_file_config(self):
+        schedule_line_file_config = [
+            ';; shceduler ; enter 7 days'
+        ]
+        with pytest.raises(LdgSchedulerError) as excinfo:
+            ScheduleThing(schedule_line_file_config)
+        expected = dedent('''\
+            Invalid schedule file config:
+            ;; shceduler ; enter 7 days
+            Expected:
+            ;; scheduler ; enter N days''')
+        assert str(excinfo.value) == expected
+
+    def test_file_config(self):
+        schedule_line_file_config = [
+            ';;scheduler;enter 7 days;;'
+        ]
+        schedule_thing = ScheduleThing(schedule_line_file_config)
+        self.assertEqual(
+            self.get_expected_config(7),
+            self.get_actual_config(schedule_thing)
+        )
+
+    def test_file_config_no_enter(self):
+        schedule_line_file_config = [
+            ';;scheduler;;'
+        ]
+        schedule_thing = ScheduleThing(schedule_line_file_config)
+        self.assertEqual(
+            self.get_expected_config(0),
+            self.get_actual_config(schedule_thing)
+        )
+
+    def test_file_config_enter_less_than_one(self):
+        schedule_line_file_config = [
+            ';;   scheduler   ; enter 0 day ; comment'
+        ]
+        schedule_thing = ScheduleThing(schedule_line_file_config)
+        self.assertEqual(
+            self.get_expected_config(0),
+            self.get_actual_config(schedule_thing)
+        )
 
 
 class GetSafeDate(Redirector):
@@ -291,25 +376,39 @@ class HandleThingConfig(Redirector):
             '2013/06/05 lightning energy',
             '    ;; schedule',
         ]
-        with self.assertRaises(LdgSchedulerError):
+        with pytest.raises(LdgSchedulerError) as excinfo:
             ScheduleThing(schedule_lines)
+        expected = dedent('''\
+            Invalid schedule thing config:
+                ;; schedule
+            Not enough parameters''')
+        assert str(excinfo.value) == expected
 
     def test_schedule_label_not_right(self):
         schedule_lines = [
             '2013/06/05 lightning energy',
             '    ;; scheduble ; monthly',
         ]
-        with self.assertRaises(LdgSchedulerError):
+        with pytest.raises(LdgSchedulerError) as excinfo:
             ScheduleThing(schedule_lines)
+        expected = dedent('''\
+            Invalid schedule thing config:
+                ;; scheduble ; monthly
+            "schedule" label not found in expected place.''')
+        assert str(excinfo.value) == expected
 
     def test_schedule_unrecognized_interval_uom(self):
         schedule_lines = [
             '2013/06/05 lightning energy',
-            '    ;; schedule ; lunarly ; eom30 2 15 ; every 3 months '
-            '; auto',
+            '    ;; schedule ; lunarly',
         ]
-        with self.assertRaises(LdgSchedulerError):
+        with pytest.raises(LdgSchedulerError) as excinfo:
             ScheduleThing(schedule_lines)
+        expected = ('Invalid schedule thing config:\n'
+                    '    ;; schedule ; lunarly\n'
+                    'Interval UOM "lunarly" not recognized. Supported UOMs: '
+                    'weekly, monthly, bimonthly, quarterly, biannual, yearly.')
+        assert str(excinfo.value) == expected
 
     def test_interval_empty(self):
         schedule_lines = [
@@ -412,82 +511,6 @@ class HandleThingConfig(Redirector):
             self.get_expected_config(
                 ScheduleThing.INTERVAL_MONTH, ['22'], 60
             ),
-            self.get_actual_config(schedule_thing)
-        )
-
-
-class HandleFileConfig(Redirector):
-
-    def setUp(self):
-        super(HandleFileConfig, self).setUp()
-        ScheduleThing.do_file_config = True
-        ScheduleThing.enter_days = ScheduleThing.NO_DAYS
-        ScheduleThing.entry_boundary_date = None
-
-    @staticmethod
-    def get_expected_config(enterdays):
-        return (
-            '%s | %s' % (
-                enterdays,
-                util.get_date_string(
-                    date.today() + relativedelta(days=enterdays)
-                )
-            )
-        )
-
-    @staticmethod
-    def get_actual_config(schedule_thing):
-        return (
-            '%s | %s' % (
-                schedule_thing.enter_days,
-                util.get_date_string(schedule_thing.entry_boundary_date)
-            )
-        )
-
-    def test_basic_file_config(self):
-        schedule_line_file_config = [
-            ';; scheduler ; enter 7 days'
-        ]
-        schedule_thing = ScheduleThing(schedule_line_file_config)
-        self.assertEqual(
-            self.get_expected_config(7),
-            self.get_actual_config(schedule_thing)
-        )
-
-    def test_invalid_file_config(self):
-        schedule_line_file_config = [
-            ';; shceduler ; enter 7 days'
-        ]
-        with self.assertRaises(LdgSchedulerError):
-            ScheduleThing(schedule_line_file_config)
-
-    def test_file_config(self):
-        schedule_line_file_config = [
-            ';;scheduler;enter 7 days;;'
-        ]
-        schedule_thing = ScheduleThing(schedule_line_file_config)
-        self.assertEqual(
-            self.get_expected_config(7),
-            self.get_actual_config(schedule_thing)
-        )
-
-    def test_file_config_no_enter(self):
-        schedule_line_file_config = [
-            ';;scheduler;;'
-        ]
-        schedule_thing = ScheduleThing(schedule_line_file_config)
-        self.assertEqual(
-            self.get_expected_config(ScheduleThing.NO_DAYS),
-            self.get_actual_config(schedule_thing)
-        )
-
-    def test_file_config_enter_less_than_one(self):
-        schedule_line_file_config = [
-            ';;   scheduler   ; enter 0 day ; comment'
-        ]
-        schedule_thing = ScheduleThing(schedule_line_file_config)
-        self.assertEqual(
-            self.get_expected_config(ScheduleThing.NO_DAYS),
             self.get_actual_config(schedule_thing)
         )
 

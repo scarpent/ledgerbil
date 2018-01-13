@@ -9,8 +9,7 @@ from dateutil.relativedelta import relativedelta
 from .. import ledgerbil, util
 from .filetester import FileTester as FT
 from .helpers import Redirector
-from .schedulething_tester import ScheduleThingTester
-from .test_schedulefile import ScheduleFileTests
+from .test_schedulefile import schedule_testdata
 
 
 class MainBasicInput(TestCase):
@@ -72,7 +71,7 @@ class MainErrors(Redirector):
         )
 
 
-class Scheduler(ScheduleThingTester):
+class Scheduler(Redirector):
 
     @staticmethod
     def get_schedule_file(the_date, schedule, enter_days=7):
@@ -143,9 +142,8 @@ class Scheduler(ScheduleThingTester):
         self.assertEqual(ledgerfile_expected, ledgerfile_actual)
 
     def test_next_scheduled_date(self):
-        with FT.temp_input(ScheduleFileTests.scheduledata) as tempfile:
+        with FT.temp_input(schedule_testdata) as tempfile:
             ledgerbil.main(['-n', '-S', tempfile])
-
         assert self.redirect.getvalue().rstrip() == '2007/07/07'
 
 
@@ -199,23 +197,10 @@ class ReconcilerTests(Redirector):
 
 
 @mock.patch(__name__ + '.ledgerbil.print')
-def test_reconciler_exception(mock_print):
-    ledgerfile_data = dedent('''
-        2017/11/28 zombie investments
-            a: 401k: bonds idx            12.357 qwrty @   $20.05
-            i: investment: adjustment
-
-        2017/11/28 zombie investments
-            a: 401k: bonds idx
-            i: investment: adjustment     $100,000
-    ''')
-    with FT.temp_input(ledgerfile_data) as tempfilename:
-        return_code = ledgerbil.main([
-            '--file', tempfilename,
-            '--reconcile', 'bonds'
-        ])
-    expected = 'Unhandled shares with non-shares: "a: 401k: bonds idx"'
-    mock_print.assert_called_once_with(expected, file=sys.stderr)
+def test_ledgerbil_error_printer_exiter(mock_print):
+    gerbil = ledgerbil.Ledgerbil(None)
+    return_code = gerbil.error('blah blah blah')
+    mock_print.assert_called_once_with('blah blah blah', file=sys.stderr)
     assert return_code == -1
 
 
@@ -235,10 +220,55 @@ def test_reconciler_cmdloop_called(mock_cmdloop):
     assert return_code == 0
 
 
-@mock.patch(__name__ + '.ledgerbil.print')
-def test_main_investments_with_argv_none(mock_print):
+@mock.patch(__name__ + '.ledgerbil.Ledgerbil.error')
+def test_reconciler_exception(mock_error):
+    ledgerfile_data = dedent('''
+        2017/11/28 zombie investments
+            a: 401k: bonds idx            12.357 qwrty @   $20.05
+            i: investment: adjustment
+
+        2017/11/28 zombie investments
+            a: 401k: bonds idx
+            i: investment: adjustment     $100,000
+    ''')
+    with FT.temp_input(ledgerfile_data) as tempfilename:
+        ledgerbil.main([
+            '--file', tempfilename,
+            '--reconcile', 'bonds'
+        ])
+    expected = 'Unhandled shares with non-shares: "a: 401k: bonds idx"'
+    mock_error.assert_called_once_with(expected)
+
+
+@mock.patch(__name__ + '.ledgerbil.Ledgerbil.error')
+def test_main_investments_with_argv_none(mock_error):
     with mock.patch('sys.argv', ['/script']):
-        return_code = ledgerbil.main()
+        ledgerbil.main()
     expected = 'error: -f/--file is required'
-    mock_print.assert_called_once_with(expected, file=sys.stderr)
-    assert return_code == -1
+    mock_error.assert_called_once_with(expected)
+
+
+@mock.patch(__name__ + '.ledgerbil.Ledgerbil.error')
+def test_next_scheduled_date_scheduler_exception(mock_error):
+    schedulefile_data = dedent(';; scheduler enter 567 days')
+    with FT.temp_input(schedulefile_data) as tempfilename:
+        ledgerbil.main(['--schedule-file', tempfilename, '-n'])
+    expected = dedent('''\
+            Invalid schedule file config:
+            ;; scheduler enter 567 days
+            Expected:
+            ;; scheduler ; enter N days''')
+    mock_error.assert_called_once_with(expected)
+
+
+@mock.patch(__name__ + '.ledgerbil.Ledgerbil.error')
+def test_scheduler_exception(mock_error):
+    schedulefile_data = dedent(';; scheduler enter 321 days')
+    with FT.temp_input(schedulefile_data) as tempfilename:
+        ledgerbil.main(['--schedule-file', tempfilename, '-f', FT.testfile])
+    expected = dedent('''\
+            Invalid schedule file config:
+            ;; scheduler enter 321 days
+            Expected:
+            ;; scheduler ; enter N days''')
+    mock_error.assert_called_once_with(expected)

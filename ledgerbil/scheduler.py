@@ -13,7 +13,7 @@ class Scheduler(object):
             days=ScheduleThing.enter_days
         ))
 
-        if ScheduleThing.enter_days == ScheduleThing.NO_DAYS:
+        if ScheduleThing.enter_days == 0:
             return
 
         self.schedulefile.sort()

@@ -13,11 +13,10 @@ from .ledgerthing import LedgerThing
 
 class ScheduleThing(LedgerThing):
 
+    # These three are also initialized in ScheduleFile init, mostly
+    # to ensure tests run with expected initial state
     do_file_config = True
-
-    NO_DAYS = 0
-    enter_days = NO_DAYS
-
+    enter_days = 0
     entry_boundary_date = None
 
     LINE_FILE_CONFIG = 0
@@ -36,7 +35,7 @@ class ScheduleThing(LedgerThing):
         self.days = []           # e.g. 5, 15, eom, eom30
         self.interval = 1        # e.g. 1 = every month, 2 = every other
 
-        super(ScheduleThing, self).__init__(lines)
+        super().__init__(lines)
 
         if ScheduleThing.do_file_config:
             self._handle_file_config(
@@ -70,16 +69,15 @@ class ScheduleThing(LedgerThing):
         match = re.match(config_regex, line)
         if not match:
             raise LdgSchedulerError(
-                'Invalid schedule file config:\n%s\nExpected:\n'
-                ';; scheduler ; enter N days'
-                % line
+                'Invalid schedule file config:\n{}\nExpected:\n'
+                ';; scheduler ; enter N days'.format(line)
             )
 
         if match.group(enter_days_idx):
             ScheduleThing.enter_days = int(match.group(enter_days_idx))
 
             if ScheduleThing.enter_days < 1:
-                ScheduleThing.enter_days = ScheduleThing.NO_DAYS
+                ScheduleThing.enter_days = 0
 
         ScheduleThing.entry_boundary_date = (
             date.today() + relativedelta(days=ScheduleThing.enter_days)

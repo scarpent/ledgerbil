@@ -2,6 +2,7 @@
 
 import os
 from datetime import date
+from unittest import TestCase
 
 from dateutil.relativedelta import relativedelta
 
@@ -10,10 +11,9 @@ from ..ledgerfile import LedgerFile
 from ..schedulefile import ScheduleFile
 from ..scheduler import Scheduler
 from .filetester import FileTester
-from .schedulething_tester import ScheduleThingTester
 
 
-class SchedulerRun(ScheduleThingTester):
+class SchedulerRun(TestCase):
 
     @staticmethod
     def get_schedule_file(the_date, schedule, enter_days=7):
