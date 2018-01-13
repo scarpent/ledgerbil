@@ -4,10 +4,7 @@ from unittest import TestCase
 from dateutil.relativedelta import relativedelta
 
 from .. import util
-from ..ledgerbilexceptions import (LdgScheduleFileConfigError,
-                                   LdgScheduleThingLabelError,
-                                   LdgScheduleThingParametersError,
-                                   LdgScheduleUnrecognizedIntervalUom)
+from ..ledgerbilexceptions import LdgSchedulerError
 from ..schedulething import ScheduleThing
 from .helpers import Redirector
 
@@ -294,7 +291,7 @@ class HandleThingConfig(Redirector):
             '2013/06/05 lightning energy',
             '    ;; schedule',
         ]
-        with self.assertRaises(LdgScheduleThingParametersError):
+        with self.assertRaises(LdgSchedulerError):
             ScheduleThing(schedule_lines)
 
     def test_schedule_label_not_right(self):
@@ -302,7 +299,7 @@ class HandleThingConfig(Redirector):
             '2013/06/05 lightning energy',
             '    ;; scheduble ; monthly',
         ]
-        with self.assertRaises(LdgScheduleThingLabelError):
+        with self.assertRaises(LdgSchedulerError):
             ScheduleThing(schedule_lines)
 
     def test_schedule_unrecognized_interval_uom(self):
@@ -311,7 +308,7 @@ class HandleThingConfig(Redirector):
             '    ;; schedule ; lunarly ; eom30 2 15 ; every 3 months '
             '; auto',
         ]
-        with self.assertRaises(LdgScheduleUnrecognizedIntervalUom):
+        with self.assertRaises(LdgSchedulerError):
             ScheduleThing(schedule_lines)
 
     def test_interval_empty(self):
@@ -461,7 +458,7 @@ class HandleFileConfig(Redirector):
         schedule_line_file_config = [
             ';; shceduler ; enter 7 days'
         ]
-        with self.assertRaises(LdgScheduleFileConfigError):
+        with self.assertRaises(LdgSchedulerError):
             ScheduleThing(schedule_line_file_config)
 
     def test_file_config(self):

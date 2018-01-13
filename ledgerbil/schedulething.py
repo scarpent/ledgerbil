@@ -7,10 +7,7 @@ from datetime import date
 
 from dateutil.relativedelta import relativedelta
 
-from .ledgerbilexceptions import (LdgScheduleFileConfigError,
-                                  LdgScheduleThingLabelError,
-                                  LdgScheduleThingParametersError,
-                                  LdgScheduleUnrecognizedIntervalUom)
+from .ledgerbilexceptions import LdgSchedulerError
 from .ledgerthing import LedgerThing
 
 
@@ -72,7 +69,7 @@ class ScheduleThing(LedgerThing):
 
         match = re.match(config_regex, line)
         if not match:
-            raise LdgScheduleFileConfigError(
+            raise LdgSchedulerError(
                 'Invalid schedule file config:\n%s\nExpected:\n'
                 ';; scheduler ; enter N days'
                 % line
@@ -106,7 +103,7 @@ class ScheduleThing(LedgerThing):
         ]
 
         if len(configitems) < 4:
-            raise LdgScheduleThingParametersError(
+            raise LdgSchedulerError(
                 'Invalid schedule thing config:\n{}\n'
                 'Not enough parameters'.format(line)
             )
@@ -117,7 +114,7 @@ class ScheduleThing(LedgerThing):
 
         if configitems[cfg_label_idx].lower() != \
                 ScheduleThing.THING_CONFIG_LABEL:
-            raise LdgScheduleThingLabelError(
+            raise LdgSchedulerError(
                 'Invalid schedule thing config:\n{line}\n"{label}" '
                 'label not found in expected place.\n'.format(
                     line=line,
@@ -134,7 +131,7 @@ class ScheduleThing(LedgerThing):
             configitems[interval_uom_idx]
         )
         if not match:
-            raise LdgScheduleUnrecognizedIntervalUom(
+            raise LdgSchedulerError(
                 'Invalid schedule thing config:\n{line}\nInterval UOM '
                 '"{uom}" not recognized. Supported UOMs: '
                 'weekly, monthly, bimonthly, quarterly, biannual, '

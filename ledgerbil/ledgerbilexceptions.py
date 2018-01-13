@@ -3,19 +3,7 @@ class LdgException(Exception):
         self.value = value
 
 
-class LdgScheduleFileConfigError(LdgException):
-    pass
-
-
-class LdgScheduleThingParametersError(LdgException):
-    pass
-
-
-class LdgScheduleThingLabelError(LdgException):
-    pass
-
-
-class LdgScheduleUnrecognizedIntervalUom(LdgException):
+class LdgSchedulerError(LdgException):
     pass
 
 
