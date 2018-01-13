@@ -83,6 +83,7 @@ account expenses: leisure: books
 account expenses: leisure: games
 account expenses: leisure: movies
 account expenses: leisure: music
+account expenses: misc: haircuts
 account expenses: pets: food
 account expenses: pets: misc
 account expenses: pets: vet
