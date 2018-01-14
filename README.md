@@ -27,7 +27,7 @@ upon:
 
 
 Yet, being deluded, we desire to use the power of software to make our
-lives easier, and seek out tools lessen our drudgery.
+lives easier, and seek out ways to lessen our drudgery.
 
 Ledgerbil's features:
   * Automate the entry of recurring transactions via a scheduler.

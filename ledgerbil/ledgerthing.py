@@ -140,10 +140,9 @@ class LedgerThing(object):
                 account_total += amount
 
         if need_math:
-            # transaction_total should be 0; use it to adjust
+            # transaction_total should be 0; if math is needed, use
+            # the part away from zero to figure out account_total
             account_total -= transaction_total
-            transaction_total -= transaction_total
-            assert transaction_total == 0
 
         self.rec_amount = account_total
         if matched_accounts:
