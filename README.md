@@ -48,17 +48,20 @@ of exciting features:
 
 ## --help
 
-    usage: ledgerbil.py [-h] [-f FILE] [-S] [-r ACCT] [-s FILE] [-n]
+    usage: ledgerbil/main.py [-h] [-f FILE] [-S] [-r ACCT] [-s FILE] [-n]
 
     optional arguments:
-      -h, --help                     show this help message and exit
-      -f FILE, --file FILE           ledger file to be processed
-      -S, --sort                     sort the file by transaction date
-      -r ACCT, --reconcile ACCT      interactively reconcile the specified account
-      -s FILE, --schedule FILE       file with scheduled transactions (to be added
-                                     to -f ledger file)
-      -n, --next-scheduled-date      show the date of the next scheduled
-                                     transaction
+      -h, --help                 show this help message and exit
+      -f FILE, --file FILE       ledger file to be processed
+      -S, --sort                 sort the file by transaction date
+      -r ACCT, --reconcile ACCT  interactively reconcile the specified account
+      -s FILE, --schedule FILE   file with scheduled transactions (to be added to
+                                 -f ledger file)
+      -n, --next-scheduled-date  show the date of the next scheduled transaction
+
+    other commands (run with -h to see command help):
+        ledgerbil/main.py investments (or inv)
+        ledgerbil/main.py prices
 
 ### --sort
 
