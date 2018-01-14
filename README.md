@@ -18,21 +18,25 @@ That is, no automated tool within the Ledger program itself. But you can
 create or find tools to help with various data entry and reconciliation
 chores.
 
-At a minimum, all you really need is a text editor. I'm using Sublime
-Text to manage my journal, and with syntax highlighting and regular
-expressions, it handles the job well.
+At a minimum, all you really need is a text editor for data entry. I'm
+using Sublime Text for my journal, and with the syntax highlighting
+files included in this repo, I find it pleasant to work with and look
+upon:
 
-But! We desire to use the power of software to make our lives easier.
-(We're deluded that way.)
+![ledger file with syntax highlighting](docs/images/ledger-syntax-highlighting.png "Syntax Highlighting")
+
+Yet, being deluded, we desire to use the power of software to make our
+lives easier, and seek out tools lessen our drudgery.
 
 Ledgerbil's features:
   * Automate the entry of recurring transactions via a scheduler.
   * Interactively reconcile accounts.
   * Sort a file by transaction date.
 
-I'm rather narrow-mindedly focusing on supporting the subset of
-ledger-cli that I'm using, and in particular working with my
-non-investment transactional journal file.
+I don't use many of ledger's features and options, so your mileage may
+vary for your own data. Please backup before trying, or make sure you're
+changes are committed to the source control system you certainly should
+be using.
 
 Ledgerbil will assume a properly formatted ledger file, although it
 won't necessarily enforce rules or report problems with an input file.
