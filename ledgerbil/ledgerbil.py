@@ -26,7 +26,7 @@ class Ledgerbil(object):
         except LdgReconcilerError as e:
             return self.error(str(e))
 
-        if self.args.schedule_file:
+        if self.args.schedule:
             error = self.run_scheduler(ledgerfile)
             if error:
                 return error
@@ -45,10 +45,10 @@ class Ledgerbil(object):
         return -1
 
     def next_scheduled_date(self):
-        if not self.args.schedule_file:
-            return self.error('error: -S/--schedule-file is required')
+        if not self.args.schedule:
+            return self.error('error: -s/--schedule is required')
         try:
-            schedule_file = ScheduleFile(self.args.schedule_file)
+            schedule_file = ScheduleFile(self.args.schedule)
         except LdgSchedulerError as e:
             return self.error(str(e))
         print(schedule_file.next_scheduled_date())
@@ -56,7 +56,7 @@ class Ledgerbil(object):
 
     def run_scheduler(self, ledgerfile):
         try:
-            schedule_file = ScheduleFile(self.args.schedule_file)
+            schedule_file = ScheduleFile(self.args.schedule)
         except LdgSchedulerError as e:
             return self.error(str(e))
         scheduler = Scheduler(ledgerfile, schedule_file)
@@ -91,7 +91,7 @@ def get_args(args):
         help='ledger file to be processed'
     )
     parser.add_argument(
-        '-s', '--sort',
+        '-S', '--sort',
         action='store_true',
         help='sort the file by transaction date'
     )
@@ -102,7 +102,7 @@ def get_args(args):
         help='interactively reconcile the specified account'
     )
     parser.add_argument(
-        '-S', '--schedule-file',
+        '-s', '--schedule',
         type=str,
         metavar='FILE',
         help='file with scheduled transactions (to be added to -f ledger file)'

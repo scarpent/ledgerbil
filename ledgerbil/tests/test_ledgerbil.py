@@ -61,7 +61,7 @@ class MainErrors(Redirector):
     def test_main_next_scheduled_date(self):
         ledgerbil.main(['-n'])
         self.assertEqual(
-            'error: -S/--schedule-file is required',
+            'error: -s/--schedule is required',
             self.redirecterr.getvalue().strip()
         )
 
@@ -115,7 +115,7 @@ class Scheduler(Redirector):
 
         ledgerbil.main([
             '--file', templedgerfile,
-            '--schedule-file', tempschedulefile,
+            '--schedule', tempschedulefile,
         ])
 
         schedulefile_actual = FT.read_file(tempschedulefile)
@@ -139,7 +139,7 @@ class Scheduler(Redirector):
 
     def test_next_scheduled_date(self):
         with FT.temp_input(schedule_testdata) as tempfile:
-            ledgerbil.main(['-n', '-S', tempfile])
+            ledgerbil.main(['-n', '-s', tempfile])
         assert self.redirect.getvalue().rstrip() == '2007/07/07'
 
 
@@ -248,7 +248,7 @@ def test_main_investments_with_argv_none(mock_error):
 def test_next_scheduled_date_scheduler_exception(mock_error):
     schedulefile_data = dedent(';; scheduler enter 567 days')
     with FT.temp_input(schedulefile_data) as tempfilename:
-        ledgerbil.main(['--schedule-file', tempfilename, '-n'])
+        ledgerbil.main(['--schedule', tempfilename, '-n'])
     expected = dedent('''\
             Invalid schedule file config:
             ;; scheduler enter 567 days
@@ -261,7 +261,7 @@ def test_next_scheduled_date_scheduler_exception(mock_error):
 def test_scheduler_exception(mock_error):
     schedulefile_data = dedent(';; scheduler enter 321 days')
     with FT.temp_input(schedulefile_data) as tempfilename:
-        ledgerbil.main(['--schedule-file', tempfilename, '-f', FT.testfile])
+        ledgerbil.main(['--schedule', tempfilename, '-f', FT.testfile])
     expected = dedent('''\
             Invalid schedule file config:
             ;; scheduler enter 321 days
@@ -293,7 +293,7 @@ def test_args_file_option_and_filename_both_required():
 
 
 @pytest.mark.parametrize('test_input, expected', [
-    ('-s', True),
+    ('-S', True),
     ('--sort', True),
     ('', False),
 ])
@@ -306,18 +306,18 @@ def test_args_sort_option(test_input, expected):
 
 
 @pytest.mark.parametrize('test_input, expected', [
-    ('-S', 'robo'),
-    ('--schedule-file', 'cop'),
+    ('-s', 'robo'),
+    ('--schedule', 'cop'),
 ])
 def test_args_schedule_file_option(test_input, expected):
     args = ledgerbil.get_args([test_input, expected])
-    assert args.schedule_file == expected
+    assert args.schedule == expected
 
 
 def test_args_schedule_filename_required_with_schedule_option():
     """argparse error if sched file opt specified without file"""
     with pytest.raises(SystemExit) as excinfo:
-        ledgerbil.get_args(['--schedule-file'])
+        ledgerbil.get_args(['--schedule'])
     assert str(excinfo.value) == '2'
 
 

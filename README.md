@@ -43,14 +43,14 @@ of exciting features:
 
 ## --help
 
-    usage: ledgerbil.py [-h] [-f FILE] [-s] [-r ACCT] [-S FILE] [-n]
+    usage: ledgerbil.py [-h] [-f FILE] [-S] [-r ACCT] [-s FILE] [-n]
 
     optional arguments:
       -h, --help                     show this help message and exit
       -f FILE, --file FILE           ledger file to be processed
-      -s, --sort                     sort the file by transaction date
+      -S, --sort                     sort the file by transaction date
       -r ACCT, --reconcile ACCT      interactively reconcile the specified account
-      -S FILE, --schedule-file FILE  file with scheduled transactions (to be added
+      -s FILE, --schedule FILE       file with scheduled transactions (to be added
                                      to -f ledger file)
       -n, --next-scheduled-date      show the date of the next scheduled
                                      transaction
@@ -72,7 +72,7 @@ ordering of things will be maintained accordingly. If these items occur
 before any dated transactions, they will be given a date in 1899 to
 (most likely) keep them before your other transactions.
 
-### --schedule-file
+### --schedule
 
 The schedule file handles recurring transactions and has two levels of configuration.
 
@@ -82,7 +82,7 @@ And the top of the file, for example::
 
 This determines how many days ahead transactions should be entered into the specified ledger file. Perhaps you'll run:
 
-    python main.py --file journal.ledger --schedule-file schedule.ldg
+    python main.py --file journal.ledger --schedule schedule.ldg
 
 This will read the ``schedule.ldg`` file and create new entries in ``journal.ledger`` up to 40 days into THE FUTURE. ``schedule.ldg`` will also be updated to reflect next dates.
 
