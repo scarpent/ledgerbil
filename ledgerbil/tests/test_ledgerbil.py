@@ -4,6 +4,8 @@ from datetime import date
 from textwrap import dedent
 from unittest import TestCase, mock
 
+import pytest
+
 from dateutil.relativedelta import relativedelta
 
 from .. import ledgerbil, util
@@ -266,3 +268,67 @@ def test_scheduler_exception(mock_error):
             Expected:
             ;; scheduler ; enter N days''')
     mock_error.assert_called_once_with(expected)
+
+
+@mock.patch(__name__ + '.ledgerbil.argparse.ArgumentParser.print_help')
+def test_args_no_parameters(mock_print_help):
+    ledgerbil.get_args([])
+    mock_print_help.assert_called_once()
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    ('-f', 'bob'),
+    ('--file', 'loblaw'),
+])
+def test_args_file_option(test_input, expected):
+    args = ledgerbil.get_args([test_input, expected])
+    assert args.file == expected
+
+
+def test_args_file_option_and_filename_both_required():
+    """should cause argparse error if file opt specified without file"""
+    with pytest.raises(SystemExit) as excinfo:
+        ledgerbil.get_args(['--file'])
+    assert str(excinfo.value) == '2'
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    ('-s', True),
+    ('--sort', True),
+    ('', False),
+])
+def test_args_sort_option(test_input, expected):
+    options = ['-f', 'mario']
+    if test_input:
+        options.append(test_input)
+    args = ledgerbil.get_args(options)
+    assert args.sort is expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    ('-S', 'robo'),
+    ('--schedule-file', 'cop'),
+])
+def test_args_schedule_file_option(test_input, expected):
+    args = ledgerbil.get_args([test_input, expected])
+    assert args.schedule_file == expected
+
+
+def test_args_schedule_filename_required_with_schedule_option():
+    """argparse error if sched file opt specified without file"""
+    with pytest.raises(SystemExit) as excinfo:
+        ledgerbil.get_args(['--schedule-file'])
+    assert str(excinfo.value) == '2'
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    ('-n', True),
+    ('--next-scheduled-date', True),
+    ('', False),
+])
+def test_args_next_scheduled_date(test_input, expected):
+    options = ['-f', 'gargle']
+    if test_input:
+        options.append(test_input)
+    args = ledgerbil.get_args(options)
+    assert args.next_scheduled_date == expected

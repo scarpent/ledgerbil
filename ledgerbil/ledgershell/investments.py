@@ -205,10 +205,7 @@ def get_args(args=[]):
     parser = argparse.ArgumentParser(
         prog='list_investments.py',
         formatter_class=(
-            lambda prog: argparse.HelpFormatter(
-                prog,
-                max_help_position=36
-            )
+            lambda prog: argparse.HelpFormatter(prog, max_help_position=36)
         )
     )
     parser.add_argument(
