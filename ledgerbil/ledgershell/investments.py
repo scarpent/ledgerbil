@@ -203,7 +203,7 @@ def get_investment_report(args):
 
 def get_args(args=[]):
     parser = argparse.ArgumentParser(
-        prog='list_investments.py',
+        prog='ledgerbil/main.py inv',
         formatter_class=(
             lambda prog: argparse.HelpFormatter(prog, max_help_position=36)
         )

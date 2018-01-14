@@ -1,5 +1,6 @@
 import argparse
 import sys
+from textwrap import dedent
 
 from .ledgerbilexceptions import LdgReconcilerError, LdgSchedulerError
 from .ledgerfile import LedgerFile
@@ -79,11 +80,20 @@ class Ledgerbil(object):
 
 
 def get_args(args):
+    program = 'ledgerbil/main.py'
+    scripts_description = dedent(f'''\
+        other commands (run with -h to see command help):
+            {program} investments (or inv)
+            {program} prices
+        ''')
+
     parser = argparse.ArgumentParser(
-        prog='ledgerbil.py',
-        formatter_class=(
-            lambda prog: argparse.HelpFormatter(prog, max_help_position=36)
-        )
+        prog=program,
+        epilog=scripts_description,
+        formatter_class=(lambda prog: argparse.RawDescriptionHelpFormatter(
+            prog,
+            max_help_position=36
+        ))
     )
     parser.add_argument(
         '-f', '--file',
