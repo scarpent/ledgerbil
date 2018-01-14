@@ -183,13 +183,14 @@ class Reconciler(cmd.Cmd, object):
         self.total_cleared = 0
         self.total_pending = 0
 
-        is_shares_list = []
+        is_shareses = set()
         symbols = set()
 
         for thing in self.ledgerfile.get_things():
             if thing.rec_account_matched:
-                is_shares_list.append(thing.rec_is_shares)
+                is_shareses.add(thing.rec_is_shares)
                 symbols.add(thing.rec_symbol)
+
                 if thing.is_cleared():
                     self.total_cleared += thing.rec_amount
                     continue
@@ -200,25 +201,29 @@ class Reconciler(cmd.Cmd, object):
                 self.open_transactions.append(thing)
 
         if self.open_transactions:
-            if all(is_shares is True for is_shares in is_shares_list):
-                self.is_shares = True
-            elif all(is_shares is False for is_shares in is_shares_list):
-                self.is_shares = False
-            else:
-                raise LdgReconcilerError(
-                    'Unhandled shares with non-shares: "{}"'.format(
-                        self.ledgerfile.rec_account_matched
-                    )
-                )
-            if self.is_shares and len(symbols) != 1:
-                raise LdgReconcilerError(
-                    'Unhandled non-matching symbols: "{}": {}'.format(
-                        self.ledgerfile.rec_account_matched,
-                        sorted(list(symbols))
-                    )
-                )
+            self.validate_and_get_is_shares(is_shareses)
+            self.assert_only_one_symbol(symbols)
 
         self.do_list('')
+
+    def validate_and_get_is_shares(self, is_shareses):
+        if len(is_shareses) == 1:
+            self.is_shares = is_shareses.pop()
+        else:
+            raise LdgReconcilerError(
+                'Unhandled shares with non-shares: "{}"'.format(
+                    self.ledgerfile.rec_account_matched
+                )
+            )
+
+    def assert_only_one_symbol(self, symbols):
+        if self.is_shares and len(set(symbols)) != 1:
+            raise LdgReconcilerError(
+                'Unhandled multiple symbols: "{}": {}'.format(
+                    self.ledgerfile.rec_account_matched,
+                    sorted(list(symbols))
+                )
+            )
 
     def mark_or_unmark(self, args, mark=True):
         args = util.parse_args(args)

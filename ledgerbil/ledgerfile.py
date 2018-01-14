@@ -70,11 +70,11 @@ class LedgerFile(object):
             if self.rec_account and thing.rec_account_matched:
                 if not self.rec_account_matched:
                     self.rec_account_matched = thing.rec_account_matched
-                elif self.rec_account_matched != thing.rec_account_matched:
-                    LedgerThing.fail_reconciler_on_multiple_matches([
+                else:
+                    LedgerThing.assert_only_one_matching_account({
                         self.rec_account_matched,
                         thing.rec_account_matched,
-                    ])
+                    })
 
             thing.thing_number = self.thing_counter
             self.get_things().append(thing)

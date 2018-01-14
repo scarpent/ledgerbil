@@ -50,7 +50,7 @@ class Constructor(TestCase):
             '2016/02/04 (123)someone',
             date(2016, 2, 4), '123', 'someone'
         )
-        # todo: this is invalid in ledger; see if we can exclude
+        # todo: this is invalid in ledger; see if we can exclude?
         self.verify_top_line(
             '2001/04/11 (abc)                 ; yah',
             date(2001, 4, 11), 'abc', UNSPECIFIED_PAYEE
@@ -65,6 +65,7 @@ class Constructor(TestCase):
         )
         self.verify_top_line('2001/04/11(abc)', None, '', None)
         self.verify_top_line('2001/04/11someone', None, '', None)
+
         # todo: add tests for requiring two spaces after payee;
         #       test payee names with spaces
 
@@ -656,6 +657,20 @@ class ReconcilerParsing(Redirector):
 
 
 def test_mixed_shares_and_non_shares_raises_exception():
+    """should fail if shares encountered last"""
+    lines = [
+        '2018/01/08 blah',
+        '    a: xyz',
+        '    a: xyz  1.234 abc @ $10',
+    ]
+    with pytest.raises(LdgReconcilerError) as excinfo:
+        LedgerThing(lines, reconcile_account='xyz')
+    expected = 'Unhandled shares with non-shares:\n{}'.format('\n'.join(lines))
+    assert str(excinfo.value) == expected
+
+
+def test_mixed_shares_and_non_shares_raises_exception_too():
+    """should fail if non-shares encountered last"""
     lines = [
         '2018/01/08 blah',
         '    a: xyz  1.234 abc @ $10',
@@ -712,7 +727,7 @@ def test_mixed_symbols_raises_exception():
     ]
     with pytest.raises(LdgReconcilerError) as excinfo:
         LedgerThing(lines, reconcile_account='xyz')
-    expected = "Unhandled non-matching symbols: {symbols}\n{lines}".format(
+    expected = "Unhandled multiple symbols: {symbols}\n{lines}".format(
         symbols=['abc', 'qqq'],
         lines='\n'.join(lines)
     )

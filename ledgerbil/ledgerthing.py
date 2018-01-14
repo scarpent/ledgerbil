@@ -13,12 +13,13 @@ class LedgerThing(object):
     DATE_REGEX = r'^\d{4}(?:[-/]\d\d){2}(?=(?:\s|$))'
     # todo: this could use improvement; if payee is omitted,
     #       there can't be a comment; also, must be at least
-    #       to spaces between payee and comment
+    #       two spaces between payee and comment
+    #       (perhaps should just rely on ledger validation for one or both)
     TOP_LINE_REGEX = re.compile(
-        r'(' + DATE_REGEX + ')'     # date
-        r'(?:\s+\(([^)]*)\))?'      # optional transaction #
-        r'\s*([^;]+)?'              # optional payee
-        r'(?:;.*$|$)'               # optional comment
+        r'(' + DATE_REGEX + ')'        # date
+        r'(?:\s+\(([^)]*)\))?'         # optional transaction #
+        r'\s*([^;]+)?'                 # optional payee
+        r'(?:;.*$|$)'                  # optional comment
     )
     ENTRY_REGEX = re.compile(r'''(?x)  # verbose mode
         ^\s+                           # opening indent
@@ -82,11 +83,10 @@ class LedgerThing(object):
             # We only care about transaction lines if reconciling
             return
 
-        # There may be one or  more lines for the account we're
-        # reconciling; We only care about total for the account,
+        # There may be one or more lines for the account we're
+        # reconciling. We only care about total for the account,
         # but we need to total everything up in case our account
-        # doesn't have a dollar amount and we need to calculate it
-
+        # doesn't have a dollar amount and we need to calculate it.
         transaction_total = 0
         account_total = 0
         need_math = False
@@ -116,36 +116,21 @@ class LedgerThing(object):
 
             if self.rec_account not in account:
                 continue
-            else:
-                matched_accounts.add(account)
-                if len(matched_accounts) > 1:
-                    self.fail_reconciler_on_multiple_matches(matched_accounts)
+
+            matched_accounts.add(account)
+            self.assert_only_one_matching_account(matched_accounts)
 
             statuses.add(status)
-            if len(statuses) > 1:
-                raise LdgReconcilerError(
-                    f'Unhandled multiple statuses: {self.get_date_and_payee()}'
-                )
+            self.assert_only_one_status(statuses)
 
             shareses.add(shares)
             if shares is not None:
                 self.rec_is_shares = True
                 symbols.add(symbol)
-                if len(symbols) > 1:
-                    raise LdgReconcilerError(
-                        'Unhandled non-matching symbols: {}\n{}'.format(
-                            sorted(list(set(symbols))),
-                            '\n'.join(self.lines)
-                        )
-                    )
+                self.assert_only_one_symbol(symbols)
                 amount = float(re.sub(r'[, ]', '', shares))
 
-            if self.rec_is_shares and None in shareses:
-                raise LdgReconcilerError(
-                    'Unhandled shares with non-shares:\n{}'.format(
-                        '\n'.join(self.lines)
-                    )
-                )
+            self.assert_only_shares_if_shares(shareses)
 
             if amount is None:
                 need_math = True
@@ -219,11 +204,35 @@ class LedgerThing(object):
             return False
 
     @staticmethod
-    def fail_reconciler_on_multiple_matches(accounts):
-        message = 'More than one matching account:\n'
-        for account in sorted(list(accounts)):
-            message += f'    {account}\n'
-        raise LdgReconcilerError(message[:-1])
+    def assert_only_one_matching_account(accounts):
+        if len(set(accounts)) > 1:
+            message = 'More than one matching account:\n'
+            for account in sorted(list(accounts)):
+                message += f'    {account}\n'
+            raise LdgReconcilerError(message[:-1])
+
+    def assert_only_one_status(self, statuses):
+        if len(set(statuses)) > 1:
+            raise LdgReconcilerError(
+                f'Unhandled multiple statuses: {self.get_date_and_payee()}'
+            )
+
+    def assert_only_one_symbol(self, symbols):
+        if len(set(symbols)) > 1:
+            raise LdgReconcilerError(
+                'Unhandled multiple symbols: {}\n{}'.format(
+                    sorted(list(set(symbols))),
+                    '\n'.join(self.lines)
+                )
+            )
+
+    def assert_only_shares_if_shares(self, shareses):
+        if self.rec_is_shares and None in shareses:
+            raise LdgReconcilerError(
+                'Unhandled shares with non-shares:\n{}'.format(
+                    '\n'.join(self.lines)
+                )
+            )
 
     def get_date_and_payee(self):
         return f'{self.get_date_string()} {self.payee}'
