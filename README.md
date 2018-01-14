@@ -23,7 +23,8 @@ using Sublime Text for my journal, and with the syntax highlighting
 files included in this repo, I find it pleasant to work with and look
 upon:
 
-<img src="docs/images/ledger-syntax-highlighting.png" alt="ledger file with syntax highlighting" style="width: 550px;" title="Syntax Highlighting"/>
+![ledger file with syntax highlighting](docs/images/ledger-syntax-highlighting.png "Syntax Highlighting")
+
 
 Yet, being deluded, we desire to use the power of software to make our
 lives easier, and seek out tools lessen our drudgery.
