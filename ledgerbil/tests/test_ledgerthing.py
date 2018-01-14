@@ -47,6 +47,11 @@ class Constructor(TestCase):
             date(2016, 2, 4), '123', 'someone'
         )
         self.verify_top_line(
+            '2016/02/04 (123)someone',
+            date(2016, 2, 4), '123', 'someone'
+        )
+        # todo: this is invalid in ledger; see if we can exclude
+        self.verify_top_line(
             '2001/04/11 (abc)                 ; yah',
             date(2001, 4, 11), 'abc', UNSPECIFIED_PAYEE
         )
@@ -60,6 +65,8 @@ class Constructor(TestCase):
         )
         self.verify_top_line('2001/04/11(abc)', None, '', None)
         self.verify_top_line('2001/04/11someone', None, '', None)
+        # todo: add tests for requiring two spaces after payee;
+        #       test payee names with spaces
 
 
 class GetLines(Redirector):
@@ -244,6 +251,7 @@ class IsTransactionStart(TestCase):
         self.assertTrue(
             LedgerThing.is_transaction_start('2016/10/20 (123)')
         )
+        # todo: this is invalid in ledger; see if we can exclude
         self.assertTrue(
             LedgerThing.is_transaction_start('2016/10/20 (123)   ; xyz')
         )

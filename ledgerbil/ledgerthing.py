@@ -11,16 +11,20 @@ UNSPECIFIED_PAYEE = '<Unspecified payee>'
 class LedgerThing(object):
 
     DATE_REGEX = r'^\d{4}(?:[-/]\d\d){2}(?=(?:\s|$))'
-    # date (optional number) payee  ; optional comment
+    # todo: this could use improvement; if payee is omitted,
+    #       there can't be a comment; also, must be at least
+    #       to spaces between payee and comment
     TOP_LINE_REGEX = re.compile(
-        r'(' + DATE_REGEX +
-        r')(?:\s+\(([^)]*)\))?\s*([^;]+)?(?:;.*$|$)'
+        r'(' + DATE_REGEX + ')'     # date
+        r'(?:\s+\(([^)]*)\))?'      # optional transaction #
+        r'\s*([^;]+)?'              # optional payee
+        r'(?:;.*$|$)'               # optional comment
     )
     ENTRY_REGEX = re.compile(r'''(?x)  # verbose mode
         ^\s+                           # opening indent
         ([!*])?                        # optional pending/cleared
         (?:\s*)?                       # optional whitespace after p/c
-        ([^;]*?)(?=\ \ |$)             # account (2 spaces ends acct)
+        ([^;]+?)(?=\ \ |$)             # account (2 spaces ends acct)
         (?:\s*                         # optional share info, leading white
           (-?\s*[.,0-9]+)              # num shares
           (?:\s+([^@; ]+))             # symbol
