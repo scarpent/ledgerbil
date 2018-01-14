@@ -25,7 +25,6 @@ upon:
 
 ![ledger file with syntax highlighting](docs/images/ledger-syntax-highlighting.png "Syntax Highlighting")
 
-
 Yet, being deluded, we desire to use the power of software to make our
 lives easier, and seek out ways to lessen our drudgery.
 
@@ -35,7 +34,7 @@ Ledgerbil's features:
   * Sort a file by transaction date.
 
 I don't use many of ledger's features and options, so your mileage may
-vary for your own data. Please backup before trying, or make sure you're
+vary for your own data. Please backup before trying, or make sure your
 changes are committed to the source control system you certainly should
 be using.
 
