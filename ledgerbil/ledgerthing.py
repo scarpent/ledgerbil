@@ -16,19 +16,19 @@ class LedgerThing(object):
         r'(' + DATE_REGEX +
         r')(?:\s+\(([^)]*)\))?\s*([^;]+)?(?:;.*$|$)'
     )
-    ENTRY_REGEX = re.compile(
-        r'^\s+'                       # opening indent
-        r'([!*])?'                    # optional pending/cleared
-        r'(?:\s*)?'                   # optional whitespace after p/c
-        r'([^;]*?)(?=  |$)'           # account (2 spaces ends acct)
-        r'(?:\s*'                     # optional share info, leading whitespace
-        r'(-?\s*[.,0-9]+)'            # num shares
-        r'(?:\s+([^@; ]+))'           # symbol
-        r'(?:\s*@\s*)?'               # optional @
-        r')?'                         # close of optional share stuff
-        r'\(?([-+*/()$\d.,\s]+)?\)?'  # optional amount expression
-        r'(?:;.*$|$)'                 # optional end comment
-    )
+    ENTRY_REGEX = re.compile(r'''(?x)  # verbose mode
+        ^\s+                           # opening indent
+        ([!*])?                        # optional pending/cleared
+        (?:\s*)?                       # optional whitespace after p/c
+        ([^;]*?)(?=\ \ |$)             # account (2 spaces ends acct)
+        (?:\s*                         # optional share info, leading white
+          (-?\s*[.,0-9]+)              # num shares
+          (?:\s+([^@; ]+))             # symbol
+          (?:\s*@\s*)?                 # optional @
+        )?                             # close of optional share stuff
+        \(?([-+*/()$\d.,\s]+)?\)?      # optional amount expression
+        (?:;.*$|$)                     # optional end comment
+        ''')
     REC_PENDING = '!'
     REC_CLEARED = '*'
     REC_UNCLEARED = ''

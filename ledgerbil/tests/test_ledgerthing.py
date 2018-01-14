@@ -347,6 +347,33 @@ class ReconcilerParsing(Redirector):
             expected_amount=50
         )
 
+    def test_two_spaces_ends_account(self):
+        self.verify_reconcile_vars(
+            [
+                '2016/10/23 blah',
+                '    i: blah',
+                '    a: check checking  $25',
+                '    a: check checking  $25',
+            ],
+            account='check',
+            expected_match='a: check checking',
+            expected_amount=50
+        )
+
+    def test_one_space_does_not_end_account(self):
+        with self.assertRaises(LdgReconcilerError) as e:
+            LedgerThing(
+                [
+                    '2016/10/23 blah',
+                    '    a: checking up $20',
+                    '    a: checking up  $20',
+                ],
+                'checking'
+            )
+        expected = ('More than one matching account:\n'
+                    '    a: checking up\n    a: checking up $20')
+        assert str(e.exception) == expected
+
     def test_comma_in_amount(self):
         self.verify_reconcile_vars(
             [
