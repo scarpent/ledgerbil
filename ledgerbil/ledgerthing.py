@@ -133,6 +133,8 @@ class LedgerThing(object):
             self.assert_only_shares_if_shares(shareses)
 
             if amount is None:
+                # We're relying on a valid ledger file so that only one
+                # entry can need math in a transaction
                 need_math = True
             else:
                 account_total += amount
