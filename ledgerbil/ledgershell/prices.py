@@ -6,7 +6,7 @@ import requests
 from dateutil.relativedelta import relativedelta
 
 from ..colorable import Colorable
-from .settings import Settings
+from ..settings import Settings
 
 # This appears to work for mutual funds, and not indivudal stocks.
 

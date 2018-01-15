@@ -3,7 +3,7 @@ import shlex
 import subprocess
 import sys
 
-from .settings import Settings
+from ..settings import Settings
 
 settings = Settings()
 

@@ -4,8 +4,8 @@ import re
 from collections import namedtuple
 
 from ..colorable import Colorable
+from ..settings import Settings
 from .runner import get_ledger_command, get_ledger_output
-from .settings import Settings
 
 DOLLARS_REGEX = re.compile(r'^\s*(?:(\$ -?[\d,.]+|0(?=  )))(.*)$')
 SHARES_REGEX = re.compile(r'\s*(-?[\d,.]+) ([a-zA-Z]+)(.*)$')
