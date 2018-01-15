@@ -474,14 +474,22 @@ class Reconciler(cmd.Cmd, object):
         key, cache = self.get_key_and_cache()
 
         if key in cache:
-            self.ending_date = util.get_date(cache[key]['ending_date'])
-            self.ending_balance = cache[key]['ending_balance']
+            self.ending_date = util.get_date(
+                cache[key].pop(
+                    'ending_date',
+                    util.get_date_string(date.today())
+                )
+            )
+            self.ending_balance = cache[key].pop('ending_balance', None)
 
     def save_statement_info_to_cache(self):
         key, cache = self.get_key_and_cache()
 
         if self.ending_balance is None:
-            cache.pop(key, None)
+            if key in cache:
+                cache[key].pop('ending_date', None)
+                cache[key].pop('ending_balance', None)
+            # cache.pop(key, None)
         else:
             entry = {
                 'ending_date': util.get_date_string(self.ending_date),

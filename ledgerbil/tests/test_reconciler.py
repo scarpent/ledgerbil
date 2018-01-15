@@ -721,13 +721,14 @@ class CacheTests(MockInput, Redirector):
         with FileTester.temp_input(self.testcache) as tempfilename:
             recon = Reconciler(LedgerFile(tempfilename, 'cash'))
 
-        # saving cache with ending balance "None" causes cache entry to
-        # be removed; first let's make sure it works w/o existing entry
+        # saving cache with ending balance "None" causes cache "ending_"
+        # entries to be removed; first let's make sure it works w/o
+        # existing entry
         assert not os.path.exists(FileTester.CACHE_FILE_TEST)
         assert recon.ending_balance is None
         recon.save_statement_info_to_cache()
         key, cache = recon.get_key_and_cache()
-        self.assertEqual({}, cache)
+        assert cache == {}
 
         # add entry
         recon.ending_balance = 100
@@ -746,7 +747,7 @@ class CacheTests(MockInput, Redirector):
         recon.ending_balance = None
         recon.save_statement_info_to_cache()
         key, cache = recon.get_key_and_cache()
-        self.assertEqual({}, cache)
+        assert cache == {'a: cash': {}}
 
         # multiple entries
         recon.ending_balance = 111
@@ -775,13 +776,14 @@ class CacheTests(MockInput, Redirector):
         recon.ending_balance = None
         recon.save_statement_info_to_cache()
         key, cache = recon.get_key_and_cache()
-        self.assertEqual(
-            {'a: cash': {
+        expected = {
+            'a: cash': {
                 'ending_balance': 111,
                 'ending_date': '2111/11/11'
-            }},
-            cache
-        )
+            },
+            'a: credit': {}
+        }
+        assert cache == expected
 
         # indirectly verify get_statement_info_from_cache
         with FileTester.temp_input(self.testcache) as tempfilename:
