@@ -15,6 +15,7 @@ class Settings(object):
     ]
 
     PRICES_FILE = 'prices.db.ldg'
+    PORTFOLIO_FILE = 'portfolio.json'
 
     LEDGER_OPTIONS = ('--strict --check-payees --pedantic --explicit '
                       '--columns 120')
@@ -28,4 +29,4 @@ class Settings(object):
         'fusex',    # fidelity 500 index
         'vbtlx',    # vanguard total bond index
     ]
-    PRICE_FILE_FORMAT = 'P {date} {inv:10} ${price}\n'
+    PRICE_FILE_FORMAT = 'P {date} {symbol:10} ${price}\n'
