@@ -36,6 +36,8 @@ class Reconciler(cmd.Cmd, object):
         self.ledgerfile = ledgerfile
         self.ending_date = date.today()
         self.ending_balance = None
+        self.previous_date = date.today()
+        self.previous_balance = None
         self.get_statement_info_from_cache()
 
         # these are immediately reset in populate open transactions
@@ -310,6 +312,21 @@ class Reconciler(cmd.Cmd, object):
                 )
             )
 
+        if self.previous_balance:
+            print(
+                '\nlast reconciled: {previous_date} '
+                'previous balance: {previous_balance}'.format(
+                    previous_date=Colorable(
+                        'white',
+                        util.get_date_string(self.previous_date)
+                    ),
+                    previous_balance=util.get_colored_amount(
+                        self.previous_balance,
+                        is_shares=self.is_shares
+                    )
+                )
+            )
+
         if self.ending_balance is None:
             end_balance = Colorable('cyan', '(not set)')
         else:
@@ -319,8 +336,9 @@ class Reconciler(cmd.Cmd, object):
             )
 
         print(
-            '\nending date: {end_date} ending balance: {end_balance} '
+            '{newline}ending date: {end_date} ending balance: {end_balance} '
             'cleared: {cleared}'.format(
+                newline='' if self.previous_balance else '\n',
                 cleared=util.get_colored_amount(
                     self.total_cleared,
                     is_shares=self.is_shares
@@ -436,10 +454,11 @@ class Reconciler(cmd.Cmd, object):
             if thing.is_pending():
                 thing.set_cleared()
 
+        self.save_statement_info_to_cache(finish=True)
         self.ending_balance = None
         self.ending_date = date.today()
+
         self.ledgerfile.write_file()
-        self.save_statement_info_to_cache()
         self.populate_open_transactions()
 
     def get_zero_candidate(self):
@@ -472,32 +491,41 @@ class Reconciler(cmd.Cmd, object):
 
     def get_statement_info_from_cache(self):
         key, cache = self.get_key_and_cache()
-
         if key in cache:
-            self.ending_date = util.get_date(
-                cache[key].pop(
-                    'ending_date',
-                    util.get_date_string(date.today())
-                )
-            )
-            self.ending_balance = cache[key].pop('ending_balance', None)
+            self.ending_date, self.ending_balance = \
+                self.get_date_and_balance(key, cache, 'ending')
 
-    def save_statement_info_to_cache(self):
+            self.previous_date, self.previous_balance = \
+                self.get_date_and_balance(key, cache, 'previous')
+
+    def get_date_and_balance(self, key, cache, prefix):
+        the_date = util.get_date(cache[key].pop(
+            f'{prefix}_date',
+            util.get_date_string(date.today())
+        ))
+        the_balance = cache[key].pop(f'{prefix}_balance', None)
+        return the_date, the_balance
+
+    def save_statement_info_to_cache(self, finish=False):
         key, cache = self.get_key_and_cache()
 
-        if self.ending_balance is None:
+        if self.ending_balance is None or finish:
             if key in cache:
                 cache[key].pop('ending_date', None)
                 cache[key].pop('ending_balance', None)
+            if finish:
+                entry = {
+                    'previous_date': util.get_date_string(date.today()),
+                    'previous_balance': self.ending_balance,
+                }
+                cache[key] = entry
         else:
-            entry = {
-                'ending_date': util.get_date_string(self.ending_date),
-                'ending_balance': self.ending_balance,
-            }
-            cache[key] = entry
+            cache[key] = cache.get(key, {})
+            cache[key]['ending_date'] = util.get_date_string(self.ending_date)
+            cache[key]['ending_balance'] = self.ending_balance
 
         try:
             with open(settings.RECONCILER_CACHE_FILE, 'w') as the_file:
-                the_file.write(json.dumps(cache))
+                the_file.write(json.dumps(cache, indent=4, sort_keys=True))
         except (IOError, ValueError) as e:
             print(f'Error writing reconciler cache: {e}', file=sys.stderr)

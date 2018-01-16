@@ -130,6 +130,10 @@ class SimpleOutputTests(Redirector):
 
 class OutputTests(Redirector):
 
+    def setUp(self):
+        super().setUp()
+        reconciler.settings = MockSettings()
+
     def test_mark_and_unmark_errors(self):
 
         with FileTester.temp_input(testdata) as tempfilename:
@@ -172,7 +176,6 @@ class OutputTests(Redirector):
     def test_finish_balancing_errors(self):
 
         with FileTester.temp_input(testdata) as tempfilename:
-            reconciler.settings = MockSettings()
             recon = Reconciler(LedgerFile(tempfilename, 'cash'))
 
             self.reset_redirect()
@@ -518,7 +521,7 @@ class MockInput(TestCase):
 class StatementAndFinishTests(MockInput, OutputFileTester):
 
     def setUp(self):
-        super(StatementAndFinishTests, self).setUp()
+        super().setUp()
 
         # monkey patch date so it will be 10/27/2016
         class FixedDate(date):
@@ -527,6 +530,7 @@ class StatementAndFinishTests(MockInput, OutputFileTester):
                 return cls(2016, 10, 27)
 
         reconciler.date = FixedDate
+        reconciler.settings = MockSettings()
 
     def tearDown(self):
         super(StatementAndFinishTests, self).tearDown()
@@ -603,6 +607,32 @@ class StatementAndFinishTests(MockInput, OutputFileTester):
             recon.do_statement('')
             recon.do_mark('1 2')
             recon.do_finish('')
+
+        self.conclude_test(strip_ansi_color=True)
+
+    def test_finish_and_start_again(self):
+        self.init_test('test_reconcile_finish_and_start_again')
+
+        with FileTester.temp_input(self.teststmt) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+            self.responses = ['2016/10/30', '-30']
+            recon.do_statement('')
+            recon.do_mark('1 2')
+            recon.do_finish('')
+
+        print('<<< test: reconcile again >>>')
+        with FileTester.temp_input(self.teststmt) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+            self.responses = ['2016/10/30', '-30']
+            recon.do_statement('')
+            recon.do_quit('')
+
+        # To verify that previous_ entries remain
+        print('<<< test: restart >>>')
+        with FileTester.temp_input(self.testfinish) as tempfilename:
+            Reconciler(LedgerFile(tempfilename, 'cash'))
 
         self.conclude_test(strip_ansi_color=True)
 
@@ -715,6 +745,10 @@ def test_save_cache_error(mock_get_key_and_cache, mock_print):
 
 class CacheTests(MockInput, Redirector):
 
+    def setUp(self):
+        super().setUp()
+        reconciler.settings = MockSettings()
+
     testcache = dedent('''\
         2016/10/26 one
             e: blurg
@@ -726,7 +760,6 @@ class CacheTests(MockInput, Redirector):
         ''')
 
     def test_cache(self):
-        reconciler.settings = MockSettings()
         with FileTester.temp_input(self.testcache) as tempfilename:
             recon = Reconciler(LedgerFile(tempfilename, 'cash'))
 
@@ -804,6 +837,10 @@ class CacheTests(MockInput, Redirector):
 
 
 class ReloadTests(TestCase):
+
+    def setUp(self):
+        super().setUp()
+        reconciler.settings = MockSettings()
 
     testdata = dedent('''\
         2016/10/26 one

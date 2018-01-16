@@ -25,8 +25,8 @@ upon:
 
 ![ledger file with syntax highlighting](docs/images/ledger-syntax-highlighting.png "Syntax Highlighting")
 
-Yet, being deluded, we desire to use the power of software to make our
-lives easier, and seek out ways to lessen our drudgery.
+Being deluded, we desire to use the power of software to make our lives
+easier, and seek out ways to lessen our drudgery.
 
 Ledgerbil's features:
   * Automate the entry of recurring transactions via a scheduler.
