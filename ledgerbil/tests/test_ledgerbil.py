@@ -331,4 +331,4 @@ def test_args_next_scheduled_date(test_input, expected):
     if test_input:
         options.append(test_input)
     args = ledgerbil.get_args(options)
-    assert args.next_scheduled_date == expected
+    assert args.next_scheduled_date is expected

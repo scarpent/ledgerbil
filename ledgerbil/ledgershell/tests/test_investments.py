@@ -374,4 +374,4 @@ def test_args_end_date(test_input, expected):
 ])
 def test_args_command(test_input, expected):
     args = investments.get_args(test_input)
-    assert args.command == expected
+    assert args.command is expected
