@@ -509,12 +509,12 @@ class MockInput(TestCase):
         return response
 
     def setUp(self):
-        super(MockInput, self).setUp()
+        super().setUp()
         self.save_input = input
         reconciler.input = self.mock_input
 
     def tearDown(self):
-        super(MockInput, self).tearDown()
+        super().tearDown()
         reconciler.input = self.save_input
 
 
@@ -533,7 +533,7 @@ class StatementAndFinishTests(MockInput, OutputFileTester):
         reconciler.settings = MockSettings()
 
     def tearDown(self):
-        super(StatementAndFinishTests, self).tearDown()
+        super().tearDown()
         reconciler.date = date
 
     teststmt = dedent('''\
