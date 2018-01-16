@@ -1,6 +1,7 @@
 import cmd
 import json
 import os
+import sys
 from datetime import date
 
 from . import util
@@ -465,7 +466,7 @@ class Reconciler(cmd.Cmd, object):
                 with open(settings.RECONCILER_CACHE_FILE, 'r') as the_file:
                     return key, json.loads(the_file.read())
             except (IOError, ValueError) as e:
-                print(f'Error getting reconciler cache: {e}.')
+                print(f'Error getting reconciler cache: {e}', file=sys.stderr)
 
         return key, {}
 
@@ -488,7 +489,6 @@ class Reconciler(cmd.Cmd, object):
             if key in cache:
                 cache[key].pop('ending_date', None)
                 cache[key].pop('ending_balance', None)
-            # cache.pop(key, None)
         else:
             entry = {
                 'ending_date': util.get_date_string(self.ending_date),
@@ -497,7 +497,7 @@ class Reconciler(cmd.Cmd, object):
             cache[key] = entry
 
         try:
-            with open(Reconciler.CACHE_FILE, 'w') as the_file:
+            with open(settings.RECONCILER_CACHE_FILE, 'w') as the_file:
                 the_file.write(json.dumps(cache))
         except (IOError, ValueError) as e:
-            print(f'Error writing reconciler cache: {e}')
+            print(f'Error writing reconciler cache: {e}', file=sys.stderr)

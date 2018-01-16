@@ -6,7 +6,7 @@ import pytest
 from .. import investments, runner
 
 
-class TestSettings(object):
+class MockSettings(object):
     LEDGER_COMMAND = 'ledger'
     LEDGER_FILES = [
         'blarg.ldg',
@@ -15,7 +15,7 @@ class TestSettings(object):
     INVESTMENT_DEFAULT_ACCOUNTS = 'abc'
     INVESTMENT_DEFAULT_END_DATE = 'xyz'
     LEDGER_DIR = 'lmn'
-    PRICES_FILE = 'ijk'
+    PRICES_FILE = os.path.join(LEDGER_DIR, 'ijk')
 
 
 @mock.patch(__name__ + '.investments.print')
@@ -33,26 +33,26 @@ def test_check_for_negative_dollars_warning(mock_print):
 
 
 def test_get_investment_command_options_defaults():
-    investments.settings = TestSettings()
-    prices = os.path.join(TestSettings.LEDGER_DIR, TestSettings.PRICES_FILE)
+    investments.settings = MockSettings()
+    prices = MockSettings.PRICES_FILE
     expected = f'--market --price-db {prices} bal abc --end xyz'
     # It would be nice to test with actual defaults but they appear
     # to be set at import time so we'll do this
     actual = investments.get_investment_command_options(
-        accounts=TestSettings.INVESTMENT_DEFAULT_ACCOUNTS,
-        end_date=TestSettings.INVESTMENT_DEFAULT_END_DATE
+        accounts=MockSettings.INVESTMENT_DEFAULT_ACCOUNTS,
+        end_date=MockSettings.INVESTMENT_DEFAULT_END_DATE
     )
     assert actual == expected
 
 
 def test_get_investment_command_options_defaults_plus_begin_date():
-    investments.settings = TestSettings()
-    prices = os.path.join(TestSettings.LEDGER_DIR, TestSettings.PRICES_FILE)
+    investments.settings = MockSettings()
+    prices = MockSettings.PRICES_FILE
     expected = f'--market --price-db {prices} bal abc --begin qrt --end xyz'
     actual = investments.get_investment_command_options(
-        accounts=TestSettings.INVESTMENT_DEFAULT_ACCOUNTS,
+        accounts=MockSettings.INVESTMENT_DEFAULT_ACCOUNTS,
         begin_date='qrt',
-        end_date=TestSettings.INVESTMENT_DEFAULT_END_DATE
+        end_date=MockSettings.INVESTMENT_DEFAULT_END_DATE
     )
     assert actual == expected
 
@@ -60,7 +60,7 @@ def test_get_investment_command_options_defaults_plus_begin_date():
 @mock.patch(__name__ + '.investments.print')
 @mock.patch(__name__ + '.investments.get_ledger_output')
 def test_get_lines_default_args(mock_get_ledger_output, mock_print):
-    investments.settings = TestSettings()
+    investments.settings = MockSettings()
     args = investments.get_args([])
     mock_get_ledger_output.return_value = '1\n2\n3\n'
     lines = investments.get_lines(args)
@@ -74,7 +74,7 @@ def test_get_lines_default_args(mock_get_ledger_output, mock_print):
 @mock.patch(__name__ + '.investments.print')
 @mock.patch(__name__ + '.investments.get_ledger_output')
 def test_get_lines_shares(mock_get_ledger_output, mock_print):
-    investments.settings = TestSettings()
+    investments.settings = MockSettings()
     args = investments.get_args([])
     mock_get_ledger_output.return_value = '1\n2\n3\n'
     lines = investments.get_lines(args, shares=True)
@@ -88,8 +88,8 @@ def test_get_lines_shares(mock_get_ledger_output, mock_print):
 @mock.patch(__name__ + '.investments.print')
 @mock.patch(__name__ + '.investments.get_ledger_output')
 def test_get_lines_print_command(mock_get_ledger_output, mock_print):
-    investments.settings = TestSettings()
-    runner.settings = TestSettings()
+    investments.settings = MockSettings()
+    runner.settings = MockSettings()
     args = investments.get_args(['--command'])
     mock_get_ledger_output.return_value = '1\n2\n3\n'
     lines = investments.get_lines(args)
@@ -337,10 +337,10 @@ def test_main(mock_ledger_output, mock_print):
 @pytest.mark.parametrize('test_input, expected', [
     (['-a', 'blah or blarg'], 'blah or blarg'),
     (['--accounts', 'fu or bar'], 'fu or bar'),
-    ([], 'abc'),  # default in TestSettings
+    ([], 'abc'),  # default in MockSettings
 ])
 def test_args_accounts(test_input, expected):
-    investments.settings = TestSettings()
+    investments.settings = MockSettings()
     args = investments.get_args(test_input)
     assert args.accounts == expected
 
@@ -351,7 +351,7 @@ def test_args_accounts(test_input, expected):
     ([], ''),  # default in get_args
 ])
 def test_args_begin_date(test_input, expected):
-    investments.settings = TestSettings()
+    investments.settings = MockSettings()
     args = investments.get_args(test_input)
     assert args.begin == expected
 
@@ -359,10 +359,10 @@ def test_args_begin_date(test_input, expected):
 @pytest.mark.parametrize('test_input, expected', [
     (['-e', 'yesterday'], 'yesterday'),
     (['--end', '2017/10/05'], '2017/10/05'),
-    ([], 'xyz'),  # default in TestSettings
+    ([], 'xyz'),  # default in MockSettings
 ])
 def test_args_end_date(test_input, expected):
-    investments.settings = TestSettings()
+    investments.settings = MockSettings()
     args = investments.get_args(test_input)
     assert args.end == expected
 

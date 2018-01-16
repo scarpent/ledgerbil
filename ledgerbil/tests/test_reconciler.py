@@ -1,7 +1,8 @@
 import os
+import sys
 from datetime import date
 from textwrap import dedent
-from unittest import TestCase
+from unittest import TestCase, mock
 
 import pytest
 from dateutil.relativedelta import relativedelta
@@ -13,8 +14,8 @@ from ..reconciler import Reconciler
 from .filetester import FileTester
 from .helpers import OutputFileTester, Redirector
 
-next_week = date.today() + relativedelta(weeks=1)
-testdata = dedent('''\
+next_week = util.get_date_string(date.today() + relativedelta(weeks=1))
+testdata = dedent(f'''\
     2016/10/01 flibble
         e: smurg
         a: credit       $-11
@@ -47,11 +48,15 @@ testdata = dedent('''\
     {next_week} four
         e: snurp
         a: cash         $-40
-    '''.format(next_week=util.get_date_string(next_week))
-)
+    ''')
 
-Reconciler.CACHE_FILE = FileTester.CACHE_FILE_TEST
-FileTester.delete_test_cache_file()
+
+class MockSettings(object):
+
+    RECONCILER_CACHE_FILE = FileTester.CACHE_FILE_TEST
+
+    def __init__(self):
+        FileTester.delete_test_cache_file()
 
 
 def verify_equal_floats(float1, float2, decimals=2):
@@ -167,6 +172,7 @@ class OutputTests(Redirector):
     def test_finish_balancing_errors(self):
 
         with FileTester.temp_input(testdata) as tempfilename:
+            reconciler.settings = MockSettings()
             recon = Reconciler(LedgerFile(tempfilename, 'cash'))
 
             self.reset_redirect()
@@ -504,15 +510,9 @@ class MockInput(TestCase):
         self.save_input = input
         reconciler.input = self.mock_input
 
-        Reconciler.CACHE_FILE = FileTester.CACHE_FILE_TEST
-        FileTester.delete_test_cache_file()
-
     def tearDown(self):
         super(MockInput, self).tearDown()
         reconciler.input = self.save_input
-
-        Reconciler.CACHE_FILE = FileTester.CACHE_FILE_TEST
-        FileTester.delete_test_cache_file()
 
 
 class StatementAndFinishTests(MockInput, OutputFileTester):
@@ -662,6 +662,57 @@ class ResponseTests(MockInput, Redirector):
         )
 
 
+testcache = dedent('''\
+    2016/10/26 one
+        e: blurg
+        a: cash         $-10
+    ''')
+
+
+def test_get_key_and_cache_no_cache():
+    reconciler.settings = MockSettings()
+    assert not os.path.exists(reconciler.settings.RECONCILER_CACHE_FILE)
+    with FileTester.temp_input(testcache) as tempfilename:
+        recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+    assert not os.path.exists(reconciler.settings.RECONCILER_CACHE_FILE)
+
+    key, cache = recon.get_key_and_cache()
+    assert key == 'a: cash'
+    assert cache == {}
+
+
+@mock.patch(__name__ + '.reconciler.print')
+def test_get_key_and_cache_error(mock_print):
+    reconciler.settings = MockSettings()
+    with FileTester.temp_input(testcache) as tempfilename:
+        recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+    with mock.patch(__name__ + '.reconciler.os.path.exists') as mock_exists:
+        mock_exists.return_value = True
+        with mock.patch('builtins.open') as mock_open:
+            mock_open.side_effect = IOError('BLAH!')
+            key, cache = recon.get_key_and_cache()
+    expected = 'Error getting reconciler cache: BLAH!'
+    mock_print.assert_called_with(expected, file=sys.stderr)
+    assert key == 'a: cash'
+    assert cache == {}
+
+
+@mock.patch(__name__ + '.reconciler.print')
+@mock.patch(__name__ + '.reconciler.Reconciler.get_key_and_cache')
+def test_save_cache_error(mock_get_key_and_cache, mock_print):
+    mock_get_key_and_cache.return_value = ('cash', {})
+    reconciler.settings = MockSettings()
+    with FileTester.temp_input(testcache) as tempfilename:
+        recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+
+    with mock.patch('builtins.open') as mock_open:
+        mock_open.side_effect = IOError('BOO!')
+        recon.save_statement_info_to_cache()
+    expected = 'Error writing reconciler cache: BOO!'
+    mock_print.assert_called_with(expected, file=sys.stderr)
+
+
 class CacheTests(MockInput, Redirector):
 
     testcache = dedent('''\
@@ -674,57 +725,15 @@ class CacheTests(MockInput, Redirector):
             a: credit       $-10
         ''')
 
-    def test_get_key_and_cache_no_cache(self):
-
-        assert not os.path.exists(FileTester.CACHE_FILE_TEST)
-
-        with FileTester.temp_input(self.testcache) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
-
-        assert not os.path.exists(FileTester.CACHE_FILE_TEST)
-
-        key, cache = recon.get_key_and_cache()
-        self.assertEqual('a: cash', key)
-        self.assertEqual({}, cache)
-
-    def test_get_key_and_cache_error(self):
-
-        with FileTester.temp_input(self.testcache) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
-
-        self.reset_redirect()
-        with open(Reconciler.CACHE_FILE, 'w') as cache_file:
-            cache_file.write('bad json data')
-        key, cache = recon.get_key_and_cache()
-        self.assertEqual('a: cash', key)
-        self.assertEqual({}, cache)
-        assert 'Error getting reconciler cache:' in self.redirect.getvalue()
-
-    def test_save_cache_error(self):
-
-        with FileTester.temp_input(self.testcache) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
-
-        self.reset_redirect()
-        Reconciler.CACHE_FILE = '/not/a/real/path/dDFgMAEVRPcjMZ'
-        recon.save_statement_info_to_cache()
-        self.assertEqual(
-            "Error writing reconciler cache: [Errno 2] No such file "
-            "or directory: '/not/a/real/path/dDFgMAEVRPcjMZ'",
-            self.redirect.getvalue().rstrip()
-        )
-        # not going to test json ValueError because seems it would be
-        # extremely unlikely given a valid cache dictionary
-
     def test_cache(self):
-
+        reconciler.settings = MockSettings()
         with FileTester.temp_input(self.testcache) as tempfilename:
             recon = Reconciler(LedgerFile(tempfilename, 'cash'))
 
         # saving cache with ending balance "None" causes cache "ending_"
         # entries to be removed; first let's make sure it works w/o
         # existing entry
-        assert not os.path.exists(FileTester.CACHE_FILE_TEST)
+        assert not os.path.exists(reconciler.settings.RECONCILER_CACHE_FILE)
         assert recon.ending_balance is None
         recon.save_statement_info_to_cache()
         key, cache = recon.get_key_and_cache()
