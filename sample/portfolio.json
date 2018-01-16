@@ -1,0 +1,63 @@
+[
+  {
+    "account": "assets: 401k: big co 500 idx",
+    "labels": [
+      "large",
+      "401k",
+      "flurb"
+    ],
+    "years": [
+      {
+        "2016": {
+          "symbol": "abcdx",
+          "price": 80.23,
+          "shares": 1000,
+          "contributions": {
+            "total": 1500,
+            "year_start": 0.5
+          },
+          "note": "optional..."
+        },
+        "2017": {
+          "symbol": "abcdx",
+          "price": 81.57,
+          "shares": 1200,
+          "contributions": {
+            "total": 1500,
+            "year_start": 0.5
+          }
+        }
+      }
+    ]
+  },
+  {
+    "account": "assets: 401k: bonds idx",
+    "labels": [
+      "bonds",
+      "401k",
+      "flurb"
+    ],
+    "years": [
+      {
+        "2016": {
+          "symbol": "lmnop",
+          "price": 19.76,
+          "shares": 1750,
+          "contributions": {
+            "total": 750,
+            "year_start": 0.4
+          }
+        },
+        "2017": {
+          "symbol": "lmnop",
+          "price": 20.31,
+          "shares": 2000,
+          "contributions": {
+            "total": 750,
+            "year_start": 0.5
+          }
+        }
+      }
+    ]
+  }
+]

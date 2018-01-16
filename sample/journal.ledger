@@ -15,7 +15,7 @@
 2017/11/01 food and stuff
     e: food: groceries
     e: home: stuff: in                      $10
-    l: credit card: mega                    $-32.87
+  ! l: credit card: mega                    $-32.87
 
 2017/11/15 johnny paycheck
     i: wages: gross pay                     $-2,100
@@ -27,7 +27,7 @@
     e: healthcare: medical insurance        $231.89
     a: 401k: cash                           ($126 + $63)
     a: fsa                                  $41.67
-    a: checking                             $1,241.67
+  * a: checking                             $1,241.67
 
 2017/11/30 johnny paycheck
     i: wages: gross pay                     $-2,100

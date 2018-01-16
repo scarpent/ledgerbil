@@ -1,5 +1,4 @@
 import argparse
-import os
 import re
 from collections import namedtuple
 
@@ -26,9 +25,8 @@ def get_investment_command_options(
     if begin_date:
         begin_date = f' --begin {begin_date}'
     end_date = f'--end {end_date}'
-    prices = os.path.join(settings.LEDGER_DIR, settings.PRICES_FILE)
 
-    return (f'{shares}--market --price-db {prices} '
+    return (f'{shares}--market --price-db {settings.PRICES_FILE} '
             f'bal {accounts}{begin_date} {end_date}')
 
 

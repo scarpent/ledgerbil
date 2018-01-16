@@ -13,9 +13,9 @@ class Settings(object):
         'investments.ledger',
         'journal.ledger',
     ]
-
-    PRICES_FILE = 'prices.db.ldg'
-    PORTFOLIO_FILE = 'portfolio.json'
+    PRICES_FILE = os.path.join(LEDGER_DIR, 'prices.db.ldg')
+    PORTFOLIO_FILE = os.path.join(LEDGER_DIR, 'portfolio.json')
+    RECONCILER_CACHE_FILE = os.path.join(LEDGER_DIR, '.reconciler_cache')
 
     LEDGER_OPTIONS = ('--strict --check-payees --pedantic --explicit '
                       '--columns 120')

@@ -6,16 +6,15 @@ from datetime import date
 from . import util
 from .colorable import Colorable
 from .ledgerbilexceptions import LdgReconcilerError
+from .settings import Settings
+
+settings = Settings()
 
 
 class Reconciler(cmd.Cmd, object):
 
     UNKNOWN_SYNTAX = '*** Unknown syntax: '
     NO_HELP = '*** No help on '
-
-    CACHE_FILE = '{home}/.ledgerbil'.format(
-        home=os.path.expanduser('~')
-    )
 
     def __init__(self, ledgerfile):
         cmd.Cmd.__init__(self)
@@ -461,9 +460,9 @@ class Reconciler(cmd.Cmd, object):
     def get_key_and_cache(self):
         key = self.ledgerfile.rec_account_matched
 
-        if os.path.exists(Reconciler.CACHE_FILE):
+        if os.path.exists(settings.RECONCILER_CACHE_FILE):
             try:
-                with open(self.CACHE_FILE, 'r') as the_file:
+                with open(settings.RECONCILER_CACHE_FILE, 'r') as the_file:
                     return key, json.loads(the_file.read())
             except (IOError, ValueError) as e:
                 print(f'Error getting reconciler cache: {e}.')
