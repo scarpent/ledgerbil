@@ -28,6 +28,7 @@ response_json = b'''
 
 
 class TestSettings(object):
+    PRICES_FILE = 'default_prices.blah'
     SYMBOLS = ['fu', 'bar']
     PRICE_FILE_FORMAT = 'P {date} {symbol:10} ${price}\n'
 
@@ -160,8 +161,15 @@ def test_main_no_params(mock_get_prices):
 
 @mock.patch(__name__ + '.prices.get_prices')
 def test_main_with_file(mock_get_prices):
-    prices.main(['-f', 'blah.db'])
+    prices.main(['--file', 'blah.db'])
     mock_get_prices.assert_called_once_with('blah.db')
+
+
+@mock.patch(__name__ + '.prices.get_prices')
+def test_main_with_save(mock_get_prices):
+    prices.settings = TestSettings()
+    prices.main(['--save'])
+    mock_get_prices.assert_called_once_with('default_prices.blah')
 
 
 @pytest.mark.parametrize('test_input, expected', [
@@ -169,6 +177,16 @@ def test_main_with_file(mock_get_prices):
     (['--file', 'glarg'], 'glarg'),
     ([], None),
 ])
-def test_args_accounts(test_input, expected):
+def test_args_prices(test_input, expected):
     args = prices.get_args(test_input)
     assert args.file == expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (['-s'], True),
+    (['--save'], True),
+    ([], False),
+])
+def test_args_save(test_input, expected):
+    args = prices.get_args(test_input)
+    assert args.save is expected

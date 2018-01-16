@@ -101,9 +101,19 @@ def get_args(args=[]):
         type=str,
         help='save to this prices db file',
     )
+    parser.add_argument(
+        '-s', '--save',
+        action='store_true',
+        help='save to the prices db file specified in settings'
+    )
     return parser.parse_args(args)
 
 
 def main(argv=[]):
     args = get_args(argv)
-    get_prices(args.file)
+    if args.save:
+        prices_file = settings.PRICES_FILE
+    else:
+        prices_file = args.file
+
+    get_prices(prices_file)
