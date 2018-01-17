@@ -379,8 +379,6 @@ class Reconciler(cmd.Cmd, object):
 
     def set_statement_info(self):
 
-        decimals = 6 if self.is_shares else 2
-
         if self.ending_balance is not None:
             print(
                 "(Enter 'cancel' to remove ending balance and set "
@@ -410,7 +408,7 @@ class Reconciler(cmd.Cmd, object):
         else:
             old_ending_balance = util.get_amount_str(
                 self.ending_balance,
-                decimals=decimals
+                decimals=util.get_decimals(self.is_shares)
             )
 
         while True:
@@ -435,7 +433,7 @@ class Reconciler(cmd.Cmd, object):
         if new_ending_balance is not None:
             new_ending_balance = util.get_amount_str(
                 self.ending_balance,
-                decimals=decimals
+                decimals=util.get_decimals(self.is_shares)
             )
 
         # only list and save to cache if values have changed...

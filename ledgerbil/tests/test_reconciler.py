@@ -556,6 +556,16 @@ class StatementAndFinishTests(MockInput, OutputFileTester):
           * a: cash         $-20
         ''')
 
+    teststmt_shares = dedent('''\
+        2016/10/26 banana
+            a: 401k: big co 500 idx     0.123456 abcdx @   $81.89
+            i: investment: yargle
+
+        2016/10/27 sweet potato
+            a: 401k: big co 500 idx        2.111 abcdx @   $82.13
+            i: investment: yargle
+        ''')
+
     def test_setting_statement_date_and_balance(self):
         self.init_test('test_statement_stuff')
 
@@ -570,6 +580,20 @@ class StatementAndFinishTests(MockInput, OutputFileTester):
         recon.do_statement('')
         # use $ symbol, no change
         self.responses = ['2016/10/30', '$40']
+        recon.do_statement('')
+
+        self.conclude_test(strip_ansi_color=True)
+
+    def test_setting_statement_shares(self):
+        self.init_test('test_statement_stuff_for_shares')
+
+        with FileTester.temp_input(self.teststmt_shares) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'big co'))
+
+        self.responses = ['2016/10/30', '0.1234567']
+        recon.do_statement('')
+        # so we can verify rounding on the balance prompt
+        self.responses = ['2016/10/30', '2.234456']
         recon.do_statement('')
 
         self.conclude_test(strip_ansi_color=True)

@@ -13,7 +13,7 @@
     equity: opening balances
 
 2017/11/01 food and stuff
-    e: food: groceries                                  ; blah: this is a tag!
+    e: food: groceries                                  ; argh: this is a tag!
     e: home: stuff: in                      $10
   ! l: credit card: mega                    $-32.87
 

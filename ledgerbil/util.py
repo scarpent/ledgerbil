@@ -67,6 +67,10 @@ def parse_args(args):
         return None
 
 
+def get_decimals(is_shares):
+    return 6 if is_shares else 2
+
+
 def get_amount_str(amount, decimals=2):
     # avoid inconsistent zero signage from floating point machinations
     # (especially important for establishing if we're at zero for a
@@ -76,7 +80,7 @@ def get_amount_str(amount, decimals=2):
 
 
 def get_colored_amount(amount, column_width=1, is_shares=False):
-    decimals = 6 if is_shares else 2
+    decimals = get_decimals(is_shares)
     dollar_sign = '' if is_shares else '$'
     amount_formatted = '{}{}'.format(
         dollar_sign,

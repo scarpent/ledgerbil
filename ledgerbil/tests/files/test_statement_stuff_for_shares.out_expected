@@ -1,0 +1,25 @@
+
+   1. 2016/10/26         0.123456   banana                                          
+   2. 2016/10/27         2.111000   sweet potato                                    
+
+ending date: 2016/10/27 ending balance: (not set) cleared: 0.000000
+
+Ending Date (YYYY/MM/DD) [2016/10/27]: 2016/10/30
+Ending Balance []: 0.1234567
+
+   1. 2016/10/26         0.123456   banana                                          
+   2. 2016/10/27         2.111000   sweet potato                                    
+
+ending date: 2016/10/30 ending balance: 0.123457 cleared: 0.000000
+to zero: 0.123457
+
+(Enter 'cancel' to remove ending balance and set ending date to today.)
+Ending Date (YYYY/MM/DD) [2016/10/30]: 2016/10/30
+Ending Balance [0.123457]: 2.234456
+
+   1. 2016/10/26         0.123456   banana                                          
+   2. 2016/10/27         2.111000   sweet potato                                    
+
+ending date: 2016/10/30 ending balance: 2.234456 cleared: 0.000000
+to zero: 2.234456
+
