@@ -1,0 +1,9 @@
+{
+    "a: 401k: big co 500 idx": {},
+    "a: 401k: bonds idx": {
+        "ending_balance": -59.0,
+        "ending_date": "2018/01/16",
+        "previous_balance": 22.357,
+        "previous_date": "2018/01/16"
+    }
+}
