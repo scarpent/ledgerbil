@@ -30,7 +30,7 @@ def get_prices(price_file=None):
             continue
 
         print('{date} {symbol}   ${price}'.format(
-            date=Colorable('blue', the_date, column_width=12, bright=True),
+            date=Colorable('blue', the_date, column_width=12),
             symbol=Colorable('purple', symbol, column_width=8),
             price=the_price
         ))
