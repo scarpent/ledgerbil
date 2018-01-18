@@ -114,7 +114,8 @@ class LedgerThing(object):
                     amount = util.eval_expr(re.sub(r'[$,]', '', amount))
                     transaction_total += amount
 
-            if self.rec_account not in account:
+            m = re.search(self.rec_account, account)
+            if not m:
                 continue
 
             matched_accounts.add(account)

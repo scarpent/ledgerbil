@@ -552,6 +552,20 @@ class ReconcilerParsing(Redirector):
                     '    a: checking down\n    a: checking up')
         assert str(e.exception) == expected
 
+    def test_regex_for_account_match(self):
+        thing = LedgerThing(
+            [
+                '2016/10/23 blah',
+                '    i: zerg            $-50',
+                '    a: checking up     $20      ; has comment',
+                '    a: checking        $20',
+                '    a: checking out    $10',
+            ],
+            'checking$'
+        )
+        assert thing.rec_account_matched == 'a: checking'
+        assert thing.rec_amount == 20
+
     def test_multiple_lines_for_same_account(self):
         self.verify_reconcile_vars(
             [

@@ -22,6 +22,7 @@ account assets
     alias a
 account assets: cash
 account assets: checking
+account assets: checking out
 account assets: fsa
 account assets: home escrow
 account assets: 401k: cash
