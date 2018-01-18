@@ -456,9 +456,11 @@ class Reconciler(cmd.Cmd, object):
             if thing.is_pending():
                 thing.set_cleared()
 
-        self.save_statement_info_to_cache(finish=True)
+        self.previous_balance = self.ending_balance
+        self.previous_date = date.today()
         self.ending_balance = None
         self.ending_date = date.today()
+        self.save_statement_info_to_cache(finish=True)
 
         self.ledgerfile.write_file()
         self.populate_open_transactions()
@@ -517,8 +519,8 @@ class Reconciler(cmd.Cmd, object):
                 cache[key].pop('ending_balance', None)
             if finish:
                 entry = {
-                    'previous_date': util.get_date_string(date.today()),
-                    'previous_balance': self.ending_balance,
+                    'previous_date': util.get_date_string(self.previous_date),
+                    'previous_balance': self.previous_balance,
                 }
                 cache[key] = entry
         else:
