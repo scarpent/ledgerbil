@@ -18,6 +18,11 @@ class MockSettings(object):
     PRICES_FILE = os.path.join(LEDGER_DIR, 'ijk')
 
 
+def setup_module(module):
+    investments.settings = MockSettings()
+    runner.settings = MockSettings()
+
+
 @mock.patch(__name__ + '.investments.print')
 def test_check_for_negative_dollars_no_warning(mock_print):
     investments.check_for_negative_dollars('$ 10', 'blah')
@@ -33,7 +38,6 @@ def test_check_for_negative_dollars_warning(mock_print):
 
 
 def test_get_investment_command_options_defaults():
-    investments.settings = MockSettings()
     prices = MockSettings.PRICES_FILE
     expected = f'--market --price-db {prices} bal abc --end xyz'
     # It would be nice to test with actual defaults but they appear
@@ -46,7 +50,6 @@ def test_get_investment_command_options_defaults():
 
 
 def test_get_investment_command_options_defaults_plus_begin_date():
-    investments.settings = MockSettings()
     prices = MockSettings.PRICES_FILE
     expected = f'--market --price-db {prices} bal abc --begin qrt --end xyz'
     actual = investments.get_investment_command_options(
@@ -60,7 +63,6 @@ def test_get_investment_command_options_defaults_plus_begin_date():
 @mock.patch(__name__ + '.investments.print')
 @mock.patch(__name__ + '.investments.get_ledger_output')
 def test_get_lines_default_args(mock_get_ledger_output, mock_print):
-    investments.settings = MockSettings()
     args = investments.get_args([])
     mock_get_ledger_output.return_value = '1\n2\n3\n'
     lines = investments.get_lines(args)
@@ -74,7 +76,6 @@ def test_get_lines_default_args(mock_get_ledger_output, mock_print):
 @mock.patch(__name__ + '.investments.print')
 @mock.patch(__name__ + '.investments.get_ledger_output')
 def test_get_lines_shares(mock_get_ledger_output, mock_print):
-    investments.settings = MockSettings()
     args = investments.get_args([])
     mock_get_ledger_output.return_value = '1\n2\n3\n'
     lines = investments.get_lines(args, shares=True)
@@ -88,8 +89,6 @@ def test_get_lines_shares(mock_get_ledger_output, mock_print):
 @mock.patch(__name__ + '.investments.print')
 @mock.patch(__name__ + '.investments.get_ledger_output')
 def test_get_lines_print_command(mock_get_ledger_output, mock_print):
-    investments.settings = MockSettings()
-    runner.settings = MockSettings()
     args = investments.get_args(['--command'])
     mock_get_ledger_output.return_value = '1\n2\n3\n'
     lines = investments.get_lines(args)
@@ -340,7 +339,6 @@ def test_main(mock_ledger_output, mock_print):
     ([], 'abc'),  # default in MockSettings
 ])
 def test_args_accounts(test_input, expected):
-    investments.settings = MockSettings()
     args = investments.get_args(test_input)
     assert args.accounts == expected
 
@@ -351,7 +349,6 @@ def test_args_accounts(test_input, expected):
     ([], ''),  # default in get_args
 ])
 def test_args_begin_date(test_input, expected):
-    investments.settings = MockSettings()
     args = investments.get_args(test_input)
     assert args.begin == expected
 
@@ -362,7 +359,6 @@ def test_args_begin_date(test_input, expected):
     ([], 'xyz'),  # default in MockSettings
 ])
 def test_args_end_date(test_input, expected):
-    investments.settings = MockSettings()
     args = investments.get_args(test_input)
     assert args.end == expected
 

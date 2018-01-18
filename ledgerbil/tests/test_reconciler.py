@@ -59,6 +59,14 @@ class MockSettings(object):
         FileTester.delete_test_cache_file()
 
 
+def setup_module(module):
+    reconciler.settings = MockSettings()
+
+
+def teardown_module(module):
+    FileTester.delete_test_cache_file()
+
+
 def verify_equal_floats(float1, float2, decimals=2):
     assert f'{float1:.{decimals}f}' == f'{float2:.{decimals}f}'
 
@@ -133,6 +141,10 @@ class OutputTests(Redirector):
     def setUp(self):
         super().setUp()
         reconciler.settings = MockSettings()
+
+    def tearDown(self):
+        super().setUp()
+        FileTester.delete_test_cache_file()
 
     def test_mark_and_unmark_errors(self):
 
@@ -535,6 +547,7 @@ class StatementAndFinishTests(MockInput, OutputFileTester):
     def tearDown(self):
         super().tearDown()
         reconciler.date = date
+        FileTester.delete_test_cache_file()
 
     teststmt = dedent('''\
         2016/10/26 one
@@ -724,7 +737,6 @@ testcache = dedent('''\
 
 
 def test_get_key_and_cache_no_cache():
-    reconciler.settings = MockSettings()
     assert not os.path.exists(reconciler.settings.RECONCILER_CACHE_FILE)
     with FileTester.temp_input(testcache) as tempfilename:
         recon = Reconciler(LedgerFile(tempfilename, 'cash'))
@@ -737,7 +749,6 @@ def test_get_key_and_cache_no_cache():
 
 @mock.patch(__name__ + '.reconciler.print')
 def test_get_key_and_cache_error(mock_print):
-    reconciler.settings = MockSettings()
     with FileTester.temp_input(testcache) as tempfilename:
         recon = Reconciler(LedgerFile(tempfilename, 'cash'))
 
@@ -756,7 +767,6 @@ def test_get_key_and_cache_error(mock_print):
 @mock.patch(__name__ + '.reconciler.Reconciler.get_key_and_cache')
 def test_save_cache_error(mock_get_key_and_cache, mock_print):
     mock_get_key_and_cache.return_value = ('cash', {})
-    reconciler.settings = MockSettings()
     with FileTester.temp_input(testcache) as tempfilename:
         recon = Reconciler(LedgerFile(tempfilename, 'cash'))
 
@@ -772,6 +782,10 @@ class CacheTests(MockInput, Redirector):
     def setUp(self):
         super().setUp()
         reconciler.settings = MockSettings()
+
+    def tearDown(self):
+        super().setUp()
+        FileTester.delete_test_cache_file()
 
     testcache = dedent('''\
         2016/10/26 one
@@ -865,6 +879,10 @@ class ReloadTests(TestCase):
     def setUp(self):
         super().setUp()
         reconciler.settings = MockSettings()
+
+    def tearDown(self):
+        super().setUp()
+        FileTester.delete_test_cache_file()
 
     testdata = dedent('''\
         2016/10/26 one

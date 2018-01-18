@@ -33,6 +33,10 @@ class MockSettings(object):
     PRICE_FILE_FORMAT = 'P {date} {symbol:10} ${price}\n'
 
 
+def setup_module(module):
+    prices.settings = MockSettings()
+
+
 @mock.patch(__name__ + '.prices.datetime')
 @mock.patch(__name__ + '.prices.requests.get')
 def test_get_quote_data(mock_response, mock_datetime):
@@ -94,7 +98,6 @@ def test_get_prices_without_file(mock_quote_data, mock_print):
         ('2011/12/13', '67.89'),
         ('2009/10/11', '123.45')
     ]
-    prices.settings = MockSettings()
     prices.get_prices()
     expected_first = '2011/12/13   fu         $67.89'
     expected_second = '2009/10/11   bar        $123.45'
@@ -117,7 +120,6 @@ def test_get_prices_with_bad_data(mock_quote_data, mock_print):
         (None, None),
         ('2009/10/11', '123.45')
     ]
-    prices.settings = MockSettings()
     prices.get_prices()
     expected = '2009/10/11   bar        $123.45'
 
@@ -135,7 +137,6 @@ def test_get_prices_with_file(mock_quote_data, mock_print):
         ('2011/12/13', '67.89'),
         ('2009/10/11', '123.45')
     ]
-    prices.settings = MockSettings()
     expected_opens = [
         (('dummy_prices.db', 'a'),),
         (('dummy_prices.db', 'a'),),
@@ -167,7 +168,6 @@ def test_main_with_file(mock_get_prices):
 
 @mock.patch(__name__ + '.prices.get_prices')
 def test_main_with_save(mock_get_prices):
-    prices.settings = MockSettings()
     prices.main(['--save'])
     mock_get_prices.assert_called_once_with('default_prices.blah')
 
