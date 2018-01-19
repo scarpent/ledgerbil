@@ -26,7 +26,7 @@ def test_main_investments_with_argv_none(mock_investments_main):
 def test_main_investments(mock_investments_main):
     main.main(['inv'])
     mock_investments_main.assert_called_once_with([])
-    main.main(['inv', '-a', 'blah', '-e', 'fubar'])
+    main.main(['investments', '-a', 'blah', '-e', 'fubar'])
     mock_investments_main.assert_called_with(['-a', 'blah', '-e', 'fubar'])
 
 
@@ -36,3 +36,11 @@ def test_main_prices(mock_prices_main):
     mock_prices_main.assert_called_once_with([])
     main.main(['prices', '-f', 'blah'])
     mock_prices_main.assert_called_with(['-f', 'blah'])
+
+
+@mock.patch('main.portfolio.main')
+def test_main_portfolio(mock_portfolio_main):
+    main.main(['port'])
+    mock_portfolio_main.assert_called_once_with([])
+    main.main(['portfolio', '-a', 'argh'])
+    mock_portfolio_main.assert_called_with(['-a', 'argh'])

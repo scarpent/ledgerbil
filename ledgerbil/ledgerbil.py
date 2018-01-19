@@ -83,8 +83,10 @@ def get_args(args):
     program = 'ledgerbil/main.py'
     scripts_description = dedent(f'''\
         other commands (run with -h to see command help):
-            {program} investments (or inv)
-            {program} prices
+            {program}
+                investments (or inv)
+                prices
+                portfolio (or port)
         ''')
 
     parser = argparse.ArgumentParser(

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import sys
 
-from ledgerbil import ledgerbil
+from ledgerbil import ledgerbil, portfolio
 from ledgerbil.ledgershell import investments, prices
 
 
@@ -19,6 +19,10 @@ def main(argv=None):
 
     if argv[0] == 'prices':
         prices.main(argv[1:])
+        return
+
+    if argv[0] == 'port' or argv[0] == 'portfolio':
+        portfolio.main(argv[1:])
         return
 
     ledgerbil.main(argv)
