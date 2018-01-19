@@ -23,8 +23,7 @@ portfolio_json_data = '''\
           "401k",
           "flurb"
         ],
-        "years": [
-          {
+        "years": {
             "2016": {
               "symbol": "abcdx",
               "price": 80.23,
@@ -45,7 +44,6 @@ portfolio_json_data = '''\
               }
             }
           }
-        ]
       },
       {
         "account": "assets: 401k: bonds idx",
@@ -54,8 +52,7 @@ portfolio_json_data = '''\
           "401k",
           "flurb"
         ],
-        "years": [
-          {
+        "years": {
             "2016": {
               "symbol": "lmnop",
               "price": 19.76,
@@ -65,7 +62,7 @@ portfolio_json_data = '''\
                 "year_start": 0.4
               }
             },
-            "2017": {
+            "2015": {
               "symbol": "lmnop",
               "price": 20.31,
               "shares": 2000,
@@ -75,14 +72,17 @@ portfolio_json_data = '''\
               }
             }
           }
-        ]
       }
     ]'''
 portfolio_data = json.loads(portfolio_json_data)
 
 
-def test_get_portfolio_report():
-    assert portfolio.get_portfolio_report(None) == 'hi!'
+@mock.patch(__name__ + '.portfolio.get_portfolio_data')
+def test_get_portfolio_report(mock_get_portfolio_data):
+    mock_get_portfolio_data.return_value = portfolio_data
+    args = portfolio.get_args(['-a', 'qwertyable'])
+    expected = 'No accounts matched qwertyable'
+    assert portfolio.get_portfolio_report(args) == expected
 
 
 def test_get_portfolio_data():
@@ -96,8 +96,9 @@ def test_get_portfolio_data():
     m.assert_called_once_with('abcd', 'r')
 
 
+@mock.patch(__name__ + '.portfolio.get_portfolio_report', return_value='hi!')
 @mock.patch(__name__ + '.portfolio.print')
-def test_main(mock_print):
+def test_main(mock_print, mock_report):
     portfolio.main([])
     expected = 'hi!'
     mock_print.assert_called_once_with(expected)
@@ -110,4 +111,4 @@ def test_main(mock_print):
 ])
 def test_args_accounts(test_input, expected):
     args = portfolio.get_args(test_input)
-    assert args.accounts == expected
+    assert args.accounts_regex == expected
