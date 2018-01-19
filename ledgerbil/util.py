@@ -74,12 +74,12 @@ def get_amount_str(amount, decimals=2):
     # (especially important for establishing if we're at zero for a
     # balanced statement)
     zero_amount = '{:.{}f}'.format(0, decimals)
-    return re.sub(r'^-0.0+$', zero_amount, f'{amount:.{decimals}f}')
+    return re.sub(r'^-0.0+$', zero_amount, f'{amount:,.{decimals}f}')
 
 
 def get_colored_amount(amount, column_width=1, is_shares=False):
     decimals = get_decimals(is_shares)
-    dollar_sign = '' if is_shares else '$'
+    dollar_sign = '' if is_shares else '$ '
     amount_formatted = '{}{}'.format(
         dollar_sign,
         get_amount_str(amount, decimals)

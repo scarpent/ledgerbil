@@ -64,32 +64,40 @@ class UtilTests(TestCase):
 
     def test_get_colored_amount(self):
         self.assertEqual(
-            '\x1b[0;32m$0.00\x1b[0m',
+            '\x1b[0;32m$ 0.00\x1b[0m',
             util.get_colored_amount(-0.00000000000000000000001)
         )
         self.assertEqual(
-            '\x1b[0;32m$0.00\x1b[0m',
+            '\x1b[0;32m$ 0.00\x1b[0m',
             util.get_colored_amount(0.00000000000000000000001)
         )
         self.assertEqual(
-            '\x1b[0;31m$-3.14\x1b[0m',
+            '\x1b[0;31m$ -3.14\x1b[0m',
             util.get_colored_amount(-3.14)
         )
         self.assertEqual(
-            '\x1b[0;32m$3.14\x1b[0m',
+            '\x1b[0;32m$ 3.14\x1b[0m',
             util.get_colored_amount(3.14)
         )
         self.assertEqual(
-            '\x1b[0;31m$-5.68\x1b[0m',
+            '\x1b[0;31m$ -5.68\x1b[0m',
             util.get_colored_amount(-5.678)
         )
         self.assertEqual(
-            '\x1b[0;32m$5.67\x1b[0m',
+            '\x1b[0;32m$ 5.67\x1b[0m',
             util.get_colored_amount(5.672)
         )
         self.assertEqual(
-            '\x1b[0;32m     $9.99\x1b[0m',
+            '\x1b[0;32m    $ 9.99\x1b[0m',
             util.get_colored_amount(9.99, column_width=10)
+        )
+        self.assertEqual(
+            '\x1b[0;32m    $ 9.99\x1b[0m',
+            util.get_colored_amount(9.99, column_width=10)
+        )
+        self.assertEqual(
+            '\x1b[0;32m $ 9,999.99\x1b[0m',
+            util.get_colored_amount(9999.99, column_width=11)
         )
 
     def test_get_colored_amount_for_shares(self):
@@ -120,6 +128,10 @@ class UtilTests(TestCase):
         self.assertEqual(
             '\x1b[0;32m        9.990000\x1b[0m',
             util.get_colored_amount(9.99, column_width=16, is_shares=True)
+        )
+        self.assertEqual(
+            '\x1b[0;32m    9,999.990000\x1b[0m',
+            util.get_colored_amount(9999.99, column_width=16, is_shares=True)
         )
 
 
