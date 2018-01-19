@@ -129,11 +129,7 @@ def get_args(args):
     return parser.parse_args(args)
 
 
-def main(argv=None):
-
-    if argv is None:
-        argv = sys.argv[1:]
-
+def main(argv=[]):
     args = get_args(argv)
     ledgerbil = Ledgerbil(args)
 
