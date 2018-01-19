@@ -1,4 +1,5 @@
 import argparse
+import json
 
 from .settings import Settings
 
@@ -7,6 +8,11 @@ settings = Settings()
 
 def get_portfolio_report(args):
     return 'hi!'
+
+
+def get_portfolio_data():
+    with open(settings.PORTFOLIO_FILE, 'r') as portfile:
+        return json.loads(portfile.read())
 
 
 def get_args(args=[]):
@@ -20,7 +26,7 @@ def get_args(args=[]):
         '-a', '--accounts',
         type=str,
         default='.*',
-        help='balances for specified account regex, default = .*'
+        help='report on accounts that match this regex, default = .*'
     )
 
     return parser.parse_args(args)
