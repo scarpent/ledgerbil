@@ -15,6 +15,11 @@ def setup_module(module):
     portfolio.settings = MockSettings()
 
 
+BIG_CO = 0
+BONDS = 1
+BONDS_2 = 2
+
+
 portfolio_json_data = '''\
     [
       {
@@ -119,7 +124,7 @@ def test_account_matching_regex(mock_get_history, mock_get_data):
     args = portfolio.get_args(['--history', '--accounts', 'idx$'])
     portfolio.get_portfolio_report(args)
     assert mock_get_history.call_count == 2
-    for data in portfolio_data[:1]:
+    for data in portfolio_data[:BONDS]:
         mock_get_history.assert_any_call(data)
 
 
@@ -135,14 +140,14 @@ def test_get_portfolio_data():
 
 
 def test_get_account_history():
-    history = portfolio.get_account_history(portfolio_data[0])
+    history = portfolio.get_account_history(portfolio_data[BIG_CO])
     helper = OutputFileTester('test_portfolio_account_history')
     helper.save_out_file(history)
     helper.assert_out_equals_expected()
 
 
 def test_get_account_history_no_label_no_years():
-    history = portfolio.get_account_history(portfolio_data[2])
+    history = portfolio.get_account_history(portfolio_data[BONDS_2])
     helper = OutputFileTester('test_portfolio_account_history_empty')
     helper.save_out_file(history)
     helper.assert_out_equals_expected()
