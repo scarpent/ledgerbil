@@ -12,7 +12,7 @@ from ..ledgerbilexceptions import LdgReconcilerError
 from ..ledgerfile import LedgerFile
 from ..reconciler import Reconciler
 from .filetester import FileTester
-from .helpers import OutputFileTester, Redirector
+from .helpers import OutputFileTesterStdout, Redirector
 
 next_week = util.get_date_string(date.today() + relativedelta(weeks=1))
 testdata = dedent(f'''\
@@ -530,7 +530,7 @@ class MockInput(TestCase):
         reconciler.input = self.save_input
 
 
-class StatementAndFinishTests(MockInput, OutputFileTester):
+class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
 
     def setUp(self):
         super().setUp()

@@ -29,15 +29,15 @@ def get_portfolio_report(args):
 
 
 def get_account_history(account):
-    labels = f"labels : {', '.join(account['labels'])}"
+    labels = f"labels: {', '.join(account['labels'])}"
     history = '{account}{label}\n'.format(
-        account=Colorable('purple', account['account'], 50),
+        account=Colorable('purple', account['account'], 41),
         label=Colorable('white', labels, '>34') if account['labels'] else ''
     )
 
     years = account['years']
     if len(years):
-        header = (f"\n\tyear  {'contributions':15}{'shares':>10}  "
+        header = (f"\n    year  {'contrib':>10}  {'shares':>9}  "
                   f"{'price':>10}  {'value':>14}  {'+/-':>14}\n")
         history += f"{Colorable('cyan', header)}"
 
@@ -45,10 +45,10 @@ def get_account_history(account):
     diff_f = ''
     for year in sorted(years):
         contributions = f"$ {years[year]['contributions']['total']:,.0f}"
-        contributions_f = Colorable('yellow', contributions, '>13')
+        contributions_f = Colorable('yellow', contributions, '>10')
 
         shares = years[year]['shares']
-        shares_f = Colorable('blue', shares, 10)
+        shares_f = Colorable('blue', shares, '9,.0f')
 
         price = years[year]['price']
         price_f = f'$ {price:,.2f}'
@@ -59,7 +59,7 @@ def get_account_history(account):
         if previous_year_value:
             diff_f = get_colored_amount(value - previous_year_value, 14)
 
-        history += (f'\t{year}  {contributions_f}  {shares_f}  '
+        history += (f'    {year}  {contributions_f}  {shares_f}  '
                     f'{price_f:>10}  {value_f:>14}  {diff_f}\n')
 
         previous_year_value = value

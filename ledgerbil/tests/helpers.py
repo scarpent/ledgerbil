@@ -2,25 +2,60 @@
 
 Redirector: Capture streams
 
-OutputFileTester: Redirect standard out to file for easier diffing and
-                  maintenance of expected results. Generate and look for
-                  files in a standard location with standard suffixes.
+OutputFileTesterStdout: Redirect standard out to file for easier diffing
+                        and maintenance of expected results. Generate
+                        and look for files in a standard location with
+                        standard suffixes.
 """
 
 import filecmp
 import os
-import re
 import sys
 from io import StringIO
 from unittest import TestCase
 
+from ..colorable import Colorable
 
-class OutputFileTester(TestCase):
 
+class OutputFileTesterBase(object):
     path = os.path.dirname(__file__)
     TEST_FILES_DIR = os.path.join(path, 'files')
     OUT_SUFFIX = '.out'
     EXPECTED_SUFFIX = f'{OUT_SUFFIX}_expected'
+
+    def get_filename(self, testfile, suffix):
+        testfile = os.path.join(self.TEST_FILES_DIR, testfile)
+        return f'{testfile}{suffix}'
+
+    def get_expected_filename(self, testfile):
+        return self.get_filename(testfile, self.EXPECTED_SUFFIX)
+
+    def get_out_filename(self, testfile):
+        return self.get_filename(testfile, self.OUT_SUFFIX)
+
+    @staticmethod
+    def remove_color(text):
+        return Colorable.get_plain_string(text)
+
+
+class OutputFileTester(OutputFileTesterBase):
+
+    def __init__(self, testfile):
+        super().__init__()
+        self.testfile = testfile
+
+    def save_out_file(self, data):
+        with open(self.get_out_filename(self.testfile), 'w') as afile:
+            afile.write(self.remove_color(data))
+
+    def assert_out_equals_expected(self):
+        filecmp.cmp(
+            self.get_out_filename(self.testfile),
+            self.get_expected_filename(self.testfile)
+        )
+
+
+class OutputFileTesterStdout(TestCase, OutputFileTesterBase):
 
     def setUp(self):
         self.savestdout = sys.stdout
@@ -30,8 +65,8 @@ class OutputFileTester(TestCase):
 
     def init_test(self, testfile):
         testfile = os.path.join(self.TEST_FILES_DIR, testfile)
-        self.expected = f'{testfile}{self.EXPECTED_SUFFIX}'
-        self.actual = f'{testfile}{self.OUT_SUFFIX}'
+        self.expected = self.get_expected_filename(testfile)
+        self.actual = self.get_out_filename(testfile)
         sys.stdout = open(self.actual, 'w')
 
     def conclude_test(self, strip_ansi_color=False):
@@ -42,12 +77,7 @@ class OutputFileTester(TestCase):
                 f.seek(0)
                 f.write(data)
                 f.truncate()
-        self.assertTrue(filecmp.cmp(self.expected, self.actual))
-
-    @staticmethod
-    def remove_color(text):
-        # removes ansi color escape sequences
-        return re.sub(r'(?:\x1b[^m]*m|\x0f)', '', text)
+        assert filecmp.cmp(self.expected, self.actual)
 
 
 class Redirector(TestCase):

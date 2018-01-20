@@ -17,12 +17,21 @@
         },
         "note": "optional..."
       },
+      "2018": {
+        "symbol": "abcdx",
+        "price": 83.11,
+        "shares": 1700,
+        "contributions": {
+          "total": 500,
+          "modifier": 0.5
+        }
+      },
       "2017": {
         "symbol": "abcdx",
         "price": 81.57,
-        "shares": 1200,
+        "shares": 999,
         "contributions": {
-          "total": 1500,
+          "total": 11500,
           "modifier": 0.5
         }
       }

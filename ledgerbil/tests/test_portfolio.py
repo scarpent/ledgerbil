@@ -4,6 +4,7 @@ from unittest import mock
 import pytest
 
 from .. import portfolio
+from .helpers import OutputFileTester
 
 
 class MockSettings(object):
@@ -34,12 +35,21 @@ portfolio_json_data = '''\
             },
             "note": "optional..."
           },
+          "2018": {
+            "symbol": "abcdx",
+            "price": 83.11,
+            "shares": 1700,
+            "contributions": {
+              "total": 500,
+              "modifier": 0.5
+            }
+          },
           "2017": {
             "symbol": "abcdx",
             "price": 81.57,
-            "shares": 1200,
+            "shares": 999,
             "contributions": {
-              "total": 1500,
+              "total": 11500,
               "modifier": 0.5
             }
           }
@@ -98,9 +108,8 @@ def test_account_matching_all(mock_get_history, mock_get_data):
     args = portfolio.get_args(['--history'])
     portfolio.get_portfolio_report(args)
     assert mock_get_history.call_count == 3
-    mock_get_history.assert_any_call(portfolio_data[0])
-    mock_get_history.assert_any_call(portfolio_data[1])
-    mock_get_history.assert_any_call(portfolio_data[2])
+    for data in portfolio_data:
+        mock_get_history.assert_any_call(data)
 
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
@@ -110,8 +119,8 @@ def test_account_matching_regex(mock_get_history, mock_get_data):
     args = portfolio.get_args(['--history', '--accounts', 'idx$'])
     portfolio.get_portfolio_report(args)
     assert mock_get_history.call_count == 2
-    mock_get_history.assert_any_call(portfolio_data[0])
-    mock_get_history.assert_any_call(portfolio_data[1])
+    for data in portfolio_data[:1]:
+        mock_get_history.assert_any_call(data)
 
 
 def test_get_portfolio_data():
@@ -123,6 +132,13 @@ def test_get_portfolio_data():
 
     assert data == expected
     m.assert_called_once_with('abcd', 'r')
+
+
+def test_get_account_history():
+    history = portfolio.get_account_history(portfolio_data[0])
+    helper = OutputFileTester('test_portfolio_account_history')
+    helper.save_out_file(history)
+    helper.assert_out_equals_expected()
 
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_report', return_value='hi!')
