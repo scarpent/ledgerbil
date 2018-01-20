@@ -2,6 +2,7 @@ import argparse
 import json
 import re
 
+from .colorable import Colorable
 from .settings import Settings
 from .util import get_colored_amount
 
@@ -15,8 +16,11 @@ def get_portfolio_report(args):
         account_name = account['account']
         if not re.search(args.accounts_regex, account_name):
             continue
-        report += f'\n{account_name}\n'
-        report += f'{get_account_history(account)}\n'
+
+        if args.history:
+            report += f'{get_account_history(account)}\n'
+        else:
+            report += 'todo: not history\n'
 
     if not report:
         report = 'No accounts matched {}'.format(args.accounts_regex)
@@ -25,28 +29,41 @@ def get_portfolio_report(args):
 
 
 def get_account_history(account):
-    history = f"labels: {', '.join(account['labels'])}\n"
+    labels = f"labels : {', '.join(account['labels'])}"
+    history = '{account}{label}\n\n'.format(
+        account=Colorable('purple', account['account'], 50),
+        label=Colorable('white', labels, '>34') if account['labels'] else ''
+    )
 
     years = account['years']
     if len(years):
-        history += f"\tyear  {'contributions':15}{'shares':>10}  {'price':>10}  {'value':>14}  {'+/-':>14}\n"  # noqa
+        header = (f"\tyear  {'contributions':15}{'shares':>10}  "
+                  f"{'price':>10}  {'value':>14}  {'+/-':>14}\n")
+        history += f"{Colorable('cyan', header)}"
 
     previous_year_value = None
     diff_f = ''
     for year in sorted(years):
         contributions = f"$ {years[year]['contributions']['total']:,.0f}"
+        contributions_f = Colorable('yellow', contributions, '>13')
+
         shares = years[year]['shares']
+        shares_f = Colorable('blue', shares, 10)
+
         price = years[year]['price']
         price_f = f'$ {price:,.2f}'
+
         value = shares * price
-        value_f = f'$ {value:,.0f}'
+        value_f = get_colored_amount(value, 14)
+
         if previous_year_value:
-            diff = value - previous_year_value
-            diff_f = f'$ {diff:,.0f}'
             diff_f = get_colored_amount(value - previous_year_value, 14)
-        history += f'\t{year}  {contributions:>13}  {shares:>10,}  {price_f:>10}  {value_f:>14}  {diff_f}\n'  # noqa
+
+        history += (f'\t{year}  {contributions_f}  {shares_f}  '
+                    f'{price_f:>10}  {value_f:>14}  {diff_f}\n')
 
         previous_year_value = value
+
     return history
 
 
@@ -69,6 +86,11 @@ def get_args(args=[]):
         dest='accounts_regex',
         default='.*',
         help='include accounts that match this regex, default = .* (all)'
+    )
+    parser.add_argument(
+        '-H', '--history',
+        action='store_true',
+        help='show account history'
     )
 
     return parser.parse_args(args)

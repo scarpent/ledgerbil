@@ -112,3 +112,13 @@ def test_main(mock_print, mock_report):
 def test_args_accounts(test_input, expected):
     args = portfolio.get_args(test_input)
     assert args.accounts_regex == expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (['-H'], True),
+    (['--history'], True),
+    ([], False),
+])
+def test_args_command(test_input, expected):
+    args = portfolio.get_args(test_input)
+    assert args.history is expected
