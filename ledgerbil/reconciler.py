@@ -469,7 +469,7 @@ class Reconciler(cmd.Cmd, object):
 
     @staticmethod
     def get_response(prompt='', old_value=''):
-        default = '' if old_value is None else old_value
+        default = old_value or ''
         response = input(f'{prompt} [{default}]: ').strip()
 
         if response == '':

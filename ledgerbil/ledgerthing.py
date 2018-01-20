@@ -165,7 +165,7 @@ class LedgerThing(object):
         if self.rec_account_matched is None:
             return lines_out + self.lines[1:]
 
-        current_status = ' ' if not self.rec_status else self.rec_status
+        current_status = self.rec_status or ' '
 
         for line in self.lines[1:]:
             m = re.match(self.ENTRY_REGEX, line)

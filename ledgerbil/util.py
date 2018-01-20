@@ -59,7 +59,7 @@ def parse_args(args):
     # args should be a string, but we'll make sure it isn't None
     # (which would cause the string to be read from stdin)
     try:
-        return shlex.split(args if args else '')
+        return shlex.split(args or '')
     except ValueError as e:
         print(f'*** {e}')
         return None
