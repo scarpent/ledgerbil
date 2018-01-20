@@ -49,7 +49,7 @@ class OutputFileTester(OutputFileTesterBase):
             afile.write(self.remove_color(data))
 
     def assert_out_equals_expected(self):
-        filecmp.cmp(
+        assert filecmp.cmp(
             self.get_out_filename(self.testfile),
             self.get_expected_filename(self.testfile)
         )
