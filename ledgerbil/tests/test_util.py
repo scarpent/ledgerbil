@@ -61,6 +61,10 @@ class UtilTests(TestCase):
         self.assertEqual('0.0060', util.get_amount_str(0.006000, 4))
         self.assertEqual('3.5679', util.get_amount_str(3.56789, 4))
         self.assertEqual('5.000000', util.get_amount_str(5, 6))
+        self.assertEqual('0', util.get_amount_str(-0.0000001, 0))
+        self.assertEqual('0', util.get_amount_str(0.0000001, 0))
+        self.assertEqual('2', util.get_amount_str(1.8, 0))
+        self.assertEqual('-3', util.get_amount_str(-3.2, 0))
 
     def test_get_colored_amount(self):
         self.assertEqual(
