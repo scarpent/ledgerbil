@@ -52,7 +52,7 @@ class OutputFileTester(OutputFileTesterBase):
         assert filecmp.cmp(
             self.get_out_filename(self.testfile),
             self.get_expected_filename(self.testfile)
-        )
+        ), f'test filename root: {self.testfile}'
 
 
 class OutputFileTesterStdout(TestCase, OutputFileTesterBase):
@@ -65,6 +65,7 @@ class OutputFileTesterStdout(TestCase, OutputFileTesterBase):
 
     def init_test(self, testfile):
         testfile = os.path.join(self.TEST_FILES_DIR, testfile)
+        self.testfile = testfile
         self.expected = self.get_expected_filename(testfile)
         self.actual = self.get_out_filename(testfile)
         sys.stdout = open(self.actual, 'w')
@@ -76,7 +77,8 @@ class OutputFileTesterStdout(TestCase, OutputFileTesterBase):
             f.seek(0)
             f.write(data)
             f.truncate()
-        assert filecmp.cmp(self.expected, self.actual)
+        error = f'test filename root: {self.testfile}'
+        assert filecmp.cmp(self.expected, self.actual), error
 
 
 class Redirector(TestCase):

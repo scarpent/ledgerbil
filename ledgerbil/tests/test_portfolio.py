@@ -141,6 +141,13 @@ def test_get_account_history():
     helper.assert_out_equals_expected()
 
 
+def test_get_account_history_no_label_no_years():
+    history = portfolio.get_account_history(portfolio_data[2])
+    helper = OutputFileTester('test_portfolio_account_history_empty')
+    helper.save_out_file(history)
+    helper.assert_out_equals_expected()
+
+
 @mock.patch(__name__ + '.portfolio.get_portfolio_report', return_value='hi!')
 @mock.patch(__name__ + '.portfolio.print')
 def test_main(mock_print, mock_report):
