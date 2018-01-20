@@ -69,14 +69,13 @@ class OutputFileTesterStdout(TestCase, OutputFileTesterBase):
         self.actual = self.get_out_filename(testfile)
         sys.stdout = open(self.actual, 'w')
 
-    def conclude_test(self, strip_ansi_color=False):
+    def conclude_test(self):
         sys.stdout.close()
-        if strip_ansi_color:
-            with open(self.actual, 'r+') as f:
-                data = self.remove_color(f.read())
-                f.seek(0)
-                f.write(data)
-                f.truncate()
+        with open(self.actual, 'r+') as f:
+            data = self.remove_color(f.read())
+            f.seek(0)
+            f.write(data)
+            f.truncate()
         assert filecmp.cmp(self.expected, self.actual)
 
 

@@ -595,7 +595,7 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         self.responses = ['2016/10/30', '$40']
         recon.do_statement('')
 
-        self.conclude_test(strip_ansi_color=True)
+        self.conclude_test()
 
     def test_setting_statement_shares(self):
         self.init_test('test_statement_stuff_for_shares')
@@ -609,7 +609,7 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         self.responses = ['2016/10/30', '2.234456']
         recon.do_statement('')
 
-        self.conclude_test(strip_ansi_color=True)
+        self.conclude_test()
 
     def test_cancel_statement(self):
         self.init_test('test_cancel_statement_stuff')
@@ -645,7 +645,7 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
             recon.do_mark('1 2')
             recon.do_finish('')
 
-        self.conclude_test(strip_ansi_color=True)
+        self.conclude_test()
 
     def test_finish_and_start_again(self):
         self.init_test('test_reconcile_finish_and_start_again')
@@ -671,7 +671,7 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         with FileTester.temp_input(self.testfinish) as tempfilename:
             Reconciler(LedgerFile(tempfilename, 'cash'))
 
-        self.conclude_test(strip_ansi_color=True)
+        self.conclude_test()
 
     def test_caching_with_quit(self):
         self.cache_test(do_quit=True)
@@ -704,7 +704,7 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         with FileTester.temp_input(self.testfinish) as tempfilename:
             Reconciler(LedgerFile(tempfilename, 'cash'))
 
-        self.conclude_test(strip_ansi_color=True)
+        self.conclude_test()
 
 
 class ResponseTests(MockInput, Redirector):
