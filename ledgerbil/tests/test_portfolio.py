@@ -18,6 +18,7 @@ def setup_module(module):
 BIG_CO = 0
 BONDS = 1
 BONDS_2 = 2
+BIG_NAME = 3
 
 
 portfolio_json_data = '''\
@@ -92,6 +93,11 @@ portfolio_json_data = '''\
         "account": "assets: 401k: bonds idx 2",
         "labels": [],
         "years": {}
+      },
+      {
+        "account": "assets: 401k: long account name that goes on...",
+        "labels": ["401k", "flurb", "intl", "active", "smactive"],
+        "years": {}
       }
     ]
     '''
@@ -112,7 +118,7 @@ def test_account_matching_all(mock_get_history, mock_get_data):
     mock_get_data.return_value = portfolio_data
     args = portfolio.get_args(['--history'])
     portfolio.get_portfolio_report(args)
-    assert mock_get_history.call_count == 3
+    assert mock_get_history.call_count == len(portfolio_data)
     for data in portfolio_data:
         mock_get_history.assert_any_call(data)
 
@@ -146,9 +152,16 @@ def test_get_account_history():
     helper.assert_out_equals_expected()
 
 
-def test_get_account_history_no_label_no_years():
+def test_get_account_history_no_labels_no_years():
     history = portfolio.get_account_history(portfolio_data[BONDS_2])
     helper = OutputFileTester('test_portfolio_account_history_empty')
+    helper.save_out_file(history)
+    helper.assert_out_equals_expected()
+
+
+def test_get_account_history_long_name_no_years():
+    history = portfolio.get_account_history(portfolio_data[BIG_NAME])
+    helper = OutputFileTester('test_portfolio_account_history_empty_long')
     helper.save_out_file(history)
     helper.assert_out_equals_expected()
 

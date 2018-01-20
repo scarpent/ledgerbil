@@ -30,9 +30,9 @@ def get_portfolio_report(args):
 
 def get_account_history(account):
     labels = f"labels: {', '.join(account['labels'])}"
-    history = '{account}{label}\n'.format(
-        account=Colorable('purple', account['account'], 41),
-        label=Colorable('white', labels, '>34') if account['labels'] else ''
+    history = '{account}\n{label}'.format(
+        account=Colorable('purple', account['account']),
+        label=Colorable('white', labels, '>75') if account['labels'] else ''
     )
 
     years = account['years']
