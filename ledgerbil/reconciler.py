@@ -298,11 +298,7 @@ class Reconciler(cmd.Cmd, object):
                     number=Colorable('cyan', count_str),
                     date=thing.get_date_string(),
                     code=thing.transaction_code,
-                    payee=util.Colorable(
-                        'cyan',
-                        thing.payee,
-                        column_width=40
-                    ),
+                    payee=util.Colorable('cyan', thing.payee, 40),
                     amount=util.get_colored_amount(
                         thing.rec_amount,
                         column_width=16 if thing.rec_is_shares else 11,

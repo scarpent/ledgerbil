@@ -90,9 +90,4 @@ def get_colored_amount(amount, column_width=1, is_shares=False):
 
     color = 'red' if amount < 0 else 'green'
 
-    return str(Colorable(
-        color,
-        text=amount_formatted,
-        column_width=column_width,
-        right_adjust=True
-    ))
+    return str(Colorable(color, amount_formatted, f'>{column_width}'))

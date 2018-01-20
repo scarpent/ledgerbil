@@ -102,11 +102,11 @@ def test_get_prices_without_file(mock_quote_data, mock_print):
     expected_first = '2011/12/13   fu         $67.89'
     expected_second = '2009/10/11   bar        $123.45'
 
-    assert prices.Colorable.get_plain_text(
+    assert prices.Colorable.get_plain_string(
         mock_print.mock_calls[0][1][0]
     ) == expected_first
 
-    assert prices.Colorable.get_plain_text(
+    assert prices.Colorable.get_plain_string(
         mock_print.mock_calls[1][1][0]
     ) == expected_second
 
@@ -123,7 +123,7 @@ def test_get_prices_with_bad_data(mock_quote_data, mock_print):
     prices.get_prices()
     expected = '2009/10/11   bar        $123.45'
 
-    assert prices.Colorable.get_plain_text(
+    assert prices.Colorable.get_plain_string(
         mock_print.mock_calls[0][1][0]
     ) == expected
 

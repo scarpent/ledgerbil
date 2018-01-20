@@ -24,12 +24,7 @@ class Colorable(object):
 
     ansi_escape = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
 
-    def __init__(self,
-                 color='white',
-                 text='',
-                 column_width=1,
-                 right_adjust=False,
-                 bright=False):
+    def __init__(self, color, value, fmt='', bright=False):
 
         try:
             self.COLORS[color]
@@ -39,29 +34,25 @@ class Colorable(object):
             )
 
         self.my_color = color
-        self.text = text
-        self.column_width = column_width
-        self.right_adjust = right_adjust
+        self.value = value
         self.bright = bright
+        self.format_string = fmt
 
     def __str__(self):
-        adjust = '>' if self.right_adjust else ''
-
-        ansi_str = '{start}{text:{adjust}{width}}{end}'.format(
-            width=self.column_width,
+        ansi_str = '{start}{value:{fmt}}{end}'.format(
             start=self.ansi_sequence(
                 self.COLORS[self.my_color],
                 bright=self.bright
             ),
-            text=self.text,
-            adjust=adjust,
+            value=self.value,
+            fmt=self.format_string,
             end=self.END_CODE
         )
 
         return ansi_str
 
     def __len__(self):
-        return len(self.text)
+        return len(self.value)
 
     def ansi_sequence(self, code, bright=False):
         offset = 60 if bright else 0
@@ -71,11 +62,11 @@ class Colorable(object):
         )
 
     def plain(self):
-        return self.text
+        return self.value
 
     @staticmethod
-    def get_plain_text(ansi_text):
-        return Colorable.ansi_escape.sub('', ansi_text)
+    def get_plain_string(ansi_string):
+        return Colorable.ansi_escape.sub('', ansi_string)
 
 
 class UnsupportedColorError(Exception):

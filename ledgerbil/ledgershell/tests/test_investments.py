@@ -33,7 +33,7 @@ def test_check_for_negative_dollars_no_warning(mock_print):
 def test_check_for_negative_dollars_warning(mock_print):
     expected = 'Negative dollar amount $ -10 for "blah."'
     investments.check_for_negative_dollars('$ -10', 'blah')
-    output = investments.Colorable.get_plain_text(mock_print.call_args[0][0])
+    output = investments.Colorable.get_plain_string(mock_print.call_args[0][0])
     assert expected in output
 
 
@@ -139,7 +139,7 @@ def test_get_investment_report(mock_ledger_output):
     ]
     mock_ledger_output.side_effect = [shares, dollars]
     args = investments.get_args([])
-    report = investments.Colorable.get_plain_text(
+    report = investments.Colorable.get_plain_string(
         investments.get_investment_report(args)
     )
     expected = '''$ 1,737.19   assets
@@ -189,7 +189,7 @@ def test_get_investment_report_matching_shares_and_symbol(mock_ledger_output):
     ]
     mock_ledger_output.side_effect = [shares, dollars]
     args = investments.get_args([])
-    report = investments.Colorable.get_plain_text(
+    report = investments.Colorable.get_plain_string(
         investments.get_investment_report(args)
     )
     expected = '''$ 2,592.87   assets
@@ -226,7 +226,7 @@ def test_zero_dollar_amount(mock_ledger_output):
     ]
     mock_ledger_output.side_effect = [shares, dollars]
     args = investments.get_args([])
-    report = investments.Colorable.get_plain_text(
+    report = investments.Colorable.get_plain_string(
         investments.get_investment_report(args)
     )
     expected = '''0   assets: 401k
@@ -241,7 +241,7 @@ def test_get_investment_report_single_line(mock_ledger_output):
     dollars = ['            $ 150.00  assets: ira: glass idx', '']
     mock_ledger_output.side_effect = [shares, dollars]
     args = investments.get_args([])
-    report = investments.Colorable.get_plain_text(
+    report = investments.Colorable.get_plain_string(
         investments.get_investment_report(args)
     )
     expected = '15.000 qwrty         $ 150.00   assets: ira: glass idx'
@@ -260,10 +260,10 @@ def test_less_than_zero(mock_ledger_output, mock_print):
                        '   assets: 401k: big co 500 idx')
     expected_print = ('Negative dollar amount $ -8.31'
                       ' for "assets: 401k: big co 500 idx."')
-    actual_report = investments.Colorable.get_plain_text(
+    actual_report = investments.Colorable.get_plain_string(
         investments.get_investment_report(args)
     )
-    actual_print = investments.Colorable.get_plain_text(
+    actual_print = investments.Colorable.get_plain_string(
         mock_print.call_args[0][0]
     )
 
@@ -277,7 +277,7 @@ def test_less_than_one_share(mock_ledger_output):
     dollars = ['              $ 0.08  assets: 401k: big co 500 idx', '']
     mock_ledger_output.side_effect = [shares, dollars]
     args = investments.get_args([])
-    report = investments.Colorable.get_plain_text(
+    report = investments.Colorable.get_plain_string(
         investments.get_investment_report(args)
     )
     expected = '0.001 abcdx           $ 0.08   assets: 401k: big co 500 idx'
@@ -328,7 +328,7 @@ def test_main(mock_ledger_output, mock_print):
     dollars = ['            $ 150.00  assets: ira: glass idx', '']
     mock_ledger_output.side_effect = [shares, dollars]
     investments.main([])
-    output = investments.Colorable.get_plain_text(mock_print.call_args[0][0])
+    output = investments.Colorable.get_plain_string(mock_print.call_args[0][0])
     expected = '15.000 qwrty         $ 150.00   assets: ira: glass idx'
     assert output.strip() == expected
 

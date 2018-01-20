@@ -175,24 +175,9 @@ def get_investment_report(args):
         dollar_color = 'red' if '-' in dollars.amount else 'green'
 
         report += ('{shares} {symbol} {dollars} {investment}\n'.format(
-            shares=Colorable(
-                'gray',
-                shares.num,
-                column_width=12,
-                right_adjust=True,
-                bright=True
-            ),
-            symbol=Colorable(
-                'purple',
-                shares.symbol,
-                column_width=5
-            ),
-            dollars=Colorable(
-                dollar_color,
-                dollars.amount,
-                column_width=16,
-                right_adjust=True
-            ),
+            shares=Colorable('gray', shares.num, '>12', bright=True),
+            symbol=Colorable('purple', shares.symbol, 5),
+            dollars=Colorable(dollar_color, dollars.amount, '>16'),
             investment=Colorable('blue', dollars.account)
         ))
 
