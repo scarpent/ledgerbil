@@ -24,26 +24,26 @@ portfolio_json_data = '''\
           "flurb"
         ],
         "years": {
-            "2016": {
-              "symbol": "abcdx",
-              "price": 80.23,
-              "shares": 1000,
-              "contributions": {
-                "total": 1500,
-                "year_start": 0.5
-              },
-              "note": "optional..."
+          "2016": {
+            "symbol": "abcdx",
+            "price": 80.23,
+            "shares": 12200.78,
+            "contributions": {
+              "total": 1500.79,
+              "modifier": 0.5
             },
-            "2017": {
-              "symbol": "abcdx",
-              "price": 81.57,
-              "shares": 1200,
-              "contributions": {
-                "total": 1500,
-                "year_start": 0.5
-              }
+            "note": "optional..."
+          },
+          "2017": {
+            "symbol": "abcdx",
+            "price": 81.57,
+            "shares": 1200,
+            "contributions": {
+              "total": 1500,
+              "modifier": 0.5
             }
           }
+        }
       },
       {
         "account": "assets: 401k: bonds idx",
@@ -53,36 +53,65 @@ portfolio_json_data = '''\
           "flurb"
         ],
         "years": {
-            "2016": {
-              "symbol": "lmnop",
-              "price": 19.76,
-              "shares": 1750,
-              "contributions": {
-                "total": 750,
-                "year_start": 0.4
-              }
-            },
-            "2015": {
-              "symbol": "lmnop",
-              "price": 20.31,
-              "shares": 2000,
-              "contributions": {
-                "total": 750,
-                "year_start": 0.5
-              }
+          "2016": {
+            "symbol": "lmnop",
+            "price": 119.76,
+            "shares": 3750,
+            "contributions": {
+              "total": 750,
+              "modifier": 0.4
+            }
+          },
+          "2015": {
+            "symbol": "lmnop",
+            "price": 20.31,
+            "shares": 2000,
+            "contributions": {
+              "total": 750,
+              "modifier": 0.5
             }
           }
+        }
+      },
+      {
+        "account": "assets: 401k: bonds idx 2",
+        "labels": [],
+        "years": {}
       }
-    ]'''
+    ]
+    '''
 portfolio_data = json.loads(portfolio_json_data)
 
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
-def test_get_portfolio_report(mock_get_portfolio_data):
-    mock_get_portfolio_data.return_value = portfolio_data
-    args = portfolio.get_args(['-a', 'qwertyable'])
+def test_get_portfolio_report(mock_get_data):
+    mock_get_data.return_value = portfolio_data
+    args = portfolio.get_args(['--accounts', 'qwertyable'])
     expected = 'No accounts matched qwertyable'
     assert portfolio.get_portfolio_report(args) == expected
+
+
+@mock.patch(__name__ + '.portfolio.get_portfolio_data')
+@mock.patch(__name__ + '.portfolio.get_account_history')
+def test_account_matching_all(mock_get_history, mock_get_data):
+    mock_get_data.return_value = portfolio_data
+    args = portfolio.get_args(['--history'])
+    portfolio.get_portfolio_report(args)
+    assert mock_get_history.call_count == 3
+    mock_get_history.assert_any_call(portfolio_data[0])
+    mock_get_history.assert_any_call(portfolio_data[1])
+    mock_get_history.assert_any_call(portfolio_data[2])
+
+
+@mock.patch(__name__ + '.portfolio.get_portfolio_data')
+@mock.patch(__name__ + '.portfolio.get_account_history')
+def test_account_matching_regex(mock_get_history, mock_get_data):
+    mock_get_data.return_value = portfolio_data
+    args = portfolio.get_args(['--history', '--accounts', 'idx$'])
+    portfolio.get_portfolio_report(args)
+    assert mock_get_history.call_count == 2
+    mock_get_history.assert_any_call(portfolio_data[0])
+    mock_get_history.assert_any_call(portfolio_data[1])
 
 
 def test_get_portfolio_data():
