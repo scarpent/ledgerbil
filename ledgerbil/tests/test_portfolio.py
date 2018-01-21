@@ -166,6 +166,22 @@ def test_get_account_history_long_name_no_years():
     helper.assert_out_equals_expected()
 
 
+def test_get_account_history_one_year():
+    account = {
+        'account': 'assets: 401k: bonds idx',
+        'labels': [],
+        'years': {
+            '2016': {'price': 119.76,
+                     'shares': 3750.9,
+                     'contributions': {'total': 750, 'modifier': 0.4}}
+        }
+    }
+    history = portfolio.get_account_history(account)
+    helper = OutputFileTester('test_portfolio_account_history_one_year')
+    helper.save_out_file(history)
+    helper.assert_out_equals_expected()
+
+
 def test_add_up_yearly_numbers_single_account():
     accounts = [{
         'account': 'the account name',

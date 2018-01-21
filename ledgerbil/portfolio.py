@@ -145,7 +145,7 @@ def get_account_history(account):
         previous_value = value
         contributions_total += contributions
 
-    if contributions_total:
+    if contributions_total and len(years) > 1:
         history += '          {}\n'.format(
             get_colored_amount(contributions_total, 10, decimals=0)
         )
