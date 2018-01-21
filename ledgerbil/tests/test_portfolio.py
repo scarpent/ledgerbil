@@ -178,12 +178,11 @@ def test_add_up_yearly_numbers_single_account():
                      'contributions': {'total': 200, 'modifier': 0.25}},
         }
     }]
-    year_range = (2014, 2015)
     expected = {
         2014: {'contrib_start': 75.0, 'contrib_end': 25.0, 'value': 1000.0},
         2015: {'contrib_start': 50.0, 'contrib_end': 150.0, 'value': 2200.0},
     }
-    actual = portfolio.add_up_yearly_numbers(accounts, year_range)
+    actual = portfolio.add_up_yearly_numbers(accounts, 2014, 2016)
     assert actual == expected
 
 
@@ -212,12 +211,11 @@ def test_add_up_yearly_numbers_two_accounts_same_years():
             }
         }
     ]
-    year_range = (2014, 2015)
     expected = {
         2014: {'contrib_start': 325.0, 'contrib_end': 275.0, 'value': 16000.0},
         2015: {'contrib_start': 550.0, 'contrib_end': 650.0, 'value': 35200.0},
     }
-    actual = portfolio.add_up_yearly_numbers(accounts, year_range)
+    actual = portfolio.add_up_yearly_numbers(accounts, 2014, 2016)
     assert actual == expected
 
 
@@ -233,7 +231,6 @@ def test_add_up_yearly_numbers_single_account_missing_years():
                      'contributions': {'total': 200, 'modifier': 0.25}},
         }
     }]
-    year_range = (2010, 2017)
     expected = {
         2013: {'contrib_start': 75.0, 'contrib_end': 25.0, 'value': 1000.0},
         2014: {'value': 1000},
@@ -241,7 +238,7 @@ def test_add_up_yearly_numbers_single_account_missing_years():
         2016: {'value': 2200},
         2017: {'value': 2200},
     }
-    actual = portfolio.add_up_yearly_numbers(accounts, year_range)
+    actual = portfolio.add_up_yearly_numbers(accounts, 2010, 2018)
     assert actual == expected
 
 
@@ -273,7 +270,6 @@ def test_add_up_yearly_numbers_multiple_accounts_missing_years():
             }
         }
     ]
-    year_range = (2010, 2018)
     expected = {
         2013: {'contrib_start': 75.0, 'contrib_end': 25.0, 'value': 1000.0},
         2014: {'contrib_start': 250.0, 'contrib_end': 250.0, 'value': 16000},
@@ -282,7 +278,7 @@ def test_add_up_yearly_numbers_multiple_accounts_missing_years():
         2017: {'value': 35200},
         2018: {'contrib_start': 600.0, 'contrib_end': 200.0, 'value': 29700},
     }
-    actual = portfolio.add_up_yearly_numbers(accounts, year_range)
+    actual = portfolio.add_up_yearly_numbers(accounts, 2010, 2019)
     assert actual == expected
 
 

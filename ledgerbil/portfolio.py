@@ -31,26 +31,26 @@ def get_portfolio_report(args):
         report = 'No accounts matched {}'.format(args.accounts_regex)
 
     if matched:
-        included_years = [int(year) for year in included_years]
-        year_range = (min(included_years), max(included_years))
-        report = get_performance_report(matched, year_range)
+        report = get_performance_report(matched, included_years)
         matched_names = [account['account'] for account in matched]
         report += '\n'.join(matched_names)
-        report += f'\n{year_range}\n'
 
     return report
 
 
-def get_performance_report(accounts, year_range):
-    years = add_up_yearly_numbers(accounts, year_range)
+def get_performance_report(accounts, included_years):
+    int_years = [int(year) for year in included_years]
+    year_start = int_years(min)
+    year_end = int_years(max) + 1
+    years = add_up_yearly_numbers(accounts, year_start, year_end)
     return temp_perf_report(years)
 
 
-def add_up_yearly_numbers(accounts, year_range):
+def add_up_yearly_numbers(accounts, year_start, year_end):
     years = defaultdict(lambda: defaultdict(float))
     for account in accounts:
         previous_value = 0
-        for year in range(year_range[0], year_range[1] + 1):
+        for year in range(year_start, year_end):
             if str(year) not in account['years'].keys():
                 if previous_value:
                     # todo: integration with ledger to get current value
