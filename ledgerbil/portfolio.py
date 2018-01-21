@@ -23,6 +23,7 @@ def get_portfolio_report(args):
         if args.history:
             report += f'{get_account_history(account)}\n'
         else:
+            # todo: validate years?
             included_years.update(set(account['years'].keys()))
             matched.append(account)
 
@@ -30,31 +31,43 @@ def get_portfolio_report(args):
         report = 'No accounts matched {}'.format(args.accounts_regex)
 
     if matched:
-        report = get_performance_report(matched, included_years)
+        included_years = [int(year) for year in included_years]
+        year_range = (min(included_years), max(included_years))
+        report = get_performance_report(matched, year_range)
         matched_names = [account['account'] for account in matched]
         report += '\n'.join(matched_names)
-        report += f'\n{included_years}\n'
+        report += f'\n{year_range}\n'
 
     return report
 
 
-def get_performance_report(accounts, included_years):
-    years = add_up_yearly_numbers(accounts, included_years)
+def get_performance_report(accounts, year_range):
+    years = add_up_yearly_numbers(accounts, year_range)
     return temp_perf_report(years)
 
 
-def add_up_yearly_numbers(accounts, included_years):
+def add_up_yearly_numbers(accounts, year_range):
     years = defaultdict(lambda: defaultdict(float))
     for account in accounts:
-        for year in sorted(account['years']):
-            data = account['years'][year]
+        previous_value = 0
+        for year in range(year_range[0], year_range[1] + 1):
+            if str(year) not in account['years'].keys():
+                if previous_value:
+                    # todo: integration with ledger to get current value
+                    years[year]['value'] += previous_value
+                continue
+
+            data = account['years'][str(year)]
             contrib_total = data['contributions']['total']
             modifier = data['contributions']['modifier']
             contrib_start = contrib_total * modifier
+            value = data['price'] * data['shares']
 
             years[year]['contrib_start'] += contrib_start
             years[year]['contrib_end'] += (contrib_total - contrib_start)
-            years[year]['value'] += (data['price'] * data['shares'])
+            years[year]['value'] += value
+
+            previous_value = value
 
     return years
 
@@ -84,6 +97,8 @@ def get_account_history(account):
         header = (f"\n    year  {'contrib':>10}  {'shares':>9}  "
                   f"{'price':>10}  {'value':>12}  {'+/-':>13}\n")
         history += f"{Colorable('cyan', header)}"
+
+    # todo: use years min and max and account for "missing" years...
 
     contributions_total = 0
     previous_year_value = None
