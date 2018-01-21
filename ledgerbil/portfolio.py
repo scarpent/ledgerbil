@@ -5,7 +5,7 @@ from collections import defaultdict
 
 from .colorable import Colorable
 from .settings import Settings
-from .util import get_colored_amount
+from .util import get_colored_amount, get_start_and_end_range
 
 settings = Settings()
 
@@ -23,7 +23,9 @@ def get_portfolio_report(args):
         if args.history:
             report += f'{get_account_history(account)}\n'
         else:
-            # todo: validate years?
+            # todo: validation?
+            #       - year: format and sanity check on range
+            #       - warn if missing years in accounts?
             included_years.update(set(account['years'].keys()))
             matched.append(account)
 
@@ -39,9 +41,7 @@ def get_portfolio_report(args):
 
 
 def get_performance_report(accounts, included_years):
-    int_years = [int(year) for year in included_years]
-    year_start = int_years(min)
-    year_end = int_years(max) + 1
+    year_start, year_end = get_start_and_end_range(included_years)
     years = add_up_yearly_numbers(accounts, year_start, year_end)
     return temp_perf_report(years)
 
@@ -53,7 +53,7 @@ def add_up_yearly_numbers(accounts, year_start, year_end):
         for year in range(year_start, year_end):
             if str(year) not in account['years'].keys():
                 if previous_value:
-                    # todo: integration with ledger to get current value
+                    # todo: integration with ledger to get current info
                     years[year]['value'] += previous_value
                 continue
 
@@ -97,28 +97,42 @@ def get_account_history(account):
         header = (f"\n    year  {'contrib':>10}  {'shares':>9}  "
                   f"{'price':>10}  {'value':>12}  {'+/-':>13}\n")
         history += f"{Colorable('cyan', header)}"
+    else:
+        return history
 
-    # todo: use years min and max and account for "missing" years...
-
+    year_start, year_end = get_start_and_end_range(years.keys())
     contributions_total = 0
-    previous_year_value = None
+    previous_shares = None
+    previous_price = None
+    previous_value = None
     diff_f = ''
-    for year in sorted(years):
-        contributions = years[year]['contributions']['total']
-        contributions_f = Colorable('yellow', f'$ {contributions:,.0f}', '>10')
+    for year in range(year_start, year_end):
+        year = str(year)
+        if year in years.keys():
+            contributions = years[year]['contributions']['total']
+            contributions_f = Colorable(
+                'yellow',
+                f'$ {contributions:,.0f}',
+                '>10'
+            )
+            shares = years[year]['shares']
+            price = years[year]['price']
+        else:
+            # todo: integration with ledger to get current info
+            contributions = 0
+            contributions_f = Colorable('red', '???', '>10')
+            shares = previous_shares
+            price = previous_price
 
-        shares = years[year]['shares']
         shares_f = Colorable('blue', shares, '9,.0f')
-
-        price = years[year]['price']
         price_f = f'$ {price:,.2f}'
 
         value = shares * price
         value_f = get_colored_amount(value, column_width=12, decimals=0)
 
-        if previous_year_value:
+        if previous_value:
             diff_f = get_colored_amount(
-                value - previous_year_value,
+                value - previous_value,
                 column_width=13,
                 decimals=0
             )
@@ -126,10 +140,12 @@ def get_account_history(account):
         history += (f'    {year}  {contributions_f}  {shares_f}  '
                     f'{price_f:>10}  {value_f:>12}  {diff_f}\n')
 
-        previous_year_value = value
+        previous_shares = shares
+        previous_price = price
+        previous_value = value
         contributions_total += contributions
 
-    if len(years) and contributions_total:
+    if contributions_total:
         history += '          {}\n'.format(
             get_colored_amount(contributions_total, 10, decimals=0)
         )

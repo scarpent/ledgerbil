@@ -41,7 +41,7 @@ portfolio_json_data = '''\
             },
             "note": "optional..."
           },
-          "2018": {
+          "2019": {
             "symbol": "abcdx",
             "price": 83.11,
             "shares": 1700,
