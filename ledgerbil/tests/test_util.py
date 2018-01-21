@@ -1,6 +1,8 @@
 from datetime import date
 from unittest import TestCase
 
+import pytest
+
 from .. import util
 from .helpers import Redirector
 
@@ -160,3 +162,15 @@ class OutputTests(Redirector):
         self.assertEqual([], args)
         args = util.parse_args('a b "c d"')
         self.assertEqual(['a', 'b', 'c d'], args)
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (['1', '7', '2'], (1, 8)),
+    ({'90', '7', '3'}, (3, 91)),
+    (['1', '-7', '2'], (-7, 3)),
+    (['-10', '-7', '-4'], (-10, -3)),
+    ([2, 7, 1], (1, 8)),
+    ({998, 7, 8}, (7, 999)),
+])
+def test_get_start_and_end_range_handled(test_input, expected):
+    assert util.get_start_and_end_range(test_input) == expected

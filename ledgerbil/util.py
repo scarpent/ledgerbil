@@ -55,6 +55,11 @@ def is_integer(value):
         return False
 
 
+def get_start_and_end_range(numbers):
+    int_nums = [int(num) for num in numbers]
+    return min(int_nums), max(int_nums) + 1
+
+
 def parse_args(args):
     # args should be a string, but we'll make sure it isn't None
     # (which would cause the string to be read from stdin)
