@@ -84,19 +84,19 @@
     "years": {
       "2015": {
         "symbol": "",
-        "price": 1,
-        "shares": 1,
+        "price": 10,
+        "shares": 10,
         "contributions": {
-          "total": 1,
+          "total": 100,
           "modifier": 1
         }
       },
       "2016": {
         "symbol": "",
-        "price": 1.1,
-        "shares": 2,
+        "price": 10.10,
+        "shares": 20,
         "contributions": {
-          "total": 2.2,
+          "total": 101,
           "modifier": 1
         }
       }
@@ -111,19 +111,19 @@
     "years": {
       "2014": {
         "symbol": "",
-        "price": 2,
-        "shares": 2,
+        "price": 20,
+        "shares": 10,
         "contributions": {
-          "total": 4,
+          "total": 200,
           "modifier": 0.75
         }
       },
       "2015": {
         "symbol": "",
-        "price": 2.2,
-        "shares": 4,
+        "price": 20.50,
+        "shares": 20,
         "contributions": {
-          "total": 8.8,
+          "total": 205,
           "modifier": 0.25
         }
       }

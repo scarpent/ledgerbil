@@ -166,6 +166,65 @@ def test_get_account_history_long_name_no_years():
     helper.assert_out_equals_expected()
 
 
+def test_add_up_yearly_numbers_single_account():
+    accounts = [{
+        'account': 'the account name',
+        'years': {
+            '2014': {'price': 100,
+                     'shares': 10,
+                     'contributions': {'total': 100, 'modifier': 0.75}},
+            '2015': {'price': 110,
+                     'shares': 20,
+                     'contributions': {'total': 200, 'modifier': 0.25}},
+        }
+    }]
+    included_years = ['2014', '2015']
+    expected = {
+        '2014': {'contrib_start': 75.0, 'contrib_end': 25.0, 'value': 1000.0},
+        '2015': {'contrib_start': 50.0, 'contrib_end': 150.0, 'value': 2200.0},
+    }
+    actual = portfolio.add_up_yearly_numbers(accounts, included_years)
+    assert actual == expected
+
+
+def test_add_up_yearly_numbers_two_accounts_same_years():
+    accounts = [
+        {
+            'account': 'the account name',
+            'years': {
+                '2014': {'price': 100,
+                         'shares': 10,
+                         'contributions': {'total': 100, 'modifier': 0.75}},
+                '2015': {'price': 110,
+                         'shares': 20,
+                         'contributions': {'total': 200, 'modifier': 0.25}},
+            }
+        },
+        {
+            'account': 'another account name',
+            'years': {
+                '2014': {'price': 300,
+                         'shares': 50,
+                         'contributions': {'total': 500, 'modifier': 0.50}},
+                '2015': {'price': 330,
+                         'shares': 100,
+                         'contributions': {'total': 1000, 'modifier': 0.50}},
+            }
+        }
+    ]
+    included_years = ['2014', '2015']
+    expected = {
+        '2014': {'contrib_start': 325.0,
+                 'contrib_end': 275.0,
+                 'value': 16000.0},
+        '2015': {'contrib_start': 550.0,
+                 'contrib_end': 650.0,
+                 'value': 35200.0},
+    }
+    actual = portfolio.add_up_yearly_numbers(accounts, included_years)
+    assert actual == expected
+
+
 @mock.patch(__name__ + '.portfolio.get_portfolio_report', return_value='hi!')
 @mock.patch(__name__ + '.portfolio.print')
 def test_main(mock_print, mock_report):

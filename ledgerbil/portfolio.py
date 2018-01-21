@@ -30,43 +30,44 @@ def get_portfolio_report(args):
         report = 'No accounts matched {}'.format(args.accounts_regex)
 
     if matched:
-        report, matched_names = get_investment_report(matched, included_years)
+        report = get_performance_report(matched, included_years)
+        matched_names = [account['account'] for account in matched]
         report += '\n'.join(matched_names)
         report += f'\n{included_years}\n'
 
     return report
 
 
-def get_investment_report(accounts, included_years):
-    report = ''
-    matched_names = []
+def get_performance_report(accounts, included_years):
+    years = add_up_yearly_numbers(accounts, included_years)
+    return temp_perf_report(years)
+
+
+def add_up_yearly_numbers(accounts, included_years):
     years = defaultdict(lambda: defaultdict(float))
     for account in accounts:
-        matched_names.append(account['account'])
-
-        for year, data in account['years'].items():
+        for year in sorted(account['years']):
+            data = account['years'][year]
             contrib_total = data['contributions']['total']
             modifier = data['contributions']['modifier']
             contrib_start = contrib_total * modifier
 
             years[year]['contrib_start'] += contrib_start
             years[year]['contrib_end'] += (contrib_total - contrib_start)
-            years[year]['total'] += (data['price'] * data['shares'])
+            years[year]['value'] += (data['price'] * data['shares'])
 
-    report = temp_inv_report(years)
-
-    return report, matched_names
+    return years
 
 
-def temp_inv_report(years):
-    report = f"year  {'contrib':>8}  {'total':>8}\n "
+def temp_perf_report(years):
+    report = f"year  {'contrib':>12}  {'value':>16}\n"
     for year in sorted(years):
         contributions = get_colored_amount(
-            years[year]['contrib_start'] + years[year]['contrib_start'],
-            column_width=8
+            years[year]['contrib_start'] + years[year]['contrib_end'],
+            column_width=12
         )
-        total = get_colored_amount(years[year]['total'], column_width=8)
-        report += f'{year}  {contributions}  {total}\n'
+        value = get_colored_amount(years[year]['value'], column_width=16)
+        report += f'{year}  {contributions}  {value}\n'
 
     return report
 
