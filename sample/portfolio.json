@@ -11,29 +11,20 @@
         "symbol": "abcdx",
         "price": 80.23,
         "shares": 12200.78,
-        "contributions": {
-          "total": 1500.79,
-          "modifier": 0.5
-        },
+        "contributions": 1500.79,
         "note": "optional..."
       },
       "2019": {
         "symbol": "abcdx",
         "price": 83.11,
         "shares": 1700,
-        "contributions": {
-          "total": 500,
-          "modifier": 0.5
-        }
+        "contributions": 500
       },
       "2017": {
         "symbol": "abcdx",
         "price": 81.57,
         "shares": 999,
-        "contributions": {
-          "total": 11500,
-          "modifier": 0.5
-        }
+        "contributions": 11500
       }
     }
   },
@@ -49,19 +40,13 @@
         "symbol": "lmnop",
         "price": 119.76,
         "shares": 3750,
-        "contributions": {
-          "total": 750,
-          "modifier": 0.4
-        }
+        "contributions": 750
       },
       "2015": {
         "symbol": "lmnop",
         "price": 20.31,
         "shares": 2000,
-        "contributions": {
-          "total": 750,
-          "modifier": 0.5
-        }
+        "contributions": 750
       }
     }
   },
@@ -86,19 +71,13 @@
         "symbol": "",
         "price": 10,
         "shares": 10,
-        "contributions": {
-          "total": 100,
-          "modifier": 1
-        }
+        "contributions": 100
       },
       "2016": {
         "symbol": "",
         "price": 10.10,
         "shares": 20,
-        "contributions": {
-          "total": 101,
-          "modifier": 1
-        }
+        "contributions": 101
       }
     }
   },
@@ -113,19 +92,13 @@
         "symbol": "",
         "price": 20,
         "shares": 10,
-        "contributions": {
-          "total": 200,
-          "modifier": 0.75
-        }
+        "contributions": 200
       },
       "2015": {
         "symbol": "",
         "price": 20.50,
         "shares": 20,
-        "contributions": {
-          "total": 205,
-          "modifier": 0.25
-        }
+        "contributions": 205
       }
     }
   }

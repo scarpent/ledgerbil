@@ -35,29 +35,20 @@ portfolio_json_data = '''\
             "symbol": "abcdx",
             "price": 80.23,
             "shares": 12200.78,
-            "contributions": {
-              "total": 1500.79,
-              "modifier": 0.5
-            },
+            "contributions": 1500.79,
             "note": "optional..."
           },
           "2019": {
             "symbol": "abcdx",
             "price": 83.11,
             "shares": 1700,
-            "contributions": {
-              "total": 500,
-              "modifier": 0.5
-            }
+            "contributions": 500
           },
           "2017": {
             "symbol": "abcdx",
             "price": 81.57,
             "shares": 999,
-            "contributions": {
-              "total": 11500,
-              "modifier": 0.5
-            }
+            "contributions": 11500
           }
         }
       },
@@ -73,19 +64,13 @@ portfolio_json_data = '''\
             "symbol": "lmnop",
             "price": 119.76,
             "shares": 3750,
-            "contributions": {
-              "total": 750,
-              "modifier": 0.4
-            }
+            "contributions": 750
           },
           "2015": {
             "symbol": "lmnop",
             "price": 20.31,
             "shares": 2000,
-            "contributions": {
-              "total": 750,
-              "modifier": 0.5
-            }
+            "contributions": 750
           }
         }
       },
@@ -171,9 +156,7 @@ def test_get_account_history_one_year():
         'account': 'assets: 401k: bonds idx',
         'labels': [],
         'years': {
-            '2016': {'price': 119.76,
-                     'shares': 3750.9,
-                     'contributions': {'total': 750, 'modifier': 0.4}}
+            '2016': {'price': 119.76, 'shares': 3750.9, 'contributions': 750}
         }
     }
     history = portfolio.get_account_history(account)
@@ -186,17 +169,13 @@ def test_add_up_yearly_numbers_single_account():
     accounts = [{
         'account': 'the account name',
         'years': {
-            '2014': {'price': 100,
-                     'shares': 10,
-                     'contributions': {'total': 100, 'modifier': 0.75}},
-            '2015': {'price': 110,
-                     'shares': 20,
-                     'contributions': {'total': 200, 'modifier': 0.25}},
+            '2014': {'price': 100, 'shares': 10, 'contributions': 100},
+            '2015': {'price': 110, 'shares': 20, 'contributions': 200},
         }
     }]
     expected = {
-        2014: {'contrib_start': 75.0, 'contrib_end': 25.0, 'value': 1000.0},
-        2015: {'contrib_start': 50.0, 'contrib_end': 150.0, 'value': 2200.0},
+        2014: {'contributions': 100, 'value': 1000.0},
+        2015: {'contributions': 200, 'value': 2200.0},
     }
     actual = portfolio.add_up_yearly_numbers(accounts, 2014, 2016)
     assert actual == expected
@@ -207,29 +186,21 @@ def test_add_up_yearly_numbers_two_accounts_same_years():
         {
             'account': 'the account name',
             'years': {
-                '2014': {'price': 100,
-                         'shares': 10,
-                         'contributions': {'total': 100, 'modifier': 0.75}},
-                '2015': {'price': 110,
-                         'shares': 20,
-                         'contributions': {'total': 200, 'modifier': 0.25}},
+                '2014': {'price': 100, 'shares': 10, 'contributions': 100},
+                '2015': {'price': 110, 'shares': 20, 'contributions': 200},
             }
         },
         {
             'account': 'another account name',
             'years': {
-                '2014': {'price': 300,
-                         'shares': 50,
-                         'contributions': {'total': 500, 'modifier': 0.50}},
-                '2015': {'price': 330,
-                         'shares': 100,
-                         'contributions': {'total': 1000, 'modifier': 0.50}},
+                '2014': {'price': 300, 'shares': 50, 'contributions': 500},
+                '2015': {'price': 330, 'shares': 100, 'contributions': 1000},
             }
         }
     ]
     expected = {
-        2014: {'contrib_start': 325.0, 'contrib_end': 275.0, 'value': 16000.0},
-        2015: {'contrib_start': 550.0, 'contrib_end': 650.0, 'value': 35200.0},
+        2014: {'contributions': 600.0, 'value': 16000.0},
+        2015: {'contributions': 1200.0, 'value': 35200.0},
     }
     actual = portfolio.add_up_yearly_numbers(accounts, 2014, 2016)
     assert actual == expected
@@ -239,18 +210,14 @@ def test_add_up_yearly_numbers_single_account_missing_years():
     accounts = [{
         'account': 'the account name',
         'years': {
-            '2013': {'price': 100,
-                     'shares': 10,
-                     'contributions': {'total': 100, 'modifier': 0.75}},
-            '2015': {'price': 110,
-                     'shares': 20,
-                     'contributions': {'total': 200, 'modifier': 0.25}},
+            '2013': {'price': 100, 'shares': 10, 'contributions': 100},
+            '2015': {'price': 110, 'shares': 20, 'contributions': 200},
         }
     }]
     expected = {
-        2013: {'contrib_start': 75.0, 'contrib_end': 25.0, 'value': 1000.0},
+        2013: {'contributions': 100.0, 'value': 1000.0},
         2014: {'value': 1000},
-        2015: {'contrib_start': 50.0, 'contrib_end': 150.0, 'value': 2200.0},
+        2015: {'contributions': 200.0, 'value': 2200.0},
         2016: {'value': 2200},
         2017: {'value': 2200},
     }
@@ -263,36 +230,26 @@ def test_add_up_yearly_numbers_multiple_accounts_missing_years():
         {
             'account': 'the account name',
             'years': {
-                '2013': {'price': 100,
-                         'shares': 10,
-                         'contributions': {'total': 100, 'modifier': 0.75}},
-                '2015': {'price': 110,
-                         'shares': 20,
-                         'contributions': {'total': 200, 'modifier': 0.25}},
+                '2013': {'price': 100, 'shares': 10, 'contributions': 100},
+                '2015': {'price': 110, 'shares': 20, 'contributions': 200},
             },
         },
         {
             'account': 'another account name',
             'years': {
-                '2014': {'price': 300,
-                         'shares': 50,
-                         'contributions': {'total': 500, 'modifier': 0.50}},
-                '2015': {'price': 330,
-                         'shares': 100,
-                         'contributions': {'total': 1000, 'modifier': 0.50}},
-                '2018': {'price': 250,
-                         'shares': 110,
-                         'contributions': {'total': 800, 'modifier': 0.75}},
+                '2014': {'price': 300, 'shares': 50, 'contributions': 500},
+                '2015': {'price': 330, 'shares': 100, 'contributions': 1000},
+                '2018': {'price': 250, 'shares': 110, 'contributions': 800},
             }
         }
     ]
     expected = {
-        2013: {'contrib_start': 75.0, 'contrib_end': 25.0, 'value': 1000.0},
-        2014: {'contrib_start': 250.0, 'contrib_end': 250.0, 'value': 16000},
-        2015: {'contrib_start': 550.0, 'contrib_end': 650.0, 'value': 35200.0},
+        2013: {'contributions': 100, 'value': 1000.0},
+        2014: {'contributions': 500, 'value': 16000},
+        2015: {'contributions': 1200, 'value': 35200.0},
         2016: {'value': 35200},
         2017: {'value': 35200},
-        2018: {'contrib_start': 600.0, 'contrib_end': 200.0, 'value': 29700},
+        2018: {'contributions': 800, 'value': 29700},
     }
     actual = portfolio.add_up_yearly_numbers(accounts, 2010, 2019)
     assert actual == expected

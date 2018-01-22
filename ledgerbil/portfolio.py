@@ -58,13 +58,9 @@ def add_up_yearly_numbers(accounts, year_start, year_end):
                 continue
 
             data = account['years'][str(year)]
-            contrib_total = data['contributions']['total']
-            modifier = data['contributions']['modifier']
-            contrib_start = contrib_total * modifier
             value = data['price'] * data['shares']
 
-            years[year]['contrib_start'] += contrib_start
-            years[year]['contrib_end'] += (contrib_total - contrib_start)
+            years[year]['contributions'] += data['contributions']
             years[year]['value'] += value
 
             previous_value = value
@@ -76,7 +72,7 @@ def temp_perf_report(years):
     report = f"year  {'contrib':>12}  {'value':>16}\n"
     for year in sorted(years):
         contributions = get_colored_amount(
-            years[year]['contrib_start'] + years[year]['contrib_end'],
+            years[year]['contributions'],
             column_width=12
         )
         value = get_colored_amount(years[year]['value'], column_width=16)
@@ -109,7 +105,7 @@ def get_account_history(account):
     for year in range(year_start, year_end):
         year = str(year)
         if year in years.keys():
-            contributions = years[year]['contributions']['total']
+            contributions = years[year]['contributions']
             contributions_f = Colorable(
                 'yellow',
                 f'$ {contributions:,.0f}',
