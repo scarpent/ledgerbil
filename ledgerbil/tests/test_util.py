@@ -174,3 +174,12 @@ class OutputTests(Redirector):
 ])
 def test_get_start_and_end_range_handled(test_input, expected):
     assert util.get_start_and_end_range(test_input) == expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    ([1, 7, 2], 14),
+    ({9, 7, 3}, 189),
+    ([], 1),
+])
+def test_product(test_input, expected):
+    assert util.product(test_input) == expected

@@ -3,6 +3,7 @@ import operator as op
 import re
 import shlex
 from datetime import datetime
+from functools import reduce
 
 from .colorable import Colorable
 
@@ -58,6 +59,10 @@ def is_integer(value):
 def get_start_and_end_range(numbers):
     int_nums = [int(num) for num in numbers]
     return min(int_nums), max(int_nums) + 1
+
+
+def product(numbers):
+    return reduce(op.mul, numbers, 1)
 
 
 def parse_args(args):
