@@ -165,7 +165,7 @@ def test_get_account_history_one_year():
     helper.assert_out_equals_expected()
 
 
-def test_add_up_yearly_numbers_single_account():
+def test_get_yearly_combined_accounts_single_account():
     accounts = [{
         'account': 'the account name',
         'years': {
@@ -177,11 +177,11 @@ def test_add_up_yearly_numbers_single_account():
         2014: {'contributions': 100, 'value': 1000.0},
         2015: {'contributions': 200, 'value': 2200.0},
     }
-    actual = portfolio.add_up_yearly_numbers(accounts, 2014, 2016)
+    actual = portfolio.get_yearly_combined_accounts(accounts, 2014, 2016)
     assert actual == expected
 
 
-def test_add_up_yearly_numbers_two_accounts_same_years():
+def test_get_yearly_combined_accounts_two_accounts_same_years():
     accounts = [
         {
             'account': 'the account name',
@@ -202,11 +202,11 @@ def test_add_up_yearly_numbers_two_accounts_same_years():
         2014: {'contributions': 600.0, 'value': 16000.0},
         2015: {'contributions': 1200.0, 'value': 35200.0},
     }
-    actual = portfolio.add_up_yearly_numbers(accounts, 2014, 2016)
+    actual = portfolio.get_yearly_combined_accounts(accounts, 2014, 2016)
     assert actual == expected
 
 
-def test_add_up_yearly_numbers_single_account_missing_years():
+def test_get_yearly_combined_accounts_single_account_missing_years():
     accounts = [{
         'account': 'the account name',
         'years': {
@@ -221,11 +221,11 @@ def test_add_up_yearly_numbers_single_account_missing_years():
         2016: {'value': 2200},
         2017: {'value': 2200},
     }
-    actual = portfolio.add_up_yearly_numbers(accounts, 2010, 2018)
+    actual = portfolio.get_yearly_combined_accounts(accounts, 2010, 2018)
     assert actual == expected
 
 
-def test_add_up_yearly_numbers_multiple_accounts_missing_years():
+def test_get_yearly_combined_accounts_multiple_accounts_missing_years():
     accounts = [
         {
             'account': 'the account name',
@@ -251,7 +251,7 @@ def test_add_up_yearly_numbers_multiple_accounts_missing_years():
         2017: {'value': 35200},
         2018: {'contributions': 800, 'value': 29700},
     }
-    actual = portfolio.add_up_yearly_numbers(accounts, 2010, 2019)
+    actual = portfolio.get_yearly_combined_accounts(accounts, 2010, 2019)
     assert actual == expected
 
 

@@ -1,7 +1,7 @@
 import argparse
 import json
 import re
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 
 from .colorable import Colorable
 from .settings import Settings
@@ -9,30 +9,18 @@ from .util import get_colored_amount, get_start_and_end_range
 
 settings = Settings()
 
+Year = namedtuple('Year', 'year contributions value gain gain_value')
+
 
 def get_portfolio_report(args):
-    data = get_portfolio_data()
-    report = ''
-    included_years = set()
-    matched = []
-    for account in data:
-        account_name = account['account']
-        if not re.search(args.accounts_regex, account_name):
-            continue
+    matched, included_years = get_matching_accounts(args.accounts_regex)
 
-        if args.history:
-            report += f'{get_account_history(account)}\n'
-        else:
-            # todo: validation?
-            #       - year: format and sanity check on range
-            #       - warn if missing years in accounts?
-            included_years.update(set(account['years'].keys()))
-            matched.append(account)
+    if not matched:
+        return 'No accounts matched {}'.format(args.accounts_regex)
 
-    if not report and not matched:
-        report = 'No accounts matched {}'.format(args.accounts_regex)
-
-    if matched:
+    if args.history:
+        report = get_history_report(matched)
+    else:
         report = get_performance_report(matched, included_years)
         matched_names = [account['account'] for account in matched]
         report += '\n'.join(matched_names)
@@ -40,30 +28,70 @@ def get_portfolio_report(args):
     return report
 
 
+def get_matching_accounts(accounts_regex):
+    portfolio_data = get_portfolio_data()
+    included_years = set()
+    matched = []
+    for account in portfolio_data:
+        account_name = account['account']
+        if not re.search(accounts_regex, account_name):
+            continue
+
+        # todo: validation?
+        #       - year: format and sanity check on range
+        #       - warn if missing years in accounts?
+        included_years.update(set(account['years'].keys()))
+        matched.append(account)
+
+    return matched, included_years
+
+
 def get_performance_report(accounts, included_years):
     year_start, year_end = get_start_and_end_range(included_years)
-    years = add_up_yearly_numbers(accounts, year_start, year_end)
+    years = get_yearly_combined_accounts(accounts, year_start, year_end)
     return temp_perf_report(years)
 
 
-def add_up_yearly_numbers(accounts, year_start, year_end):
-    years = defaultdict(lambda: defaultdict(float))
+def get_yearly_combined_accounts(accounts, year_start, year_end):
+    # Combine all the accounts into total contributions and value per year
+    totals = defaultdict(lambda: defaultdict(float))
     for account in accounts:
         previous_value = 0
         for year in range(year_start, year_end):
             if str(year) not in account['years'].keys():
                 if previous_value:
                     # todo: integration with ledger to get current info
-                    years[year]['value'] += previous_value
+                    totals[year]['value'] += previous_value
                 continue
 
             data = account['years'][str(year)]
             value = data['price'] * data['shares']
 
-            years[year]['contributions'] += data['contributions']
-            years[year]['value'] += value
+            totals[year]['contributions'] += data['contributions']
+            totals[year]['value'] += value
 
             previous_value = value
+
+    return totals
+
+
+def get_yearly_with_gains(totals):
+    # Calculate performance info per year
+    years = []
+    previous_year = None
+    for year in sorted(totals):
+        if previous_year:
+            pass
+        else:
+            pass
+
+        years.append(Year(
+            year,
+            totals['contributions'],
+            totals['value'],
+            0,
+            0
+        ))
 
     return years
 
@@ -79,6 +107,12 @@ def temp_perf_report(years):
         report += f'{year}  {contributions}  {value}\n'
 
     return report
+
+
+def get_history_report(matching_accounts):
+    report = ''
+    for account in matching_accounts:
+        report += f'{get_account_history(account)}\n'
 
 
 def get_account_history(account):
