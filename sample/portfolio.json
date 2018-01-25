@@ -59,47 +59,5 @@
     "account": "assets: 401k: long account name that goes on...",
     "labels": ["401k", "flurb", "intl", "active", "smactive"],
     "years": {}
-  },
-  {
-    "account": "assets: math a",
-    "labels": [
-      "math",
-      "active"
-    ],
-    "years": {
-      "2015": {
-        "symbol": "",
-        "price": 10,
-        "shares": 10,
-        "contributions": 100
-      },
-      "2016": {
-        "symbol": "",
-        "price": 10.10,
-        "shares": 20,
-        "contributions": 101
-      }
-    }
-  },
-  {
-    "account": "assets: math b",
-    "labels": [
-      "math",
-      "active"
-    ],
-    "years": {
-      "2014": {
-        "symbol": "",
-        "price": 20,
-        "shares": 10,
-        "contributions": 200
-      },
-      "2015": {
-        "symbol": "",
-        "price": 20.50,
-        "shares": 20,
-        "contributions": 205
-      }
-    }
   }
 ]

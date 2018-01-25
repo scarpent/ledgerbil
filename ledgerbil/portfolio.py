@@ -49,8 +49,19 @@ def get_matching_accounts(accounts_regex):
 def get_performance_report(accounts, included_years):
     year_start, year_end = get_start_and_end_range(included_years)
     totals = get_yearly_combined_accounts(accounts, year_start, year_end)
-    # years = get_yearly_with_gains(totals)
-    return temp_perf_report(totals)
+    years = get_yearly_with_gains(totals)
+    return temp_perf_report(years)
+
+
+def temp_perf_report(years):
+    report = (f"year  {'contrib':>12}  {'value':>12}  "
+              f"{'gain':>7}  {'gain val':>12}\n")
+    for year in years:
+        report += (f'{year.year}  {year.contributions:12,.0f}  '
+                   f'{year.value:12,.0f}  {year.gain:7.2f}  '
+                   f'{year.gain_value:12,.0f}\n')
+
+    return report
 
 
 def get_yearly_combined_accounts(accounts, year_start, year_end):
@@ -96,19 +107,6 @@ def get_yearly_with_gains(totals):
         previous_year = this_year
 
     return years
-
-
-def temp_perf_report(years):
-    report = f"year  {'contrib':>12}  {'value':>16}\n"
-    for year in sorted(years):
-        contributions = get_colored_amount(
-            years[year]['contributions'],
-            column_width=12
-        )
-        value = get_colored_amount(years[year]['value'], column_width=16)
-        report += f'{year}  {contributions}  {value}\n'
-
-    return report
 
 
 def get_history_report(matching_accounts):
