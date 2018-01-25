@@ -48,8 +48,9 @@ def get_matching_accounts(accounts_regex):
 
 def get_performance_report(accounts, included_years):
     year_start, year_end = get_start_and_end_range(included_years)
-    years = get_yearly_combined_accounts(accounts, year_start, year_end)
-    return temp_perf_report(years)
+    totals = get_yearly_combined_accounts(accounts, year_start, year_end)
+    # years = get_yearly_with_gains(totals)
+    return temp_perf_report(totals)
 
 
 def get_yearly_combined_accounts(accounts, year_start, year_end):
@@ -61,6 +62,7 @@ def get_yearly_combined_accounts(accounts, year_start, year_end):
             if str(year) not in account['years'].keys():
                 if previous_value:
                     # todo: integration with ledger to get current info
+                    totals[year]['contributions'] += 0
                     totals[year]['value'] += previous_value
                 continue
 
@@ -76,22 +78,22 @@ def get_yearly_combined_accounts(accounts, year_start, year_end):
 
 
 def get_yearly_with_gains(totals):
-    # Calculate performance info per year
     years = []
     previous_year = None
     for year in sorted(totals):
+        value = totals[year]['value']
+        contrib = totals[year]['contributions']
         if previous_year:
-            pass
+            gain = (value - contrib / 2) / (previous_year.value + contrib / 2)
+            gain_value = value - contrib - previous_year.value
         else:
-            pass
+            gain = 1
+            gain_value = 0
 
-        years.append(Year(
-            year,
-            totals['contributions'],
-            totals['value'],
-            0,
-            0
-        ))
+        this_year = Year(year, contrib, value, gain, gain_value)
+        years.append(this_year)
+
+        previous_year = this_year
 
     return years
 
