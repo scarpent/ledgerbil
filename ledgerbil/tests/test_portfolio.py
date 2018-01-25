@@ -90,7 +90,7 @@ portfolio_data = json.loads(portfolio_json_data)
 
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
-def test_get_portfolio_report(mock_get_data):
+def test_get_portfolio_report_no_matches(mock_get_data):
     mock_get_data.return_value = portfolio_data
     args = portfolio.get_args(['--accounts', 'qwertyable'])
     expected = 'No accounts matched qwertyable'
@@ -98,25 +98,31 @@ def test_get_portfolio_report(mock_get_data):
 
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
-@mock.patch(__name__ + '.portfolio.get_account_history')
-def test_account_matching_all(mock_get_history, mock_get_data):
+def test_get_portfolio_report_history(mock_get_data):
     mock_get_data.return_value = portfolio_data
-    args = portfolio.get_args(['--history'])
-    portfolio.get_portfolio_report(args)
-    assert mock_get_history.call_count == len(portfolio_data)
-    for data in portfolio_data:
-        mock_get_history.assert_any_call(data)
+    args = portfolio.get_args(['--accounts', 'idx', '--history'])
+    report = portfolio.get_portfolio_report(args)
+    helper = OutputFileTester('test_portfolio_report_history')
+    helper.save_out_file(report)
+    helper.assert_out_equals_expected()
 
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
-@mock.patch(__name__ + '.portfolio.get_account_history')
-def test_account_matching_regex(mock_get_history, mock_get_data):
+def test_account_matching_all(mock_get_data):
     mock_get_data.return_value = portfolio_data
-    args = portfolio.get_args(['--history', '--accounts', 'idx$'])
-    portfolio.get_portfolio_report(args)
-    assert mock_get_history.call_count == 2
-    for data in portfolio_data[:BONDS]:
-        mock_get_history.assert_any_call(data)
+    matched, included_years = portfolio.get_matching_accounts('.*')
+    expected_included_years = {'2015', '2016', '2017', '2019'}
+    assert matched == portfolio_data
+    assert included_years == expected_included_years
+
+
+@mock.patch(__name__ + '.portfolio.get_portfolio_data')
+def test_account_matching_regex(mock_get_data):
+    mock_get_data.return_value = portfolio_data
+    matched, included_years = portfolio.get_matching_accounts('idx$')
+    expected_included_years = {'2015', '2016', '2017', '2019'}
+    assert matched == portfolio_data[:BONDS + 1]
+    assert included_years == expected_included_years
 
 
 def test_get_portfolio_data():

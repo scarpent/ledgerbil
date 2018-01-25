@@ -116,6 +116,8 @@ def get_history_report(matching_accounts):
     for account in matching_accounts:
         report += f'{get_account_history(account)}\n'
 
+    return report
+
 
 def get_account_history(account):
     labels = f"labels: {', '.join(account['labels'])}"
