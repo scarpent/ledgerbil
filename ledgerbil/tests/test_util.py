@@ -141,6 +141,16 @@ class UtilTests(TestCase):
         )
 
 
+@pytest.mark.parametrize('test_input, expected', [
+    ([1.789], '$ 1.79'),
+    ([1.789, 10, 3], '   $ 1.789'),
+    ([-2.22, 10, 2], '   $ -2.22'),
+    ([5.77, 5, 0], '  $ 6'),
+])
+def test_plain_dollar_amount(test_input, expected):
+    assert util.get_plain_dollar_amount(*test_input) == expected
+
+
 class OutputTests(Redirector):
 
     def test_parse_args_open_quote(self):
