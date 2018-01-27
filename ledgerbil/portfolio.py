@@ -68,8 +68,8 @@ def temp_perf_report(years):
         )
         value = util.get_plain_amount(year.value, 12, 0)
         if year.gain == 1:
-            gain = f'{"":>7}'
-            gain_value = f'{"":>12}'
+            gain = ' ' * 7
+            gain_value = ' ' * 12
         else:
             gain_value = util.get_colored_amount(year.gain_value, 12, 0)
             gain = util.get_colored_amount((year.gain - 1) * 100, 7, prefix='')
@@ -141,8 +141,9 @@ def get_account_history(account):
 
     years = account['years']
     if len(years):
+        percent = '%' if len(years) > 1 else ''
         header = (f"\n    year  {'contrib':>10}  {'shares':>9}  "
-                  f"{'price':>10}  {'value':>12}  {'+/-':>13}\n")
+                  f"{'price':>10}  {'value':>12}  {percent:>8}\n")
         history += f"{Colorable('cyan', header)}"
     else:
         return history
@@ -152,7 +153,6 @@ def get_account_history(account):
     previous_shares = None
     previous_price = None
     previous_value = None
-    diff_f = ''
     for year in range(year_start, year_end):
         year = str(year)
         if year in years.keys():
@@ -175,13 +175,17 @@ def get_account_history(account):
         price_f = Colorable('yellow', f'$ {price:,.2f}', '>10')
 
         value = shares * price
-        value_f = util.get_colored_amount(value, 12, 0)
+        value_f = util.get_plain_amount(value, colwidth=12, decimals=0)
 
+        gain_f = ' ' * 8
         if previous_value:
-            diff_f = util.get_colored_amount(value - previous_value, 13, 0)
+            gain = ((value - contributions / 2)
+                    / (previous_value + contributions / 2) - 1) * 100
+            if gain != 0:
+                gain_f = util.get_colored_amount(gain, colwidth=8, prefix='')
 
         history += (f'    {year}  {contributions_f}  {shares_f}  '
-                    f'{price_f}  {value_f:>12}  {diff_f}\n')
+                    f'{price_f}  {value_f}  {gain_f}\n')
 
         previous_shares = shares
         previous_price = price
@@ -212,6 +216,7 @@ def get_args(args=[]):
     parser.add_argument(
         '-a', '--accounts',
         type=str,
+        metavar='REGEX',
         dest='accounts_regex',
         default='.*',
         help='include accounts that match this regex, default = .* (all)'
