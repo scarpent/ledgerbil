@@ -3,9 +3,9 @@ import json
 import re
 from collections import defaultdict, namedtuple
 
+from . import util
 from .colorable import Colorable
 from .settings import Settings
-from .util import get_colored_amount, get_start_and_end_range
 
 settings = Settings()
 
@@ -22,8 +22,6 @@ def get_portfolio_report(args):
         report = get_history_report(matched)
     else:
         report = get_performance_report(matched, included_years)
-        matched_names = [account['account'] for account in matched]
-        report += '\n'.join(matched_names)
 
     return report
 
@@ -47,19 +45,40 @@ def get_matching_accounts(accounts_regex):
 
 
 def get_performance_report(accounts, included_years):
-    year_start, year_end = get_start_and_end_range(included_years)
+    year_start, year_end = util.get_start_and_end_range(included_years)
     totals = get_yearly_combined_accounts(accounts, year_start, year_end)
     years = get_yearly_with_gains(totals)
-    return temp_perf_report(years)
+    info = f"{len(accounts)} account{'' if len(accounts) == 1 else 's'}: "
+    info += ', '.join([account['account'] for account in accounts[:2]])
+    if len(accounts) > 2:
+        info += ', ...'
+    return '{info}\n\n{report}'.format(
+        info=re.sub('(?i)assets: ?', '', info),
+        report=temp_perf_report(years)
+    )
 
 
 def temp_perf_report(years):
     report = (f"year  {'contrib':>12}  {'value':>12}  "
-              f"{'gain':>7}  {'gain val':>12}\n")
+              f"{'gain %':>7}  {'gain val':>12}\n")
     for year in years:
-        report += (f'{year.year}  {year.contributions:12,.0f}  '
-                   f'{year.value:12,.0f}  {year.gain:7.2f}  '
-                   f'{year.gain_value:12,.0f}\n')
+        contrib = util.get_plain_dollar_amount(
+            year.contributions, 12,
+            decimals=0
+        )
+        value = util.get_plain_dollar_amount(year.value, 12, decimals=0)
+        gain = '' if year.gain == 1 else f'{(year.gain - 1) * 100:.2f}'
+        if year.gain == 1:
+            gain_value = f'{"":>12}'
+        else:
+            gain_value = util.get_colored_amount(
+                year.gain_value,
+                12,
+                decimals=0
+            )
+
+        report += (f'{year.year}  {contrib}  {value}  {gain:>7}  '
+                   f'{gain_value}\n')
 
     return report
 
@@ -132,7 +151,7 @@ def get_account_history(account):
     else:
         return history
 
-    year_start, year_end = get_start_and_end_range(years.keys())
+    year_start, year_end = util.get_start_and_end_range(years.keys())
     contributions_total = 0
     previous_shares = None
     previous_price = None
@@ -157,20 +176,20 @@ def get_account_history(account):
             price = previous_price
 
         shares_f = Colorable('blue', shares, '9,.0f')
-        price_f = f'$ {price:,.2f}'
+        price_f = Colorable('yellow', f'$ {price:,.2f}', '>10')
 
         value = shares * price
-        value_f = get_colored_amount(value, column_width=12, decimals=0)
+        value_f = util.get_colored_amount(value, column_width=12, decimals=0)
 
         if previous_value:
-            diff_f = get_colored_amount(
+            diff_f = util.get_colored_amount(
                 value - previous_value,
                 column_width=13,
                 decimals=0
             )
 
         history += (f'    {year}  {contributions_f}  {shares_f}  '
-                    f'{price_f:>10}  {value_f:>12}  {diff_f}\n')
+                    f'{price_f}  {value_f:>12}  {diff_f}\n')
 
         previous_shares = shares
         previous_price = price
@@ -179,7 +198,7 @@ def get_account_history(account):
 
     if contributions_total and len(years) > 1:
         history += '          {}\n'.format(
-            get_colored_amount(contributions_total, 10, decimals=0)
+            util.get_colored_amount(contributions_total, 10, decimals=0)
         )
 
     return history

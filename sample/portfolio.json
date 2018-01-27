@@ -10,21 +10,27 @@
       "2016": {
         "symbol": "abcdx",
         "price": 80.23,
-        "shares": 12200.78,
-        "contributions": 1500.79,
+        "shares": 5000.78,
+        "contributions": 6000.79,
         "note": "optional..."
       },
       "2019": {
         "symbol": "abcdx",
         "price": 83.11,
-        "shares": 1700,
-        "contributions": 500
+        "shares": 12500,
+        "contributions": 1200.1
       },
       "2017": {
         "symbol": "abcdx",
         "price": 81.57,
-        "shares": 999,
-        "contributions": 11500
+        "shares": 8000.2,
+        "contributions": 3000
+      },
+      "2020": {
+        "symbol": "abcdx",
+        "price": 78.13,
+        "shares": 12700,
+        "contributions": 100.9
       }
     }
   },
