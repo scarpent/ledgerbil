@@ -83,22 +83,19 @@ def get_amount_str(amount, decimals=2):
     # avoid inconsistent zero signage from floating point machinations
     # (especially important for establishing if we're at zero for a
     # balanced statement)
-    zero_amount = '{:.{}f}'.format(0, decimals)
+    zero_amount = f'{0:.{decimals}f}'
     return re.sub(r'^-0(\.0+)?$', zero_amount, f'{amount:,.{decimals}f}')
 
 
 def get_plain_dollar_amount(amount, column_width=1, decimals=2):
-    amount_formatted = '$ {}'.format(get_amount_str(amount, decimals))
+    amount_formatted = f'$ {get_amount_str(amount, decimals)}'
     return f'{amount_formatted:>{column_width}}'
 
 
 def get_colored_amount(amount, column_width=1, is_shares=False, decimals=2):
     decimals = get_decimals(is_shares, decimals)
     dollar_sign = '' if is_shares else '$ '
-    amount_formatted = '{}{}'.format(
-        dollar_sign,
-        get_amount_str(amount, decimals)
-    )
+    amount_formatted = f'{dollar_sign}{get_amount_str(amount, decimals)}'
     # avoid inconsistent 0 coloring from round/float intrigue
     if amount_formatted == f'{dollar_sign}{0:.{decimals}f}':
         amount = 0
