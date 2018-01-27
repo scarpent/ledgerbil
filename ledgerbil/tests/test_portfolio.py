@@ -279,6 +279,20 @@ def test_get_yearly_with_gains():
     assert actual == expected
 
 
+def test_get_yearly_with_gains_first_year_gain():
+    """ get_yearly_with_gains should provide a gain value in first year"""
+    totals = {
+        2013: {'contributions': 1000, 'value': 2000.0},
+        2014: {'contributions': 1000, 'value': 5000.0},
+    }
+    expected = [
+        portfolio.Year(2013, 1000, 2000.0, 3.0, 1000.0),
+        portfolio.Year(2014, 1000, 5000.0, 1.8, 2000.0),
+    ]
+    actual = portfolio.get_yearly_with_gains(totals)
+    assert actual == expected
+
+
 @mock.patch(__name__ + '.portfolio.get_portfolio_report', return_value='hi!')
 @mock.patch(__name__ + '.portfolio.print')
 def test_main(mock_print, mock_report):

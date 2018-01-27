@@ -61,6 +61,8 @@ def get_performance_report(accounts, included_years):
 def temp_perf_report(years):
     report = (f"year  {'contrib':>12}  {'value':>12}  "
               f"{'gain %':>7}  {'gain val':>12}\n")
+    contrib_total = 0
+    gain_val_total = 0
     for year in years:
         contrib = util.get_plain_amount(
             year.contributions, 12,
@@ -71,10 +73,18 @@ def temp_perf_report(years):
             gain = ' ' * 7
             gain_value = ' ' * 12
         else:
-            gain_value = util.get_colored_amount(year.gain_value, 12, 0)
             gain = util.get_colored_amount((year.gain - 1) * 100, 7, prefix='')
+            gain_value = util.get_colored_amount(year.gain_value, 12, 0)
 
-        report += (f'{year.year}  {contrib}  {value}  {gain}  {gain_value}\n')
+        report += f'{year.year}  {contrib}  {value}  {gain}  {gain_value}\n'
+
+        contrib_total += year.contributions
+        gain_val_total += year.gain_value
+
+    if len(years) > 1:
+        contrib_total_f = util.get_colored_amount(contrib_total, 12, 0)
+        gain_val_total_f = util.get_colored_amount(gain_val_total, 12, 0)
+        report += f'      {contrib_total_f}  {"":21}  {gain_val_total_f}'
 
     return report
 
@@ -109,12 +119,10 @@ def get_yearly_with_gains(totals):
     for year in sorted(totals):
         value = totals[year]['value']
         contrib = totals[year]['contributions']
-        if previous_year:
-            gain = (value - contrib / 2) / (previous_year.value + contrib / 2)
-            gain_value = value - contrib - previous_year.value
-        else:
-            gain = 1
-            gain_value = 0
+
+        previous_value = previous_year.value if previous_year else 0
+        gain = (value - contrib / 2) / (previous_value + contrib / 2)
+        gain_value = value - contrib - (previous_value or 0)
 
         this_year = Year(year, contrib, value, gain, gain_value)
         years.append(this_year)
@@ -136,7 +144,7 @@ def get_account_history(account):
     labels = f"labels: {', '.join(account['labels'])}"
     history = '{account}\n{label}'.format(
         account=Colorable('purple', account['account']),
-        label=Colorable('white', labels, '>72') if account['labels'] else ''
+        label=Colorable('white', labels, '>67') if account['labels'] else ''
     )
 
     years = account['years']
@@ -149,10 +157,10 @@ def get_account_history(account):
         return history
 
     year_start, year_end = util.get_start_and_end_range(years.keys())
-    contributions_total = 0
+    contrib_total = 0
     previous_shares = None
     previous_price = None
-    previous_value = None
+    previous_value = 0
     for year in range(year_start, year_end):
         year = str(year)
         if year in years.keys():
@@ -178,11 +186,10 @@ def get_account_history(account):
         value_f = util.get_plain_amount(value, colwidth=12, decimals=0)
 
         gain_f = ' ' * 8
-        if previous_value:
-            gain = ((value - contributions / 2)
-                    / (previous_value + contributions / 2) - 1) * 100
-            if gain != 0:
-                gain_f = util.get_colored_amount(gain, colwidth=8, prefix='')
+        gain = ((value - contributions / 2)
+                / (previous_value + contributions / 2) - 1) * 100
+        if gain != 0:
+            gain_f = util.get_colored_amount(gain, colwidth=8, prefix='')
 
         history += (f'    {year}  {contributions_f}  {shares_f}  '
                     f'{price_f}  {value_f}  {gain_f}\n')
@@ -190,11 +197,11 @@ def get_account_history(account):
         previous_shares = shares
         previous_price = price
         previous_value = value
-        contributions_total += contributions
+        contrib_total += contributions
 
-    if contributions_total and len(years) > 1:
+    if contrib_total and len(years) > 1:
         history += '          {}\n'.format(
-            util.get_colored_amount(contributions_total, 10, 0)
+            util.get_colored_amount(contrib_total, 10, 0)
         )
 
     return history

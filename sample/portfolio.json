@@ -8,29 +8,25 @@
     ],
     "years": {
       "2016": {
-        "symbol": "abcdx",
-        "price": 80.23,
+        "price": 30.23,
         "shares": 5000.78,
-        "contributions": 6000.79,
+        "contributions": 73000.79,
         "note": "optional..."
       },
       "2019": {
-        "symbol": "abcdx",
-        "price": 83.11,
-        "shares": 12500,
-        "contributions": 1200.1
+        "price": 39.11,
+        "shares": 8321,
+        "contributions": 7800
       },
       "2017": {
-        "symbol": "abcdx",
-        "price": 81.57,
-        "shares": 8000.2,
-        "contributions": 3000
+        "price": 34.19,
+        "shares": 6000.2,
+        "contributions": 7891.2
       },
       "2020": {
-        "symbol": "abcdx",
-        "price": 78.13,
-        "shares": 12700,
-        "contributions": 100.9
+        "price": 29.99,
+        "shares": 8500,
+        "contributions": 2000.1
       }
     }
   },
@@ -43,13 +39,11 @@
     ],
     "years": {
       "2016": {
-        "symbol": "lmnop",
         "price": 119.76,
         "shares": 3750,
         "contributions": 10000
       },
       "2015": {
-        "symbol": "lmnop",
         "price": 110.31,
         "shares": 3000,
         "contributions": 10000
