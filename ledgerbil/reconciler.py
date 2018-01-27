@@ -301,7 +301,7 @@ class Reconciler(cmd.Cmd, object):
                     payee=util.Colorable('cyan', thing.payee, 40),
                     amount=util.get_colored_amount(
                         thing.rec_amount,
-                        column_width=16 if thing.rec_is_shares else 11,
+                        colwidth=16 if thing.rec_is_shares else 11,
                         is_shares=thing.rec_is_shares
                     ),
                     status=thing.rec_status or ''

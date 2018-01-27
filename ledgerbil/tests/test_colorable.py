@@ -39,21 +39,21 @@ def test_color_bright():
         assert str(c) == f'\x1b[0;{value + 60}mblarg\x1b[0m'
 
 
-def test_color_column_width_ten_as_string():
+def test_color_colwidth_ten_as_string():
     """Colorable column width should pad appropriately"""
     for key, value in Colorable.COLORS.items():
         c = Colorable(key, 'blarg', fmt='10')
         assert str(c) == f'\x1b[0;{value}mblarg     \x1b[0m'
 
 
-def test_color_column_width_ten_as_number():
+def test_color_colwidth_ten_as_number():
     """Colorable column width should pad appropriately"""
     for key, value in Colorable.COLORS.items():
         c = Colorable(key, 'blarg', fmt=10)
         assert str(c) == f'\x1b[0;{value}mblarg     \x1b[0m'
 
 
-def test_color_column_width_ten_right_adjusted():
+def test_color_colwidth_ten_right_adjusted():
     """Colorable column width right adjusted should pad appropriately"""
     for key, value in Colorable.COLORS.items():
         c = Colorable(key, 'blarg', fmt='>10')

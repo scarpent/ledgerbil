@@ -179,12 +179,12 @@ def get_account_history(account):
         price_f = Colorable('yellow', f'$ {price:,.2f}', '>10')
 
         value = shares * price
-        value_f = util.get_colored_amount(value, column_width=12, decimals=0)
+        value_f = util.get_colored_amount(value, colwidth=12, decimals=0)
 
         if previous_value:
             diff_f = util.get_colored_amount(
                 value - previous_value,
-                column_width=13,
+                colwidth=13,
                 decimals=0
             )
 

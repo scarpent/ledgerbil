@@ -87,12 +87,12 @@ def get_amount_str(amount, decimals=2):
     return re.sub(r'^-0(\.0+)?$', zero_amount, f'{amount:,.{decimals}f}')
 
 
-def get_plain_dollar_amount(amount, column_width=1, decimals=2):
+def get_plain_dollar_amount(amount, colwidth=1, decimals=2):
     amount_formatted = f'$ {get_amount_str(amount, decimals)}'
-    return f'{amount_formatted:>{column_width}}'
+    return f'{amount_formatted:>{colwidth}}'
 
 
-def get_colored_amount(amount, column_width=1, is_shares=False, decimals=2):
+def get_colored_amount(amount, colwidth=1, is_shares=False, decimals=2):
     decimals = get_decimals(is_shares, decimals)
     dollar_sign = '' if is_shares else '$ '
     amount_formatted = f'{dollar_sign}{get_amount_str(amount, decimals)}'
@@ -102,4 +102,4 @@ def get_colored_amount(amount, column_width=1, is_shares=False, decimals=2):
 
     color = 'red' if amount < 0 else 'green'
 
-    return str(Colorable(color, amount_formatted, f'>{column_width}'))
+    return str(Colorable(color, amount_formatted, f'>{colwidth}'))
