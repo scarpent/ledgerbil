@@ -75,10 +75,6 @@ def parse_args(args):
         return None
 
 
-def get_decimals(is_shares, decimals=2):
-    return 6 if is_shares else decimals
-
-
 def get_amount_str(amount, decimals=2):
     # avoid inconsistent zero signage from floating point machinations
     # (especially important for establishing if we're at zero for a
@@ -87,17 +83,15 @@ def get_amount_str(amount, decimals=2):
     return re.sub(r'^-0(\.0+)?$', zero_amount, f'{amount:,.{decimals}f}')
 
 
-def get_plain_dollar_amount(amount, colwidth=1, decimals=2):
-    amount_formatted = f'$ {get_amount_str(amount, decimals)}'
+def get_plain_amount(amount, colwidth=1, decimals=2, prefix='$ '):
+    amount_formatted = f'{prefix}{get_amount_str(amount, decimals)}'
     return f'{amount_formatted:>{colwidth}}'
 
 
-def get_colored_amount(amount, colwidth=1, is_shares=False, decimals=2):
-    decimals = get_decimals(is_shares, decimals)
-    dollar_sign = '' if is_shares else '$ '
-    amount_formatted = f'{dollar_sign}{get_amount_str(amount, decimals)}'
+def get_colored_amount(amount, colwidth=1, decimals=2, prefix='$ '):
+    amount_formatted = f'{prefix}{get_amount_str(amount, decimals)}'
     # avoid inconsistent 0 coloring from round/float intrigue
-    if amount_formatted == f'{dollar_sign}{0:.{decimals}f}':
+    if amount_formatted == f'{prefix}{0:.{decimals}f}':
         amount = 0
 
     color = 'red' if amount < 0 else 'green'

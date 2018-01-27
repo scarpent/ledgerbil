@@ -299,10 +299,9 @@ class Reconciler(cmd.Cmd, object):
                     date=thing.get_date_string(),
                     code=thing.transaction_code,
                     payee=util.Colorable('cyan', thing.payee, 40),
-                    amount=util.get_colored_amount(
+                    amount=self.get_colored_amount(
                         thing.rec_amount,
-                        colwidth=16 if thing.rec_is_shares else 11,
-                        is_shares=thing.rec_is_shares
+                        colwidth=16 if self.is_shares else 11
                     ),
                     status=thing.rec_status or ''
                 )
@@ -316,9 +315,8 @@ class Reconciler(cmd.Cmd, object):
                         'white',
                         util.get_date_string(self.previous_date)
                     ),
-                    previous_balance=util.get_colored_amount(
-                        self.previous_balance,
-                        is_shares=self.is_shares
+                    previous_balance=self.get_colored_amount(
+                        self.previous_balance
                     )
                 )
             )
@@ -326,19 +324,13 @@ class Reconciler(cmd.Cmd, object):
         if self.ending_balance is None:
             end_balance = Colorable('cyan', '(not set)')
         else:
-            end_balance = util.get_colored_amount(
-                self.ending_balance,
-                is_shares=self.is_shares
-            )
+            end_balance = self.get_colored_amount(self.ending_balance)
 
         print(
             '{newline}ending date: {end_date} ending balance: {end_balance} '
             'cleared: {cleared}'.format(
                 newline='' if self.previous_balance else '\n',
-                cleared=util.get_colored_amount(
-                    self.total_cleared,
-                    is_shares=self.is_shares
-                ),
+                cleared=self.get_colored_amount(self.total_cleared),
                 end_balance=end_balance,
                 end_date=Colorable(
                     'cyan',
@@ -349,10 +341,7 @@ class Reconciler(cmd.Cmd, object):
 
         if self.ending_balance is not None:
             print('to zero: {}'.format(
-                util.get_colored_amount(
-                    self.get_zero_candidate(),
-                    is_shares=self.is_shares
-                )
+                self.get_colored_amount(self.get_zero_candidate())
             ))
 
         print()
@@ -404,7 +393,7 @@ class Reconciler(cmd.Cmd, object):
         else:
             old_ending_balance = util.get_amount_str(
                 self.ending_balance,
-                decimals=util.get_decimals(self.is_shares)
+                decimals=self.get_decimals()
             )
 
         while True:
@@ -429,7 +418,7 @@ class Reconciler(cmd.Cmd, object):
         if new_ending_balance is not None:
             new_ending_balance = util.get_amount_str(
                 self.ending_balance,
-                decimals=util.get_decimals(self.is_shares)
+                decimals=self.get_decimals()
             )
 
         # only list and save to cache if values have changed...
@@ -529,3 +518,11 @@ class Reconciler(cmd.Cmd, object):
                 the_file.write(json.dumps(cache, indent=4, sort_keys=True))
         except (IOError, ValueError) as e:
             print(f'Error writing reconciler cache: {e}', file=sys.stderr)
+
+    def get_decimals(self):
+        return 6 if self.is_shares else 2
+
+    def get_colored_amount(self, amount, colwidth=1):
+        prefix = '' if self.is_shares else '$ '
+        decimals = self.get_decimals()
+        return util.get_colored_amount(amount, colwidth, decimals, prefix)

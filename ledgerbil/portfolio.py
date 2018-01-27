@@ -62,23 +62,19 @@ def temp_perf_report(years):
     report = (f"year  {'contrib':>12}  {'value':>12}  "
               f"{'gain %':>7}  {'gain val':>12}\n")
     for year in years:
-        contrib = util.get_plain_dollar_amount(
+        contrib = util.get_plain_amount(
             year.contributions, 12,
             decimals=0
         )
-        value = util.get_plain_dollar_amount(year.value, 12, decimals=0)
-        gain = '' if year.gain == 1 else f'{(year.gain - 1) * 100:.2f}'
+        value = util.get_plain_amount(year.value, 12, 0)
         if year.gain == 1:
+            gain = f'{"":>7}'
             gain_value = f'{"":>12}'
         else:
-            gain_value = util.get_colored_amount(
-                year.gain_value,
-                12,
-                decimals=0
-            )
+            gain_value = util.get_colored_amount(year.gain_value, 12, 0)
+            gain = util.get_colored_amount((year.gain - 1) * 100, 7, prefix='')
 
-        report += (f'{year.year}  {contrib}  {value}  {gain:>7}  '
-                   f'{gain_value}\n')
+        report += (f'{year.year}  {contrib}  {value}  {gain}  {gain_value}\n')
 
     return report
 
@@ -179,14 +175,10 @@ def get_account_history(account):
         price_f = Colorable('yellow', f'$ {price:,.2f}', '>10')
 
         value = shares * price
-        value_f = util.get_colored_amount(value, colwidth=12, decimals=0)
+        value_f = util.get_colored_amount(value, 12, 0)
 
         if previous_value:
-            diff_f = util.get_colored_amount(
-                value - previous_value,
-                colwidth=13,
-                decimals=0
-            )
+            diff_f = util.get_colored_amount(value - previous_value, 13, 0)
 
         history += (f'    {year}  {contributions_f}  {shares_f}  '
                     f'{price_f}  {value_f:>12}  {diff_f}\n')
@@ -198,7 +190,7 @@ def get_account_history(account):
 
     if contributions_total and len(years) > 1:
         history += '          {}\n'.format(
-            util.get_colored_amount(contributions_total, 10, decimals=0)
+            util.get_colored_amount(contributions_total, 10, 0)
         )
 
     return history
