@@ -73,7 +73,10 @@ def temp_perf_report(years):
     transfers_total = 0
     gain_val_total = 0
     for year in years:
-        contrib = util.get_plain_amount(year.contributions, 10, 0)
+        if year.contributions:
+            contrib = util.get_plain_amount(year.contributions, 10, 0)
+        else:
+            contrib = ' ' * 10
         if year.transfers:
             transfers = util.get_colored_amount(year.transfers, 10, 0)
         else:
@@ -94,7 +97,10 @@ def temp_perf_report(years):
         gain_val_total += year.gain_value
 
     if len(years) > 1:
-        contrib_total_f = util.get_colored_amount(contrib_total, 10, 0)
+        if contrib_total:
+            contrib_total_f = util.get_colored_amount(contrib_total, 10, 0)
+        else:
+            contrib_total_f = ' ' * 10
         if transfers_total:
             transfers_total_f = util.get_colored_amount(transfers_total, 10, 0)
         else:
@@ -188,10 +194,12 @@ def get_account_history(account):
     for year in range(year_start, year_end):
         year = str(year)
         transfers_f = ' ' * 10
+        contrib_f = ' ' * 10
         if year in years.keys():
             validate_json_year_keys(years[year])
             contrib = years[year]['contributions']
-            contrib_f = Colorable('yellow', f'$ {contrib:,.0f}', '>10')
+            if contrib:
+                contrib_f = Colorable('yellow', f'$ {contrib:,.0f}', '>10')
             transfers = years[year].get('transfers', 0)
             if transfers:
                 transfers_f = util.get_colored_amount(transfers, 10, 0)

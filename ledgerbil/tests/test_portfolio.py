@@ -72,8 +72,14 @@ portfolio_json_data = '''\
             "symbol": "lmnop",
             "price": 20.31,
             "shares": 2000,
+            "contributions": 0
+          },
+          "2014": {
+            "symbol": "lmnop",
+            "price": 20.78,
+            "shares": 1800,
             "contributions": 750,
-            "transfers": 10000
+            "transfers": 15000
           }
         }
       },
@@ -114,7 +120,7 @@ def test_get_portfolio_report_history(mock_get_data):
 def test_account_matching_all(mock_get_data):
     mock_get_data.return_value = portfolio_data
     matched, included_years = portfolio.get_matching_accounts('.*')
-    expected_included_years = {'2015', '2016', '2017', '2019'}
+    expected_included_years = {'2014', '2015', '2016', '2017', '2019'}
     assert matched == portfolio_data
     assert included_years == expected_included_years
 
@@ -123,7 +129,7 @@ def test_account_matching_all(mock_get_data):
 def test_account_matching_regex(mock_get_data):
     mock_get_data.return_value = portfolio_data
     matched, included_years = portfolio.get_matching_accounts('idx$')
-    expected_included_years = {'2015', '2016', '2017', '2019'}
+    expected_included_years = {'2014', '2015', '2016', '2017', '2019'}
     assert matched == portfolio_data[:BONDS + 1]
     assert included_years == expected_included_years
 
