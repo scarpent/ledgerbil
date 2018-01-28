@@ -70,6 +70,7 @@ def temp_perf_report(years):
     report = (f"year  {'contrib':>10}  {'transfers':>10}  {'value':>12}  "
               f"{'gain %':>7}  {'gain val':>12}\n")
     contrib_total = 0
+    transfers_total = 0
     gain_val_total = 0
     for year in years:
         contrib = util.get_plain_amount(year.contributions, 10, 0)
@@ -89,12 +90,18 @@ def temp_perf_report(years):
                    f'{gain}  {gain_value}\n')
 
         contrib_total += year.contributions
+        transfers_total += year.transfers
         gain_val_total += year.gain_value
 
     if len(years) > 1:
         contrib_total_f = util.get_colored_amount(contrib_total, 10, 0)
+        if transfers_total:
+            transfers_total_f = util.get_colored_amount(transfers_total, 10, 0)
+        else:
+            transfers_total_f = ' ' * 10
         gain_val_total_f = util.get_colored_amount(gain_val_total, 12, 0)
-        report += f'      {contrib_total_f}  {"":33}  {gain_val_total_f}'
+        report += (f'      {contrib_total_f}  {transfers_total_f}  '
+                   f'{"":21}  {gain_val_total_f}')
 
     return report
 
@@ -174,6 +181,7 @@ def get_account_history(account):
 
     year_start, year_end = util.get_start_and_end_range(years.keys())
     contrib_total = 0
+    transfers_total = 0
     previous_shares = None
     previous_price = None
     previous_value = 0
@@ -217,11 +225,15 @@ def get_account_history(account):
         previous_price = price
         previous_value = value
         contrib_total += contrib
+        transfers_total += transfers
 
-    if contrib_total and len(years) > 1:
-        history += '          {}\n'.format(
-            util.get_colored_amount(contrib_total, 10, 0)
-        )
+    if len(years) > 1:
+        contrib_total_f = util.get_colored_amount(contrib_total, 10, 0)
+        if transfers_total:
+            transfers_total_f = util.get_colored_amount(transfers_total, 10, 0)
+        else:
+            transfers_total_f = ' ' * 10
+        history += f'          {contrib_total_f}  {transfers_total_f}\n'
 
     return history
 
