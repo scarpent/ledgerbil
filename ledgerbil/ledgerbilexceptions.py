@@ -9,3 +9,7 @@ class LdgSchedulerError(LdgException):
 
 class LdgReconcilerError(LdgException):
     pass
+
+
+class LdgPortfolioError(LdgException):
+    pass

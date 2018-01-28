@@ -52,7 +52,7 @@ class OutputFileTester(OutputFileTesterBase):
         assert filecmp.cmp(
             self.get_out_filename(self.testfile),
             self.get_expected_filename(self.testfile)
-        ), f'test filename root: {self.testfile}'
+        ), f'test filename out: {self.get_out_filename(self.testfile)}'
 
 
 class OutputFileTesterStdout(TestCase, OutputFileTesterBase):

@@ -5,11 +5,12 @@ from collections import defaultdict, namedtuple
 
 from . import util
 from .colorable import Colorable
+from .ledgerbilexceptions import LdgPortfolioError
 from .settings import Settings
 
 settings = Settings()
 
-Year = namedtuple('Year', 'year contributions value gain gain_value')
+Year = namedtuple('Year', 'year contributions transfers value gain gain_value')
 
 
 def get_portfolio_report(args):
@@ -44,6 +45,13 @@ def get_matching_accounts(accounts_regex):
     return matched, included_years
 
 
+def validate_json_year_keys(year):
+    valid_keys = {'symbol', 'price', 'shares',
+                  'contributions', 'transfers', 'note'}
+    if not all([k in valid_keys for k in year.keys()]):
+        raise LdgPortfolioError(f'Invalid key in {year.keys()}')
+
+
 def get_performance_report(accounts, included_years):
     year_start, year_end = util.get_start_and_end_range(included_years)
     totals = get_yearly_combined_accounts(accounts, year_start, year_end)
@@ -59,15 +67,16 @@ def get_performance_report(accounts, included_years):
 
 
 def temp_perf_report(years):
-    report = (f"year  {'contrib':>12}  {'value':>12}  "
+    report = (f"year  {'contrib':>10}  {'transfers':>10}  {'value':>12}  "
               f"{'gain %':>7}  {'gain val':>12}\n")
     contrib_total = 0
     gain_val_total = 0
     for year in years:
-        contrib = util.get_plain_amount(
-            year.contributions, 12,
-            decimals=0
-        )
+        contrib = util.get_plain_amount(year.contributions, 10, 0)
+        if year.transfers:
+            transfers = util.get_colored_amount(year.transfers, 10, 0)
+        else:
+            transfers = ' ' * 10
         value = util.get_plain_amount(year.value, 12, 0)
         if year.gain == 1:
             gain = ' ' * 7
@@ -76,15 +85,16 @@ def temp_perf_report(years):
             gain = util.get_colored_amount((year.gain - 1) * 100, 7, prefix='')
             gain_value = util.get_colored_amount(year.gain_value, 12, 0)
 
-        report += f'{year.year}  {contrib}  {value}  {gain}  {gain_value}\n'
+        report += (f'{year.year}  {contrib}  {transfers}  {value}  '
+                   f'{gain}  {gain_value}\n')
 
         contrib_total += year.contributions
         gain_val_total += year.gain_value
 
     if len(years) > 1:
-        contrib_total_f = util.get_colored_amount(contrib_total, 12, 0)
+        contrib_total_f = util.get_colored_amount(contrib_total, 10, 0)
         gain_val_total_f = util.get_colored_amount(gain_val_total, 12, 0)
-        report += f'      {contrib_total_f}  {"":21}  {gain_val_total_f}'
+        report += f'      {contrib_total_f}  {"":33}  {gain_val_total_f}'
 
     return report
 
@@ -99,15 +109,17 @@ def get_yearly_combined_accounts(accounts, year_start, year_end):
                 if previous_value:
                     # todo: integration with ledger to get current info
                     totals[year]['contributions'] += 0
+                    totals[year]['transfers'] += 0
                     totals[year]['value'] += previous_value
                 continue
 
             data = account['years'][str(year)]
+            validate_json_year_keys(data)
+
             value = data['price'] * data['shares']
-
             totals[year]['contributions'] += data['contributions']
+            totals[year]['transfers'] += data.get('transfers', 0)
             totals[year]['value'] += value
-
             previous_value = value
 
     return totals
@@ -119,12 +131,14 @@ def get_yearly_with_gains(totals):
     for year in sorted(totals):
         value = totals[year]['value']
         contrib = totals[year]['contributions']
+        transfers = totals[year]['transfers']
 
         previous_value = previous_year.value if previous_year else 0
-        gain = (value - contrib / 2) / (previous_value + contrib / 2)
-        gain_value = value - contrib - (previous_value or 0)
+        gain = ((value - (contrib + transfers) / 2)
+                / (previous_value + (contrib + transfers) / 2))
+        gain_value = value - contrib - transfers - (previous_value or 0)
 
-        this_year = Year(year, contrib, value, gain, gain_value)
+        this_year = Year(year, contrib, transfers, value, gain, gain_value)
         years.append(this_year)
 
         previous_year = this_year
@@ -144,14 +158,16 @@ def get_account_history(account):
     labels = f"labels: {', '.join(account['labels'])}"
     history = '{account}\n{label}'.format(
         account=Colorable('purple', account['account']),
-        label=Colorable('white', labels, '>67') if account['labels'] else ''
+        label=Colorable('white', labels, '>79') if account['labels'] else ''
     )
 
     years = account['years']
     if len(years):
         percent = '%' if len(years) > 1 else ''
-        header = (f"\n    year  {'contrib':>10}  {'shares':>9}  "
-                  f"{'price':>10}  {'value':>12}  {percent:>8}\n")
+        header = (
+            f"\n    year  {'contrib':>10}  {'transfers':>10}  {'shares':>9}  "
+            f"{'price':>10}  {'value':>12}  {percent:>8}\n"
+        )
         history += f"{Colorable('cyan', header)}"
     else:
         return history
@@ -163,19 +179,20 @@ def get_account_history(account):
     previous_value = 0
     for year in range(year_start, year_end):
         year = str(year)
+        transfers_f = ' ' * 10
         if year in years.keys():
-            contributions = years[year]['contributions']
-            contributions_f = Colorable(
-                'yellow',
-                f'$ {contributions:,.0f}',
-                '>10'
-            )
+            validate_json_year_keys(years[year])
+            contrib = years[year]['contributions']
+            contrib_f = Colorable('yellow', f'$ {contrib:,.0f}', '>10')
+            transfers = years[year].get('transfers', 0)
+            if transfers:
+                transfers_f = util.get_colored_amount(transfers, 10, 0)
             shares = years[year]['shares']
             price = years[year]['price']
         else:
             # todo: integration with ledger to get current info
-            contributions = 0
-            contributions_f = Colorable('red', '???', '>10')
+            contrib = 0
+            contrib_f = Colorable('red', '???', '>10')
             shares = previous_shares
             price = previous_price
 
@@ -186,18 +203,20 @@ def get_account_history(account):
         value_f = util.get_plain_amount(value, colwidth=12, decimals=0)
 
         gain_f = ' ' * 8
-        gain = ((value - contributions / 2)
-                / (previous_value + contributions / 2) - 1) * 100
+        gain = ((value - (contrib + transfers) / 2)
+                / (previous_value + (contrib + transfers) / 2) - 1) * 100
         if gain != 0:
             gain_f = util.get_colored_amount(gain, colwidth=8, prefix='')
 
-        history += (f'    {year}  {contributions_f}  {shares_f}  '
-                    f'{price_f}  {value_f}  {gain_f}\n')
+        history += (
+            f'    {year}  {contrib_f}  {transfers_f}  {shares_f}  '
+            f'{price_f}  {value_f}  {gain_f}\n'
+        )
 
         previous_shares = shares
         previous_price = price
         previous_value = value
-        contrib_total += contributions
+        contrib_total += contrib
 
     if contrib_total and len(years) > 1:
         history += '          {}\n'.format(

@@ -180,8 +180,8 @@ def test_get_yearly_combined_accounts_single_account():
         }
     }]
     expected = {
-        2014: {'contributions': 100, 'value': 1000.0},
-        2015: {'contributions': 200, 'value': 2200.0},
+        2014: {'contributions': 100, 'transfers': 0, 'value': 1000.0},
+        2015: {'contributions': 200, 'transfers': 0, 'value': 2200.0},
     }
     actual = portfolio.get_yearly_combined_accounts(accounts, 2014, 2016)
     assert actual == expected
@@ -205,8 +205,8 @@ def test_get_yearly_combined_accounts_two_accounts_same_years():
         }
     ]
     expected = {
-        2014: {'contributions': 600.0, 'value': 16000.0},
-        2015: {'contributions': 1200.0, 'value': 35200.0},
+        2014: {'contributions': 600.0, 'transfers': 0, 'value': 16000.0},
+        2015: {'contributions': 1200.0, 'transfers': 0, 'value': 35200.0},
     }
     actual = portfolio.get_yearly_combined_accounts(accounts, 2014, 2016)
     assert actual == expected
@@ -221,11 +221,11 @@ def test_get_yearly_combined_accounts_single_account_missing_years():
         }
     }]
     expected = {
-        2013: {'contributions': 100.0, 'value': 1000.0},
-        2014: {'contributions': 0, 'value': 1000},
-        2015: {'contributions': 200.0, 'value': 2200.0},
-        2016: {'contributions': 0, 'value': 2200},
-        2017: {'contributions': 0, 'value': 2200},
+        2013: {'contributions': 100.0, 'transfers': 0, 'value': 1000.0},
+        2014: {'contributions': 0, 'transfers': 0, 'value': 1000},
+        2015: {'contributions': 200.0, 'transfers': 0, 'value': 2200.0},
+        2016: {'contributions': 0, 'transfers': 0, 'value': 2200},
+        2017: {'contributions': 0, 'transfers': 0, 'value': 2200},
     }
     actual = portfolio.get_yearly_combined_accounts(accounts, 2010, 2018)
     assert actual == expected
@@ -250,12 +250,12 @@ def test_get_yearly_combined_accounts_multiple_accounts_missing_years():
         }
     ]
     expected = {
-        2013: {'contributions': 100, 'value': 1000.0},
-        2014: {'contributions': 500, 'value': 16000},
-        2015: {'contributions': 1200, 'value': 35200.0},
-        2016: {'contributions': 0, 'value': 35200},
-        2017: {'contributions': 0, 'value': 35200},
-        2018: {'contributions': 800, 'value': 29700},
+        2013: {'contributions': 100, 'transfers': 0, 'value': 1000.0},
+        2014: {'contributions': 500, 'transfers': 0, 'value': 16000},
+        2015: {'contributions': 1200, 'transfers': 0, 'value': 35200.0},
+        2016: {'contributions': 0, 'transfers': 0, 'value': 35200},
+        2017: {'contributions': 0, 'transfers': 0, 'value': 35200},
+        2018: {'contributions': 800, 'transfers': 0, 'value': 29700},
     }
     actual = portfolio.get_yearly_combined_accounts(accounts, 2010, 2019)
     assert actual == expected
@@ -264,16 +264,16 @@ def test_get_yearly_combined_accounts_multiple_accounts_missing_years():
 def test_get_yearly_with_gains():
     """ get_yearly_with_gains should produce a sorted list of Years"""
     totals = {
-        2014: {'contributions': 1000, 'value': 5000.0},
-        2013: {'contributions': 1000, 'value': 1000.0},
-        2015: {'contributions': 0, 'value': 5000.0},
-        2016: {'contributions': 2000.0, 'value': 4000},
+        2014: {'contributions': 1000, 'transfers': 0, 'value': 5000.0},
+        2013: {'contributions': 1000, 'transfers': 0, 'value': 1000.0},
+        2015: {'contributions': 0, 'transfers': 0, 'value': 5000.0},
+        2016: {'contributions': 2000.0, 'transfers': 0, 'value': 4000},
     }
     expected = [
-        portfolio.Year(2013, 1000, 1000.0, 1, 0),
-        portfolio.Year(2014, 1000, 5000.0, 3, 3000),
-        portfolio.Year(2015, 0, 5000.0, 1, 0),
-        portfolio.Year(2016, 2000.0, 4000.0, 0.5, -3000.0),
+        portfolio.Year(2013, 1000, 0, 1000.0, 1, 0),
+        portfolio.Year(2014, 1000, 0, 5000.0, 3, 3000),
+        portfolio.Year(2015, 0, 0, 5000.0, 1, 0),
+        portfolio.Year(2016, 2000.0, 0, 4000.0, 0.5, -3000.0),
     ]
     actual = portfolio.get_yearly_with_gains(totals)
     assert actual == expected
@@ -282,12 +282,12 @@ def test_get_yearly_with_gains():
 def test_get_yearly_with_gains_first_year_gain():
     """ get_yearly_with_gains should provide a gain value in first year"""
     totals = {
-        2013: {'contributions': 1000, 'value': 2000.0},
-        2014: {'contributions': 1000, 'value': 5000.0},
+        2013: {'contributions': 1000, 'transfers': 0, 'value': 2000.0},
+        2014: {'contributions': 1000, 'transfers': 0, 'value': 5000.0},
     }
     expected = [
-        portfolio.Year(2013, 1000, 2000.0, 3.0, 1000.0),
-        portfolio.Year(2014, 1000, 5000.0, 1.8, 2000.0),
+        portfolio.Year(2013, 1000, 0, 2000.0, 3.0, 1000.0),
+        portfolio.Year(2014, 1000, 0, 5000.0, 1.8, 2000.0),
     ]
     actual = portfolio.get_yearly_with_gains(totals)
     assert actual == expected
