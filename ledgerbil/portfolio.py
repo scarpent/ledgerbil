@@ -77,7 +77,8 @@ def temp_perf_report(years):
             contrib = util.get_plain_amount(year.contributions, 10, 0)
         else:
             contrib = ' ' * 10
-        if year.transfers:
+        # todo: tests for these rounding things...
+        if year.transfers and (f'{year.transfers:.0f}' not in ('0', '-0')):
             transfers = util.get_colored_amount(year.transfers, 10, 0)
         else:
             transfers = ' ' * 10
