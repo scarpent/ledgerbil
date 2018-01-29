@@ -50,7 +50,7 @@ def get_matching_accounts(accounts_regex):
         included_years.update(set(account['years'].keys()))
         matched.append(account)
 
-    return matched, included_years
+    return sorted(matched, key=lambda k: k['account']), included_years
 
 
 def validate_json_year_keys(year):

@@ -17,8 +17,8 @@ def setup_module(module):
 
 BIG_CO = 0
 BONDS = 1
-BONDS_2 = 2
-BIG_NAME = 3
+BIG_NAME = 2
+BONDS_2 = 3
 
 
 portfolio_json_data = '''\
@@ -84,13 +84,13 @@ portfolio_json_data = '''\
         }
       },
       {
-        "account": "assets: 401k: bonds idx 2",
-        "labels": [],
+        "account": "assets: 401k: long account name that goes on...",
+        "labels": ["401k", "flurb", "intl", "active", "smactive"],
         "years": {}
       },
       {
-        "account": "assets: 401k: long account name that goes on...",
-        "labels": ["401k", "flurb", "intl", "active", "smactive"],
+        "account": "assets: 401k: bonds idx 2",
+        "labels": [],
         "years": {}
       }
     ]
@@ -121,7 +121,7 @@ def test_account_matching_all(mock_get_data):
     mock_get_data.return_value = portfolio_data
     matched, included_years = portfolio.get_matching_accounts('.*')
     expected_included_years = {'2014', '2015', '2016', '2017', '2019'}
-    assert matched == portfolio_data
+    assert matched == sorted(portfolio_data, key=lambda k: k['account'])
     assert included_years == expected_included_years
 
 
