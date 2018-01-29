@@ -70,7 +70,7 @@ def get_performance_report(accounts, included_years):
         info += ', ...'
     return '{info}\n\n{report}'.format(
         info=strip_assets_prefix(info),
-        report=temp_perf_report(years)
+        report=get_performance_report_years(years)
     )
 
 
@@ -85,7 +85,7 @@ def get_multiyear_gain(gains, num_years):
         return ' ' * 9
 
 
-def temp_perf_report(years):
+def get_performance_report_years(years):
     report = (f"year  {'contrib':>10}  {'transfers':>10}  {'value':>12}  "
               f"{'gain %':>7}  {'gain val':>12}  {'all yrs %':>9}"
               f"{'3 yrs %':>9}  {'5 yrs %':>9}  {'10 yrs %':>9}\n")
