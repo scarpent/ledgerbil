@@ -74,13 +74,27 @@ def get_performance_report(accounts, included_years):
     )
 
 
+def get_multiyear_gain(gains, num_years):
+    if len(gains) >= num_years:
+        return util.get_colored_amount(
+            (pow(util.product(gains[-num_years:]), 1 / num_years) - 1) * 100,
+            colwidth=9,
+            prefix=''
+        )
+    else:
+        return ' ' * 9
+
+
 def temp_perf_report(years):
     report = (f"year  {'contrib':>10}  {'transfers':>10}  {'value':>12}  "
-              f"{'gain %':>7}  {'gain val':>12}\n")
+              f"{'gain %':>7}  {'gain val':>12}  {'all yrs %':>9}"
+              f"{'3 yrs %':>9}  {'5 yrs %':>9}  {'10 yrs %':>9}\n")
     contrib_total = 0
     transfers_total = 0
     gain_val_total = 0
+    gains = []
     for year in years:
+        gains.append(year.gain)
         if year.contributions:
             contrib = util.get_plain_amount(year.contributions, 10, 0)
         else:
@@ -98,8 +112,14 @@ def temp_perf_report(years):
             gain = util.get_colored_amount((year.gain - 1) * 100, 7, prefix='')
             gain_value = util.get_colored_amount(year.gain_value, 12, 0)
 
+        gain_all = get_multiyear_gain(gains, len(gains))
+        gain_3 = get_multiyear_gain(gains, 3)
+        gain_5 = get_multiyear_gain(gains, 5)
+        gain_10 = get_multiyear_gain(gains, 10)
+
         report += (f'{year.year}  {contrib}  {transfers}  {value}  '
-                   f'{gain}  {gain_value}\n')
+                   f'{gain}  {gain_value}  {gain_all}'
+                   f'{gain_3}  {gain_5}  {gain_10}\n')
 
         contrib_total += year.contributions
         transfers_total += year.transfers
