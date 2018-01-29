@@ -13,6 +13,10 @@ settings = Settings()
 Year = namedtuple('Year', 'year contributions transfers value gain gain_value')
 
 
+def strip_assets_prefix(s):
+    return re.sub('(?i)assets: ?', '', s)
+
+
 def get_portfolio_report(args):
     matched, included_years = get_matching_accounts(args.accounts_regex)
 
@@ -21,6 +25,10 @@ def get_portfolio_report(args):
 
     if args.history:
         report = get_history_report(matched)
+    elif args.list:
+        report = strip_assets_prefix(
+            '\n'.join(sorted([m['account'] for m in matched]))
+        )
     else:
         report = get_performance_report(matched, included_years)
 
@@ -61,7 +69,7 @@ def get_performance_report(accounts, included_years):
     if len(accounts) > 2:
         info += ', ...'
     return '{info}\n\n{report}'.format(
-        info=re.sub('(?i)assets: ?', '', info),
+        info=strip_assets_prefix(info),
         report=temp_perf_report(years)
     )
 
@@ -171,7 +179,7 @@ def get_history_report(matching_accounts):
 def get_account_history(account):
     labels = f"labels: {', '.join(account['labels'])}"
     history = '{account}\n{label}'.format(
-        account=Colorable('purple', account['account']),
+        account=Colorable('purple', strip_assets_prefix(account['account'])),
         label=Colorable('white', labels, '>79') if account['labels'] else ''
     )
 
@@ -272,6 +280,11 @@ def get_args(args=[]):
         '-H', '--history',
         action='store_true',
         help='show account history'
+    )
+    parser.add_argument(
+        '-l', '--list',
+        action='store_true',
+        help='list account names'
     )
 
     return parser.parse_args(args)

@@ -54,13 +54,19 @@
     }
   },
   {
-    "account": "assets: 401k: bonds idx 2",
-    "labels": [],
+    "account": "assets: 401k: long account name that goes on...",
+    "labels": [
+      "401k",
+      "flurb",
+      "intl",
+      "active",
+      "smactive"
+    ],
     "years": {}
   },
   {
-    "account": "assets: 401k: long account name that goes on...",
-    "labels": ["401k", "flurb", "intl", "active", "smactive"],
+    "account": "assets: 401k: bonds idx 2",
+    "labels": [],
     "years": {}
   }
 ]
