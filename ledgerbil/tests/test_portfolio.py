@@ -117,6 +117,26 @@ def test_get_portfolio_report_history(mock_get_data):
 
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
+def test_get_portfolio_report_list(mock_get_data):
+    mock_get_data.return_value = portfolio_data
+    args = portfolio.get_args(['--list'])
+    report = portfolio.get_portfolio_report(args)
+    helper = OutputFileTester('test_portfolio_report_list')
+    helper.save_out_file(report)
+    helper.assert_out_equals_expected()
+
+
+@mock.patch(__name__ + '.portfolio.get_portfolio_data')
+def test_get_portfolio_report_list_account_limited(mock_get_data):
+    mock_get_data.return_value = portfolio_data
+    args = portfolio.get_args(['--accounts', 'idx$', '--list'])
+    report = portfolio.get_portfolio_report(args)
+    helper = OutputFileTester('test_portfolio_report_list_accounts')
+    helper.save_out_file(report)
+    helper.assert_out_equals_expected()
+
+
+@mock.patch(__name__ + '.portfolio.get_portfolio_data')
 def test_account_matching_all(mock_get_data):
     mock_get_data.return_value = portfolio_data
     matched, included_years = portfolio.get_matching_accounts('.*')
@@ -333,3 +353,13 @@ def test_args_accounts(test_input, expected):
 def test_args_command(test_input, expected):
     args = portfolio.get_args(test_input)
     assert args.history is expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (['-l'], True),
+    (['--list'], True),
+    ([], False),
+])
+def test_args_list(test_input, expected):
+    args = portfolio.get_args(test_input)
+    assert args.list is expected
