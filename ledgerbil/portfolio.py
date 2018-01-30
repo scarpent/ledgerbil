@@ -74,7 +74,7 @@ def get_performance_report(accounts, included_years):
     )
 
 
-def get_multiyear_gain(gains, num_years):
+def get_multiyear_gain(gains, num_years, total_years):
     if len(gains) >= num_years:
         return util.get_colored_amount(
             (pow(util.product(gains[-num_years:]), 1 / num_years) - 1) * 100,
@@ -82,14 +82,21 @@ def get_multiyear_gain(gains, num_years):
             prefix='',
             positive='white'
         )
+    elif total_years < num_years:
+        return ''
     else:
         return ' ' * 9
 
 
 def get_performance_report_years(years):
+    total_years = len(years)
+    header3 = '' if total_years < 3 else f"{'3 yrs %':>9}"
+    header5 = '' if total_years < 5 else f"{'5 yrs %':>9}"
+    header10 = '' if total_years < 10 else f"{'10 yrs %':>9}"
     report = (f"year  {'contrib':>10}  {'transfers':>10}  {'value':>12}  "
-              f"{'gain %':>7}  {'gain val':>12}  {'all yrs %':>9}"
-              f"{'3 yrs %':>9}  {'5 yrs %':>9}  {'10 yrs %':>9}\n")
+              f"{'gain %':>7}  {'gain val':>12}  {'all yrs %':>9}  "
+              f'{header3}  {header5}  {header10}\n')
+
     contrib_total = 0
     transfers_total = 0
     gain_val_total = 0
@@ -116,13 +123,13 @@ def get_performance_report_years(years):
                                            positive='white')
             gain_value = util.get_colored_amount(year.gain_value, 12, 0)
 
-        gain_all = get_multiyear_gain(gains, len(gains))
-        gain_3 = get_multiyear_gain(gains, 3)
-        gain_5 = get_multiyear_gain(gains, 5)
-        gain_10 = get_multiyear_gain(gains, 10)
+        gain_all = get_multiyear_gain(gains, len(gains), total_years)
+        gain_3 = get_multiyear_gain(gains, 3, total_years)
+        gain_5 = get_multiyear_gain(gains, 5, total_years)
+        gain_10 = get_multiyear_gain(gains, 10, total_years)
 
         report += (f'{year.year}  {contrib}  {transfers}  {value}  '
-                   f'{gain}  {gain_value}  {gain_all}'
+                   f'{gain}  {gain_value}  {gain_all}  '
                    f'{gain_3}  {gain_5}  {gain_10}\n')
 
         contrib_total += year.contributions
