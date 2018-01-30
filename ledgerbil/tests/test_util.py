@@ -140,6 +140,8 @@ def test_get_plain_amount(test_input, expected):
     ([9999.99, 11], '\x1b[0;32m $ 9,999.99\x1b[0m'),
     ([1.56789, 1, 3], '\x1b[0;32m$ 1.568\x1b[0m'),
     ([-5.6789, 1, 5, '€'], '\x1b[0;31m€-5.67890\x1b[0m'),
+    ([1.11, 1, 2, '# ', 'white'], '\x1b[0;37m# 1.11\x1b[0m'),
+    ([-1.11, 1, 2, '# ', 'white'], '\x1b[0;31m# -1.11\x1b[0m'),
 ])
 def test_get_colored_amount(test_input, expected):
     assert util.get_colored_amount(*test_input) == expected

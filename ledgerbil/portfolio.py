@@ -79,7 +79,8 @@ def get_multiyear_gain(gains, num_years):
         return util.get_colored_amount(
             (pow(util.product(gains[-num_years:]), 1 / num_years) - 1) * 100,
             colwidth=9,
-            prefix=''
+            prefix='',
+            positive='white'
         )
     else:
         return ' ' * 9
@@ -109,7 +110,10 @@ def get_performance_report_years(years):
             gain = ' ' * 7
             gain_value = ' ' * 12
         else:
-            gain = util.get_colored_amount((year.gain - 1) * 100, 7, prefix='')
+            gain = util.get_colored_amount((year.gain - 1) * 100,
+                                           colwidth=7,
+                                           prefix='',
+                                           positive='white')
             gain_value = util.get_colored_amount(year.gain_value, 12, 0)
 
         gain_all = get_multiyear_gain(gains, len(gains))
@@ -251,7 +255,10 @@ def get_account_history(account):
         gain = ((value - (contrib + transfers) / 2)
                 / (previous_value + (contrib + transfers) / 2) - 1) * 100
         if gain != 0:
-            gain_f = util.get_colored_amount(gain, colwidth=8, prefix='')
+            gain_f = util.get_colored_amount(gain,
+                                             colwidth=8,
+                                             prefix='',
+                                             positive='white')
 
         history += (
             f'    {year}  {contrib_f}  {transfers_f}  {shares_f}  '

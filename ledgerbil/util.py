@@ -88,12 +88,17 @@ def get_plain_amount(amount, colwidth=1, decimals=2, prefix='$ '):
     return f'{amount_formatted:>{colwidth}}'
 
 
-def get_colored_amount(amount, colwidth=1, decimals=2, prefix='$ '):
+def get_colored_amount(amount,
+                       colwidth=1,
+                       decimals=2,
+                       prefix='$ ',
+                       positive='green'):
+
     amount_formatted = f'{prefix}{get_amount_str(amount, decimals)}'
     # avoid inconsistent 0 coloring from round/float intrigue
     if amount_formatted == f'{prefix}{0:.{decimals}f}':
         amount = 0
 
-    color = 'red' if amount < 0 else 'green'
+    color = 'red' if amount < 0 else positive
 
     return str(Colorable(color, amount_formatted, f'>{colwidth}'))
