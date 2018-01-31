@@ -64,7 +64,8 @@ def get_performance_report(accounts, included_years):
     year_start, year_end = util.get_start_and_end_range(included_years)
     totals = get_yearly_combined_accounts(accounts, year_start, year_end)
     years = get_yearly_with_gains(totals)
-    info = f"{len(accounts)} account{'' if len(accounts) == 1 else 's'}: "
+    info = f"{len(years)} year{'' if len(years) == 1 else 's'}, "
+    info += f"{len(accounts)} account{'' if len(accounts) == 1 else 's'}: "
     info += ', '.join([account['account'] for account in accounts[:2]])
     if len(accounts) > 2:
         info += ', ...'
@@ -93,9 +94,12 @@ def get_performance_report_years(years):
     header3 = '' if total_years < 3 else f"{'3 yrs %':>9}"
     header5 = '' if total_years < 5 else f"{'5 yrs %':>9}"
     header10 = '' if total_years < 10 else f"{'10 yrs %':>9}"
-    report = (f"year  {'contrib':>10}  {'transfers':>10}  {'value':>12}  "
-              f"{'gain %':>7}  {'gain val':>12}  {'all yrs %':>9}  "
-              f'{header3}  {header5}  {header10}\n')
+    report = str(Colorable(
+        'cyan',
+        (f"year  {'contrib':>10}  {'transfers':>10}  {'value':>12}  "
+         f"{'gain %':>7}  {'gain val':>12}  {'all yrs %':>9}  "
+         f'{header3}  {header5}  {header10}\n')
+    ))
 
     contrib_total = 0
     transfers_total = 0
@@ -104,7 +108,10 @@ def get_performance_report_years(years):
     for year in years:
         gains.append(year.gain)
         if year.contributions:
-            contrib = util.get_plain_amount(year.contributions, 10, 0)
+            contrib = Colorable(
+                'yellow',
+                util.get_plain_amount(year.contributions, 10, 0)
+            )
         else:
             contrib = ' ' * 10
         # todo: tests for these rounding things...
