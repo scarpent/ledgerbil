@@ -82,7 +82,7 @@ COL_VALUE = 11
 COL_GAIN_VALUE = 11
 
 
-def get_multiyear_gain(gains, num_years, total_years):
+def get_gain(gains, num_years, total_years):
     if len(gains) >= num_years:
         return util.get_colored_amount(
             (pow(util.product(gains[-num_years:]), 1 / num_years) - 1) * 100,
@@ -136,18 +136,15 @@ def get_performance_report_years(years):
             gain = ' ' * COL_GAIN
             gain_value = ' ' * COL_GAIN_VALUE
         else:
-            gain = util.get_colored_amount((year.gain - 1) * 100,
-                                           colwidth=COL_GAIN,
-                                           prefix='',
-                                           positive='white')
+            gain = get_gain([year.gain], 1, 1)
             gain_value = util.get_colored_amount(year.gain_value,
                                                  colwidth=COL_GAIN_VALUE,
                                                  decimals=0)
 
-        gain_all = get_multiyear_gain(gains, len(gains), total_years)
-        gain_3 = get_multiyear_gain(gains, 3, total_years)
-        gain_5 = get_multiyear_gain(gains, 5, total_years)
-        gain_10 = get_multiyear_gain(gains, 10, total_years)
+        gain_all = get_gain(gains, len(gains), total_years)
+        gain_3 = get_gain(gains, 3, total_years)
+        gain_5 = get_gain(gains, 5, total_years)
+        gain_10 = get_gain(gains, 10, total_years)
 
         report += (f'{year.year}  {contrib}  {transfers}  {value}  '
                    f'{gain}  {gain_value}  {gain_all}  '
