@@ -75,29 +75,39 @@ def get_performance_report(accounts, included_years):
     )
 
 
+COL_GAIN = 7
+COL_CONTRIB = 9
+COL_TRANSFERS = 10
+COL_VALUE = 11
+COL_GAIN_VALUE = 11
+
+
 def get_multiyear_gain(gains, num_years, total_years):
     if len(gains) >= num_years:
         return util.get_colored_amount(
             (pow(util.product(gains[-num_years:]), 1 / num_years) - 1) * 100,
-            colwidth=9,
+            colwidth=COL_GAIN,
             prefix='',
             positive='white'
         )
     elif total_years < num_years:
         return ''
     else:
-        return ' ' * 9
+        return ' ' * COL_GAIN
 
 
 def get_performance_report_years(years):
     total_years = len(years)
-    header3 = '' if total_years < 3 else f"{'3 yrs %':>9}"
-    header5 = '' if total_years < 5 else f"{'5 yrs %':>9}"
-    header10 = '' if total_years < 10 else f"{'10 yrs %':>9}"
+
+    header3 = '' if total_years < 3 else f"{'3 yr %':>{COL_GAIN}}"
+    header5 = '' if total_years < 5 else f"{'5 yr %':>{COL_GAIN}}"
+    header10 = '' if total_years < 10 else f"{'10 yr %':>{COL_GAIN}}"
+
     report = str(Colorable(
         'cyan',
-        (f"year  {'contrib':>10}  {'transfers':>10}  {'value':>12}  "
-         f"{'gain %':>7}  {'gain val':>12}  {'all yrs %':>9}  "
+        (f"year  {'contrib':>{COL_CONTRIB}}  {'transfers':>{COL_TRANSFERS}}  "
+         f"{'value':>{COL_VALUE}}  {'gain %':>{COL_GAIN}}  "
+         f"{'gain val':>{COL_GAIN_VALUE}}  {'all %':>{COL_GAIN}}  "
          f'{header3}  {header5}  {header10}\n')
     ))
 
@@ -110,25 +120,29 @@ def get_performance_report_years(years):
         if year.contributions:
             contrib = Colorable(
                 'yellow',
-                util.get_plain_amount(year.contributions, 10, 0)
+                util.get_plain_amount(year.contributions, COL_CONTRIB, 0)
             )
         else:
-            contrib = ' ' * 10
+            contrib = ' ' * COL_CONTRIB
         # todo: tests for these rounding things...
         if year.transfers and (f'{year.transfers:.0f}' not in ('0', '-0')):
-            transfers = util.get_colored_amount(year.transfers, 10, 0)
+            transfers = util.get_colored_amount(year.transfers,
+                                                colwidth=COL_TRANSFERS,
+                                                decimals=0)
         else:
-            transfers = ' ' * 10
-        value = util.get_plain_amount(year.value, 12, 0)
+            transfers = ' ' * COL_TRANSFERS
+        value = util.get_plain_amount(year.value, COL_VALUE, 0)
         if year.gain == 1:
-            gain = ' ' * 7
-            gain_value = ' ' * 12
+            gain = ' ' * COL_GAIN
+            gain_value = ' ' * COL_GAIN_VALUE
         else:
             gain = util.get_colored_amount((year.gain - 1) * 100,
-                                           colwidth=7,
+                                           colwidth=COL_GAIN,
                                            prefix='',
                                            positive='white')
-            gain_value = util.get_colored_amount(year.gain_value, 12, 0)
+            gain_value = util.get_colored_amount(year.gain_value,
+                                                 colwidth=COL_GAIN_VALUE,
+                                                 decimals=0)
 
         gain_all = get_multiyear_gain(gains, len(gains), total_years)
         gain_3 = get_multiyear_gain(gains, 3, total_years)
@@ -145,16 +159,22 @@ def get_performance_report_years(years):
 
     if len(years) > 1:
         if contrib_total:
-            contrib_total_f = util.get_colored_amount(contrib_total, 10, 0)
+            contrib_total_f = util.get_colored_amount(contrib_total,
+                                                      colwidth=COL_CONTRIB,
+                                                      decimals=0)
         else:
-            contrib_total_f = ' ' * 10
+            contrib_total_f = ' ' * COL_CONTRIB
         if transfers_total:
-            transfers_total_f = util.get_colored_amount(transfers_total, 10, 0)
+            transfers_total_f = util.get_colored_amount(transfers_total,
+                                                        colwidth=COL_TRANSFERS,
+                                                        decimals=0)
         else:
-            transfers_total_f = ' ' * 10
-        gain_val_total_f = util.get_colored_amount(gain_val_total, 12, 0)
+            transfers_total_f = ' ' * COL_TRANSFERS
+        gain_val_total_f = util.get_colored_amount(gain_val_total,
+                                                   colwidth=COL_GAIN_VALUE,
+                                                   decimals=0)
         report += (f'      {contrib_total_f}  {transfers_total_f}  '
-                   f'{"":21}  {gain_val_total_f}')
+                   f'{"":{COL_VALUE + COL_GAIN + 2}}  {gain_val_total_f}')
 
     return report
 
