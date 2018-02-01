@@ -221,6 +221,10 @@ def get_yearly_with_gains(totals):
                 / (previous_value + (contrib + transfers) / 2))
         gain_value = value - contrib - transfers - (previous_value or 0)
 
+        # todo: unit test, and... show values?
+        # (can happen with bad data -- e.g. missed sign on a transfer)
+        assert gain > 0, f"gain <= 0 in {year}: {gain}"
+
         this_year = Year(year, contrib, transfers, value, gain, gain_value)
         years.append(this_year)
 
