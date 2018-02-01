@@ -29,6 +29,8 @@ def get_portfolio_report(args):
         report = strip_assets_prefix(
             '\n'.join(sorted([m['account'] for m in matched]))
         )
+        count = f"\n{len(matched)} account{'' if len(matched) == 1 else 's'}"
+        report += str(Colorable('cyan', count))
     else:
         report = get_performance_report(matched, included_years)
 
@@ -82,10 +84,14 @@ COL_VALUE = 11
 COL_GAIN_VALUE = 11
 
 
+def get_annualized_total_return(gains, num_years):
+    return (pow(util.product(gains[-num_years:]), 1 / num_years) - 1) * 100
+
+
 def get_gain(gains, num_years, total_years):
     if len(gains) >= num_years:
         return util.get_colored_amount(
-            (pow(util.product(gains[-num_years:]), 1 / num_years) - 1) * 100,
+            get_annualized_total_return(gains, num_years),
             colwidth=COL_GAIN,
             prefix='',
             positive='white'
