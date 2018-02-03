@@ -163,18 +163,12 @@ def get_performance_report_years(years):
         gain_val_total += year.gain_value
 
     if len(years) > 1:
-        if contrib_total:
-            contrib_total_f = util.get_colored_amount(contrib_total,
-                                                      colwidth=COL_CONTRIB,
-                                                      decimals=0)
-        else:
-            contrib_total_f = ' ' * COL_CONTRIB
-        if transfers_total:
-            transfers_total_f = util.get_colored_amount(transfers_total,
-                                                        colwidth=COL_TRANSFERS,
-                                                        decimals=0)
-        else:
-            transfers_total_f = ' ' * COL_TRANSFERS
+        contrib_total_f = util.get_colored_amount(contrib_total,
+                                                  colwidth=COL_CONTRIB,
+                                                  decimals=0)
+        transfers_total_f = util.get_colored_amount(transfers_total,
+                                                    colwidth=COL_TRANSFERS,
+                                                    decimals=0)
         gain_val_total_f = util.get_colored_amount(gain_val_total,
                                                    colwidth=COL_GAIN_VALUE,
                                                    decimals=0)
@@ -316,10 +310,7 @@ def get_account_history(account):
 
     if len(years) > 1:
         contrib_total_f = util.get_colored_amount(contrib_total, 10, 0)
-        if transfers_total:
-            transfers_total_f = util.get_colored_amount(transfers_total, 10, 0)
-        else:
-            transfers_total_f = ' ' * 10
+        transfers_total_f = util.get_colored_amount(transfers_total, 10, 0)
         history += f'          {contrib_total_f}  {transfers_total_f}\n'
 
     return history
