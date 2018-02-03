@@ -6,6 +6,7 @@
 .coverage
 .idea
 .ledgerbil_cache_test
+.pytest_cache
 .python-version
 /temp
 dev-bash.sh
