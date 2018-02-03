@@ -4,6 +4,7 @@ from unittest import mock
 import pytest
 
 from .. import portfolio
+from ..ledgerbilexceptions import LdgPortfolioError
 from .helpers import OutputFileTester
 
 
@@ -152,6 +153,21 @@ def test_account_matching_regex(mock_get_data):
     expected_included_years = {'2014', '2015', '2016', '2017', '2019'}
     assert matched == portfolio_data[:BONDS + 1]
     assert included_years == expected_included_years
+
+
+def test_validate_json_year_keys_valid():
+    year = {}
+    for key in portfolio.VALID_YEAR_KEYS:
+        year[key] = 'hi'
+    portfolio.validate_json_year_keys(year)
+
+
+def test_validate_json_year_keys_invalid():
+    year = {'symbol': 'abcde', 'blah': 'blah'}
+    with pytest.raises(LdgPortfolioError) as excinfo:
+        portfolio.validate_json_year_keys(year)
+    expected = f'Invalid key in {year.keys()}'
+    assert str(excinfo.value) == expected
 
 
 def test_get_portfolio_data():

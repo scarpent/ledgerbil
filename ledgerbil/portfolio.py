@@ -55,10 +55,12 @@ def get_matching_accounts(accounts_regex):
     return sorted(matched, key=lambda k: k['account']), included_years
 
 
+VALID_YEAR_KEYS = {'symbol', 'price', 'shares',
+                   'contributions', 'transfers', 'note'}
+
+
 def validate_json_year_keys(year):
-    valid_keys = {'symbol', 'price', 'shares',
-                  'contributions', 'transfers', 'note'}
-    if not all([k in valid_keys for k in year.keys()]):
+    if not all([k in VALID_YEAR_KEYS for k in year.keys()]):
         raise LdgPortfolioError(f'Invalid key in {year.keys()}')
 
 
