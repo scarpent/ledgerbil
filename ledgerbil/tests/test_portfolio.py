@@ -170,6 +170,17 @@ def test_validate_json_year_keys_invalid():
     assert str(excinfo.value) == expected
 
 
+@pytest.mark.parametrize('test_input, expected', [
+    ([[1.5], 1], 50),
+    ([[1.5, 1.5], 2], 50),
+    ([[0.5, 0.5], 2], -50),
+    ([[1, 1.25, 1.75, .75], 4], 13.175476395946738),
+    ([[1, -0.1], 2], (-100 + 31.622776601683793j)),
+])
+def test_get_annualized_total_return(test_input, expected):
+    assert portfolio.get_annualized_total_return(*test_input) == expected
+
+
 def test_get_portfolio_data():
     jsondata = '{"key": "value"}'
     expected = {'key': 'value'}
