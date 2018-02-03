@@ -4,6 +4,7 @@ from unittest import mock
 import pytest
 
 from .. import portfolio
+from ..colorable import Colorable
 from ..ledgerbilexceptions import LdgPortfolioError
 from .helpers import OutputFileTester
 
@@ -175,10 +176,22 @@ def test_validate_json_year_keys_invalid():
     ([[1.5, 1.5], 2], 50),
     ([[0.5, 0.5], 2], -50),
     ([[1, 1.25, 1.75, .75], 4], 13.175476395946738),
-    ([[1, -0.1], 2], (-100 + 31.622776601683793j)),
+    ([[1, -0.1], 2], (-100 + 31.622776601683793j)),  # gains should be positive
 ])
 def test_get_annualized_total_return(test_input, expected):
     assert portfolio.get_annualized_total_return(*test_input) == expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    ([[], 2, 1], ''),
+    ([[], 2, 2], ' ' * portfolio.COL_GAIN),
+    ([[1.5], 1, 1], f'{50:{portfolio.COL_GAIN}.2f}'),
+    ([[1, 1.25, 1.75, .75], 4, 4], f'{13.18:{portfolio.COL_GAIN}.2f}'),
+])
+def test_get_gain(test_input, expected):
+    assert Colorable.get_plain_string(
+        portfolio.get_gain(*test_input)
+    ) == expected
 
 
 def test_get_portfolio_data():
