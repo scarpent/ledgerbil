@@ -21,7 +21,7 @@ def get_portfolio_report(args):
     matched, included_years = get_matching_accounts(args.accounts_regex)
 
     if not matched:
-        return 'No accounts matched {}'.format(args.accounts_regex)
+        return f'No accounts matched {args.accounts_regex}'
 
     if args.history:
         report = get_history_report(matched)
@@ -32,6 +32,8 @@ def get_portfolio_report(args):
         count = f"\n{len(matched)} account{'' if len(matched) == 1 else 's'}"
         report += str(Colorable('cyan', count))
     else:
+        if not included_years:
+            return f'No yearly data found for {args.accounts_regex}'
         report = get_performance_report(matched, included_years)
 
     return report
@@ -139,13 +141,14 @@ def get_performance_report_years(years):
             )
         else:
             contrib = ' ' * COL_CONTRIB
-        # todo: tests for these rounding things...
+
         if year.transfers and (f'{year.transfers:.0f}' not in ('0', '-0')):
             transfers = util.get_colored_amount(year.transfers,
                                                 colwidth=COL_TRANSFERS,
                                                 decimals=0)
         else:
             transfers = ' ' * COL_TRANSFERS
+
         value = util.get_plain_amount(year.value, COL_VALUE, 0)
         gain = get_gain([year.gain], 1, 1)
         gain_value = util.get_colored_amount(year.gain_value,

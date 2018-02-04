@@ -109,6 +109,24 @@ def test_get_portfolio_report_no_matches(mock_get_data):
 
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
+def test_get_performance_report_no_yearly_data(mock_get_data):
+    mock_get_data.return_value = portfolio_data
+    args = portfolio.get_args(['--accounts', 'bonds idx 2'])
+    expected = 'No yearly data found for bonds idx 2'
+    assert portfolio.get_portfolio_report(args) == expected
+
+
+@mock.patch(__name__ + '.portfolio.get_performance_report')
+@mock.patch(__name__ + '.portfolio.get_portfolio_data')
+def test_get_portfolio_report_performance(mock_get_data, mock_get_perf):
+    mock_get_data.return_value = portfolio_data
+    args = portfolio.get_args(['--accounts', 'big co 500 idx'])
+    portfolio.get_portfolio_report(args)
+    expected = [[portfolio_data[BIG_CO]], {'2016', '2017', '2019'}]
+    mock_get_perf.assert_called_once_with(*expected)
+
+
+@mock.patch(__name__ + '.portfolio.get_portfolio_data')
 def test_get_portfolio_report_history(mock_get_data):
     mock_get_data.return_value = portfolio_data
     args = portfolio.get_args(['--accounts', 'idx', '--history'])
@@ -434,6 +452,22 @@ def test_get_performance_report_years_eleven_years():
     years = portfolio.get_yearly_with_gains(totals)
     report = portfolio.get_performance_report_years(years)
     helper = OutputFileTester('test_portfolio_perf_report_years_eleven_years')
+    helper.save_out_file(report)
+    helper.assert_out_equals_expected()
+
+
+def test_get_performance_report():
+    accounts = [{
+        'account': 'the account name',
+        'labels': ['cantaloupe'],
+        'years': {
+            '2015': {'price': 100, 'shares': 20,
+                     'contributions': 300, 'transfers': 1200},
+        },
+    }]
+    included_years = {2015}
+    report = portfolio.get_performance_report(accounts, included_years)
+    helper = OutputFileTester('test_portfolio_performance_report')
     helper.save_out_file(report)
     helper.assert_out_equals_expected()
 
