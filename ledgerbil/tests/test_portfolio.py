@@ -186,7 +186,12 @@ def test_get_annualized_total_return(test_input, expected):
     ([[], 2, 1], ''),
     ([[], 2, 2], ' ' * portfolio.COL_GAIN),
     ([[1.5], 1, 1], f'{50:{portfolio.COL_GAIN}.2f}'),
+    ([[2, 2, 2, 2, 2, 2, 1.5], 1, 7], f'{50:{portfolio.COL_GAIN}.2f}'),
     ([[1, 1.25, 1.75, .75], 4, 4], f'{13.18:{portfolio.COL_GAIN}.2f}'),
+    (
+        [[3, 3, 3, 3, 3, 3, 1, 1.25, 1.75, .75], 4, 10],
+        f'{13.18:{portfolio.COL_GAIN}.2f}'
+    ),
 ])
 def test_get_gain(test_input, expected):
     assert Colorable.get_plain_string(
@@ -336,7 +341,7 @@ def test_get_yearly_combined_accounts_multiple_accounts_missing_years():
 
 
 def test_get_yearly_with_gains():
-    """ get_yearly_with_gains should produce a sorted list of Years"""
+    """get_yearly_with_gains should produce a sorted list of Years"""
     totals = {
         2014: {'contributions': 1000, 'transfers': 0, 'value': 5000.0},
         2013: {'contributions': 500, 'transfers': 500, 'value': 1000.0},
@@ -354,7 +359,7 @@ def test_get_yearly_with_gains():
 
 
 def test_get_yearly_with_gains_first_year_gain():
-    """ get_yearly_with_gains should provide a gain value in first year"""
+    """get_yearly_with_gains should provide a gain value in first year"""
     totals = {
         2013: {'contributions': 1000, 'transfers': 0, 'value': 2000.0},
         2014: {'contributions': 500, 'transfers': 500, 'value': 5000.0},
@@ -365,6 +370,72 @@ def test_get_yearly_with_gains_first_year_gain():
     ]
     actual = portfolio.get_yearly_with_gains(totals)
     assert actual == expected
+
+
+def test_get_yearly_assert_gain_less_than_zero():
+    """get_yearly_with_gains raise an assertion error if a gain is < 0"""
+    totals = {
+        2013: {'contributions': 10, 'transfers': -20, 'value': 30},
+    }
+    with pytest.raises(AssertionError) as excinfo:
+        portfolio.get_yearly_with_gains(totals)
+    expected = 'Gain < 0 in 2013: -7.0'
+    assert str(excinfo.value) == expected
+
+
+def test_get_performance_report_header_one_account():
+    accounts = [{'account': 'assets: abc'}]
+    expected = '1 year, 1 account: abc'
+    actual = portfolio.get_performance_report_header(accounts, 1)
+    assert actual == expected
+
+
+def test_get_performance_report_header_three_accounts():
+    accounts = [
+        {'account': 'assets: abc'},
+        {'account': 'assets:xyz'},
+        {'account': 'lmnop'},
+    ]
+    expected = '3 years, 3 accounts: abc, xyz, ...'
+    actual = portfolio.get_performance_report_header(accounts, 3)
+    assert actual == expected
+
+
+col_headers = 'year    contrib   transfers        value   gain %     gain val'
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (2, f'{col_headers}    all %      '),
+    (3, f'{col_headers}    all %    3yr %    '),
+    (4, f'{col_headers}    all %    3yr %    '),
+    (5, f'{col_headers}    all %    3yr %    5yr %  '),
+    (6, f'{col_headers}    all %    3yr %    5yr %  '),
+    (10, f'{col_headers}    all %    3yr %    5yr %   10yr %'),
+])
+def test_get_performance_report_column_headers(test_input, expected):
+    actual = portfolio.get_performance_report_column_headers(test_input)
+    assert Colorable.get_plain_string(actual) == expected
+
+
+def test_get_performance_report_years_eleven_years():
+    totals = {
+        2013: {'contributions': 100, 'transfers': 500, 'value': 625},
+        2014: {'contributions': 200, 'transfers': 0.50, 'value': 875},
+        2015: {'contributions': 300, 'transfers': -0.50, 'value': 1225},
+        2016: {'contributions': 0, 'transfers': -500, 'value': 775},
+        2017: {'contributions': 200, 'transfers': 0, 'value': 950},
+        2018: {'contributions': 100, 'transfers': 0, 'value': 1000},
+        2019: {'contributions': 250, 'transfers': 0, 'value': 1225},
+        2020: {'contributions': 250, 'transfers': 0, 'value': 1600},
+        2021: {'contributions': 150, 'transfers': 0, 'value': 1875},
+        2022: {'contributions': 50, 'transfers': 0, 'value': 2112},
+        2023: {'contributions': 100, 'transfers': 200, 'value': 2500},
+    }
+    years = portfolio.get_yearly_with_gains(totals)
+    report = portfolio.get_performance_report_years(years)
+    helper = OutputFileTester('test_portfolio_perf_report_years_eleven_years')
+    helper.save_out_file(report)
+    helper.assert_out_equals_expected()
 
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_report', return_value='hi!')

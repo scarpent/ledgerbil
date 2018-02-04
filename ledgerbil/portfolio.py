@@ -64,17 +64,22 @@ def validate_json_year_keys(year):
         raise LdgPortfolioError(f'Invalid key in {year.keys()}')
 
 
+def get_performance_report_header(accounts, num_years):
+    header = f"{num_years} year{'' if num_years == 1 else 's'}, "
+    header += f"{len(accounts)} account{'' if len(accounts) == 1 else 's'}: "
+    header += ', '.join([account['account'] for account in accounts[:2]])
+    if len(accounts) > 2:
+        header += ', ...'
+    return strip_assets_prefix(header)
+
+
 def get_performance_report(accounts, included_years):
     year_start, year_end = util.get_start_and_end_range(included_years)
     totals = get_yearly_combined_accounts(accounts, year_start, year_end)
     years = get_yearly_with_gains(totals)
-    info = f"{len(years)} year{'' if len(years) == 1 else 's'}, "
-    info += f"{len(accounts)} account{'' if len(accounts) == 1 else 's'}: "
-    info += ', '.join([account['account'] for account in accounts[:2]])
-    if len(accounts) > 2:
-        info += ', ...'
-    return '{info}\n\n{report}'.format(
-        info=strip_assets_prefix(info),
+    return '{header}\n\n{col_headers}\n{report}'.format(
+        header=get_performance_report_header(accounts, len(years)),
+        col_headers=get_performance_report_column_headers(len(years)),
         report=get_performance_report_years(years)
     )
 
@@ -90,35 +95,37 @@ def get_annualized_total_return(gains, num_years):
     return (pow(util.product(gains[-num_years:]), 1 / num_years) - 1) * 100
 
 
-def get_gain(gains, num_years, total_years):
-    if len(gains) >= num_years:
+def get_gain(gains, selected_num_years, num_years):
+    if len(gains) >= selected_num_years:
         return util.get_colored_amount(
-            get_annualized_total_return(gains, num_years),
+            get_annualized_total_return(gains, selected_num_years),
             colwidth=COL_GAIN,
             prefix='',
             positive='white'
         )
-    elif total_years < num_years:
+    elif num_years < selected_num_years:
         return ''
     else:
         return ' ' * COL_GAIN
 
 
-def get_performance_report_years(years):
-    total_years = len(years)
+def get_performance_report_column_headers(num_years):
+    header3 = '' if num_years < 3 else f"{'3yr %':>{COL_GAIN}}"
+    header5 = '' if num_years < 5 else f"{'5yr %':>{COL_GAIN}}"
+    header10 = '' if num_years < 10 else f"{'10yr %':>{COL_GAIN}}"
 
-    header3 = '' if total_years < 3 else f"{'3 yr %':>{COL_GAIN}}"
-    header5 = '' if total_years < 5 else f"{'5 yr %':>{COL_GAIN}}"
-    header10 = '' if total_years < 10 else f"{'10 yr %':>{COL_GAIN}}"
-
-    report = str(Colorable(
+    return str(Colorable(
         'cyan',
         (f"year  {'contrib':>{COL_CONTRIB}}  {'transfers':>{COL_TRANSFERS}}  "
          f"{'value':>{COL_VALUE}}  {'gain %':>{COL_GAIN}}  "
          f"{'gain val':>{COL_GAIN_VALUE}}  {'all %':>{COL_GAIN}}  "
-         f'{header3}  {header5}  {header10}\n')
+         f'{header3}  {header5}  {header10}')
     ))
 
+
+def get_performance_report_years(years):
+    report = ''
+    num_years = len(years)
     contrib_total = 0
     transfers_total = 0
     gain_val_total = 0
@@ -140,19 +147,15 @@ def get_performance_report_years(years):
         else:
             transfers = ' ' * COL_TRANSFERS
         value = util.get_plain_amount(year.value, COL_VALUE, 0)
-        if year.gain == 1:
-            gain = ' ' * COL_GAIN
-            gain_value = ' ' * COL_GAIN_VALUE
-        else:
-            gain = get_gain([year.gain], 1, 1)
-            gain_value = util.get_colored_amount(year.gain_value,
-                                                 colwidth=COL_GAIN_VALUE,
-                                                 decimals=0)
+        gain = get_gain([year.gain], 1, 1)
+        gain_value = util.get_colored_amount(year.gain_value,
+                                             colwidth=COL_GAIN_VALUE,
+                                             decimals=0)
 
-        gain_all = get_gain(gains, len(gains), total_years)
-        gain_3 = get_gain(gains, 3, total_years)
-        gain_5 = get_gain(gains, 5, total_years)
-        gain_10 = get_gain(gains, 10, total_years)
+        gain_all = get_gain(gains, len(gains), num_years)
+        gain_3 = get_gain(gains, 3, num_years)
+        gain_5 = get_gain(gains, 5, num_years)
+        gain_10 = get_gain(gains, 10, num_years)
 
         report += (f'{year.year}  {contrib}  {transfers}  {value}  '
                    f'{gain}  {gain_value}  {gain_all}  '
@@ -217,9 +220,7 @@ def get_yearly_with_gains(totals):
                 / (previous_value + (contrib + transfers) / 2))
         gain_value = value - contrib - transfers - (previous_value or 0)
 
-        # todo: unit test, and... show values?
-        # (can happen with bad data -- e.g. missed sign on a transfer)
-        assert gain > 0, f"gain <= 0 in {year}: {gain}"
+        assert gain > 0, f'Gain < 0 in {year}: {gain}'
 
         this_year = Year(year, contrib, transfers, value, gain, gain_value)
         years.append(this_year)
@@ -317,7 +318,6 @@ def get_account_history(account):
 
 
 def get_portfolio_data():
-    # todo: handle bad file or data
     with open(settings.PORTFOLIO_FILE, 'r') as portfile:
         return json.loads(portfile.read())
 
