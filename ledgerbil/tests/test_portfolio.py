@@ -109,10 +109,28 @@ def test_get_portfolio_report_no_matches(mock_get_data):
 
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
+def test_get_portfolio_report_no_matches_labels_has_precedence(mock_get_data):
+    # There is an account with big, but labels overrides
+    mock_get_data.return_value = portfolio_data
+    args = portfolio.get_args(['--accounts', 'big', '--labels', 'gah'])
+    expected = 'No account labels matched gah'
+    assert portfolio.get_portfolio_report(args) == expected
+
+
+@mock.patch(__name__ + '.portfolio.get_portfolio_data')
 def test_get_performance_report_no_yearly_data(mock_get_data):
     mock_get_data.return_value = portfolio_data
     args = portfolio.get_args(['--accounts', 'bonds idx 2'])
     expected = 'No yearly data found for bonds idx 2'
+    assert portfolio.get_portfolio_report(args) == expected
+
+
+@mock.patch(__name__ + '.portfolio.get_portfolio_data')
+def test_get_performance_report_no_yearly_data_label_precedence(mock_get_data):
+    # There is an account with big, but labels overrides
+    mock_get_data.return_value = portfolio_data
+    args = portfolio.get_args(['--accounts', 'big', '--labels', 'smactive z'])
+    expected = 'No yearly data found for labels smactive z'
     assert portfolio.get_portfolio_report(args) == expected
 
 
@@ -172,6 +190,15 @@ def test_account_matching_regex(mock_get_data):
     expected_included_years = {'2014', '2015', '2016', '2017', '2019'}
     assert matched == portfolio_data[:BONDS + 1]
     assert included_years == expected_included_years
+
+
+@mock.patch(__name__ + '.portfolio.get_portfolio_data')
+def test_account_matching_labels(mock_get_data):
+    mock_get_data.return_value = portfolio_data
+    matched, included_years = portfolio.get_matching_accounts('.*', 'smactive')
+    expected_included_years = {}
+    assert matched == [portfolio_data[BIG_NAME]]
+    assert set(included_years) == set(expected_included_years)
 
 
 def test_validate_json_year_keys_valid():
@@ -488,6 +515,16 @@ def test_main(mock_print, mock_report):
 def test_args_accounts(test_input, expected):
     args = portfolio.get_args(test_input)
     assert args.accounts_regex == expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (['-L', 'small large'], 'small large'),
+    (['--labels', 'mid, large'], 'mid, large'),
+    ([], ''),  # default
+])
+def test_args_labels(test_input, expected):
+    args = portfolio.get_args(test_input)
+    assert args.labels == expected
 
 
 @pytest.mark.parametrize('test_input, expected', [

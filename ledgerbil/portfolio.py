@@ -18,10 +18,13 @@ def strip_assets_prefix(s):
 
 
 def get_portfolio_report(args):
-    matched, included_years = get_matching_accounts(args.accounts_regex)
+    matched, included_years = get_matching_accounts(
+        args.accounts_regex,
+        args.labels
+    )
 
     if not matched:
-        return f'No accounts matched {args.accounts_regex}'
+        return no_match(args)
 
     if args.history:
         report = get_history_report(matched)
@@ -33,19 +36,33 @@ def get_portfolio_report(args):
         report += str(Colorable('cyan', count))
     else:
         if not included_years:
-            return f'No yearly data found for {args.accounts_regex}'
+            return no_match(args, yearly=True)
         report = get_performance_report(matched, included_years)
 
     return report
 
 
-def get_matching_accounts(accounts_regex):
+def no_match(args, yearly=False):
+    if args.labels and yearly:
+        return f'No yearly data found for labels {args.labels}'
+    elif args.labels:
+        return f'No account labels matched {args.labels}'
+    elif yearly:
+        return f'No yearly data found for {args.accounts_regex}'
+    else:
+        return f'No accounts matched {args.accounts_regex}'
+
+
+def get_matching_accounts(accounts_regex, labels=''):
     portfolio_data = get_portfolio_data()
     included_years = set()
+    labels_set = {label for label in re.split('[, ]+', labels) if label != ''}
     matched = []
     for account in portfolio_data:
         account_name = account['account']
-        if not re.search(accounts_regex, account_name):
+        match = ((re.search(accounts_regex, account_name) and not labels)
+                 or (labels_set & set(account['labels'])))
+        if not match:
             continue
 
         # todo: validation?
@@ -135,9 +152,11 @@ def get_performance_report_years(years):
     for year in years:
         gains.append(year.gain)
         if year.contributions:
-            contrib = Colorable(
-                'yellow',
-                util.get_plain_amount(year.contributions, COL_CONTRIB, 0)
+            contrib = util.get_colored_amount(
+                year.contributions,
+                colwidth=COL_CONTRIB,
+                decimals=0,
+                positive='yellow'
             )
         else:
             contrib = ' ' * COL_CONTRIB
@@ -339,6 +358,12 @@ def get_args(args=[]):
         dest='accounts_regex',
         default='.*',
         help='include accounts that match this regex, default = .* (all)'
+    )
+    parser.add_argument(
+        '-L', '--labels',
+        type=str,
+        default='',
+        help='include these labels'
     )
     parser.add_argument(
         '-H', '--history',
