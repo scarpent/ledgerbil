@@ -43,14 +43,15 @@ def get_portfolio_report(args):
 
 
 def no_match(args, yearly=False):
-    if args.labels and yearly:
-        return f'No yearly data found for labels {args.labels}'
-    elif args.labels:
-        return f'No account labels matched {args.labels}'
-    elif yearly:
-        return f'No yearly data found for {args.accounts_regex}'
+    if yearly:
+        message = f'No yearly data found for accounts "{args.accounts_regex}"'
     else:
-        return f'No accounts matched {args.accounts_regex}'
+        message = f'No accounts matched "{args.accounts_regex}"'
+
+    if args.labels:
+        message += f', labels "{args.labels}"'
+
+    return message
 
 
 def get_matching_accounts(accounts_regex, labels=''):
@@ -59,17 +60,19 @@ def get_matching_accounts(accounts_regex, labels=''):
     labels_set = {label for label in re.split('[, ]+', labels) if label != ''}
     matched = []
     for account in portfolio_data:
-        account_name = account['account']
-        match = ((re.search(accounts_regex, account_name) and not labels)
-                 or (labels_set & set(account['labels'])))
-        if not match:
-            continue
+        account_match = re.search(accounts_regex, account['account'])
 
-        # todo: validation?
-        #       - year: format and sanity check on range
-        #       - warn if missing years in accounts?
-        included_years.update(set(account['years'].keys()))
-        matched.append(account)
+        if labels:
+            label_match = labels_set & set(account['labels'])
+        else:
+            label_match = account_match
+
+        if account_match and label_match:
+            # todo: validation?
+            #       - year: format and sanity check on range
+            #       - warn if missing years in accounts?
+            included_years.update(set(account['years'].keys()))
+            matched.append(account)
 
     return sorted(matched, key=lambda k: k['account']), included_years
 
@@ -373,7 +376,7 @@ def get_args(args=[]):
     parser.add_argument(
         '-l', '--list',
         action='store_true',
-        help='list account names'
+        help='list matching account names'
     )
 
     return parser.parse_args(args)

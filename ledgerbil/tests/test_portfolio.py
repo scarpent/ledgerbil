@@ -104,16 +104,16 @@ portfolio_data = json.loads(portfolio_json_data)
 def test_get_portfolio_report_no_matches(mock_get_data):
     mock_get_data.return_value = portfolio_data
     args = portfolio.get_args(['--accounts', 'qwertyable'])
-    expected = 'No accounts matched qwertyable'
+    expected = 'No accounts matched "qwertyable"'
     assert portfolio.get_portfolio_report(args) == expected
 
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
-def test_get_portfolio_report_no_matches_labels_has_precedence(mock_get_data):
+def test_get_portfolio_report_no_matches_with_labels(mock_get_data):
     # There is an account with big, but labels overrides
     mock_get_data.return_value = portfolio_data
     args = portfolio.get_args(['--accounts', 'big', '--labels', 'gah'])
-    expected = 'No account labels matched gah'
+    expected = 'No accounts matched "big", labels "gah"'
     assert portfolio.get_portfolio_report(args) == expected
 
 
@@ -121,16 +121,16 @@ def test_get_portfolio_report_no_matches_labels_has_precedence(mock_get_data):
 def test_get_performance_report_no_yearly_data(mock_get_data):
     mock_get_data.return_value = portfolio_data
     args = portfolio.get_args(['--accounts', 'bonds idx 2'])
-    expected = 'No yearly data found for bonds idx 2'
+    expected = 'No yearly data found for accounts "bonds idx 2"'
     assert portfolio.get_portfolio_report(args) == expected
 
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
-def test_get_performance_report_no_yearly_data_label_precedence(mock_get_data):
+def test_get_performance_report_no_yearly_data_with_labels(mock_get_data):
     # There is an account with big, but labels overrides
     mock_get_data.return_value = portfolio_data
-    args = portfolio.get_args(['--accounts', 'big', '--labels', 'smactive z'])
-    expected = 'No yearly data found for labels smactive z'
+    args = portfolio.get_args(['--accounts', '401k', '--labels', 'smactive'])
+    expected = 'No yearly data found for accounts "401k", labels "smactive"'
     assert portfolio.get_portfolio_report(args) == expected
 
 
