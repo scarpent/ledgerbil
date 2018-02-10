@@ -12,6 +12,7 @@ from .settings import Settings
 settings = Settings()
 
 Year = namedtuple('Year', 'year contributions transfers value gain gain_value')
+Summary = namedtuple('Summary', 'col1 value gain_value years all y3 y5 y10')
 
 
 def strip_assets_prefix(s):
@@ -19,24 +20,21 @@ def strip_assets_prefix(s):
 
 
 def get_portfolio_report(args):
-    matched, included_years = get_matching_accounts(
-        args.accounts_regex,
-        args.labels
-    )
+    matched_accounts, _, included_years = get_matching_accounts(args)
 
-    if not matched:
+    if not matched_accounts:
         return no_match(args)
 
     if args.history:
-        report = get_history_report(matched)
+        report = get_history_report(matched_accounts)
     elif args.compare:
-        report = get_comparison_report(matched)
+        report = get_comparison_report(matched_accounts)
     elif args.list:
-        report = get_list(matched)
+        report = get_list(matched_accounts)
     else:
         if not included_years:
             return no_match(args, yearly=True)
-        report = get_performance_report(matched, included_years)
+        report = get_performance_report(matched_accounts, included_years)
 
     return report
 
@@ -53,16 +51,18 @@ def no_match(args, yearly=False):
     return message
 
 
-def get_matching_accounts(accounts_regex, labels=''):
+def get_matching_accounts(args):
     portfolio_data = get_portfolio_data()
     included_years = set()
-    labels_set = {label for label in re.split('[, ]+', labels) if label != ''}
-    matched = []
+    labels = {label for label in re.split('[, ]+', args.labels) if label != ''}
+    matched_accounts = []
+    matched_labels = set()
     for account in portfolio_data:
-        account_match = re.search(accounts_regex, account['account'])
+        account_match = re.search(args.accounts_regex, account['account'])
 
-        if labels:
-            label_match = labels_set & set(account['labels'])
+        if args.labels:
+            label_match = labels & set(account['labels'])
+            matched_labels.union(label_match)
         else:
             label_match = account_match
 
@@ -71,9 +71,13 @@ def get_matching_accounts(accounts_regex, labels=''):
             #       - year: format and sanity check on range
             #       - warn if missing years in accounts?
             included_years.update(set(account['years'].keys()))
-            matched.append(account)
+            matched_accounts.append(account)
 
-    return sorted(matched, key=lambda k: k['account']), included_years
+    return (
+        sorted(matched_accounts, key=lambda k: k['account']),
+        matched_labels,
+        included_years
+    )
 
 
 def get_list(accounts):
@@ -159,7 +163,6 @@ def get_gain(gains, selected_num_years, num_years):
 
 
 def get_performance_report_column_headers(num_years):
-    # todo: make sure num_years are consecutive?
     header3 = '' if num_years < 3 else f"{'3yr %':>{COL_GAIN}}"
     header5 = '' if num_years < 5 else f"{'5yr %':>{COL_GAIN}}"
     header10 = '' if num_years < 10 else f"{'10yr %':>{COL_GAIN}}"
@@ -371,7 +374,6 @@ def get_account_history(account):
 
 
 def get_comparison_report_column_headers(num_years, labels=True):
-    # todo: make sure num_years are consecutive?
     header3 = '' if num_years < 3 else f"{'3yr %':>{COL_GAIN}}"
     header5 = '' if num_years < 5 else f"{'5yr %':>{COL_GAIN}}"
     header10 = '' if num_years < 10 else f"{'10yr %':>{COL_GAIN}}"
