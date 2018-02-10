@@ -29,6 +29,8 @@ def get_portfolio_report(args):
 
     if args.history:
         report = get_history_report(matched)
+    elif args.compare:
+        report = get_comparison_report(matched)
     elif args.list:
         report = get_list(matched)
     else:
@@ -133,6 +135,9 @@ COL_CONTRIB = 9
 COL_TRANSFERS = 10
 COL_VALUE = 11
 COL_GAIN_VALUE = 11
+COL_NUM_YEARS = 2
+COL_ACCOUNT = 40
+COL_LABEL = 12
 
 
 def get_annualized_total_return(gains, num_years):
@@ -154,6 +159,7 @@ def get_gain(gains, selected_num_years, num_years):
 
 
 def get_performance_report_column_headers(num_years):
+    # todo: make sure num_years are consecutive?
     header3 = '' if num_years < 3 else f"{'3yr %':>{COL_GAIN}}"
     header5 = '' if num_years < 5 else f"{'5yr %':>{COL_GAIN}}"
     header10 = '' if num_years < 10 else f"{'10yr %':>{COL_GAIN}}"
@@ -364,6 +370,32 @@ def get_account_history(account):
     return history
 
 
+def get_comparison_report_column_headers(num_years, labels=True):
+    # todo: make sure num_years are consecutive?
+    header3 = '' if num_years < 3 else f"{'3yr %':>{COL_GAIN}}"
+    header5 = '' if num_years < 5 else f"{'5yr %':>{COL_GAIN}}"
+    header10 = '' if num_years < 10 else f"{'10yr %':>{COL_GAIN}}"
+
+    if labels:
+        col1 = f"{'labels':{COL_LABEL}}"
+    else:
+        col1 = f"{'accounts':{COL_ACCOUNT}}"
+
+    return str(Colorable(
+        'cyan',
+        (f"{col1}  {'value':>{COL_VALUE}}  {'gain val':>{COL_GAIN_VALUE}}  "
+         f"yr  {'all %':>{COL_GAIN}}  {header3}  {header5}  {header10}")
+    ))
+
+
+def get_comparison_report(accounts):
+    return '{header}\n\n{col_headers}\n{report}'.format(
+        header='possible header',
+        col_headers=get_comparison_report_column_headers(10, False),
+        report='comparison stuff...'
+    )
+
+
 def get_portfolio_data():
     with open(settings.PORTFOLIO_FILE, 'r') as portfile:
         return json.loads(portfile.read())
@@ -388,7 +420,12 @@ def get_args(args=[]):
         '-L', '--labels',
         type=str,
         default='',
-        help='include these labels'
+        help='include accounts that match these labels along with --accounts'
+    )
+    parser.add_argument(
+        '-c', '--compare',
+        action='store_true',
+        help='compare accounts or labels'
     )
     parser.add_argument(
         '-H', '--history',

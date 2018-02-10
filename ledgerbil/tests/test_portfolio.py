@@ -516,6 +516,24 @@ def test_get_performance_report():
     helper.assert_out_equals_expected()
 
 
+comp_headers = '        value     gain val  yr    all %'
+account_header = f"{'accounts':{portfolio.COL_ACCOUNT}}"
+label_header = f"{'labels':{portfolio.COL_LABEL}}"
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    ([2], f'{label_header}{comp_headers}      '),
+    ([3, False], f'{account_header}{comp_headers}    3yr %    '),
+    ([4], f'{label_header}{comp_headers}    3yr %    '),
+    ([5, False], f'{account_header}{comp_headers}    3yr %    5yr %  '),
+    ([6, False], f'{account_header}{comp_headers}    3yr %    5yr %  '),
+    ([10], f'{label_header}{comp_headers}    3yr %    5yr %   10yr %'),
+])
+def test_get_comparison_report_column_headers(test_input, expected):
+    actual = portfolio.get_comparison_report_column_headers(*test_input)
+    assert Colorable.get_plain_string(actual) == expected
+
+
 @mock.patch(__name__ + '.portfolio.get_portfolio_report', return_value='hi!')
 @mock.patch(__name__ + '.portfolio.print')
 def test_main(mock_print, mock_report):
@@ -562,3 +580,13 @@ def test_args_command(test_input, expected):
 def test_args_list(test_input, expected):
     args = portfolio.get_args(test_input)
     assert args.list is expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (['-c'], True),
+    (['--compare'], True),
+    ([], False),
+])
+def test_args_compare(test_input, expected):
+    args = portfolio.get_args(test_input)
+    assert args.compare is expected
