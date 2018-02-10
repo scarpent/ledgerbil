@@ -195,10 +195,27 @@ def test_account_matching_regex(mock_get_data):
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
 def test_account_matching_labels(mock_get_data):
     mock_get_data.return_value = portfolio_data
-    matched, included_years = portfolio.get_matching_accounts('.*', 'smactive')
-    expected_included_years = {}
+    matched, _ = portfolio.get_matching_accounts('.*', 'smactive')
     assert matched == [portfolio_data[BIG_NAME]]
-    assert set(included_years) == set(expected_included_years)
+
+
+@mock.patch(__name__ + '.portfolio.get_portfolio_data')
+def test_account_matching_multiple_labels(mock_get_data):
+    mock_get_data.return_value = portfolio_data
+    matched, _ = portfolio.get_matching_accounts('.*', 'smactive,,  ,large')
+    assert matched == [portfolio_data[BIG_CO], portfolio_data[BIG_NAME]]
+
+
+@mock.patch(__name__ + '.portfolio.get_portfolio_data')
+def test_account_matching_multiple_labels_space_and_comma_stuff(mock_get_data):
+    mock_get_data.return_value = portfolio_data
+    matched, _ = portfolio.get_matching_accounts('.*', 'intl,  large  bonds')
+    expected = [
+        portfolio_data[BIG_CO],
+        portfolio_data[BONDS],
+        portfolio_data[BIG_NAME]
+    ]
+    assert matched == expected
 
 
 def test_validate_json_year_keys_valid():
