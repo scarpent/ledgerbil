@@ -38,6 +38,7 @@ class Reconciler(cmd.Cmd, object):
         self.ending_balance = None
         self.previous_date = date.today()
         self.previous_balance = None
+        self.cached_is_shares = None
         self.get_statement_info_from_cache()
 
         # these are immediately reset in populate open transactions
@@ -46,7 +47,6 @@ class Reconciler(cmd.Cmd, object):
         self.total_cleared = 0
         self.total_pending = 0
         self.is_shares = False
-
         self.populate_open_transactions()
 
     intro = ''
@@ -205,6 +205,8 @@ class Reconciler(cmd.Cmd, object):
         if self.open_transactions:
             self.validate_and_get_is_shares(is_shareses)
             self.assert_only_one_symbol(symbols)
+        else:
+            self.is_shares = self.cached_is_shares
 
         self.do_list('')
 
@@ -445,6 +447,7 @@ class Reconciler(cmd.Cmd, object):
         self.previous_date = date.today()
         self.ending_balance = None
         self.ending_date = date.today()
+        self.cached_is_shares = self.is_shares
         self.save_statement_info_to_cache(finish=True)
 
         self.ledgerfile.write_file()
@@ -452,8 +455,7 @@ class Reconciler(cmd.Cmd, object):
 
     def get_zero_candidate(self):
         return (
-            self.ending_balance -
-            (self.total_cleared + self.total_pending)
+            self.ending_balance - (self.total_cleared + self.total_pending)
         )
 
     @staticmethod
@@ -487,6 +489,8 @@ class Reconciler(cmd.Cmd, object):
             self.previous_date, self.previous_balance = \
                 self.get_date_and_balance(key, cache, 'previous')
 
+            self.cached_is_shares = cache[key].get('shares', False)
+
     def get_date_and_balance(self, key, cache, prefix):
         the_date = util.get_date(cache[key].pop(
             f'{prefix}_date',
@@ -506,6 +510,7 @@ class Reconciler(cmd.Cmd, object):
                 entry = {
                     'previous_date': util.get_date_string(self.previous_date),
                     'previous_balance': self.previous_balance,
+                    'shares': self.is_shares
                 }
                 cache[key] = entry
         else:

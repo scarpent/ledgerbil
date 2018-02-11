@@ -579,6 +579,16 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
             i: investment: yargle
         ''')
 
+    teststmt_shares_finish = dedent('''\
+        2016/10/26 banana
+          * a: 401k: big co 500 idx     0.123456 abcdx @   $81.89
+            i: investment: yargle
+
+        2016/10/27 sweet potato
+          * a: 401k: big co 500 idx        2.111 abcdx @   $82.13
+            i: investment: yargle
+        ''')
+
     def test_setting_statement_date_and_balance(self):
         self.init_test('test_statement_stuff')
 
@@ -706,11 +716,33 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
 
         self.conclude_test()
 
+    def test_cache_with_shares(self):
+        """ The reconciler relies on open transactions to determine if we're
+        reconciling dollars or shares. This test confirms that shares =
+        true/false is stored in cache and that statement info is shown
+        correctly when there are no open transactions. (Both when first
+        finishing and when next reconciling this account.) """
+        self.init_test('test_reconciler_caching_with_shares')
+
+        with FileTester.temp_input(self.teststmt_shares) as tempfilename:
+            recon = Reconciler(LedgerFile(tempfilename, 'big'))
+
+            self.responses = ['2030/03/30', '2.234456']
+            recon.do_statement('')
+            recon.do_mark('1 2')
+            recon.do_finish('')
+
+        print('<<< test: restart >>>')
+        with FileTester.temp_input(self.teststmt_shares_finish) as tempfile:
+            recon = Reconciler(LedgerFile(tempfile, 'big'))
+
+        self.conclude_test()
+
 
 class ResponseTests(MockInput, Redirector):
 
     def test_get_response_with_none(self):
-        """ None should be preserve for no response"""
+        """ None should be preserved for no response"""
         self.responses = ['']
         self.assertIsNone(Reconciler.get_response('prompt', None))
         self.responses = ['']
