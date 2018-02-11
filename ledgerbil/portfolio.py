@@ -20,7 +20,9 @@ def strip_assets_prefix(s):
 
 
 def get_portfolio_report(args):
-    matched_accounts, _, included_years = get_matching_accounts(args)
+
+    matched_accounts, matched_labels, included_years = \
+        get_matching_accounts(args)
 
     if not matched_accounts:
         return no_match(args)
@@ -28,7 +30,11 @@ def get_portfolio_report(args):
     if args.history:
         report = get_history_report(matched_accounts)
     elif args.compare:
-        report = get_comparison_report(matched_accounts)
+        report = get_comparison_report(
+            matched_accounts,
+            matched_labels,
+            included_years
+        )
     elif args.list:
         report = get_list(matched_accounts)
     else:
@@ -62,7 +68,7 @@ def get_matching_accounts(args):
 
         if args.labels:
             label_match = labels & set(account['labels'])
-            matched_labels.union(label_match)
+            matched_labels = matched_labels.union(label_match)
         else:
             label_match = account_match
 
@@ -391,7 +397,7 @@ def get_comparison_report_column_headers(num_years, labels=True):
     ))
 
 
-def get_comparison_report(accounts):
+def get_comparison_report(accounts, labels, included_years):
     return '{header}\n\n{col_headers}\n{report}'.format(
         header='possible header',
         col_headers=get_comparison_report_column_headers(10, True),

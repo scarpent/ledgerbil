@@ -201,19 +201,21 @@ def test_account_matching_regex(mock_get_data):
 def test_account_matching_labels(mock_get_data):
     mock_get_data.return_value = portfolio_data
     args = portfolio.get_args(['--labels', 'smactive'])
-    matched_accounts, _, _ = portfolio.get_matching_accounts(args)
+    matched_accounts, matched_labels, _ = portfolio.get_matching_accounts(args)
     assert matched_accounts == [portfolio_data[BIG_NAME]]
+    assert matched_labels == {'smactive'}
 
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
 def test_account_matching_multiple_labels(mock_get_data):
     mock_get_data.return_value = portfolio_data
     args = portfolio.get_args(['--labels', 'smactive,,  ,large'])
-    matched_accounts, _, _ = portfolio.get_matching_accounts(args)
+    matched_accounts, matched_labels, _ = portfolio.get_matching_accounts(args)
     assert matched_accounts == [
         portfolio_data[BIG_CO],
         portfolio_data[BIG_NAME]
     ]
+    assert matched_labels == {'smactive', 'large'}
 
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
