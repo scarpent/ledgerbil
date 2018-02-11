@@ -142,6 +142,7 @@ COL_GAIN_VALUE = 11
 COL_NUM_YEARS = 2
 COL_ACCOUNT = 40
 COL_LABEL = 12
+COL_PERCENT = 3
 
 
 def get_annualized_total_return(gains, num_years):
@@ -385,15 +386,15 @@ def get_comparison_report_column_headers(num_years, labels=True):
 
     return str(Colorable(
         'cyan',
-        (f"{col1}  {'value':>{COL_VALUE}}  {'gain val':>{COL_GAIN_VALUE}}  "
-         f"yr  {'all %':>{COL_GAIN}}  {header3}  {header5}  {header10}")
+        (f"{col1}  {'value':>{COL_VALUE}}    %  {'gain val':>{COL_GAIN_VALUE}}"
+         f"  yr  {'all %':>{COL_GAIN}}  {header3}  {header5}  {header10}")
     ))
 
 
 def get_comparison_report(accounts):
     return '{header}\n\n{col_headers}\n{report}'.format(
         header='possible header',
-        col_headers=get_comparison_report_column_headers(10, False),
+        col_headers=get_comparison_report_column_headers(10, True),
         report='comparison stuff...'
     )
 

@@ -527,7 +527,7 @@ def test_get_performance_report():
     helper.assert_out_equals_expected()
 
 
-comp_headers = '        value     gain val  yr    all %'
+comp_headers = '        value    %     gain val  yr    all %'
 account_header = f"{'accounts':{portfolio.COL_ACCOUNT}}"
 label_header = f"{'labels':{portfolio.COL_LABEL}}"
 
