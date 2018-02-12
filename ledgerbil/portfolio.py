@@ -25,34 +25,33 @@ def get_portfolio_report(args):
         get_matching_accounts(args.accounts_regex, args.labels)
 
     if not matched_accounts:
-        return no_match(args)
+        return no_match(args.accounts_regex, args.labels)
 
     if args.history:
         report = get_history_report(matched_accounts)
     elif args.compare:
         report = get_comparison_report(
             matched_accounts,
-            matched_labels,
-            included_years
+            matched_labels
         )
     elif args.list:
         report = get_list(matched_accounts)
     else:
         if not included_years:
-            return no_match(args, yearly=True)
+            return no_match(args.accounts_regex, args.labels, yearly=True)
         report = get_performance_report(matched_accounts, included_years)
 
     return report
 
 
-def no_match(args, yearly=False):
+def no_match(accounts_regex, labels, yearly=False):
     if yearly:
-        message = f'No yearly data found for accounts "{args.accounts_regex}"'
+        message = f'No yearly data found for accounts "{accounts_regex}"'
     else:
-        message = f'No accounts matched "{args.accounts_regex}"'
+        message = f'No accounts matched "{accounts_regex}"'
 
-    if args.labels:
-        message += f', labels "{args.labels}"'
+    if labels:
+        message += f', labels "{labels}"'
 
     return message
 
@@ -132,8 +131,7 @@ def get_performance_report_header(accounts, num_years):
 
 
 def get_performance_report(accounts, included_years):
-    year_start, year_end = util.get_start_and_end_range(included_years)
-    totals = get_yearly_combined_accounts(accounts, year_start, year_end)
+    totals = get_yearly_combined_accounts(accounts, included_years)
     years = get_yearly_with_gains(totals)
     return '{header}\n\n{col_headers}\n{report}'.format(
         header=get_performance_report_header(accounts, len(years)),
@@ -246,8 +244,9 @@ def get_performance_report_years(years):
     return report
 
 
-def get_yearly_combined_accounts(accounts, year_start, year_end):
+def get_yearly_combined_accounts(accounts, included_years):
     # Combine all the accounts into total contributions and value per year
+    year_start, year_end = util.get_start_and_end_range(included_years)
     totals = defaultdict(lambda: defaultdict(float))
     for account in accounts:
         previous_value = 0
@@ -399,13 +398,22 @@ def get_comparison_report_column_headers(num_years, labels=True):
     ))
 
 
-def get_comparison_report(accounts, labels, included_years):
+def get_comparison_report(accounts, labels):
     if labels:
         for label in labels:
             pass
     else:
         for account in accounts:
-            pass
+            years = account['years']
+            totals = get_yearly_combined_accounts(
+                [accounts],
+                set(years.keys)
+            )
+            years = get_yearly_with_gains(totals)
+
+    # year_start, year_end = util.get_start_and_end_range(included_years)
+
+    years = get_yearly_with_gains(totals)
 
     return '{header}\n\n{col_headers}\n{report}'.format(
         header='possible header',

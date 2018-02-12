@@ -332,7 +332,7 @@ def test_get_yearly_combined_accounts_single_account():
         2014: {'contributions': 50, 'transfers': 50, 'value': 1000.0},
         2015: {'contributions': 200, 'transfers': 0, 'value': 2200.0},
     }
-    actual = portfolio.get_yearly_combined_accounts(accounts, 2014, 2016)
+    actual = portfolio.get_yearly_combined_accounts(accounts, {'2014', '2015'})
     assert actual == expected
 
 
@@ -358,7 +358,7 @@ def test_get_yearly_combined_accounts_two_accounts_same_years():
         2014: {'contributions': 600.0, 'transfers': 0, 'value': 16000.0},
         2015: {'contributions': 1450.0, 'transfers': -250, 'value': 35200.0},
     }
-    actual = portfolio.get_yearly_combined_accounts(accounts, 2014, 2016)
+    actual = portfolio.get_yearly_combined_accounts(accounts, {'2014', '2015'})
     assert actual == expected
 
 
@@ -378,7 +378,10 @@ def test_get_yearly_combined_accounts_single_account_missing_years():
         2016: {'contributions': 0, 'transfers': 0, 'value': 2200},
         2017: {'contributions': 0, 'transfers': 0, 'value': 2200},
     }
-    actual = portfolio.get_yearly_combined_accounts(accounts, 2010, 2018)
+    actual = portfolio.get_yearly_combined_accounts(
+        accounts,
+        {'2014', '2013', '2015', '2017', '2016'}
+    )
     assert actual == expected
 
 
@@ -410,7 +413,10 @@ def test_get_yearly_combined_accounts_multiple_accounts_missing_years():
         2017: {'contributions': 0, 'transfers': 0, 'value': 35200},
         2018: {'contributions': 800, 'transfers': 0, 'value': 29700},
     }
-    actual = portfolio.get_yearly_combined_accounts(accounts, 2010, 2019)
+    actual = portfolio.get_yearly_combined_accounts(
+        accounts,
+        {'2014', '2013', '2015', '2017', '2016', '2018'}
+    )
     assert actual == expected
 
 
