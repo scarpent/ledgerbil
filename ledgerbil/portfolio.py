@@ -36,6 +36,8 @@ def get_portfolio_report(args):
     if args.history:
         report = get_history_report(matched_accounts)
     elif args.compare:
+        if not included_years:
+            return no_match(args.accounts_regex, args.labels, yearly=True)
         report = get_comparison_report(
             matched_accounts,
             matched_labels,
@@ -308,7 +310,7 @@ def get_history_report(matching_accounts):
 
 
 def get_account_history(account):
-    labels = f"labels: {', '.join(account['labels'])}"
+    labels = f"labels: {', '.join(sorted(account['labels']))}"
     history = '{account}\n{label}'.format(
         account=Colorable('purple', strip_assets_prefix(account['account'])),
         label=Colorable('white', labels, '>79') if account['labels'] else ''
@@ -498,6 +500,7 @@ def get_comparison_report_line(comparison_item, percent, labels):
     )
     num_years = f'{comparison_item.num_years:>{COL_NUM_YEARS}}'
 
+    # These ones are already formatted
     gain_all = comparison_item.all
     gain_3 = comparison_item.y3
     gain_5 = comparison_item.y5

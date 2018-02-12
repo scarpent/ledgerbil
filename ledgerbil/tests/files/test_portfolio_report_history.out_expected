@@ -1,5 +1,5 @@
 401k: big co 500 idx
-                                                     labels: large, 401k, flurb
+                                                     labels: 401k, flurb, large
     year     contrib   transfers     shares       price         value         %
     2016     $ 1,501   $ 900,000     12,201     $ 80.23     $ 978,869     17.16
     2017    $ 11,500                    999     $ 81.57      $ 81,488    -92.31
@@ -8,7 +8,7 @@
             $ 13,501   $ 800,000
 
 401k: bonds idx
-                                                     labels: bonds, 401k, flurb
+                                                     labels: 401k, bonds, flurb
     year     contrib   transfers     shares       price         value         %
     2014       $ 750    $ 15,000      1,800     $ 20.78      $ 37,404    274.97
     2015                              2,000     $ 20.31      $ 40,620      8.60
