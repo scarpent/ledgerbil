@@ -38,7 +38,8 @@ def get_portfolio_report(args):
     elif args.compare:
         report = get_comparison_report(
             matched_accounts,
-            matched_labels
+            matched_labels,
+            args.accounts_regex
         )
     elif args.list:
         report = get_list(matched_accounts)
@@ -401,18 +402,29 @@ def get_comparison_report_column_headers(num_years, labels=True):
     ))
 
 
-def get_comparison_report(accounts, labels):
+def get_comparison_report(accounts, labels, accounts_regex):
     comparison_items = []
     max_years = 0
     if labels:
         for label in labels:
-            pass
+            matched_accounts, matched_labels, included_years = \
+                get_matching_accounts(accounts_regex, label)
+            totals = get_yearly_combined_accounts(
+                matched_accounts,
+                included_years
+            )
+            comparison_items.append(get_comparison_summary(
+                get_yearly_with_gains(totals),
+                label
+            ))
+            if len(totals) > max_years:
+                max_years = len(totals)
     else:
         for account in accounts:
-            years = set(account['years'].keys())
-            if not years:
+            included_years = set(account['years'].keys())
+            if not included_years:
                 continue
-            totals = get_yearly_combined_accounts([account], years)
+            totals = get_yearly_combined_accounts([account], included_years)
             comparison_items.append(get_comparison_summary(
                 get_yearly_with_gains(totals),
                 strip_assets_prefix(account['account'])
