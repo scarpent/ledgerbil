@@ -22,7 +22,7 @@ def strip_assets_prefix(s):
 def get_portfolio_report(args):
 
     matched_accounts, matched_labels, included_years = \
-        get_matching_accounts(args)
+        get_matching_accounts(args.accounts_regex, args.labels)
 
     if not matched_accounts:
         return no_match(args)
@@ -57,16 +57,18 @@ def no_match(args, yearly=False):
     return message
 
 
-def get_matching_accounts(args):
+def get_matching_accounts(accounts_regex, labels_string=''):
     portfolio_data = get_portfolio_data()
     included_years = set()
-    labels = {label for label in re.split('[, ]+', args.labels) if label != ''}
+    labels = {
+        label for label in re.split('[, ]+', labels_string) if label != ''
+    }
     matched_accounts = []
     matched_labels = set()
     for account in portfolio_data:
-        account_match = re.search(args.accounts_regex, account['account'])
+        account_match = re.search(accounts_regex, account['account'])
 
-        if args.labels:
+        if labels:
             label_match = labels & set(account['labels'])
             matched_labels = matched_labels.union(label_match)
         else:
@@ -398,6 +400,13 @@ def get_comparison_report_column_headers(num_years, labels=True):
 
 
 def get_comparison_report(accounts, labels, included_years):
+    if labels:
+        for label in labels:
+            pass
+    else:
+        for account in accounts:
+            pass
+
     return '{header}\n\n{col_headers}\n{report}'.format(
         header='possible header',
         col_headers=get_comparison_report_column_headers(10, True),

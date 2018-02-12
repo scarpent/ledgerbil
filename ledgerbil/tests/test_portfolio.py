@@ -177,8 +177,7 @@ def test_get_portfolio_report_list_account_limited(mock_get_data):
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
 def test_account_matching_all(mock_get_data):
     mock_get_data.return_value = portfolio_data
-    args = portfolio.get_args('')
-    matched_accounts, _, included_years = portfolio.get_matching_accounts(args)
+    matched_accounts, _, included_years = portfolio.get_matching_accounts('')
     expected_included_years = {'2014', '2015', '2016', '2017', '2019'}
     assert matched_accounts == sorted(
         portfolio_data,
@@ -190,8 +189,8 @@ def test_account_matching_all(mock_get_data):
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
 def test_account_matching_regex(mock_get_data):
     mock_get_data.return_value = portfolio_data
-    args = portfolio.get_args(['--accounts', 'idx$'])
-    matched_accounts, _, included_years = portfolio.get_matching_accounts(args)
+    matched_accounts, _, included_years = \
+        portfolio.get_matching_accounts('idx$')
     expected_included_years = {'2014', '2015', '2016', '2017', '2019'}
     assert matched_accounts == portfolio_data[:BONDS + 1]
     assert included_years == expected_included_years
@@ -200,8 +199,8 @@ def test_account_matching_regex(mock_get_data):
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
 def test_account_matching_labels(mock_get_data):
     mock_get_data.return_value = portfolio_data
-    args = portfolio.get_args(['--labels', 'smactive'])
-    matched_accounts, matched_labels, _ = portfolio.get_matching_accounts(args)
+    matched_accounts, matched_labels, _ = \
+        portfolio.get_matching_accounts('.*', 'smactive')
     assert matched_accounts == [portfolio_data[BIG_NAME]]
     assert matched_labels == {'smactive'}
 
@@ -209,8 +208,8 @@ def test_account_matching_labels(mock_get_data):
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
 def test_account_matching_multiple_labels(mock_get_data):
     mock_get_data.return_value = portfolio_data
-    args = portfolio.get_args(['--labels', 'smactive,,  ,large'])
-    matched_accounts, matched_labels, _ = portfolio.get_matching_accounts(args)
+    matched_accounts, matched_labels, _ = \
+        portfolio.get_matching_accounts('.*', 'smactive,,  ,large')
     assert matched_accounts == [
         portfolio_data[BIG_CO],
         portfolio_data[BIG_NAME]
@@ -221,8 +220,8 @@ def test_account_matching_multiple_labels(mock_get_data):
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
 def test_account_matching_multiple_labels_space_and_comma_stuff(mock_get_data):
     mock_get_data.return_value = portfolio_data
-    args = portfolio.get_args(['--labels', 'intl,  large  bonds'])
-    matched_accounts, _, _ = portfolio.get_matching_accounts(args)
+    matched_accounts, _, _ = \
+        portfolio.get_matching_accounts('.*', 'intl,  large  bonds')
     expected = [
         portfolio_data[BIG_CO],
         portfolio_data[BONDS],
