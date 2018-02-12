@@ -39,7 +39,8 @@ def get_portfolio_report(args):
         report = get_comparison_report(
             matched_accounts,
             matched_labels,
-            args.accounts_regex
+            args.accounts_regex,
+            included_years
         )
     elif args.list:
         report = get_list(matched_accounts)
@@ -402,9 +403,13 @@ def get_comparison_report_column_headers(num_years, labels=True):
     ))
 
 
-def get_comparison_report(accounts, labels, accounts_regex):
+def get_comparison_report(accounts, labels, accounts_regex, included_years):
+    all_totals = get_yearly_combined_accounts(accounts, included_years)
+    total_value = all_totals[max(all_totals.keys())]['value']
+
     comparison_items = []
     max_years = 0
+    percent_total = 0
     if labels:
         for label in labels:
             matched_accounts, matched_labels, included_years = \
@@ -434,7 +439,24 @@ def get_comparison_report(accounts, labels, accounts_regex):
 
     report = ''
     for item in comparison_items:
-        report += get_comparison_report_line(item, labels)
+        percent = item.value / total_value * 100
+        percent_total += percent
+        report += get_comparison_report_line(item, percent, labels)
+
+    if len(comparison_items) > 1:
+        col1_f = ' ' * (COL_LABEL if labels else COL_ACCOUNT)
+        total_value_f = util.get_colored_amount(
+            total_value,
+            colwidth=COL_VALUE,
+            decimals=0,
+            positive='yellow'
+        )
+        percent_total_f = Colorable(
+            'yellow',
+            percent_total,
+            fmt=f'{COL_PERCENT}.0f'
+        )
+        report += f'{col1_f}  {total_value_f}  {percent_total_f}'
 
     # 'Summary' -> 'col1 value gain_value years all y3 y5 y10'
 
@@ -459,11 +481,16 @@ def get_comparison_summary(years, col1):
     )
 
 
-def get_comparison_report_line(comparison_item, labels=True):
+def get_comparison_report_line(comparison_item, percent, labels):
     col1_width = COL_LABEL if labels else COL_ACCOUNT
     col1 = Colorable('blue', comparison_item.col1, col1_width)
 
-    value = util.get_plain_amount(comparison_item.value, COL_VALUE, 0)
+    if comparison_item.value == 0:
+        value = ' ' * COL_VALUE
+        percent = ' ' * COL_PERCENT
+    else:
+        value = util.get_plain_amount(comparison_item.value, COL_VALUE, 0)
+        percent = f'{percent:>{COL_PERCENT}.0f}'
     gain_value = util.get_colored_amount(
         comparison_item.gain_value,
         colwidth=COL_GAIN_VALUE,
@@ -476,7 +503,7 @@ def get_comparison_report_line(comparison_item, labels=True):
     gain_5 = comparison_item.y5
     gain_10 = comparison_item.y10
 
-    return (f'{col1}  {value}  tbd  {gain_value}  {num_years}  '
+    return (f'{col1}  {value}  {percent}  {gain_value}  {num_years}  '
             f'{gain_all}  {gain_3}  {gain_5}  {gain_10}\n')
 
 
