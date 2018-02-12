@@ -11,8 +11,14 @@ from .settings import Settings
 
 settings = Settings()
 
-Year = namedtuple('Year', 'year contributions transfers value gain gain_value')
-Summary = namedtuple('Summary', 'col1 value gain_value years all y3 y5 y10')
+Year = namedtuple(
+    'Year',
+    'year contributions transfers value gain gain_value'
+)
+Summary = namedtuple(
+    'Summary',
+    'col1 value gain_value num_years all y3 y5 y10'
+)
 
 
 def strip_assets_prefix(s):
@@ -396,33 +402,70 @@ def get_comparison_report_column_headers(num_years, labels=True):
 
 
 def get_comparison_report(accounts, labels):
+    comparison_items = []
+    max_years = 0
     if labels:
         for label in labels:
             pass
     else:
         for account in accounts:
-            totals = get_yearly_combined_accounts(
-                [account],
-                set(account['years'].keys)
-            )
-            years = get_yearly_with_gains(totals)
-            summary = get_comparison_line_item(  # noqa
-                years,
+            years = set(account['years'].keys())
+            if not years:
+                continue
+            totals = get_yearly_combined_accounts([account], years)
+            comparison_items.append(get_comparison_summary(
+                get_yearly_with_gains(totals),
                 strip_assets_prefix(account['account'])
-            )
+            ))
+            if len(totals) > max_years:
+                max_years = len(totals)
+
+    report = ''
+    for item in comparison_items:
+        report += get_comparison_report_line(item, labels)
 
     # 'Summary' -> 'col1 value gain_value years all y3 y5 y10'
 
     return '{header}\n\n{col_headers}\n{report}'.format(
         header='possible header',
-        col_headers=get_comparison_report_column_headers(10, True),
-        report='comparison stuff...'
+        col_headers=get_comparison_report_column_headers(max_years, labels),
+        report=report
     )
 
 
-def get_comparison_line_item(years, col1):
-    # gain_value = sum([year.gain_value for year in years])
-    pass
+def get_comparison_summary(years, col1):
+    gains = [year.gain for year in years]
+    return Summary(
+        col1,
+        years[-1].value,
+        sum([year.gain_value for year in years]),
+        len(years),
+        get_gain(gains, len(gains)),
+        get_gain(gains, 3),
+        get_gain(gains, 5),
+        get_gain(gains, 10)
+    )
+
+
+def get_comparison_report_line(comparison_item, labels=True):
+    col1_width = COL_LABEL if labels else COL_ACCOUNT
+    col1 = Colorable('blue', comparison_item.col1, col1_width)
+
+    value = util.get_plain_amount(comparison_item.value, COL_VALUE, 0)
+    gain_value = util.get_colored_amount(
+        comparison_item.gain_value,
+        colwidth=COL_GAIN_VALUE,
+        decimals=0
+    )
+    num_years = f'{comparison_item.num_years:>{COL_NUM_YEARS}}'
+
+    gain_all = comparison_item.all
+    gain_3 = comparison_item.y3
+    gain_5 = comparison_item.y5
+    gain_10 = comparison_item.y10
+
+    return (f'{col1}  {value}  tbd  {gain_value}  {num_years}  '
+            f'{gain_all}  {gain_3}  {gain_5}  {gain_10}\n')
 
 
 def get_portfolio_data():
