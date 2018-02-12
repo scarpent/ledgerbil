@@ -29,7 +29,7 @@ def get_portfolio_report(args):
     if args.history:
         report = get_history_report(matched)
     elif args.list:
-        report = get_list(matched, args.labels)
+        report = get_list(matched)
     else:
         if not included_years:
             return no_match(args, yearly=True)
@@ -73,12 +73,21 @@ def get_matching_accounts(accounts_regex, labels=''):
     return sorted(matched, key=lambda k: k['account']), included_years
 
 
-def get_list(accounts, labels=False):
-    report = strip_assets_prefix(
-        '\n'.join(sorted([a['account'] for a in accounts]))
-    )
-    count = f"\n{len(accounts)} account{'' if len(accounts) == 1 else 's'}"
+def get_list(accounts):
+    COL_ACCOUNT = 40  # temporary: will come from elsewhere after comp merge
+    report = ''
+    for account in accounts:
+        name = Colorable(
+            'blue',
+            strip_assets_prefix(account['account']),
+            fmt=COL_ACCOUNT
+        )
+        labels = Colorable('white', ', '.join(sorted(account['labels'])))
+        report += f'{name}    {labels}\n'
+
+    count = f"{len(accounts)} account{'' if len(accounts) == 1 else 's'}"
     report += str(Colorable('cyan', count))
+
     return report
 
 
