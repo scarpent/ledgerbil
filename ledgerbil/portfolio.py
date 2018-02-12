@@ -155,18 +155,16 @@ def get_annualized_total_return(gains, num_years):
     return (pow(util.product(gains[-num_years:]), 1 / num_years) - 1) * 100
 
 
-def get_gain(gains, selected_num_years, num_years):
-    if len(gains) >= selected_num_years:
+def get_gain(gains, num_years):
+    if len(gains) >= num_years:
         return util.get_colored_amount(
-            get_annualized_total_return(gains, selected_num_years),
+            get_annualized_total_return(gains, num_years),
             colwidth=COL_GAIN,
             prefix='',
             positive='white'
         )
-    elif num_years < selected_num_years:
-        return ''
     else:
-        return ' ' * COL_GAIN
+        return ''
 
 
 def get_performance_report_column_headers(num_years):
@@ -185,7 +183,6 @@ def get_performance_report_column_headers(num_years):
 
 def get_performance_report_years(years):
     report = ''
-    num_years = len(years)
     contrib_total = 0
     transfers_total = 0
     gain_val_total = 0
@@ -210,15 +207,15 @@ def get_performance_report_years(years):
             transfers = ' ' * COL_TRANSFERS
 
         value = util.get_plain_amount(year.value, COL_VALUE, 0)
-        gain = get_gain([year.gain], 1, 1)
+        gain = get_gain([year.gain], 1)
         gain_value = util.get_colored_amount(year.gain_value,
                                              colwidth=COL_GAIN_VALUE,
                                              decimals=0)
 
-        gain_all = get_gain(gains, len(gains), num_years)
-        gain_3 = get_gain(gains, 3, num_years)
-        gain_5 = get_gain(gains, 5, num_years)
-        gain_10 = get_gain(gains, 10, num_years)
+        gain_all = get_gain(gains, len(gains))
+        gain_3 = get_gain(gains, 3)
+        gain_5 = get_gain(gains, 5)
+        gain_10 = get_gain(gains, 10)
 
         report += (f'{year.year}  {contrib}  {transfers}  {value}  '
                    f'{gain}  {gain_value}  {gain_all}  '
@@ -404,22 +401,28 @@ def get_comparison_report(accounts, labels):
             pass
     else:
         for account in accounts:
-            years = account['years']
             totals = get_yearly_combined_accounts(
-                [accounts],
-                set(years.keys)
+                [account],
+                set(account['years'].keys)
             )
             years = get_yearly_with_gains(totals)
+            summary = get_comparison_line_item(  # noqa
+                years,
+                strip_assets_prefix(account['account'])
+            )
 
-    # year_start, year_end = util.get_start_and_end_range(included_years)
-
-    years = get_yearly_with_gains(totals)
+    # 'Summary' -> 'col1 value gain_value years all y3 y5 y10'
 
     return '{header}\n\n{col_headers}\n{report}'.format(
         header='possible header',
         col_headers=get_comparison_report_column_headers(10, True),
         report='comparison stuff...'
     )
+
+
+def get_comparison_line_item(years, col1):
+    # gain_value = sum([year.gain_value for year in years])
+    pass
 
 
 def get_portfolio_data():

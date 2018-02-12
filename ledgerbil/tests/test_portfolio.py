@@ -257,13 +257,12 @@ def test_get_annualized_total_return(test_input, expected):
 
 
 @pytest.mark.parametrize('test_input, expected', [
-    ([[], 2, 1], ''),
-    ([[], 2, 2], ' ' * portfolio.COL_GAIN),
-    ([[1.5], 1, 1], f'{50:{portfolio.COL_GAIN}.2f}'),
-    ([[2, 2, 2, 2, 2, 2, 1.5], 1, 7], f'{50:{portfolio.COL_GAIN}.2f}'),
-    ([[1, 1.25, 1.75, .75], 4, 4], f'{13.18:{portfolio.COL_GAIN}.2f}'),
+    ([[], 2], ''),
+    ([[1.5], 1], f'{50:{portfolio.COL_GAIN}.2f}'),
+    ([[2, 2, 2, 2, 2, 2, 1.5], 1], f'{50:{portfolio.COL_GAIN}.2f}'),
+    ([[1, 1.25, 1.75, .75], 4], f'{13.18:{portfolio.COL_GAIN}.2f}'),
     (
-        [[3, 3, 3, 3, 3, 3, 1, 1.25, 1.75, .75], 4, 10],
+        [[3, 3, 3, 3, 3, 3, 1, 1.25, 1.75, .75], 4],
         f'{13.18:{portfolio.COL_GAIN}.2f}'
     ),
 ])
