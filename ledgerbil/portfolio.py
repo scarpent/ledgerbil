@@ -29,11 +29,7 @@ def get_portfolio_report(args):
     if args.history:
         report = get_history_report(matched)
     elif args.list:
-        report = strip_assets_prefix(
-            '\n'.join(sorted([m['account'] for m in matched]))
-        )
-        count = f"\n{len(matched)} account{'' if len(matched) == 1 else 's'}"
-        report += str(Colorable('cyan', count))
+        report = get_list(matched, args.labels)
     else:
         if not included_years:
             return no_match(args, yearly=True)
@@ -75,6 +71,15 @@ def get_matching_accounts(accounts_regex, labels=''):
             matched.append(account)
 
     return sorted(matched, key=lambda k: k['account']), included_years
+
+
+def get_list(accounts, labels=False):
+    report = strip_assets_prefix(
+        '\n'.join(sorted([a['account'] for a in accounts]))
+    )
+    count = f"\n{len(accounts)} account{'' if len(accounts) == 1 else 's'}"
+    report += str(Colorable('cyan', count))
+    return report
 
 
 VALID_YEAR_KEYS = {'symbol', 'price', 'shares',
