@@ -20,6 +20,16 @@ Summary = namedtuple(
     'col1 value gain_value num_years all y3 y5 y10'
 )
 
+COL_GAIN = 7
+COL_CONTRIB = 9
+COL_TRANSFERS = 10
+COL_VALUE = 11
+COL_GAIN_VALUE = 11
+COL_NUM_YEARS = 2
+COL_ACCOUNT = 40
+COL_LABEL = 12
+COL_PERCENT = 3
+
 
 def strip_assets_prefix(s):
     return re.sub('(?i)assets: ?', '', s)
@@ -98,8 +108,6 @@ def get_matching_accounts(accounts_regex, labels_string=''):
 
 
 def get_list(accounts):
-    COL_ACCOUNT = 40  # temporary: will come from elsewhere after comp merge
-
     lines = ''
     for account in accounts:
         name = Colorable(
@@ -148,17 +156,6 @@ def get_performance_report(accounts, included_years):
         col_headers=get_performance_report_column_headers(len(years)),
         report=get_performance_report_years(years)
     )
-
-
-COL_GAIN = 7
-COL_CONTRIB = 9
-COL_TRANSFERS = 10
-COL_VALUE = 11
-COL_GAIN_VALUE = 11
-COL_NUM_YEARS = 2
-COL_ACCOUNT = 40
-COL_LABEL = 12
-COL_PERCENT = 3
 
 
 def get_annualized_total_return(gains, num_years):
