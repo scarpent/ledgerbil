@@ -133,7 +133,7 @@ def test_get_performance_report_no_yearly_data_with_labels(mock_get_data):
 
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
-def test_get_portfolio_report_comparison_no_matches(mock_get_data):
+def test_get_portfolio_report_compare_no_matches(mock_get_data):
     mock_get_data.return_value = portfolio_data
     args = portfolio.get_args(['--accounts', 'qwertyable', '--compare'])
     expected = 'No accounts matched "qwertyable"'
@@ -141,7 +141,7 @@ def test_get_portfolio_report_comparison_no_matches(mock_get_data):
 
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
-def test_get_performance_report_comparison_no_yearly_data(mock_get_data):
+def test_get_performance_report_compare_no_yearly_data(mock_get_data):
     mock_get_data.return_value = portfolio_data
     args = portfolio.get_args(['--accounts', 'bonds idx 2', '--compare'])
     expected = 'No yearly data found for accounts "bonds idx 2"'
@@ -184,6 +184,26 @@ def test_get_portfolio_report_list_account_limited(mock_get_data):
     args = portfolio.get_args(['--accounts', 'idx$', '--list'])
     report = portfolio.get_portfolio_report(args)
     helper = OutputFileTester('test_portfolio_report_list_accounts')
+    helper.save_out_file(report)
+    helper.assert_out_equals_expected()
+
+
+@mock.patch(__name__ + '.portfolio.get_portfolio_data')
+def test_get_portfolio_report_compare_accounts(mock_get_data):
+    mock_get_data.return_value = portfolio_data
+    args = portfolio.get_args(['--compare'])
+    report = portfolio.get_portfolio_report(args)
+    helper = OutputFileTester('test_portfolio_report_compare_accounts')
+    helper.save_out_file(report)
+    helper.assert_out_equals_expected()
+
+
+@mock.patch(__name__ + '.portfolio.get_portfolio_data')
+def test_get_portfolio_report_compare_labels(mock_get_data):
+    mock_get_data.return_value = portfolio_data
+    args = portfolio.get_args(['--labels', '401k', '--compare'])
+    report = portfolio.get_portfolio_report(args)
+    helper = OutputFileTester('test_portfolio_report_compare_labels')
     helper.save_out_file(report)
     helper.assert_out_equals_expected()
 

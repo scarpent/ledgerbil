@@ -469,8 +469,7 @@ def get_comparison_report(accounts, labels, accounts_regex, included_years):
         )
         report += f'{col1_f}  {total_value_f}  {percent_total_f}'
 
-    return '{header}\n\n{col_headers}\n{report}'.format(
-        header='possible header',
+    return '{col_headers}\n{report}'.format(
         col_headers=get_comparison_report_column_headers(max_years, labels),
         report=report
     )
