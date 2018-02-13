@@ -1,5 +1,7 @@
-401k: big co 500 idx                        401k, flurb, large
-401k: bonds idx                             401k, bonds, flurb
+401k: big co 500 idx                        401k flurb large
+401k: bonds idx                             401k bonds flurb
 401k: bonds idx 2                           
-401k: long account name that goes on...     401k, active, flurb, intl, smactive
+401k: long account name that goes on...     401k active flurb intl smactive
+
 4 accounts
+401k active bonds flurb intl large smactive

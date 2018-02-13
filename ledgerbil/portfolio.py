@@ -1,4 +1,5 @@
 import argparse
+import itertools
 import json
 import re
 from collections import defaultdict, namedtuple
@@ -75,20 +76,27 @@ def get_matching_accounts(accounts_regex, labels=''):
 
 def get_list(accounts):
     COL_ACCOUNT = 40  # temporary: will come from elsewhere after comp merge
-    report = ''
+
+    lines = ''
     for account in accounts:
         name = Colorable(
             'blue',
             strip_assets_prefix(account['account']),
             fmt=COL_ACCOUNT
         )
-        labels = Colorable('white', ', '.join(sorted(account['labels'])))
-        report += f'{name}    {labels}\n'
+        labels = Colorable('white', ' '.join(sorted(account['labels'])))
+        lines += f'{name}    {labels}\n'
 
     count = f"{len(accounts)} account{'' if len(accounts) == 1 else 's'}"
-    report += str(Colorable('cyan', count))
 
-    return report
+    all_labels = sorted(set(
+        itertools.chain.from_iterable([a['labels'] for a in accounts])
+    ))
+    return '{}\n{}\n{}'.format(
+        lines,
+        Colorable('cyan', count),
+        Colorable('cyan', ' '.join(all_labels))
+    )
 
 
 VALID_YEAR_KEYS = {'symbol', 'price', 'shares',
