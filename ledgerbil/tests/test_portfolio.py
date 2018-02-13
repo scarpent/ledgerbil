@@ -584,14 +584,33 @@ def test_get_comparison_summary():
     assert summary.col1 == 'blarg'
     assert summary.value == 2500
     assert summary.gain_value == 600.0
+    assert summary.num_years == 11
     assert f'{summary.all:.2f}' == '4.02'
     assert f'{summary.y3:.2f}' == '7.04'
     assert f'{summary.y5:.2f}' == '5.55'
     assert f'{summary.y10:.2f}' == '3.60'
 
 
-def test_get_gain():
+def test_get_gain_not_enough_years():
     assert portfolio.get_gain([], 1) == portfolio.NULL_GAIN
+
+
+def test_get_comparison_report_line():
+    comparison_item = portfolio.Summary('gargle', 2500, 600.0, 11,
+                                        4.02, 7.04, 5.55, 3.6)
+    line = portfolio.get_comparison_report_line(comparison_item, 50, True)
+    expected = ('gargle            $ 2,500   50        $ 600  11     '
+                '4.02     7.04     5.55     3.60\n')
+    assert Colorable.get_plain_string(line) == expected
+
+
+def test_get_comparison_report_line_no_value():
+    comparison_item = portfolio.Summary('gargle', 0, 600.0, 11,
+                                        4.02, 7.04, 5.55, 3.6)
+    line = portfolio.get_comparison_report_line(comparison_item, 0, False)
+    expected = ('gargle                                                   '
+                '         $ 600  11     4.02     7.04     5.55     3.60\n')
+    assert Colorable.get_plain_string(line) == expected
 
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_report', return_value='hi!')

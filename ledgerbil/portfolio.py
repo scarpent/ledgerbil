@@ -469,8 +469,6 @@ def get_comparison_report(accounts, labels, accounts_regex, included_years):
         )
         report += f'{col1_f}  {total_value_f}  {percent_total_f}'
 
-    # 'Summary' -> 'col1 value gain_value years all y3 y5 y10'
-
     return '{header}\n\n{col_headers}\n{report}'.format(
         header='possible header',
         col_headers=get_comparison_report_column_headers(max_years, labels),
@@ -498,10 +496,10 @@ def get_comparison_report_line(comparison_item, percent, labels):
 
     if comparison_item.value == 0:
         value = ' ' * COL_VALUE
-        percent = ' ' * COL_PERCENT
+        percent_f = ' ' * COL_PERCENT
     else:
         value = util.get_plain_amount(comparison_item.value, COL_VALUE, 0)
-        percent = f'{percent:>{COL_PERCENT}.0f}'
+        percent_f = f'{percent:>{COL_PERCENT}.0f}'
     gain_value = util.get_colored_amount(
         comparison_item.gain_value,
         colwidth=COL_GAIN_VALUE,
@@ -514,7 +512,7 @@ def get_comparison_report_line(comparison_item, percent, labels):
     gain_5 = get_formatted_gain(annualized_total=comparison_item.y5)
     gain_10 = get_formatted_gain(annualized_total=comparison_item.y10)
 
-    return (f'{col1}  {value}  {percent}  {gain_value}  {num_years}  '
+    return (f'{col1}  {value}  {percent_f}  {gain_value}  {num_years}  '
             f'{gain_all}  {gain_3}  {gain_5}  {gain_10}\n')
 
 
