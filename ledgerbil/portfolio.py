@@ -20,6 +20,11 @@ Summary = namedtuple(
     'col1 value gain_value num_years all y3 y5 y10'
 )
 
+VALID_YEAR_KEYS = {'symbol', 'price', 'shares',
+                   'contributions', 'transfers', 'note'}
+
+NULL_GAIN = -1
+
 COL_GAIN = 7
 COL_CONTRIB = 9
 COL_TRANSFERS = 10
@@ -130,10 +135,6 @@ def get_list(accounts):
     )
 
 
-VALID_YEAR_KEYS = {'symbol', 'price', 'shares',
-                   'contributions', 'transfers', 'note'}
-
-
 def validate_json_year_keys(year):
     if not all([k in VALID_YEAR_KEYS for k in year.keys()]):
         raise LdgPortfolioError(f'Invalid key in {year.keys()}')
@@ -162,16 +163,27 @@ def get_annualized_total_return(gains, num_years):
     return (pow(util.product(gains[-num_years:]), 1 / num_years) - 1) * 100
 
 
+def get_formatted_gain(gains=[], num_years=1, annualized_total=None):
+    if (annualized_total == NULL_GAIN
+            or (not annualized_total and len(gains) < num_years)):
+            return ''
+
+    if not annualized_total:
+        annualized_total = get_annualized_total_return(gains, num_years)
+
+    return util.get_colored_amount(
+        annualized_total,
+        colwidth=COL_GAIN,
+        prefix='',
+        positive='white'
+    )
+
+
 def get_gain(gains, num_years):
     if len(gains) >= num_years:
-        return util.get_colored_amount(
-            get_annualized_total_return(gains, num_years),
-            colwidth=COL_GAIN,
-            prefix='',
-            positive='white'
-        )
+        return get_annualized_total_return(gains, num_years)
     else:
-        return ''
+        return NULL_GAIN
 
 
 def get_performance_report_column_headers(num_years):
@@ -214,15 +226,15 @@ def get_performance_report_years(years):
             transfers = ' ' * COL_TRANSFERS
 
         value = util.get_plain_amount(year.value, COL_VALUE, 0)
-        gain = get_gain([year.gain], 1)
+        gain = get_formatted_gain([year.gain], 1)
         gain_value = util.get_colored_amount(year.gain_value,
                                              colwidth=COL_GAIN_VALUE,
                                              decimals=0)
 
-        gain_all = get_gain(gains, len(gains))
-        gain_3 = get_gain(gains, 3)
-        gain_5 = get_gain(gains, 5)
-        gain_10 = get_gain(gains, 10)
+        gain_all = get_formatted_gain(gains, len(gains))
+        gain_3 = get_formatted_gain(gains, 3)
+        gain_5 = get_formatted_gain(gains, 5)
+        gain_10 = get_formatted_gain(gains, 10)
 
         report += (f'{year.year}  {contrib}  {transfers}  {value}  '
                    f'{gain}  {gain_value}  {gain_all}  '
@@ -497,11 +509,10 @@ def get_comparison_report_line(comparison_item, percent, labels):
     )
     num_years = f'{comparison_item.num_years:>{COL_NUM_YEARS}}'
 
-    # These ones are already formatted
-    gain_all = comparison_item.all
-    gain_3 = comparison_item.y3
-    gain_5 = comparison_item.y5
-    gain_10 = comparison_item.y10
+    gain_all = get_formatted_gain(annualized_total=comparison_item.all)
+    gain_3 = get_formatted_gain(annualized_total=comparison_item.y3)
+    gain_5 = get_formatted_gain(annualized_total=comparison_item.y5)
+    gain_10 = get_formatted_gain(annualized_total=comparison_item.y10)
 
     return (f'{col1}  {value}  {percent}  {gain_value}  {num_years}  '
             f'{gain_all}  {gain_3}  {gain_5}  {gain_10}\n')

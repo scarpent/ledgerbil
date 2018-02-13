@@ -110,7 +110,6 @@ def test_get_portfolio_report_no_matches(mock_get_data):
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
 def test_get_portfolio_report_no_matches_with_labels(mock_get_data):
-    # There is an account with big, but labels overrides
     mock_get_data.return_value = portfolio_data
     args = portfolio.get_args(['--accounts', 'big', '--labels', 'gah'])
     expected = 'No accounts matched "big", labels "gah"'
@@ -127,10 +126,25 @@ def test_get_performance_report_no_yearly_data(mock_get_data):
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
 def test_get_performance_report_no_yearly_data_with_labels(mock_get_data):
-    # There is an account with big, but labels overrides
     mock_get_data.return_value = portfolio_data
     args = portfolio.get_args(['--accounts', '401k', '--labels', 'smactive'])
     expected = 'No yearly data found for accounts "401k", labels "smactive"'
+    assert portfolio.get_portfolio_report(args) == expected
+
+
+@mock.patch(__name__ + '.portfolio.get_portfolio_data')
+def test_get_portfolio_report_comparison_no_matches(mock_get_data):
+    mock_get_data.return_value = portfolio_data
+    args = portfolio.get_args(['--accounts', 'qwertyable', '--compare'])
+    expected = 'No accounts matched "qwertyable"'
+    assert portfolio.get_portfolio_report(args) == expected
+
+
+@mock.patch(__name__ + '.portfolio.get_portfolio_data')
+def test_get_performance_report_comparison_no_yearly_data(mock_get_data):
+    mock_get_data.return_value = portfolio_data
+    args = portfolio.get_args(['--accounts', 'bonds idx 2', '--compare'])
+    expected = 'No yearly data found for accounts "bonds idx 2"'
     assert portfolio.get_portfolio_report(args) == expected
 
 
@@ -266,9 +280,9 @@ def test_get_annualized_total_return(test_input, expected):
         f'{13.18:{portfolio.COL_GAIN}.2f}'
     ),
 ])
-def test_get_gain(test_input, expected):
+def test_get_formatted_gain(test_input, expected):
     assert Colorable.get_plain_string(
-        portfolio.get_gain(*test_input)
+        portfolio.get_formatted_gain(*test_input)
     ) == expected
 
 
@@ -549,6 +563,35 @@ label_header = f"{'labels':{portfolio.COL_LABEL}}"
 def test_get_comparison_report_column_headers(test_input, expected):
     actual = portfolio.get_comparison_report_column_headers(*test_input)
     assert Colorable.get_plain_string(actual) == expected
+
+
+def test_get_comparison_summary():
+    totals = {
+        2013: {'contributions': 100, 'transfers': 500, 'value': 625},
+        2014: {'contributions': 200, 'transfers': 0.50, 'value': 875},
+        2015: {'contributions': 300, 'transfers': -0.50, 'value': 1225},
+        2016: {'contributions': 0, 'transfers': -500, 'value': 775},
+        2017: {'contributions': 200, 'transfers': 0, 'value': 950},
+        2018: {'contributions': 100, 'transfers': 0, 'value': 1000},
+        2019: {'contributions': 250, 'transfers': 0, 'value': 1225},
+        2020: {'contributions': 250, 'transfers': 0, 'value': 1600},
+        2021: {'contributions': 150, 'transfers': 0, 'value': 1875},
+        2022: {'contributions': 50, 'transfers': 0, 'value': 2112},
+        2023: {'contributions': 100, 'transfers': 200, 'value': 2500},
+    }
+    years = portfolio.get_yearly_with_gains(totals)
+    summary = portfolio.get_comparison_summary(years, 'blarg')
+    assert summary.col1 == 'blarg'
+    assert summary.value == 2500
+    assert summary.gain_value == 600.0
+    assert f'{summary.all:.2f}' == '4.02'
+    assert f'{summary.y3:.2f}' == '7.04'
+    assert f'{summary.y5:.2f}' == '5.55'
+    assert f'{summary.y10:.2f}' == '3.60'
+
+
+def test_get_gain():
+    assert portfolio.get_gain([], 1) == portfolio.NULL_GAIN
 
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_report', return_value='hi!')
