@@ -200,8 +200,9 @@ def test_get_portfolio_report_compare_accounts(mock_get_data):
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
 def test_get_portfolio_report_compare_labels(mock_get_data):
+    """this also tests that if a label has no years, it will be ignored"""
     mock_get_data.return_value = portfolio_data
-    args = portfolio.get_args(['--labels', '401k', '--compare'])
+    args = portfolio.get_args(['--labels', '401k smactive', '--compare'])
     report = portfolio.get_portfolio_report(args)
     helper = OutputFileTester('test_portfolio_report_compare_labels')
     helper.save_out_file(report)
@@ -611,6 +612,22 @@ def test_get_comparison_summary():
     assert f'{summary.y10:.2f}' == '3.60'
 
 
+def test_get_sorted_comparison_items():
+    comparison_items = [
+        portfolio.Summary('x', 1, 2, 3, 4, 5, 6, 7),
+        portfolio.Summary('x', 2, 3, 4, 5, 6, 7, 8),
+    ]
+    expected = [
+        portfolio.Summary('x', 2, 3, 4, 5, 6, 7, 8),
+        portfolio.Summary('x', 1, 2, 3, 4, 5, 6, 7),
+    ]
+    for sort in ['v', 'g', 'y', 'a', '3', '5', '10']:
+        actual = portfolio.get_sorted_comparison_items(comparison_items, sort)
+        assert actual == expected
+
+    # 'col1 value gain_value num_years all y3 y5 y10'
+
+
 def test_get_gain_not_enough_years():
     assert portfolio.get_gain([], 1) == portfolio.NULL_GAIN
 
@@ -689,3 +706,13 @@ def test_args_list(test_input, expected):
 def test_args_compare(test_input, expected):
     args = portfolio.get_args(test_input)
     assert args.compare is expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (['-s', 'value'], 'value'),
+    (['--sort', '%'], '%'),
+    ([], 'a'),  # default
+])
+def test_args_sort(test_input, expected):
+    args = portfolio.get_args(test_input)
+    assert args.sort == expected

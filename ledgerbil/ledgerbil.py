@@ -94,7 +94,8 @@ def get_args(args):
         epilog=scripts_description,
         formatter_class=(lambda prog: argparse.RawDescriptionHelpFormatter(
             prog,
-            max_help_position=36
+            max_help_position=40,
+            width=100
         ))
     )
     parser.add_argument(

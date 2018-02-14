@@ -92,9 +92,11 @@ def get_date(quote_date):
 def get_args(args=[]):
     parser = argparse.ArgumentParser(
         prog='ledgerbil/main.py prices',
-        formatter_class=(
-            lambda prog: argparse.HelpFormatter(prog, max_help_position=36)
-        )
+        formatter_class=(lambda prog: argparse.HelpFormatter(
+            prog,
+            max_help_position=40,
+            width=100
+        ))
     )
     parser.add_argument(
         '-f', '--file',

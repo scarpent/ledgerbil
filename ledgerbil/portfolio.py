@@ -3,6 +3,7 @@ import itertools
 import json
 import re
 from collections import defaultdict, namedtuple
+from operator import attrgetter
 
 from . import util
 from .colorable import Colorable
@@ -57,7 +58,8 @@ def get_portfolio_report(args):
             matched_accounts,
             matched_labels,
             args.accounts_regex,
-            included_years
+            included_years,
+            args.sort
         )
     elif args.list:
         report = get_list(matched_accounts)
@@ -414,7 +416,30 @@ def get_comparison_report_column_headers(num_years, labels=True):
     ))
 
 
-def get_comparison_report(accounts, labels, accounts_regex, included_years):
+def get_sorted_comparison_items(comparison_items, sort):
+    sort_options = {
+        'v': 'value',
+        'g': 'gain_value',
+        'y': 'num_years',
+        'a': 'all',
+        '3': 'y3',
+        '5': 'y5',
+        '10': 'y10',
+    }
+
+    return sorted(
+        comparison_items,
+        key=attrgetter(sort_options[sort]),
+        reverse=True
+    )
+
+
+def get_comparison_report(accounts,
+                          labels,
+                          accounts_regex,
+                          included_years,
+                          sort):
+
     all_totals = get_yearly_combined_accounts(accounts, included_years)
     total_value = all_totals[max(all_totals.keys())]['value']
 
@@ -425,6 +450,10 @@ def get_comparison_report(accounts, labels, accounts_regex, included_years):
         for label in labels:
             matched_accounts, matched_labels, included_years = \
                 get_matching_accounts(accounts_regex, label)
+
+            if not included_years:
+                continue
+
             totals = get_yearly_combined_accounts(
                 matched_accounts,
                 included_years
@@ -448,13 +477,15 @@ def get_comparison_report(accounts, labels, accounts_regex, included_years):
             if len(totals) > max_years:
                 max_years = len(totals)
 
+    items_sorted = get_sorted_comparison_items(comparison_items, sort)
+
     report = ''
-    for item in comparison_items:
+    for item in items_sorted:
         percent = item.value / total_value * 100
         percent_total += percent
         report += get_comparison_report_line(item, percent, labels)
 
-    if len(comparison_items) > 1:
+    if len(items_sorted) > 1:
         col1_f = ' ' * (COL_LABEL if labels else COL_ACCOUNT)
         total_value_f = util.get_colored_amount(
             total_value,
@@ -523,9 +554,11 @@ def get_portfolio_data():
 def get_args(args=[]):
     parser = argparse.ArgumentParser(
         prog='ledgerbil/main.py portfolio',
-        formatter_class=(
-            lambda prog: argparse.HelpFormatter(prog, max_help_position=36)
-        )
+        formatter_class=(lambda prog: argparse.HelpFormatter(
+            prog,
+            max_help_position=40,
+            width=100
+        ))
     )
     parser.add_argument(
         '-a', '--accounts',
@@ -541,10 +574,20 @@ def get_args(args=[]):
         default='',
         help='include accounts that match these labels along with --accounts'
     )
+    # todo: would like option to compare accounts even if labels specified;
+    #       currently labels will override, but would be better to accept
+    #       labels modifier but show accounts if desired
     parser.add_argument(
         '-c', '--compare',
         action='store_true',
         help='compare accounts or labels'
+    )
+    parser.add_argument(
+        '-s', '--sort',
+        type=str,
+        default='a',
+        help='sort comparison report by: v(alue), g(ain value), y(ears),'
+             'a(ll years gain), 3(year gain), 5(year gain), 10(year gain)'
     )
     parser.add_argument(
         '-H', '--history',
