@@ -489,7 +489,9 @@ def get_comparison_report(accounts,
         report += get_comparison_report_line(item, percent, labelicious)
 
     if len(items_sorted) > 1:
-        col1_f = ' ' * (COL_LABEL if labels else COL_ACCOUNT)
+        col1_f = ' ' * (
+            COL_LABEL if (labels and not accounts_only) else COL_ACCOUNT
+        )
         total_value_f = util.get_colored_amount(
             total_value,
             colwidth=COL_VALUE,

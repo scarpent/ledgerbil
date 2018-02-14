@@ -210,6 +210,20 @@ def test_get_portfolio_report_compare_labels(mock_get_data):
 
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
+def test_get_portfolio_report_compare_labels_account_only(mock_get_data):
+    mock_get_data.return_value = portfolio_data
+    args = portfolio.get_args(
+        ['--labels', '401k smactive', '--compare-accounts']
+    )
+    report = portfolio.get_portfolio_report(args)
+    helper = OutputFileTester(
+        'test_portfolio_report_compare_labels_account_only'
+    )
+    helper.save_out_file(report)
+    helper.assert_out_equals_expected()
+
+
+@mock.patch(__name__ + '.portfolio.get_portfolio_data')
 def test_account_matching_all(mock_get_data):
     mock_get_data.return_value = portfolio_data
     matched_accounts, _, included_years = portfolio.get_matching_accounts('')
