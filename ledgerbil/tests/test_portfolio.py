@@ -21,6 +21,7 @@ BIG_CO = 0
 BONDS = 1
 BIG_NAME = 2
 BONDS_2 = 3
+CLOSED = 4
 
 
 portfolio_json_data = '''\
@@ -94,6 +95,24 @@ portfolio_json_data = '''\
         "account": "assets: 401k: bonds idx 2",
         "labels": [],
         "years": {}
+      },
+      {
+        "account": "assets: yog: mog",
+        "labels": ["closed"],
+        "years": {
+          "2014": {
+            "price": 10,
+            "shares": 1000,
+            "contributions": 0,
+            "transfers": 9950
+          },
+          "2015": {
+            "price": 0,
+            "shares": 0,
+            "contributions": 0,
+            "transfers": -10025
+          }
+        }
       }
     ]
     '''
@@ -171,7 +190,7 @@ def test_get_portfolio_report_history(mock_get_data):
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
 def test_get_portfolio_report_list(mock_get_data):
     mock_get_data.return_value = portfolio_data
-    args = portfolio.get_args(['--list'])
+    args = portfolio.get_args(['--accounts', '401k', '--list'])
     report = portfolio.get_portfolio_report(args)
     helper = OutputFileTester('test_portfolio_report_list')
     helper.save_out_file(report)
@@ -191,11 +210,35 @@ def test_get_portfolio_report_list_account_limited(mock_get_data):
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
 def test_get_portfolio_report_compare_accounts(mock_get_data):
     mock_get_data.return_value = portfolio_data
-    args = portfolio.get_args(['--compare'])
+    args = portfolio.get_args(['--accounts', '401k', '--compare'])
     report = portfolio.get_portfolio_report(args)
     helper = OutputFileTester('test_portfolio_report_compare_accounts')
     helper.save_out_file(report)
     helper.assert_out_equals_expected()
+
+
+@mock.patch(__name__ + '.portfolio.get_portfolio_data')
+def test_get_portfolio_report_compare_accounts_no_current_value(mock_get_data):
+    mock_get_data.return_value = portfolio_data
+    accounts = [portfolio_data[CLOSED]]
+    labels = {'closed'}
+    accounts_regex = '.*'
+    included_years = {'2014', '2015'}
+    sort = 'v'
+    accounts_only = False
+    comparison_report = portfolio.get_comparison_report(
+        accounts,
+        labels,
+        accounts_regex,
+        included_years,
+        sort,
+        accounts_only
+    )
+    expected = (
+        'labels              value    %     gain val  yr    all %      \n'
+        'closed                                 $ 75   2     0.75      \n'
+    )
+    assert Colorable.get_plain_string(comparison_report) == expected
 
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')
@@ -626,18 +669,22 @@ def test_get_comparison_summary():
     assert f'{summary.y10:.2f}' == '3.60'
 
 
-def test_get_sorted_comparison_items():
-    comparison_items = [
-        portfolio.Summary('x', 1, 2, 3, 4, 5, 6, 7),
-        portfolio.Summary('x', 2, 3, 4, 5, 6, 7, 8),
+@pytest.mark.parametrize('sort, first_row', [
+    ('v', portfolio.Summary('x', 0, 1, 1, 1, 1, 1, 1)),
+    ('g', portfolio.Summary('x', 1, 0, 1, 1, 1, 1, 1)),
+    ('y', portfolio.Summary('x', 1, 1, 0, 1, 1, 1, 1)),
+    ('a', portfolio.Summary('x', 1, 1, 1, 0, 1, 1, 1)),
+    ('3', portfolio.Summary('x', 1, 1, 1, 1, 0, 1, 1)),
+    ('5', portfolio.Summary('x', 1, 1, 1, 1, 1, 0, 1)),
+    ('10', portfolio.Summary('x', 1, 1, 1, 1, 1, 1, 0)),
+])
+def test_get_sorted_comparison_items(sort, first_row):
+    items = [
+        first_row,
+        portfolio.Summary('x', 1, 1, 1, 1, 1, 1, 1)
     ]
-    expected = [
-        portfolio.Summary('x', 2, 3, 4, 5, 6, 7, 8),
-        portfolio.Summary('x', 1, 2, 3, 4, 5, 6, 7),
-    ]
-    for sort in ['v', 'g', 'y', 'a', '3', '5', '10']:
-        actual = portfolio.get_sorted_comparison_items(comparison_items, sort)
-        assert actual == expected
+    sorted_items = portfolio.get_sorted_comparison_items(items, sort)
+    assert sorted_items == list(reversed(items))
 
 
 def test_get_sorted_comparison_items_bad_key():

@@ -483,10 +483,18 @@ def get_comparison_report(accounts,
 
     report = ''
     for item in items_sorted:
-        percent = item.value / total_value * 100
+        if total_value:
+            percent = item.value / total_value * 100
+        else:
+            percent = 0
+
         percent_total += percent
-        labelicious = labels if not accounts_only else ''
-        report += get_comparison_report_line(item, percent, labelicious)
+
+        report += get_comparison_report_line(
+            item,
+            percent,
+            labels if not accounts_only else ''
+        )
 
     if len(items_sorted) > 1:
         col1_f = ' ' * (
@@ -580,7 +588,7 @@ def get_args(args=[]):
         '-L', '--labels',
         type=str,
         default='',
-        help='include accounts that match these labels along with --accounts'
+        help='include accounts that match these labels'
     )
     parser.add_argument(
         '-c', '--compare',
@@ -607,7 +615,7 @@ def get_args(args=[]):
     parser.add_argument(
         '-l', '--list',
         action='store_true',
-        help='list matching account names'
+        help='list account names'
     )
 
     return parser.parse_args(args)
