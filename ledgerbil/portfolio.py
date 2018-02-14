@@ -51,7 +51,7 @@ def get_portfolio_report(args):
 
     if args.history:
         report = get_history_report(matched_accounts)
-    elif args.compare:
+    elif args.compare or args.compare_accounts:
         if not included_years:
             return no_match(args.accounts_regex, args.labels, yearly=True)
         report = get_comparison_report(
@@ -59,7 +59,8 @@ def get_portfolio_report(args):
             matched_labels,
             args.accounts_regex,
             included_years,
-            args.sort
+            args.sort,
+            args.compare_accounts
         )
     elif args.list:
         report = get_list(matched_accounts)
@@ -438,7 +439,8 @@ def get_comparison_report(accounts,
                           labels,
                           accounts_regex,
                           included_years,
-                          sort):
+                          sort,
+                          accounts_only):
 
     all_totals = get_yearly_combined_accounts(accounts, included_years)
     total_value = all_totals[max(all_totals.keys())]['value']
@@ -446,7 +448,7 @@ def get_comparison_report(accounts,
     comparison_items = []
     max_years = 0
     percent_total = 0
-    if labels:
+    if labels and not accounts_only:
         for label in labels:
             matched_accounts, matched_labels, included_years = \
                 get_matching_accounts(accounts_regex, label)
@@ -483,7 +485,8 @@ def get_comparison_report(accounts,
     for item in items_sorted:
         percent = item.value / total_value * 100
         percent_total += percent
-        report += get_comparison_report_line(item, percent, labels)
+        labelicious = labels if not accounts_only else ''
+        report += get_comparison_report_line(item, percent, labelicious)
 
     if len(items_sorted) > 1:
         col1_f = ' ' * (COL_LABEL if labels else COL_ACCOUNT)
@@ -501,7 +504,10 @@ def get_comparison_report(accounts,
         report += f'{col1_f}  {total_value_f}  {percent_total_f}'
 
     return '{col_headers}\n{report}'.format(
-        col_headers=get_comparison_report_column_headers(max_years, labels),
+        col_headers=get_comparison_report_column_headers(
+            max_years,
+            labels if not accounts_only else ''
+        ),
         report=report
     )
 
@@ -574,13 +580,15 @@ def get_args(args=[]):
         default='',
         help='include accounts that match these labels along with --accounts'
     )
-    # todo: would like option to compare accounts even if labels specified;
-    #       currently labels will override, but would be better to accept
-    #       labels modifier but show accounts if desired
     parser.add_argument(
         '-c', '--compare',
         action='store_true',
         help='compare accounts or labels'
+    )
+    parser.add_argument(
+        '-C', '--compare-accounts',
+        action='store_true',
+        help='compare accounts only'
     )
     parser.add_argument(
         '-s', '--sort',

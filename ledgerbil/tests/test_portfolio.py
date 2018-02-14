@@ -625,8 +625,6 @@ def test_get_sorted_comparison_items():
         actual = portfolio.get_sorted_comparison_items(comparison_items, sort)
         assert actual == expected
 
-    # 'col1 value gain_value num_years all y3 y5 y10'
-
 
 def test_get_gain_not_enough_years():
     assert portfolio.get_gain([], 1) == portfolio.NULL_GAIN
@@ -706,6 +704,16 @@ def test_args_list(test_input, expected):
 def test_args_compare(test_input, expected):
     args = portfolio.get_args(test_input)
     assert args.compare is expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (['-C'], True),
+    (['--compare-accounts'], True),
+    ([], False),
+])
+def test_args_compare_accounts_only(test_input, expected):
+    args = portfolio.get_args(test_input)
+    assert args.compare_accounts is expected
 
 
 @pytest.mark.parametrize('test_input, expected', [
