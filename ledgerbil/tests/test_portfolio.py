@@ -640,6 +640,15 @@ def test_get_sorted_comparison_items():
         assert actual == expected
 
 
+def test_get_sorted_comparison_items_bad_key():
+    comparison_items = [
+        portfolio.Summary('x', 1, 2, 3, 4, 5, 6, 7),
+        portfolio.Summary('x', 2, 3, 4, 5, 6, 7, 8),
+    ]
+    with pytest.raises(KeyError):
+        portfolio.get_sorted_comparison_items(comparison_items, 'blart')
+
+
 def test_get_gain_not_enough_years():
     assert portfolio.get_gain([], 1) == portfolio.NULL_GAIN
 
