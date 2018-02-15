@@ -597,19 +597,20 @@ def get_args(args=[]):
     parser.add_argument(
         '-c', '--compare',
         action='store_true',
-        help='compare accounts or labels'
+        help='compare accounts or labels (if --labels, will group by labels)'
     )
     parser.add_argument(
         '-C', '--compare-accounts',
         action='store_true',
-        help='compare accounts only'
+        help='compare accounts only (labels still modifies included accounts)'
     )
     parser.add_argument(
         '-s', '--sort',
         type=str,
         default='a',
-        help='sort comparison report by: v(alue), g(ain value), y(ears),'
-             'a(ll years gain), 3(year gain), 5(year gain), 10(year gain)'
+        help='sort comparison report by: v(alue), g(ain value), y(ears), '
+             'a(ll years gain), 1(year gain), 3(year gain), 5(year gain), '
+             '10(year gain)'
     )
     parser.add_argument(
         '-H', '--history',
