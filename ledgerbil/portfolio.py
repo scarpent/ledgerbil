@@ -18,7 +18,7 @@ Year = namedtuple(
 )
 Summary = namedtuple(
     'Summary',
-    'col1 value gain_value num_years all y3 y5 y10'
+    'col1 value gain_value num_years all y1 y3 y5 y10'
 )
 
 VALID_YEAR_KEYS = {'symbol', 'price', 'shares',
@@ -413,7 +413,8 @@ def get_comparison_report_column_headers(num_years, labels=True):
     return str(Colorable(
         'cyan',
         (f"{col1}  {'value':>{COL_VALUE}}    %  {'gain val':>{COL_GAIN_VALUE}}"
-         f"  yr  {'all %':>{COL_GAIN}}  {header3}  {header5}  {header10}")
+         f"  yr  {'all %':>{COL_GAIN}}  {'1yr %':>{COL_GAIN}}  {header3}  "
+         f"{header5}  {header10}")
     ))
 
 
@@ -423,6 +424,7 @@ def get_sorted_comparison_items(comparison_items, sort):
         'g': 'gain_value',
         'y': 'num_years',
         'a': 'all',
+        '1': 'y1',
         '3': 'y3',
         '5': 'y5',
         '10': 'y10',
@@ -530,6 +532,7 @@ def get_comparison_summary(years, col1):
         sum([year.gain_value for year in years]),
         len(years),
         get_gain(gains, len(gains)),
+        get_gain(gains, 1),
         get_gain(gains, 3),
         get_gain(gains, 5),
         get_gain(gains, 10)
@@ -554,12 +557,13 @@ def get_comparison_report_line(comparison_item, percent, labels):
     num_years = f'{comparison_item.num_years:>{COL_NUM_YEARS}}'
 
     gain_all = get_formatted_gain(annualized_total=comparison_item.all)
+    gain_1 = get_formatted_gain(annualized_total=comparison_item.y1)
     gain_3 = get_formatted_gain(annualized_total=comparison_item.y3)
     gain_5 = get_formatted_gain(annualized_total=comparison_item.y5)
     gain_10 = get_formatted_gain(annualized_total=comparison_item.y10)
 
     return (f'{col1}  {value}  {percent_f}  {gain_value}  {num_years}  '
-            f'{gain_all}  {gain_3}  {gain_5}  {gain_10}\n')
+            f'{gain_all}  {gain_1}  {gain_3}  {gain_5}  {gain_10}\n')
 
 
 def get_portfolio_data():

@@ -234,9 +234,10 @@ def test_get_portfolio_report_compare_accounts_no_current_value(mock_get_data):
         sort,
         accounts_only
     )
+    space = '              '
     expected = (
-        'labels              value    %     gain val  yr    all %      \n'
-        'closed                                 $ 75   2     0.75      \n'
+        f'labels{space}value    %     gain val  yr    all %    1yr %      \n'
+        f'closed{space}                   $ 75   2     0.75     0.50      \n'
     )
     assert Colorable.get_plain_string(comparison_report) == expected
 
@@ -625,12 +626,13 @@ def test_get_performance_report():
     helper.assert_out_equals_expected()
 
 
-comp_headers = '        value    %     gain val  yr    all %'
+comp_headers = '        value    %     gain val  yr    all %    1yr %'
 account_header = f"{'accounts':{portfolio.COL_ACCOUNT}}"
 label_header = f"{'labels':{portfolio.COL_LABEL}}"
 
 
 @pytest.mark.parametrize('test_input, expected', [
+    ([1], f'{label_header}{comp_headers}      '),
     ([2], f'{label_header}{comp_headers}      '),
     ([3, False], f'{account_header}{comp_headers}    3yr %    '),
     ([4], f'{label_header}{comp_headers}    3yr %    '),
@@ -670,28 +672,26 @@ def test_get_comparison_summary():
 
 
 @pytest.mark.parametrize('sort, first_row', [
-    ('v', portfolio.Summary('x', 0, 1, 1, 1, 1, 1, 1)),
-    ('g', portfolio.Summary('x', 1, 0, 1, 1, 1, 1, 1)),
-    ('y', portfolio.Summary('x', 1, 1, 0, 1, 1, 1, 1)),
-    ('a', portfolio.Summary('x', 1, 1, 1, 0, 1, 1, 1)),
-    ('3', portfolio.Summary('x', 1, 1, 1, 1, 0, 1, 1)),
-    ('5', portfolio.Summary('x', 1, 1, 1, 1, 1, 0, 1)),
-    ('10', portfolio.Summary('x', 1, 1, 1, 1, 1, 1, 0)),
+    ('v', portfolio.Summary('x', 0, 1, 1, 1, 1, 1, 1, 1)),
+    ('g', portfolio.Summary('x', 1, 0, 1, 1, 1, 1, 1, 1)),
+    ('y', portfolio.Summary('x', 1, 1, 0, 1, 1, 1, 1, 1)),
+    ('a', portfolio.Summary('x', 1, 1, 1, 0, 1, 1, 1, 1)),
+    ('1', portfolio.Summary('x', 1, 1, 1, 1, 0, 1, 1, 1)),
+    ('3', portfolio.Summary('x', 1, 1, 1, 1, 1, 0, 1, 1)),
+    ('5', portfolio.Summary('x', 1, 1, 1, 1, 1, 1, 0, 1)),
+    ('10', portfolio.Summary('x', 1, 1, 1, 1, 1, 1, 1, 0)),
 ])
 def test_get_sorted_comparison_items(sort, first_row):
     items = [
         first_row,
-        portfolio.Summary('x', 1, 1, 1, 1, 1, 1, 1)
+        portfolio.Summary('x', 1, 1, 1, 1, 1, 1, 1, 1)
     ]
     sorted_items = portfolio.get_sorted_comparison_items(items, sort)
     assert sorted_items == list(reversed(items))
 
 
 def test_get_sorted_comparison_items_bad_key():
-    comparison_items = [
-        portfolio.Summary('x', 1, 2, 3, 4, 5, 6, 7),
-        portfolio.Summary('x', 2, 3, 4, 5, 6, 7, 8),
-    ]
+    comparison_items = [portfolio.Summary('x', 1, 2, 3, 4, 5, 6, 7, 8)]
     with pytest.raises(KeyError):
         portfolio.get_sorted_comparison_items(comparison_items, 'blart')
 
@@ -702,19 +702,21 @@ def test_get_gain_not_enough_years():
 
 def test_get_comparison_report_line():
     comparison_item = portfolio.Summary('gargle', 2500, 600.0, 11,
-                                        4.02, 7.04, 5.55, 3.6)
+                                        4.02, 5.55, 7.04, 5.55, 3.6)
     line = portfolio.get_comparison_report_line(comparison_item, 50, True)
     expected = ('gargle            $ 2,500   50        $ 600  11     '
-                '4.02     7.04     5.55     3.60\n')
+                '4.02     5.55     7.04     5.55     3.60\n')
     assert Colorable.get_plain_string(line) == expected
 
 
 def test_get_comparison_report_line_no_value():
     comparison_item = portfolio.Summary('gargle', 0, 600.0, 11,
-                                        4.02, 7.04, 5.55, 3.6)
+                                        4.02, 5.55, 7.04, 5.55, 3.6)
     line = portfolio.get_comparison_report_line(comparison_item, 0, False)
-    expected = ('gargle                                                   '
-                '         $ 600  11     4.02     7.04     5.55     3.60\n')
+    expected = (
+        'gargle                                                   '
+        '         $ 600  11     4.02     5.55     7.04     5.55     3.60\n'
+    )
     assert Colorable.get_plain_string(line) == expected
 
 
