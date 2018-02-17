@@ -84,9 +84,10 @@ def get_args(args):
     scripts_description = dedent(f'''\
         other commands (run with -h to see command help):
             {program}
+                grid
                 investments (or inv)
-                prices
                 portfolio (or port)
+                prices
         ''')
 
     parser = argparse.ArgumentParser(

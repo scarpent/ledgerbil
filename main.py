@@ -2,30 +2,28 @@
 import sys
 
 from ledgerbil import ledgerbil, portfolio
-from ledgerbil.ledgershell import investments, prices
+from ledgerbil.ledgershell import grid, investments, prices
 
 
 def main(argv=None):
     if argv is None:
         argv = sys.argv[1:]
 
-    if not argv:
+    command = argv[0] if argv else ''
+
+    other = {
+        'grid': grid,
+        'inv': investments,
+        'investments': investments,
+        'port': portfolio,
+        'portfolio': portfolio,
+        'prices': prices,
+    }
+
+    if command not in other:
         ledgerbil.main(argv)
-        return
-
-    if argv[0] == 'inv' or argv[0] == 'investments':
-        investments.main(argv[1:])
-        return
-
-    if argv[0] == 'prices':
-        prices.main(argv[1:])
-        return
-
-    if argv[0] == 'port' or argv[0] == 'portfolio':
-        portfolio.main(argv[1:])
-        return
-
-    ledgerbil.main(argv)
+    else:
+        other[command].main(argv[1:])
 
 
 if __name__ == '__main__':

@@ -15,6 +15,14 @@ def test_main_ledgerbil(mock_ledgerbil_main):
     mock_ledgerbil_main.assert_called_with(['-r', 'blah', '-f', 'fubar'])
 
 
+@mock.patch('main.grid.main')
+def test_main_grid(mock_grid_main):
+    main.main(['grid'])
+    mock_grid_main.assert_called_once_with([])
+    main.main(['grid', '-a', 'blah'])
+    mock_grid_main.assert_called_with(['-a', 'blah'])
+
+
 @mock.patch('main.investments.main')
 def test_main_investments_with_argv_none(mock_investments_main):
     with mock.patch('sys.argv', ['/script', 'inv']):
@@ -30,17 +38,17 @@ def test_main_investments(mock_investments_main):
     mock_investments_main.assert_called_with(['-a', 'blah', '-e', 'fubar'])
 
 
-@mock.patch('main.prices.main')
-def test_main_prices(mock_prices_main):
-    main.main(['prices'])
-    mock_prices_main.assert_called_once_with([])
-    main.main(['prices', '-f', 'blah'])
-    mock_prices_main.assert_called_with(['-f', 'blah'])
-
-
 @mock.patch('main.portfolio.main')
 def test_main_portfolio(mock_portfolio_main):
     main.main(['port'])
     mock_portfolio_main.assert_called_once_with([])
     main.main(['portfolio', '-a', 'argh'])
     mock_portfolio_main.assert_called_with(['-a', 'argh'])
+
+
+@mock.patch('main.prices.main')
+def test_main_prices(mock_prices_main):
+    main.main(['prices'])
+    mock_prices_main.assert_called_once_with([])
+    main.main(['prices', '-f', 'blah'])
+    mock_prices_main.assert_called_with(['-f', 'blah'])
