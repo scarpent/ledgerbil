@@ -169,7 +169,7 @@ def get_annualized_total_return(gains, num_years):
 def get_formatted_gain(gains=[], num_years=1, annualized_total=None):
     if (annualized_total == NULL_GAIN
             or (not annualized_total and len(gains) < num_years)):
-            return ''
+        return ''
 
     if not annualized_total:
         annualized_total = get_annualized_total_return(gains, num_years)
@@ -222,17 +222,21 @@ def get_performance_report_years(years):
             contrib = ' ' * COL_CONTRIB
 
         if year.transfers and (f'{year.transfers:.0f}' not in ('0', '-0')):
-            transfers = util.get_colored_amount(year.transfers,
-                                                colwidth=COL_TRANSFERS,
-                                                decimals=0)
+            transfers = util.get_colored_amount(
+                year.transfers,
+                colwidth=COL_TRANSFERS,
+                decimals=0
+            )
         else:
             transfers = ' ' * COL_TRANSFERS
 
         value = util.get_plain_amount(year.value, COL_VALUE, 0)
         gain = get_formatted_gain([year.gain], 1)
-        gain_value = util.get_colored_amount(year.gain_value,
-                                             colwidth=COL_GAIN_VALUE,
-                                             decimals=0)
+        gain_value = util.get_colored_amount(
+            year.gain_value,
+            colwidth=COL_GAIN_VALUE,
+            decimals=0
+        )
 
         gain_all = get_formatted_gain(gains, len(gains))
         gain_3 = get_formatted_gain(gains, 3)
@@ -248,15 +252,21 @@ def get_performance_report_years(years):
         gain_val_total += year.gain_value
 
     if len(years) > 1:
-        contrib_total_f = util.get_colored_amount(contrib_total,
-                                                  colwidth=COL_CONTRIB,
-                                                  decimals=0)
-        transfers_total_f = util.get_colored_amount(transfers_total,
-                                                    colwidth=COL_TRANSFERS,
-                                                    decimals=0)
-        gain_val_total_f = util.get_colored_amount(gain_val_total,
-                                                   colwidth=COL_GAIN_VALUE,
-                                                   decimals=0)
+        contrib_total_f = util.get_colored_amount(
+            contrib_total,
+            colwidth=COL_CONTRIB,
+            decimals=0
+        )
+        transfers_total_f = util.get_colored_amount(
+            transfers_total,
+            colwidth=COL_TRANSFERS,
+            decimals=0
+        )
+        gain_val_total_f = util.get_colored_amount(
+            gain_val_total,
+            colwidth=COL_GAIN_VALUE,
+            decimals=0
+        )
         report += (f'      {contrib_total_f}  {transfers_total_f}  '
                    f'{"":{COL_VALUE + COL_GAIN + 2}}  {gain_val_total_f}')
 
@@ -376,10 +386,12 @@ def get_account_history(account):
         gain = ((value - (contrib + transfers) / 2)
                 / (previous_value + (contrib + transfers) / 2) - 1) * 100
         if gain != 0:
-            gain_f = util.get_colored_amount(gain,
-                                             colwidth=8,
-                                             prefix='',
-                                             positive='white')
+            gain_f = util.get_colored_amount(
+                gain,
+                colwidth=8,
+                prefix='',
+                positive='white'
+            )
 
         history += (
             f'    {year}  {contrib_f}  {transfers_f}  {shares_f}  '
