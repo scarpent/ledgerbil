@@ -1,5 +1,7 @@
 import argparse
 
+from .runner import get_ledger_output
+
 
 def get_args(args=[]):
     parser = argparse.ArgumentParser(
@@ -15,10 +17,16 @@ def get_args(args=[]):
         type=str,
         help='grid for specified accounts'
     )
+    parser.add_argument(
+        '-l', '--ledger',
+        type=str,
+        help='ledgerbil passthrough (perhaps temporary)'
+    )
 
     return parser.parse_args(args)
 
 
 def main(argv=[]):
     args = get_args(argv)
-    print(f'grid args: {args}')
+    if args.ledger:
+        print(get_ledger_output(args.ledger))

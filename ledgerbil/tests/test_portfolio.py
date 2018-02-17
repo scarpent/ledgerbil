@@ -13,7 +13,7 @@ class MockSettings(object):
     PORTFOLIO_FILE = 'abcd'
 
 
-def setup_module(module):
+def setup_function(module):
     portfolio.settings = MockSettings()
 
 

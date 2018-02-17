@@ -5,7 +5,6 @@ import pytest
 
 from .. import prices
 
-
 response_json = b'''
 // [
 {
@@ -33,7 +32,7 @@ class MockSettings(object):
     PRICE_FILE_FORMAT = 'P {date} {symbol:10} ${price}\n'
 
 
-def setup_module(module):
+def setup_function(module):
     prices.settings = MockSettings()
 
 

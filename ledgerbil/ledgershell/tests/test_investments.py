@@ -9,17 +9,17 @@ from .. import investments, runner
 
 class MockSettings(object):
     LEDGER_COMMAND = ['ledger']
+    LEDGER_DIR = 'lmn'
     LEDGER_FILES = [
         'blarg.ldg',
         'glurg.ldg',
     ]
     INVESTMENT_DEFAULT_ACCOUNTS = 'abc or cba'
-    INVESTMENT_DEFAULT_END_DATE = 'xyz'
-    LEDGER_DIR = 'lmn'
     PRICES_FILE = os.path.join(LEDGER_DIR, 'ijk')
+    INVESTMENT_DEFAULT_END_DATE = 'xyz'
 
 
-def setup_module(module):
+def setup_function(module):
     investments.settings = MockSettings()
     runner.settings = MockSettings()
 
@@ -39,6 +39,26 @@ def test_check_for_negative_dollars_warning(mock_print):
 
 
 def test_get_investment_command_options_defaults():
+    expected = [
+        '--market',
+        '--price-db',
+        MockSettings.PRICES_FILE,
+        'bal'
+    ] + shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS) + [
+        '--end',
+        MockSettings.INVESTMENT_DEFAULT_END_DATE
+    ]
+    # It would be nice to test with actual defaults but they appear
+    # to be set at import time so we'll do this
+    actual = investments.get_investment_command_options(
+        accounts=MockSettings.INVESTMENT_DEFAULT_ACCOUNTS,
+        end_date=MockSettings.INVESTMENT_DEFAULT_END_DATE
+    )
+    assert actual == expected
+
+
+def test_get_investment_command_options_no_investments_ledger():
+    investments.settings.INVESTMENTS_LEDGER = None
     expected = [
         '--market',
         '--price-db',
