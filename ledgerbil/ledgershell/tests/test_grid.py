@@ -27,7 +27,7 @@ def setup_module(module):
 @mock.patch(__name__ + '.grid.get_ledger_output')
 def test_get_column(mock_ledger_output):
     output = dedent('''\
-                      $ 17.37  expenses: car: gas
+                     $ 17.37  expenses: car: gas
                       $ 6.50  expenses: car: maintenance
                     $ 463.78  expenses: healthcare: medical insurance
         --------------------

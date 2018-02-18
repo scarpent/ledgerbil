@@ -13,17 +13,17 @@ def get_stuff(args):
 
 
 def get_column(ledger_options):
-    account = 1
-    dollars = 0
+    ACCOUNT = 1
+    DOLLARS = 0
+
     lines = get_ledger_output(ledger_options).split('\n')
     column = {}
-
     for line in lines:
         if line == '' or line[0] == '-':
             break
         match = re.match(LINE_REGEX, line)
         assert match, f'Line regex did not match: {line}'
-        column[match.groups()[account]] = match.groups()[dollars]
+        column[match.groups()[ACCOUNT]] = match.groups()[DOLLARS]
 
     return column
 
