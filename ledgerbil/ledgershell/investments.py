@@ -84,7 +84,7 @@ def get_dollars(args):
         if line == '' or line[0] == '-':
             break
         match = re.match(DOLLARS_REGEX, line)
-        assert match, f"Didn't match on dollars regex: {line}"
+        assert match, f'Dollars regex did not match: {line}'
         dollars = Dollars(*match.groups())
         check_for_negative_dollars(dollars.amount, dollars.account)
         listing.append(dollars)
@@ -139,7 +139,7 @@ def get_shares(args):
             shares = Shares('', '', dollars.account)
         else:
             match = re.match(SHARES_REGEX, line)
-            assert match, f"Didn't match on shares regex: {line}"
+            assert match, f'Shares regex did not match: {line}'
             shares = Shares(*match.groups())
 
         # Only use the shares from the leaf nodes, which will be
