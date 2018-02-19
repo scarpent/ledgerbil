@@ -9,23 +9,21 @@ LINE_REGEX = re.compile(r'^\s*(?:\$ (-?[\d,.]+|0(?=  )))\s*(.*)$')
 
 
 def get_grid_report(args, ledger_args=[]):
-    if args.month:
-        return('todo: month grid')
-    else:
-        years = get_included_years(args, ledger_args)
+    unit = 'month' if args.month else 'year'
+    periods = get_included_periods(args, ledger_args, unit)
 
     all_accounts = set()
-    all_years = {}
-    for year in years:
-        column = get_column(['bal', '--flat', '-p', year] + ledger_args)
+    all_periods = {}
+    for period in periods:
+        column = get_column(['bal', '--flat', '-p', period] + ledger_args)
         all_accounts.update(column.keys())
-        all_years[year] = column
+        all_periods[period] = column
 
-    pprint(all_years)
+    pprint(all_periods)
     return all_accounts
 
 
-def get_included_years(args, ledger_args):
+def get_included_periods(args, ledger_args, unit='year'):
     # --collapse behavior seems suspicous, but --empty
     # appears to work for our purposes here
     # groups.google.com/forum/?fromgroups=#!topic/ledger-cli/HAKAMYiaL7w
@@ -33,17 +31,21 @@ def get_included_years(args, ledger_args):
     end = ['-e', args.end] if args.end else []
     period = ['-p', args.period] if args.period else []
 
+    if unit == 'year':
+        options = ['--yearly', '-y', '%Y']
+        period_len = 4
+    else:  # month
+        options = ['--monthly', '-y', '%Y/%m']
+        period_len = 7
+
     lines = get_ledger_output([
         'reg'
-    ] + begin + end + period + [
-        '--yearly',
-        '-y',
-        '%Y',
+    ] + begin + end + period + options + [
         '--collapse',
         '--empty'
     ] + ledger_args).split('\n')
 
-    return {x[:4] for x in lines if x}
+    return {x[:period_len] for x in lines if x}
 
 
 def get_column(ledger_args):
