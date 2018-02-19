@@ -32,9 +32,11 @@ def get_grid_report(args, ledger_args=[]):
     headers = [f'{x:>{COL_PERIOD}}' for x in periods]
     report = f"{' ' * COL_ACCOUNT}{''.join(headers)}\n"
     for account in sorted(all_accounts):
-        values = [util.get_plain_amount(
+        values = [util.get_colored_amount(
             grid[account].get(x, 0),
-            colwidth=COL_PERIOD
+            colwidth=COL_PERIOD,
+            positive='yellow',
+            zero='grey'
         ) for x in periods]
         report += f"{account:{COL_ACCOUNT}}{''.join(values)}\n"
 
