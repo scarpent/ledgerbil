@@ -7,7 +7,7 @@ from .. import grid, runner
 
 
 class MockSettings(object):
-    LEDGER_COMMAND = 'ledger'
+    LEDGER_COMMAND = ['ledger']
     LEDGER_DIR = 'lmn'
     LEDGER_FILES = [
         'blarg.ldg',
@@ -18,6 +18,23 @@ class MockSettings(object):
 def setup_module(module):
     grid.settings = MockSettings()
     runner.settings = MockSettings()
+
+
+@mock.patch(__name__ + '.grid.get_ledger_output')
+def test_get_included_years(mock_ledger_output):
+    output = dedent('''\
+        2017 - 2017          <Total>                    0         0
+        2018 - 2018          <Total>                    0         0
+    ''')
+    mock_ledger_output.return_value = output
+    args, ledger_args = grid.get_args(
+        ['-b', 'banana', '-e', 'eggplant', '-p', 'pear', 'lettuce']
+    )
+    assert grid.get_included_years(args, ledger_args) == {'2017', '2018'}
+    mock_ledger_output.assert_called_once_with(
+        ['reg', '-b', 'banana', '-e', 'eggplant', '-p', 'pear',
+         '--yearly', '-y', '%Y', '--collapse', '--empty', 'lettuce']
+    )
 
 
 @mock.patch(__name__ + '.grid.get_ledger_output')
@@ -35,7 +52,8 @@ def test_get_column(mock_ledger_output):
         'expenses: car: maintenance': '6.50',
         'expenses: healthcare: medical insurance': '463.78'
     }
-    assert grid.get_column('boogy!') == expected
+    assert grid.get_column(['boogy!']) == expected
+    mock_ledger_output.assert_called_once_with(['boogy!'])
 
 
 @mock.patch(__name__ + '.grid.get_grid_report')
@@ -109,5 +127,5 @@ def test_ledger_args(test_input, expected):
 
 @mock.patch(__name__ + '.grid.get_ledger_output')
 def test_main_temporary_test(mock_ledger_output):
-    grid.main(['-l', 'bal', 'expenses', '--flat'])
-    mock_ledger_output.assert_called_once_with('bal expenses --flat')
+    grid.main(['-l', 'bal expenses --flat'])
+    mock_ledger_output.assert_called_once_with(['bal', 'expenses', '--flat'])

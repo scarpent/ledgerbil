@@ -1,24 +1,23 @@
 import argparse
 import re
+import shlex
 from pprint import pprint
 
-from .runner import get_ledger_output
+from .runner import get_ledger_command, get_ledger_output
 
 LINE_REGEX = re.compile(r'^\s*(?:\$ (-?[\d,.]+|0(?=  )))\s*(.*)$')
 
 
 def get_grid_report(args, ledger_args=[]):
-    # todo: pending other options, goal is to have year be the
-    #       default without explicitly settings as the default
     if args.month:
-        return('only year grid is wip...')
+        return('todo: month grid')
     else:
         years = get_included_years(args, ledger_args)
 
     all_accounts = set()
     all_years = {}
     for year in years:
-        column = get_column(f'bal expenses --flat -p {year}')
+        column = get_column(['bal', '--flat', '-p', year] + ledger_args)
         all_accounts.update(column.keys())
         all_years[year] = column
 
@@ -27,31 +26,37 @@ def get_grid_report(args, ledger_args=[]):
 
 
 def get_included_years(args, ledger_args):
-    # todo: would like to add --collapse but not working with sample data...
-    # https://groups.google.com/forum/?fromgroups=#!topic/ledger-cli/HAKAMYiaL7w  # noqa
-    begin = f'-b {args.begin} ' if args.begin else ''
-    end = f'-e {args.end} ' if args.end else ''
-    period = f'-p {args.period} ' if args.period else ''
+    # --collapse behavior seems suspicous, but --empty
+    # appears to work for our purposes here
+    # groups.google.com/forum/?fromgroups=#!topic/ledger-cli/HAKAMYiaL7w
+    begin = ['-b', args.begin] if args.begin else []
+    end = ['-e', args.end] if args.end else []
+    period = ['-p', args.period] if args.period else []
 
-    options = ' '.join(ledger_args)
-
-    lines = get_ledger_output(
-        f'reg {begin}{end}{period}--yearly --total-data {options}'
-    ).split('\n')
+    lines = get_ledger_output([
+        'reg'
+    ] + begin + end + period + [
+        '--yearly',
+        '-y',
+        '%Y',
+        '--collapse',
+        '--empty'
+    ] + ledger_args).split('\n')
 
     return {x[:4] for x in lines if x}
 
 
-def get_column(ledger_options):
+def get_column(ledger_args):
     ACCOUNT = 1
     DOLLARS = 0
 
-    lines = get_ledger_output(ledger_options).split('\n')
+    lines = get_ledger_output(ledger_args).split('\n')
     column = {}
     for line in lines:
         if line == '' or line[0] == '-':
             break
         match = re.match(LINE_REGEX, line)
+        # should match as long as --market is used?
         assert match, f'Line regex did not match: {line}'
         column[match.groups()[ACCOUNT]] = match.groups()[DOLLARS]
 
@@ -78,6 +83,7 @@ def get_args(args=[]):
         action='store_true',
         help='month grid'
     )
+    # todo: --depth option (can't use ledger's --depth with --flat)
     parser.add_argument(
         '-b', '--begin',
         type=str,
@@ -97,7 +103,7 @@ def get_args(args=[]):
     )
     parser.add_argument(
         '-l', '--ledger',
-        action='store_true',
+        type=str,
         help='ledgerbil passthrough'
     )
 
@@ -109,7 +115,9 @@ def get_args(args=[]):
 def main(argv=[]):
     args, ledger_args = get_args(argv)
     if args.ledger:
-        print(get_ledger_output(' '.join(ledger_args)))
+        options = shlex.split(args.ledger)
+        print(get_ledger_output(options))
+        print(' '.join(get_ledger_command(options)))
         return
 
     pprint(get_grid_report(args, ledger_args))
