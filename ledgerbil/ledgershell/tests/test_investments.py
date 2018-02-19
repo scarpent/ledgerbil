@@ -1,4 +1,5 @@
 import os
+import shlex
 from unittest import mock
 
 import pytest
@@ -12,7 +13,7 @@ class MockSettings(object):
         'blarg.ldg',
         'glurg.ldg',
     ]
-    INVESTMENT_DEFAULT_ACCOUNTS = 'abc'
+    INVESTMENT_DEFAULT_ACCOUNTS = 'abc or cba'
     INVESTMENT_DEFAULT_END_DATE = 'xyz'
     LEDGER_DIR = 'lmn'
     PRICES_FILE = os.path.join(LEDGER_DIR, 'ijk')
@@ -38,8 +39,15 @@ def test_check_for_negative_dollars_warning(mock_print):
 
 
 def test_get_investment_command_options_defaults():
-    prices = MockSettings.PRICES_FILE
-    expected = f'--market --price-db {prices} bal abc --end xyz'
+    expected = [
+        '--market',
+        '--price-db',
+        MockSettings.PRICES_FILE,
+        'bal'
+    ] + shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS) + [
+        '--end',
+        MockSettings.INVESTMENT_DEFAULT_END_DATE
+    ]
     # It would be nice to test with actual defaults but they appear
     # to be set at import time so we'll do this
     actual = investments.get_investment_command_options(
@@ -50,11 +58,21 @@ def test_get_investment_command_options_defaults():
 
 
 def test_get_investment_command_options_defaults_plus_begin_date():
-    prices = MockSettings.PRICES_FILE
-    expected = f'--market --price-db {prices} bal abc --begin qrt --end xyz'
+    begin_date = 'qrt'
+    expected = [
+        '--market',
+        '--price-db',
+        MockSettings.PRICES_FILE,
+        'bal',
+    ] + shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS) + [
+        '--begin',
+        begin_date,
+        '--end',
+        MockSettings.INVESTMENT_DEFAULT_END_DATE,
+    ]
     actual = investments.get_investment_command_options(
         accounts=MockSettings.INVESTMENT_DEFAULT_ACCOUNTS,
-        begin_date='qrt',
+        begin_date=begin_date,
         end_date=MockSettings.INVESTMENT_DEFAULT_END_DATE
     )
     assert actual == expected
@@ -67,9 +85,15 @@ def test_get_lines_default_args(mock_get_ledger_output, mock_print):
     mock_get_ledger_output.return_value = '1\n2\n3\n'
     lines = investments.get_lines(args)
     assert lines == ['1', '2', '3', '']
-    mock_get_ledger_output.assert_called_once_with(
-        '--market --price-db lmn/ijk bal abc --end xyz'
-    )
+    mock_get_ledger_output.assert_called_once_with([
+        '--market',
+        '--price-db',
+        MockSettings.PRICES_FILE,
+        'bal',
+    ] + shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS) + [
+        '--end',
+        MockSettings.INVESTMENT_DEFAULT_END_DATE,
+    ])
     assert not mock_print.called
 
 
@@ -80,9 +104,16 @@ def test_get_lines_shares(mock_get_ledger_output, mock_print):
     mock_get_ledger_output.return_value = '1\n2\n3\n'
     lines = investments.get_lines(args, shares=True)
     assert lines == ['1', '2', '3', '']
-    mock_get_ledger_output.assert_called_once_with(
-        '--exchange --market --price-db lmn/ijk bal abc --end xyz'
-    )
+    mock_get_ledger_output.assert_called_once_with([
+        '--market',
+        '--price-db',
+        MockSettings.PRICES_FILE,
+        'bal',
+    ] + shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS) + [
+        '--exchange',
+        '--end',
+        MockSettings.INVESTMENT_DEFAULT_END_DATE,
+    ])
     assert not mock_print.called
 
 
@@ -93,11 +124,17 @@ def test_get_lines_print_command(mock_get_ledger_output, mock_print):
     mock_get_ledger_output.return_value = '1\n2\n3\n'
     lines = investments.get_lines(args)
     assert lines == ['1', '2', '3', '']
-    mock_get_ledger_output.assert_called_once_with(
-        '--market --price-db lmn/ijk bal abc --end xyz'
-    )
+    mock_get_ledger_output.assert_called_once_with([
+        '--market',
+        '--price-db',
+        MockSettings.PRICES_FILE,
+        'bal',
+    ] + shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS) + [
+        '--end',
+        MockSettings.INVESTMENT_DEFAULT_END_DATE,
+    ])
     expected_print = ('ledger -f lmn/blarg.ldg -f lmn/glurg.ldg '
-                      '--market --price-db lmn/ijk bal abc --end xyz ')
+                      '--market --price-db lmn/ijk bal abc or cba --end xyz')
     mock_print.assert_called_once_with(expected_print)
 
 
@@ -336,7 +373,7 @@ def test_main(mock_ledger_output, mock_print):
 @pytest.mark.parametrize('test_input, expected', [
     (['-a', 'blah or blarg'], 'blah or blarg'),
     (['--accounts', 'fu or bar'], 'fu or bar'),
-    ([], 'abc'),  # default in MockSettings
+    ([], 'abc or cba'),  # default in MockSettings
 ])
 def test_args_accounts(test_input, expected):
     args = investments.get_args(test_input)

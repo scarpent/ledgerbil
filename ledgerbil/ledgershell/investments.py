@@ -1,5 +1,6 @@
 import argparse
 import re
+import shlex
 from collections import namedtuple
 
 from ..colorable import Colorable
@@ -21,13 +22,19 @@ def get_investment_command_options(
         begin_date='',
         end_date=settings.INVESTMENT_DEFAULT_END_DATE):
 
-    shares = '--exchange ' if shares else ''
+    options = []
+    if shares:
+        options.append('--exchange')
     if begin_date:
-        begin_date = f' --begin {begin_date}'
-    end_date = f'--end {end_date}'
+        options += ['--begin', begin_date]
+    options += ['--end', end_date]
 
-    return (f'{shares}--market --price-db {settings.PRICES_FILE} '
-            f'bal {accounts}{begin_date} {end_date}')
+    return [
+        '--market',
+        '--price-db',
+        settings.PRICES_FILE,
+        'bal',
+    ] + shlex.split(accounts) + options
 
 
 def check_for_negative_dollars(amount, account):
@@ -53,7 +60,7 @@ def get_lines(args, shares=False):
     output = get_ledger_output(options)
 
     if args.command:
-        print(get_ledger_command(options))
+        print(' '.join(get_ledger_command(options)))
 
     return output.split('\n')
 
