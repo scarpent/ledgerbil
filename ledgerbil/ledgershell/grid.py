@@ -30,17 +30,23 @@ def get_grid_report(args, ledger_args=[]):
     COL_PERIOD = 14
 
     headers = [f'{x:>{COL_PERIOD}}' for x in periods]
-    report = f"{' ' * COL_ACCOUNT}{''.join(headers)}\n"
+    report = f"{' ' * COL_ACCOUNT}{''.join(headers)}{'total':>{COL_PERIOD}}\n"
     for account in sorted(all_accounts):
-        values = [util.get_colored_amount(
-            grid[account].get(x, 0),
+        values = [grid[account].get(x, 0) for x in periods]
+        values_f = [util.get_colored_amount(
+            x,
             colwidth=COL_PERIOD,
             positive='yellow',
             zero='grey'
-        ) for x in periods]
-        report += f"{account:{COL_ACCOUNT}}{''.join(values)}\n"
+        ) for x in values]
+        row_total = util.get_colored_amount(
+            sum(values),
+            colwidth=COL_PERIOD,
+            positive='yellow'
+        )
+        report += f"{account:{COL_ACCOUNT}}{''.join(values_f)}{row_total}\n"
 
-    dashes = [f"{'-' * (COL_PERIOD - 2):>{COL_PERIOD}}" for x in periods]
+    dashes = [f"{'-' * (COL_PERIOD - 2):>{COL_PERIOD}}" for x in periods + [1]]
     report += f"{' ' * COL_ACCOUNT}{''.join(dashes)}\n"
     totals = [util.get_plain_amount(
         sum(all_periods[x].values()),
