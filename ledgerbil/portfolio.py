@@ -37,10 +37,6 @@ COL_LABEL = 12
 COL_PERCENT = 3
 
 
-def strip_assets_prefix(s):
-    return re.sub('(?i)assets: ?', '', s)
-
-
 def get_portfolio_report(args):
 
     matched_accounts, matched_labels, included_years = \
@@ -70,6 +66,10 @@ def get_portfolio_report(args):
         report = get_performance_report(matched_accounts, included_years)
 
     return report
+
+
+def strip_assets_prefix(s):
+    return re.sub('(?i)assets: ?', '', s)
 
 
 def no_match(accounts_regex, labels, yearly=False):
