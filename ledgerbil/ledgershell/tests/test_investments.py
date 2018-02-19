@@ -8,7 +8,7 @@ from .. import investments, runner
 
 
 class MockSettings(object):
-    LEDGER_COMMAND = 'ledger'
+    LEDGER_COMMAND = ['ledger']
     LEDGER_FILES = [
         'blarg.ldg',
         'glurg.ldg',

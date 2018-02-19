@@ -11,7 +11,7 @@ def get_ledger_command(args=[]):
     files = []
     for f in settings.LEDGER_FILES:
         files += ['-f', os.path.join(settings.LEDGER_DIR, f)]
-    return [settings.LEDGER_COMMAND] + files + args
+    return settings.LEDGER_COMMAND + files + args
 
 
 def get_ledger_output(args=[]):

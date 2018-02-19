@@ -7,7 +7,7 @@ from .. import runner
 
 
 class TestSettings(object):
-    LEDGER_COMMAND = 'ledger'
+    LEDGER_COMMAND = ['ledger']
     LEDGER_DIR = 'xyz'
     LEDGER_FILES = [
         'blarg.ldg',

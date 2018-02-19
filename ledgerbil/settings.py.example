@@ -17,9 +17,15 @@ class Settings(object):
     PORTFOLIO_FILE = os.path.join(LEDGER_DIR, 'portfolio.json')
     RECONCILER_CACHE_FILE = os.path.join(LEDGER_DIR, '.reconciler_cache')
 
-    LEDGER_OPTIONS = ('--strict --check-payees --pedantic --explicit '
-                      '--columns 120')
-    LEDGER_COMMAND = f'ledger {LEDGER_OPTIONS}'
+    LEDGER_COMMAND = [
+        'ledger',
+        '--strict',
+        '--check-payees',
+        '--pedantic',
+        '--explicit',
+        '--columns',
+        '120',
+    ]
 
     INVESTMENT_DEFAULT_ACCOUNTS = '401k or ira or mutual'
     INVESTMENT_DEFAULT_END_DATE = 'tomorrow'
