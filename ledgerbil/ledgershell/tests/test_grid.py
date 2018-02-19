@@ -62,15 +62,15 @@ def test_get_column(mock_ledger_output):
     output = dedent('''\
                      $ 17.37  expenses: car: gas
                       $ 6.50  expenses: car: maintenance
-                    $ 463.78  expenses: healthcare: medical insurance
+                  $ 1,001.78  expenses: widgets
         --------------------
                     $ 487.65
     ''')
     mock_ledger_output.return_value = output
     expected = {
-        'expenses: car: gas': '17.37',
-        'expenses: car: maintenance': '6.50',
-        'expenses: healthcare: medical insurance': '463.78'
+        'expenses: car: gas': 17.37,
+        'expenses: car: maintenance': 6.50,
+        'expenses: widgets': 1001.78
     }
     assert grid.get_column(['boogy!']) == expected
     mock_ledger_output.assert_called_once_with(['boogy!'])

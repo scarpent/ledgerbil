@@ -1,8 +1,9 @@
 import argparse
 import re
 import shlex
-from pprint import pprint
+from pprint import pprint  # noqa
 
+from .. import util
 from .runner import get_ledger_command, get_ledger_output
 
 LINE_REGEX = re.compile(r'^\s*(?:\$ (-?[\d,.]+|0(?=  )))\s*(.*)$')
@@ -10,7 +11,7 @@ LINE_REGEX = re.compile(r'^\s*(?:\$ (-?[\d,.]+|0(?=  )))\s*(.*)$')
 
 def get_grid_report(args, ledger_args=[]):
     unit = 'month' if args.month else 'year'
-    periods = get_included_periods(args, ledger_args, unit)
+    periods = sorted(get_included_periods(args, ledger_args, unit))
 
     all_accounts = set()
     all_periods = {}
@@ -19,8 +20,37 @@ def get_grid_report(args, ledger_args=[]):
         all_accounts.update(column.keys())
         all_periods[period] = column
 
-    pprint(all_periods)
-    return all_accounts
+    grid = {key: {} for key in all_accounts}
+
+    for period, column in all_periods.items():
+        for account, value in column.items():
+            grid[account][period] = value
+
+    COL_ACCOUNT = 48
+    COL_PERIOD = 14
+
+    headers = [f'{x:>{COL_PERIOD}}' for x in periods]
+    report = f"{' ' * COL_ACCOUNT}{''.join(headers)}\n"
+    for account in sorted(all_accounts):
+        values = [util.get_plain_amount(
+            grid[account].get(x, 0),
+            colwidth=COL_PERIOD
+        ) for x in periods]
+        report += f"{account:{COL_ACCOUNT}}{''.join(values)}\n"
+
+    dashes = [f"{'-' * (COL_PERIOD - 2):>{COL_PERIOD}}" for x in periods]
+    report += f"{' ' * COL_ACCOUNT}{''.join(dashes)}\n"
+    totals = [util.get_plain_amount(
+        sum(all_periods[x].values()),
+        colwidth=COL_PERIOD
+    ) for x in periods]
+    report += f"{' ' * COL_ACCOUNT}{''.join(totals)}\n"
+
+    # print('all_periods:')
+    # pprint(all_periods)
+    # print('\ngrid:')
+    # pprint(grid)
+    return report
 
 
 def get_included_periods(args, ledger_args, unit='year'):
@@ -45,7 +75,7 @@ def get_included_periods(args, ledger_args, unit='year'):
         '--empty'
     ] + ledger_args).split('\n')
 
-    return {x[:period_len] for x in lines if x}
+    return {x[:period_len] for x in lines if x[:period_len].strip() != ''}
 
 
 def get_column(ledger_args):
@@ -60,7 +90,8 @@ def get_column(ledger_args):
         match = re.match(LINE_REGEX, line)
         # should match as long as --market is used?
         assert match, f'Line regex did not match: {line}'
-        column[match.groups()[ACCOUNT]] = match.groups()[DOLLARS]
+        amount = float(match.groups()[DOLLARS].replace(',', ''))  # todo: test
+        column[match.groups()[ACCOUNT]] = amount
 
     return column
 
@@ -97,7 +128,7 @@ def get_args(args=[]):
         '-e', '--end',
         type=str,
         metavar='DATE',
-        help='begin date'
+        help='end date'
     )
     parser.add_argument(
         '-p', '--period',
@@ -123,4 +154,4 @@ def main(argv=[]):
         print(' '.join(get_ledger_command(options)))
         return
 
-    pprint(get_grid_report(args, ledger_args))
+    print(get_grid_report(args, ledger_args))
