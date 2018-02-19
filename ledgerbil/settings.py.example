@@ -25,6 +25,9 @@ class Settings(object):
         '--explicit',
         '--columns',
         '120',
+        '--market',
+        '--price-db',
+        PRICES_FILE,
     ]
 
     INVESTMENT_DEFAULT_ACCOUNTS = '401k or ira or mutual'

@@ -8,14 +8,14 @@ from .. import investments, runner
 
 
 class MockSettings(object):
-    LEDGER_COMMAND = ['ledger']
     LEDGER_DIR = 'lmn'
     LEDGER_FILES = [
         'blarg.ldg',
         'glurg.ldg',
     ]
-    INVESTMENT_DEFAULT_ACCOUNTS = 'abc or cba'
     PRICES_FILE = os.path.join(LEDGER_DIR, 'ijk')
+    LEDGER_COMMAND = ['ledger', '--market', '--price-db', PRICES_FILE]
+    INVESTMENT_DEFAULT_ACCOUNTS = 'abc or cba'
     INVESTMENT_DEFAULT_END_DATE = 'xyz'
 
 
@@ -40,9 +40,6 @@ def test_check_for_negative_dollars_warning(mock_print):
 
 def test_get_investment_command_options_defaults():
     expected = [
-        '--market',
-        '--price-db',
-        MockSettings.PRICES_FILE,
         'bal'
     ] + shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS) + [
         '--end',
@@ -60,9 +57,6 @@ def test_get_investment_command_options_defaults():
 def test_get_investment_command_options_no_investments_ledger():
     investments.settings.INVESTMENTS_LEDGER = None
     expected = [
-        '--market',
-        '--price-db',
-        MockSettings.PRICES_FILE,
         'bal'
     ] + shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS) + [
         '--end',
@@ -80,9 +74,6 @@ def test_get_investment_command_options_no_investments_ledger():
 def test_get_investment_command_options_defaults_plus_begin_date():
     begin_date = 'qrt'
     expected = [
-        '--market',
-        '--price-db',
-        MockSettings.PRICES_FILE,
         'bal',
     ] + shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS) + [
         '--begin',
@@ -106,9 +97,6 @@ def test_get_lines_default_args(mock_get_ledger_output, mock_print):
     lines = investments.get_lines(args)
     assert lines == ['1', '2', '3', '']
     mock_get_ledger_output.assert_called_once_with([
-        '--market',
-        '--price-db',
-        MockSettings.PRICES_FILE,
         'bal',
     ] + shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS) + [
         '--end',
@@ -125,9 +113,6 @@ def test_get_lines_shares(mock_get_ledger_output, mock_print):
     lines = investments.get_lines(args, shares=True)
     assert lines == ['1', '2', '3', '']
     mock_get_ledger_output.assert_called_once_with([
-        '--market',
-        '--price-db',
-        MockSettings.PRICES_FILE,
         'bal',
     ] + shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS) + [
         '--exchange',
@@ -145,16 +130,13 @@ def test_get_lines_print_command(mock_get_ledger_output, mock_print):
     lines = investments.get_lines(args)
     assert lines == ['1', '2', '3', '']
     mock_get_ledger_output.assert_called_once_with([
-        '--market',
-        '--price-db',
-        MockSettings.PRICES_FILE,
         'bal',
     ] + shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS) + [
         '--end',
         MockSettings.INVESTMENT_DEFAULT_END_DATE,
     ])
-    expected_print = ('ledger -f lmn/blarg.ldg -f lmn/glurg.ldg '
-                      '--market --price-db lmn/ijk bal abc or cba --end xyz')
+    expected_print = ('ledger --market --price-db lmn/ijk -f lmn/blarg.ldg '
+                      '-f lmn/glurg.ldg bal abc or cba --end xyz')
     mock_print.assert_called_once_with(expected_print)
 
 

@@ -29,12 +29,7 @@ def get_investment_command_options(
         options += ['--begin', begin_date]
     options += ['--end', end_date]
 
-    return [
-        '--market',
-        '--price-db',
-        settings.PRICES_FILE,
-        'bal',
-    ] + shlex.split(accounts) + options
+    return ['bal'] + shlex.split(accounts) + options
 
 
 def check_for_negative_dollars(amount, account):
