@@ -105,6 +105,12 @@ def test_args_month(test_input, expected):
     assert ledger_args == []
 
 
+def test_args_year_and_month_are_mutually_exclusive():
+    with pytest.raises(SystemExit) as excinfo:
+        grid.get_args(['--month', '--year'])
+    assert str(excinfo.value) == '2'
+
+
 @pytest.mark.parametrize('test_input, expected', [
     (['-b', 'today'], 'today'),
     (['--begin', '2016/01/12'], '2016/01/12'),

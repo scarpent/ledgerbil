@@ -32,15 +32,15 @@ def get_included_periods(args, ledger_args, unit='year'):
     period = ['-p', args.period] if args.period else []
 
     if unit == 'year':
-        options = ['--yearly', '-y', '%Y']
+        period_options = ['--yearly', '-y', '%Y']
         period_len = 4
     else:  # month
-        options = ['--monthly', '-y', '%Y/%m']
+        period_options = ['--monthly', '-y', '%Y/%m']
         period_len = 7
 
     lines = get_ledger_output([
         'reg'
-    ] + begin + end + period + options + [
+    ] + begin + end + period + period_options + [
         '--collapse',
         '--empty'
     ] + ledger_args).split('\n')
@@ -74,13 +74,14 @@ def get_args(args=[]):
             width=100
         ))
     )
-    parser.add_argument(
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
         '-y', '--year',
         action='store_true',
         default=True,
         help='year grid'
     )
-    parser.add_argument(
+    group.add_argument(
         '-m', '--month',
         action='store_true',
         help='month grid'
