@@ -4,6 +4,7 @@ from unittest import mock
 import pytest
 
 from .. import grid, runner
+from ...tests.helpers import OutputFileTester
 
 
 class MockSettings(object):
@@ -124,7 +125,7 @@ def test_get_grid():
             'expenses: car: gas': 28.19,
             'expenses: widgets': 500.10,
             'expenses: unicorns': -10123.55,
-        }
+        },
     }
     expected = {
         'expenses: car: gas': {'lemon': 17.37, 'lime': 28.19},
@@ -135,11 +136,89 @@ def test_get_grid():
     assert grid.get_grid(accounts, columns) == expected
 
 
+def test_get_formatted_report():
+    grid_x = {
+        'expenses: car: gas': {'lemon': 17.37, 'lime': 28.19},
+        'expenses: car: maintenance': {'lemon': 6.50},
+        'expenses: unicorns': {'lime': -10123.55},
+        'expenses: widgets': {'lemon': 1001.78, 'lime': 500.10},
+    }
+    accounts = {
+        'expenses: car: gas',
+        'expenses: car: maintenance',
+        'expenses: unicorns',
+        'expenses: widgets'
+    }
+    columns = {
+        'lemon': {
+            'expenses: car: gas': 17.37,
+            'expenses: car: maintenance': 6.50,
+            'expenses: widgets': 1001.78,
+        },
+        'lime': {
+            'expenses: car: gas': 28.19,
+            'expenses: widgets': 500.10,
+            'expenses: unicorns': -10123.55,
+        },
+    }
+    period_names = ['lime', 'lemon']
+
+    report = grid.get_formatted_report(grid_x, accounts, columns, period_names)
+    helper = OutputFileTester('test_grid_formatted_report')
+    helper.save_out_file(report)
+    helper.assert_out_equals_expected()
+
+
+@mock.patch(__name__ + '.grid.get_formatted_report')
+@mock.patch(__name__ + '.grid.get_grid')
+@mock.patch(__name__ + '.grid.get_columns')
+@mock.patch(__name__ + '.grid.get_period_names')
+def test_get_grid_report(mock_pnames, mock_columns, mock_grid, mock_report):
+    period_names, accounts, columns, grid_x, formatted_report = (
+        {'paprika', 'garglic'}, 'fennel', 'tarragon', 'basil', 'parsley',
+    )
+
+    mock_pnames.return_value = period_names
+    mock_columns.return_value = (accounts, columns)
+    mock_grid.return_value = grid_x
+    mock_report.return_value = formatted_report
+
+    args, ledger_args = grid.get_args(['-m', 'nutmeg'])
+    assert grid.get_grid_report(args, ledger_args) == formatted_report
+    mock_pnames.assert_called_once_with(args, ledger_args, 'month')
+    mock_columns.assert_called_once_with(sorted(period_names), ledger_args)
+    mock_grid.assert_called_once_with(accounts, columns)
+    mock_report.assert_called_once_with(
+        grid_x, accounts, columns, sorted(period_names)
+    )
+
+
+@mock.patch(__name__ + '.grid.get_formatted_report')
+@mock.patch(__name__ + '.grid.get_grid')
+@mock.patch(__name__ + '.grid.get_columns')
+@mock.patch(__name__ + '.grid.get_period_names')
+def test_get_grid_report_year(mock_pnames, mock_cols, mock_grid, mock_report):
+    period_names, accounts, columns, formatted_report = (
+        {'paprika', 'garglic'}, 'fennel', 'tarragon', 'parsley',
+    )
+
+    mock_pnames.return_value = period_names
+    mock_cols.return_value = (accounts, columns)
+    mock_report.return_value = formatted_report
+
+    args, ledger_args = grid.get_args(['-y', 'nutmeg'])
+    assert grid.get_grid_report(args, ledger_args) == formatted_report
+    mock_pnames.assert_called_once_with(args, ledger_args, 'year')
+
+
+@mock.patch(__name__ + '.grid.print')
 @mock.patch(__name__ + '.grid.get_grid_report')
-def test_main(mock_get_grid_report):
+def test_main(mock_get_grid_report, mock_print):
+    mock_get_grid_report.return_value = 'bananas!'
     args, unknown = grid.get_args(['-y', 'xyz'])
     grid.main(['-y', 'xyz'])
     mock_get_grid_report.assert_called_once_with(args, ['xyz'])
+    mock_print.assert_called_once_with('bananas!')
 
 
 @pytest.mark.parametrize('test_input, expected', [
