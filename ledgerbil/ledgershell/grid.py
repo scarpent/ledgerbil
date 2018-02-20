@@ -12,10 +12,10 @@ def get_grid_report(args, ledger_args=[]):
     period_names = sorted(get_period_names(args, ledger_args, unit))
     accounts, columns = get_columns(period_names, ledger_args)
     grid = get_grid(accounts, columns)
-    return get_formatted_report(grid, accounts, columns, period_names)
+    return get_flat_report(grid, accounts, columns, period_names)
 
 
-def get_formatted_report(grid, accounts, columns, period_names):
+def get_flat_report(grid, accounts, columns, period_names):
     COL_ACCOUNT = 48
     COL_PERIOD = 14
 

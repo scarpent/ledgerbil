@@ -136,7 +136,7 @@ def test_get_grid():
     assert grid.get_grid(accounts, columns) == expected
 
 
-def test_get_formatted_report():
+def test_get_flat_report():
     grid_x = {
         'expenses: car: gas': {'lemon': 17.37, 'lime': 28.19},
         'expenses: car: maintenance': {'lemon': 6.50},
@@ -163,28 +163,28 @@ def test_get_formatted_report():
     }
     period_names = ['lime', 'lemon']
 
-    report = grid.get_formatted_report(grid_x, accounts, columns, period_names)
-    helper = OutputFileTester('test_grid_formatted_report')
+    report = grid.get_flat_report(grid_x, accounts, columns, period_names)
+    helper = OutputFileTester('test_grid_flat_report')
     helper.save_out_file(report)
     helper.assert_out_equals_expected()
 
 
-@mock.patch(__name__ + '.grid.get_formatted_report')
+@mock.patch(__name__ + '.grid.get_flat_report')
 @mock.patch(__name__ + '.grid.get_grid')
 @mock.patch(__name__ + '.grid.get_columns')
 @mock.patch(__name__ + '.grid.get_period_names')
 def test_get_grid_report_month(mock_pnames, mock_cols, mock_grid, mock_report):
-    period_names, accounts, columns, grid_x, formatted_report = (
+    period_names, accounts, columns, grid_x, flat_report = (
         {'paprika', 'garglic'}, 'fennel', 'tarragon', 'basil', 'parsley',
     )
 
     mock_pnames.return_value = period_names
     mock_cols.return_value = (accounts, columns)
     mock_grid.return_value = grid_x
-    mock_report.return_value = formatted_report
+    mock_report.return_value = flat_report
 
     args, ledger_args = grid.get_args(['--month', 'nutmeg'])
-    assert grid.get_grid_report(args, ledger_args) == formatted_report
+    assert grid.get_grid_report(args, ledger_args) == flat_report
     mock_pnames.assert_called_once_with(args, ledger_args, 'month')
     mock_cols.assert_called_once_with(sorted(period_names), ledger_args)
     mock_grid.assert_called_once_with(accounts, columns)
@@ -193,23 +193,23 @@ def test_get_grid_report_month(mock_pnames, mock_cols, mock_grid, mock_report):
     )
 
 
-@mock.patch(__name__ + '.grid.get_formatted_report')
+@mock.patch(__name__ + '.grid.get_flat_report')
 @mock.patch(__name__ + '.grid.get_grid')
 @mock.patch(__name__ + '.grid.get_columns')
 @mock.patch(__name__ + '.grid.get_period_names')
 def test_get_grid_report_year(mock_pnames, mock_cols, mock_grid, mock_report):
     # this test just wants to make sure unit was set correctly
-    period_names, accounts, columns, formatted_report = (
+    period_names, accounts, columns, flat_report = (
         {'paprika', 'garglic'}, 'fennel', 'tarragon', 'parsley',
     )
 
     mock_pnames.return_value = period_names
     mock_cols.return_value = (accounts, columns)
-    mock_report.return_value = formatted_report
+    mock_report.return_value = flat_report
 
     # -y defaults to True so could also be a test without -y and -m
     args, ledger_args = grid.get_args(['--year', 'nutmeg'])
-    assert grid.get_grid_report(args, ledger_args) == formatted_report
+    assert grid.get_grid_report(args, ledger_args) == flat_report
     mock_pnames.assert_called_once_with(args, ledger_args, 'year')
 
 
