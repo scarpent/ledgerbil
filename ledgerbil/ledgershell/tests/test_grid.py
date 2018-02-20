@@ -173,20 +173,20 @@ def test_get_formatted_report():
 @mock.patch(__name__ + '.grid.get_grid')
 @mock.patch(__name__ + '.grid.get_columns')
 @mock.patch(__name__ + '.grid.get_period_names')
-def test_get_grid_report(mock_pnames, mock_columns, mock_grid, mock_report):
+def test_get_grid_report_month(mock_pnames, mock_cols, mock_grid, mock_report):
     period_names, accounts, columns, grid_x, formatted_report = (
         {'paprika', 'garglic'}, 'fennel', 'tarragon', 'basil', 'parsley',
     )
 
     mock_pnames.return_value = period_names
-    mock_columns.return_value = (accounts, columns)
+    mock_cols.return_value = (accounts, columns)
     mock_grid.return_value = grid_x
     mock_report.return_value = formatted_report
 
     args, ledger_args = grid.get_args(['-m', 'nutmeg'])
     assert grid.get_grid_report(args, ledger_args) == formatted_report
     mock_pnames.assert_called_once_with(args, ledger_args, 'month')
-    mock_columns.assert_called_once_with(sorted(period_names), ledger_args)
+    mock_cols.assert_called_once_with(sorted(period_names), ledger_args)
     mock_grid.assert_called_once_with(accounts, columns)
     mock_report.assert_called_once_with(
         grid_x, accounts, columns, sorted(period_names)
