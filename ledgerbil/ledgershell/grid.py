@@ -1,10 +1,8 @@
 import argparse
 import re
-import shlex
-from pprint import pprint  # noqa
 
 from .. import util
-from .runner import get_ledger_command, get_ledger_output
+from .runner import get_ledger_output
 
 LINE_REGEX = re.compile(r'^\s*(?:\$ (-?[\d,.]+|0(?=  )))\s*(.*)$')
 
@@ -50,11 +48,6 @@ def get_grid_report(args, ledger_args=[]):
     row_total = util.get_colored_amount(sum(totals), colwidth=COL_PERIOD)
 
     report += f"{' ' * COL_ACCOUNT}{''.join(totals_f)}{row_total}\n"
-
-    # print('all_periods:')
-    # pprint(all_periods)
-    # print('\ngrid:')
-    # pprint(grid)
     return report
 
 
@@ -69,7 +62,7 @@ def get_included_periods(args, ledger_args, unit='year'):
     if unit == 'year':
         period_options = ['--yearly', '-y', '%Y']
         period_len = 4
-    else:  # month
+    else:
         period_options = ['--monthly', '-y', '%Y/%m']
         period_len = 7
 
@@ -95,7 +88,7 @@ def get_column(ledger_args):
         match = re.match(LINE_REGEX, line)
         # should match as long as --market is used?
         assert match, f'Line regex did not match: {line}'
-        amount = float(match.groups()[DOLLARS].replace(',', ''))  # todo: test
+        amount = float(match.groups()[DOLLARS].replace(',', ''))
         column[match.groups()[ACCOUNT]] = amount
 
     return column
@@ -140,11 +133,6 @@ def get_args(args=[]):
         type=str,
         help='period expression'
     )
-    parser.add_argument(
-        '-l', '--ledger',
-        type=str,
-        help='ledgerbil passthrough'
-    )
 
     # workaround for problems with nargs=argparse.REMAINDER
     # see: https://bugs.python.org/issue17050
@@ -153,10 +141,4 @@ def get_args(args=[]):
 
 def main(argv=[]):
     args, ledger_args = get_args(argv)
-    if args.ledger:
-        options = shlex.split(args.ledger)
-        print(get_ledger_output(options))
-        print(' '.join(get_ledger_command(options)))
-        return
-
     print(get_grid_report(args, ledger_args))

@@ -149,9 +149,3 @@ def test_args_period(test_input, expected):
 def test_ledger_args(test_input, expected):
     args, ledger_args = grid.get_args(test_input)
     assert ledger_args == expected
-
-
-@mock.patch(__name__ + '.grid.get_ledger_output')
-def test_main_temporary_test(mock_ledger_output):
-    grid.main(['-l', 'bal expenses --flat'])
-    mock_ledger_output.assert_called_once_with(['bal', 'expenses', '--flat'])
