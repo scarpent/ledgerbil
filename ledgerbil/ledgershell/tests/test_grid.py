@@ -183,7 +183,7 @@ def test_get_grid_report_month(mock_pnames, mock_cols, mock_grid, mock_report):
     mock_grid.return_value = grid_x
     mock_report.return_value = formatted_report
 
-    args, ledger_args = grid.get_args(['-m', 'nutmeg'])
+    args, ledger_args = grid.get_args(['--month', 'nutmeg'])
     assert grid.get_grid_report(args, ledger_args) == formatted_report
     mock_pnames.assert_called_once_with(args, ledger_args, 'month')
     mock_cols.assert_called_once_with(sorted(period_names), ledger_args)
@@ -198,6 +198,7 @@ def test_get_grid_report_month(mock_pnames, mock_cols, mock_grid, mock_report):
 @mock.patch(__name__ + '.grid.get_columns')
 @mock.patch(__name__ + '.grid.get_period_names')
 def test_get_grid_report_year(mock_pnames, mock_cols, mock_grid, mock_report):
+    # this test just wants to make sure unit was set correctly
     period_names, accounts, columns, formatted_report = (
         {'paprika', 'garglic'}, 'fennel', 'tarragon', 'parsley',
     )
@@ -206,7 +207,8 @@ def test_get_grid_report_year(mock_pnames, mock_cols, mock_grid, mock_report):
     mock_cols.return_value = (accounts, columns)
     mock_report.return_value = formatted_report
 
-    args, ledger_args = grid.get_args(['-y', 'nutmeg'])
+    # -y defaults to True so could also be a test without -y and -m
+    args, ledger_args = grid.get_args(['--year', 'nutmeg'])
     assert grid.get_grid_report(args, ledger_args) == formatted_report
     mock_pnames.assert_called_once_with(args, ledger_args, 'year')
 
