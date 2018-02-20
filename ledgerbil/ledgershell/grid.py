@@ -9,49 +9,51 @@ LINE_REGEX = re.compile(r'^\s*(?:\$ (-?[\d,.]+|0(?=  )))\s*(.*)$')
 
 def get_grid_report(args, ledger_args=[]):
     unit = 'month' if args.month else 'year'
-    periods = sorted(get_included_periods(args, ledger_args, unit))
+    period_names = sorted(get_period_names(args, ledger_args, unit))
 
-    all_accounts = set()
-    all_periods = {}
-    for period in periods:
-        column = get_column(['bal', '--flat', '-p', period] + ledger_args)
-        all_accounts.update(column.keys())
-        all_periods[period] = column
+    accounts = set()
+    columns = {}
+    for period_name in period_names:
+        column = get_column(['bal', '--flat', '-p', period_name] + ledger_args)
+        accounts.update(column.keys())
+        columns[period_name] = column
 
-    grid = {key: {} for key in all_accounts}
+    grid = {key: {} for key in accounts}
 
-    for period, column in all_periods.items():
-        for account, value in column.items():
-            grid[account][period] = value
+    for period_name, column in columns.items():
+        for account, amount in column.items():
+            grid[account][period_name] = amount
 
     COL_ACCOUNT = 48
     COL_PERIOD = 14
 
-    headers = [f'{x:>{COL_PERIOD}}' for x in periods]
+    headers = [f'{pn:>{COL_PERIOD}}' for pn in period_names]
     report = f"{' ' * COL_ACCOUNT}{''.join(headers)}{'total':>{COL_PERIOD}}\n"
-    for account in sorted(all_accounts):
-        values = [grid[account].get(x, 0) for x in periods]
-        values_f = [util.get_colored_amount(
-            x,
+    for account in sorted(accounts):
+        amounts = [grid[account].get(pn, 0) for pn in period_names]
+        amounts_f = [util.get_colored_amount(
+            amount,
             colwidth=COL_PERIOD,
             positive='yellow',
             zero='grey'
-        ) for x in values]
-        row_total = util.get_colored_amount(sum(values), colwidth=COL_PERIOD)
-        report += f"{account:{COL_ACCOUNT}}{''.join(values_f)}{row_total}\n"
+        ) for amount in amounts]
+        row_total = util.get_colored_amount(sum(amounts), colwidth=COL_PERIOD)
+        report += f"{account:{COL_ACCOUNT}}{''.join(amounts_f)}{row_total}\n"
 
-    dashes = [f"{'-' * (COL_PERIOD - 2):>{COL_PERIOD}}" for x in periods + [1]]
+    dashes = [
+        f"{'-' * (COL_PERIOD - 2):>{COL_PERIOD}}" for x in period_names + [1]
+    ]
     report += f"{' ' * COL_ACCOUNT}{''.join(dashes)}\n"
 
-    totals = [sum(all_periods[x].values()) for x in periods]
-    totals_f = [util.get_colored_amount(x, COL_PERIOD) for x in totals]
+    totals = [sum(columns[pn].values()) for pn in period_names]
+    totals_f = [util.get_colored_amount(t, COL_PERIOD) for t in totals]
     row_total = util.get_colored_amount(sum(totals), colwidth=COL_PERIOD)
 
     report += f"{' ' * COL_ACCOUNT}{''.join(totals_f)}{row_total}\n"
     return report
 
 
-def get_included_periods(args, ledger_args, unit='year'):
+def get_period_names(args, ledger_args, unit='year'):
     # --collapse behavior seems suspicous, but --empty
     # appears to work for our purposes here
     # groups.google.com/forum/?fromgroups=#!topic/ledger-cli/HAKAMYiaL7w

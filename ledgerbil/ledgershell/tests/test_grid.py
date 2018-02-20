@@ -21,7 +21,7 @@ def setup_module(module):
 
 
 @mock.patch(__name__ + '.grid.get_ledger_output')
-def test_get_included_periods_years(mock_ledger_output):
+def test_get_period_names_years(mock_ledger_output):
     output = dedent('''\
         2017 - 2017          <Total>                    0         0
         2018 - 2018          <Total>                    0         0
@@ -30,7 +30,7 @@ def test_get_included_periods_years(mock_ledger_output):
     args, ledger_args = grid.get_args(
         ['-b', 'banana', '-e', 'eggplant', '-p', 'pear', 'lettuce']
     )
-    assert grid.get_included_periods(args, ledger_args) == {'2017', '2018'}
+    assert grid.get_period_names(args, ledger_args) == {'2017', '2018'}
     mock_ledger_output.assert_called_once_with(
         ['reg', '-b', 'banana', '-e', 'eggplant', '-p', 'pear',
          '--yearly', '-y', '%Y', '--collapse', '--empty', 'lettuce']
@@ -38,7 +38,7 @@ def test_get_included_periods_years(mock_ledger_output):
 
 
 @mock.patch(__name__ + '.grid.get_ledger_output')
-def test_get_included_periods_months(mock_ledger_output):
+def test_get_period_names_months(mock_ledger_output):
     output = dedent('''\
         2017/11 - 2017/11       <Total>                  0         0
         2017/12 - 2017/12       <Total>                  0         0
@@ -49,7 +49,7 @@ def test_get_included_periods_months(mock_ledger_output):
     args, ledger_args = grid.get_args(
         ['-b', 'banana', '-e', 'eggplant', '-p', 'pear', 'lettuce']
     )
-    actual_months = grid.get_included_periods(args, ledger_args, 'month')
+    actual_months = grid.get_period_names(args, ledger_args, 'month')
     assert actual_months == {'2017/11', '2017/12', '2018/01'}
     mock_ledger_output.assert_called_once_with(
         ['reg', '-b', 'banana', '-e', 'eggplant', '-p', 'pear',
