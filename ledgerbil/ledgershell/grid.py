@@ -10,20 +10,12 @@ LINE_REGEX = re.compile(r'^\s*(?:\$ (-?[\d,.]+|0(?=  )))\s*(.*)$')
 def get_grid_report(args, ledger_args=[]):
     unit = 'month' if args.month else 'year'
     period_names = sorted(get_period_names(args, ledger_args, unit))
+    accounts, columns = get_columns(period_names, ledger_args)
+    grid = get_grid(accounts, columns)
+    return get_formatted_report(grid, accounts, columns, period_names)
 
-    accounts = set()
-    columns = {}
-    for period_name in period_names:
-        column = get_column(['bal', '--flat', '-p', period_name] + ledger_args)
-        accounts.update(column.keys())
-        columns[period_name] = column
 
-    grid = {key: {} for key in accounts}
-
-    for period_name, column in columns.items():
-        for account, amount in column.items():
-            grid[account][period_name] = amount
-
+def get_formatted_report(grid, accounts, columns, period_names):
     COL_ACCOUNT = 48
     COL_PERIOD = 14
 
@@ -78,6 +70,17 @@ def get_period_names(args, ledger_args, unit='year'):
     return {x[:period_len] for x in lines if x[:period_len].strip() != ''}
 
 
+def get_columns(period_names, ledger_args):
+    accounts = set()
+    columns = {}
+    for period_name in period_names:
+        column = get_column(['bal', '--flat', '-p', period_name] + ledger_args)
+        accounts.update(column.keys())
+        columns[period_name] = column
+
+    return accounts, columns
+
+
 def get_column(ledger_args):
     ACCOUNT = 1
     DOLLARS = 0
@@ -94,6 +97,15 @@ def get_column(ledger_args):
         column[match.groups()[ACCOUNT]] = amount
 
     return column
+
+
+def get_grid(accounts, columns):
+    grid = {key: {} for key in accounts}
+    for period_name, column in columns.items():
+        for account, amount in column.items():
+            grid[account][period_name] = amount
+
+    return grid
 
 
 def get_args(args=[]):

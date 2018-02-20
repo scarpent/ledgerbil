@@ -64,16 +64,47 @@ def test_get_column(mock_ledger_output):
                       $ 6.50  expenses: car: maintenance
                   $ 1,001.78  expenses: widgets
         --------------------
-                    $ 487.65
+                  $ 1,025.55
     ''')
     mock_ledger_output.return_value = output
     expected = {
         'expenses: car: gas': 17.37,
         'expenses: car: maintenance': 6.50,
-        'expenses: widgets': 1001.78
+        'expenses: widgets': 1001.78,
     }
     assert grid.get_column(['boogy!']) == expected
     mock_ledger_output.assert_called_once_with(['boogy!'])
+
+
+@mock.patch(__name__ + '.grid.get_column')
+def test_get_columns(mock_get_column):
+    lemon_column = {
+        'expenses: car: gas': 17.37,
+        'expenses: car: maintenance': 6.50,
+        'expenses: widgets': 1001.78,
+    }
+    lime_column = {
+        'expenses: car: gas': 28.19,
+        'expenses: widgets': 500.10,
+        'expenses: unicorns': -10123.55,
+    }
+    mock_get_column.side_effect = [lemon_column, lime_column]
+
+    expected_columns = {'lemon': lemon_column, 'lime': lime_column}
+    expected_accounts = {
+        'expenses: car: gas',
+        'expenses: car: maintenance',
+        'expenses: unicorns',
+        'expenses: widgets'
+    }
+
+    accounts, columns = grid.get_columns(['lemon', 'lime'], ['boogy!'])
+    assert accounts == expected_accounts
+    assert columns == expected_columns
+    mock_get_column.assert_has_calls([
+        mock.call(['bal', '--flat', '-p', 'lemon', 'boogy!']),
+        mock.call(['bal', '--flat', '-p', 'lime', 'boogy!']),
+    ])
 
 
 @mock.patch(__name__ + '.grid.get_grid_report')
