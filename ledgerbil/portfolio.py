@@ -588,8 +588,8 @@ def get_args(args=[]):
     program = 'ledgerbil/main.py port'
     description = dedent('''\
         Portfolio! This is currently independent of ledger data although
-        eventually some integration would be 100. Works on a json file to
-        give you a good look at your passive investing portfolio.
+        eventually some integration would be swell. Uses a json data file
+        to give you a yearly view of your passive investing portfolio.
     ''')
     parser = argparse.ArgumentParser(
         prog=program,
@@ -628,9 +628,9 @@ def get_args(args=[]):
         '-s', '--sort',
         type=str,
         default='a',
-        help='sort comparison report by:\n\tv(alue)\n\tg(ain value)\n\t'
-             'y(ears)\n\ta(ll years gain)\n\t1(year gain)\n\t3(year gain)\n\t'
-             '5(year gain)\n\t10(year gain)'
+        help='sort comparison report by:\n\tv (alue)\n\tg (ain value)\n\t'
+             'y (ears)\n\ta (ll years gain)\n\t1 (year gain)\n\t'
+             '3 (year gain)\n\t5 (year gain)\n\t10 (year gain)'
     )
     parser.add_argument(
         '-H', '--history',

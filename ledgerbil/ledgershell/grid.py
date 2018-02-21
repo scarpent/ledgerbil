@@ -121,11 +121,10 @@ def get_args(args=[]):
         e.g. ./main.py expenses -p 'last 2 years'
 
         Will show expenses for last two years with separate columns for the
-        years. (Probably three years/columns because time frame includes
-        three separate years.)
+        years.
 
         Currently supports ledger --flat reports. (Although you don't have to
-        specify --flat)
+        specify --flat.)
     ''')
     parser = argparse.ArgumentParser(
         prog=program,

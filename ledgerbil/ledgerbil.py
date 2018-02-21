@@ -92,6 +92,8 @@ def get_args(args):
         program itself, while others use ledger to report on ledger data
         in ways not currently supported by ledger. (Or at least, not
         understood by the author.)
+
+        See settings.py.example for supported config options.
     ''')
     scripts_description = dedent(f'''\
         other commands (run with -h to see command help):

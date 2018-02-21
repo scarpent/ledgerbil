@@ -95,7 +95,7 @@ def get_args(args=[]):
     description = dedent('''\
         Get price data from finance.google.com. This works for mutual funds
         but not individual company symbols. Without -f/-s, just prints price
-        data to stdout. See settings PRICE_FILE_FORMAT for saving.
+        data to stdout. See settings PRICE_FILE_FORMAT for saving format.
     ''')
     parser = argparse.ArgumentParser(
         prog=program,
