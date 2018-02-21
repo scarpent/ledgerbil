@@ -3,6 +3,7 @@ import re
 from textwrap import dedent
 
 from .. import util
+from ..colorable import Colorable
 from .runner import get_ledger_output
 
 LINE_REGEX = re.compile(r'^\s*(?:\$ (-?[\d,.]+|0(?=  )))\s*(.*)$')
@@ -20,9 +21,10 @@ def get_flat_report(grid, accounts, columns, period_names):
     COL_ACCOUNT = 48
     COL_PERIOD = 14
 
-    headers = [f'{pn:>{COL_PERIOD}}' for pn in period_names]
-    report = f"{' ' * COL_ACCOUNT}{''.join(headers)}{'total':>{COL_PERIOD}}\n"
+    headers = [f'{pn:>{COL_PERIOD}}' for pn in period_names + ['total']]
+    report = f"{' ' * COL_ACCOUNT}{Colorable('white', ''.join(headers))}\n"
     for account in sorted(accounts):
+        account_f = Colorable('blue', account, fmt=COL_ACCOUNT)
         amounts = [grid[account].get(pn, 0) for pn in period_names]
         amounts_f = [util.get_colored_amount(
             amount,
@@ -31,12 +33,12 @@ def get_flat_report(grid, accounts, columns, period_names):
             zero='grey'
         ) for amount in amounts]
         row_total = util.get_colored_amount(sum(amounts), colwidth=COL_PERIOD)
-        report += f"{account:{COL_ACCOUNT}}{''.join(amounts_f)}{row_total}\n"
+        report += f"{account_f}{''.join(amounts_f)}{row_total}\n"
 
     dashes = [
         f"{'-' * (COL_PERIOD - 2):>{COL_PERIOD}}" for x in period_names + [1]
     ]
-    report += f"{' ' * COL_ACCOUNT}{''.join(dashes)}\n"
+    report += f"{' ' * COL_ACCOUNT}{Colorable('white', ''.join(dashes))}\n"
 
     totals = [sum(columns[pn].values()) for pn in period_names]
     totals_f = [util.get_colored_amount(t, COL_PERIOD) for t in totals]
