@@ -1,5 +1,6 @@
 import argparse
 import re
+from textwrap import dedent
 
 from .. import util
 from .runner import get_ledger_output
@@ -109,9 +110,27 @@ def get_grid(accounts, columns):
 
 
 def get_args(args=[]):
+    program = 'ledgerbil/main.py grid'
+    description = dedent('''\
+        Show ledger balance report in tabular form with years or months as the
+        columns. Begin, end, and period params are handled as ledger interprets
+        them, and all arguments not defined here are passed through to ledger.
+
+        Don't specify bal, balance, reg, or register!
+
+        e.g. ./main.py expenses -p 'last 2 years'
+
+        Will show expenses for last two years with separate columns for the
+        years. (Probably three years/columns because time frame includes
+        three separate years.)
+
+        Currently supports ledger --flat reports. (Although you don't have to
+        specify --flat)
+    ''')
     parser = argparse.ArgumentParser(
-        prog='ledgerbil/main.py grid',
-        formatter_class=(lambda prog: argparse.HelpFormatter(
+        prog=program,
+        description=description,
+        formatter_class=(lambda prog: argparse.RawTextHelpFormatter(
             prog,
             max_help_position=40,
             width=100
@@ -122,7 +141,7 @@ def get_args(args=[]):
         '-y', '--year',
         action='store_true',
         default=True,
-        help='year grid'
+        help='year grid (default)'
     )
     group.add_argument(
         '-m', '--month',

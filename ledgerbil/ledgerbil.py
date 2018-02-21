@@ -81,19 +81,32 @@ class Ledgerbil(object):
 
 def get_args(args):
     program = 'ledgerbil/main.py'
+    description = dedent('''\
+        ledgerbil works with ledger cli files. It supports a vague subset
+        of ledger as used and tested by its author. It is biased, if not
+        welded, to dollars as the default commodity, but the author would
+        happily aspire to more flexibility with the help of motivated
+        contributors.
+
+        Some features work on ledger files independently of the ledger cli
+        program itself, while others use ledger to report on ledger data
+        in ways not currently supported by ledger. (Or at least, not
+        understood by the author.)
+    ''')
     scripts_description = dedent(f'''\
         other commands (run with -h to see command help):
             {program}
-                grid
-                investments (or inv)
-                portfolio (or port)
-                prices
+                grid                    ledger reports in year/month tables
+                investments (or inv)    nicer view of shares and dollars
+                portfolio (or port)     standalone investment tracker
+                prices                  download mutual fund prices
         ''')
 
     parser = argparse.ArgumentParser(
         prog=program,
+        description=description,
         epilog=scripts_description,
-        formatter_class=(lambda prog: argparse.RawDescriptionHelpFormatter(
+        formatter_class=(lambda prog: argparse.RawTextHelpFormatter(
             prog,
             max_help_position=40,
             width=100
@@ -119,7 +132,7 @@ def get_args(args):
         '-s', '--schedule',
         type=str,
         metavar='FILE',
-        help='file with scheduled transactions (to be added to -f ledger file)'
+        help='scheduled transactions file\n(to be added to -f ledger file)'
     )
     parser.add_argument(
         '-n', '--next-scheduled-date',

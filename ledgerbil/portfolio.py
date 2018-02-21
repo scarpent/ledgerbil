@@ -4,6 +4,7 @@ import json
 import re
 from collections import defaultdict, namedtuple
 from operator import attrgetter
+from textwrap import dedent
 
 from . import util
 from .colorable import Colorable
@@ -584,9 +585,16 @@ def get_portfolio_data():
 
 
 def get_args(args=[]):
+    program = 'ledgerbil/main.py port'
+    description = dedent('''\
+        Portfolio! This is currently independent of ledger data although
+        eventually some integration would be 100. Works on a json file to
+        give you a good look at your passive investing portfolio.
+    ''')
     parser = argparse.ArgumentParser(
-        prog='ledgerbil/main.py portfolio',
-        formatter_class=(lambda prog: argparse.HelpFormatter(
+        prog=program,
+        description=description,
+        formatter_class=(lambda prog: argparse.RawTextHelpFormatter(
             prog,
             max_help_position=40,
             width=100
@@ -598,7 +606,7 @@ def get_args(args=[]):
         metavar='REGEX',
         dest='accounts_regex',
         default='.*',
-        help='include accounts that match this regex, default = .* (all)'
+        help='include accounts that match this regex,\ndefault = .* (all)'
     )
     parser.add_argument(
         '-L', '--labels',
@@ -609,20 +617,20 @@ def get_args(args=[]):
     parser.add_argument(
         '-c', '--compare',
         action='store_true',
-        help='compare accounts or labels (if --labels, will group by labels)'
+        help='compare accounts or labels\n(if --labels, will group by labels)'
     )
     parser.add_argument(
         '-C', '--compare-accounts',
         action='store_true',
-        help='compare accounts only (labels still modifies included accounts)'
+        help='compare accounts only\n(labels still modifies included accounts)'
     )
     parser.add_argument(
         '-s', '--sort',
         type=str,
         default='a',
-        help='sort comparison report by: v(alue), g(ain value), y(ears), '
-             'a(ll years gain), 1(year gain), 3(year gain), 5(year gain), '
-             '10(year gain)'
+        help='sort comparison report by:\n\tv(alue)\n\tg(ain value)\n\t'
+             'y(ears)\n\ta(ll years gain)\n\t1(year gain)\n\t3(year gain)\n\t'
+             '5(year gain)\n\t10(year gain)'
     )
     parser.add_argument(
         '-H', '--history',

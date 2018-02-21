@@ -1,6 +1,7 @@
 import argparse
 import re
 from datetime import datetime
+from textwrap import dedent
 
 import requests
 from dateutil.relativedelta import relativedelta
@@ -90,9 +91,16 @@ def get_date(quote_date):
 
 
 def get_args(args=[]):
+    program = 'ledgerbil/main.py prices'
+    description = dedent('''\
+        Get price data from finance.google.com. This works for mutual funds
+        but not individual company symbols. Without -f/-s, just prints price
+        data to stdout. See settings PRICE_FILE_FORMAT for saving.
+    ''')
     parser = argparse.ArgumentParser(
-        prog='ledgerbil/main.py prices',
-        formatter_class=(lambda prog: argparse.HelpFormatter(
+        prog=program,
+        description=description,
+        formatter_class=(lambda prog: argparse.RawTextHelpFormatter(
             prog,
             max_help_position=40,
             width=100

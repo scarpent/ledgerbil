@@ -2,6 +2,7 @@ import argparse
 import re
 import shlex
 from collections import namedtuple
+from textwrap import dedent
 
 from ..colorable import Colorable
 from ..settings import Settings
@@ -187,9 +188,15 @@ def get_investment_report(args):
 
 
 def get_args(args=[]):
+    program = 'ledgerbil/main.py inv'
+    description = dedent('''\
+        Ledger shares with --exchange is kind of weird. This creates a report
+        that shows share totals and dollar amounts in a nicer way.
+    ''')
     parser = argparse.ArgumentParser(
-        prog='ledgerbil/main.py inv',
-        formatter_class=(lambda prog: argparse.HelpFormatter(
+        prog=program,
+        description=description,
+        formatter_class=(lambda prog: argparse.RawTextHelpFormatter(
             prog,
             max_help_position=40,
             width=100
@@ -199,7 +206,7 @@ def get_args(args=[]):
         '-a', '--accounts',
         type=str,
         default=settings.INVESTMENT_DEFAULT_ACCOUNTS,
-        help='balances for specified accounts, default = {}'.format(
+        help='balances for specified accounts,\ndefault = {}'.format(
             settings.INVESTMENT_DEFAULT_ACCOUNTS
         )
     )
