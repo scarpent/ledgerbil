@@ -1,5 +1,6 @@
 import argparse
 import re
+from collections import defaultdict
 from textwrap import dedent
 
 from .. import util
@@ -12,7 +13,7 @@ LINE_REGEX = re.compile(r'^\s*(?:\$ (-?[\d,.]+|0(?=  )))\s*(.*)$')
 def get_grid_report(args, ledger_args=[]):
     unit = 'month' if args.month else 'year'
     period_names = sorted(get_period_names(args, ledger_args, unit))
-    accounts, columns = get_columns(period_names, ledger_args)
+    accounts, columns = get_columns(period_names, ledger_args, args.depth)
     grid = get_grid(accounts, columns)
     return get_flat_report(grid, accounts, columns, period_names)
 
@@ -73,23 +74,26 @@ def get_period_names(args, ledger_args, unit='year'):
     return {x[:period_len] for x in lines if x[:period_len].strip() != ''}
 
 
-def get_columns(period_names, ledger_args):
+def get_columns(period_names, ledger_args, depth=0):
     accounts = set()
     columns = {}
     for period_name in period_names:
-        column = get_column(['bal', '--flat', '-p', period_name] + ledger_args)
+        column = get_column(
+            ['bal', '--flat', '-p', period_name] + ledger_args,
+            depth
+        )
         accounts.update(column.keys())
         columns[period_name] = column
 
     return accounts, columns
 
 
-def get_column(ledger_args):
+def get_column(ledger_args, depth=0):
     ACCOUNT = 1
     DOLLARS = 0
 
     lines = get_ledger_output(ledger_args).split('\n')
-    column = {}
+    column = defaultdict(int)
     for line in lines:
         if line == '' or line[0] == '-':
             break
@@ -97,7 +101,11 @@ def get_column(ledger_args):
         # should match as long as --market is used?
         assert match, f'Line regex did not match: {line}'
         amount = float(match.groups()[DOLLARS].replace(',', ''))
-        column[match.groups()[ACCOUNT]] = amount
+        account = match.groups()[ACCOUNT]
+        if depth > 0:
+            account_parts = account.split(':')
+            account = ':'.join(account_parts[:depth])
+        column[account] += amount
 
     return column
 
@@ -149,7 +157,6 @@ def get_args(args=[]):
         action='store_true',
         help='month grid'
     )
-    # todo: --depth option (can't use ledger's --depth with --flat)
     parser.add_argument(
         '-b', '--begin',
         type=str,
@@ -166,6 +173,13 @@ def get_args(args=[]):
         '-p', '--period',
         type=str,
         help='period expression'
+    )
+    parser.add_argument(
+        '--depth',
+        type=int,
+        metavar='N',
+        default=0,
+        help='limit the depth of account tree'
     )
 
     # workaround for problems with nargs=argparse.REMAINDER

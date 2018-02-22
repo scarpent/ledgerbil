@@ -77,6 +77,45 @@ def test_get_column(mock_ledger_output):
     mock_ledger_output.assert_called_once_with(['boogy!'])
 
 
+@mock.patch(__name__ + '.grid.get_ledger_output')
+def test_get_column_depth_one(mock_ledger_output):
+    output = dedent('''\
+                     $ 10.00  apple: banana: cantaloupe
+                     $ 20.00  apple: banana: eggplant
+                     $ 40.00  grape: kiwi
+                     $ 80.00  grape: fig
+        --------------------
+                    $ 150.00
+    ''')
+    mock_ledger_output.return_value = output
+    expected = {
+        'apple': 30,
+        'grape': 120,
+    }
+    assert grid.get_column(['boogy!'], 1) == expected
+    mock_ledger_output.assert_called_once_with(['boogy!'])
+
+
+@mock.patch(__name__ + '.grid.get_ledger_output')
+def test_get_column_depth_two(mock_ledger_output):
+    output = dedent('''\
+                     $ 10.00  apple: banana: cantaloupe
+                     $ 20.00  apple: banana: eggplant
+                     $ 40.00  grape:kiwi
+                     $ 80.00  grape:fig
+        --------------------
+                    $ 150.00
+    ''')
+    mock_ledger_output.return_value = output
+    expected = {
+        'apple: banana': 30,
+        'grape:kiwi': 40,
+        'grape:fig': 80,
+    }
+    assert grid.get_column(['boogy!'], 2) == expected
+    mock_ledger_output.assert_called_once_with(['boogy!'])
+
+
 @mock.patch(__name__ + '.grid.get_column')
 def test_get_columns(mock_get_column):
     lemon_column = {
@@ -103,8 +142,8 @@ def test_get_columns(mock_get_column):
     assert accounts == expected_accounts
     assert columns == expected_columns
     mock_get_column.assert_has_calls([
-        mock.call(['bal', '--flat', '-p', 'lemon', 'salt!']),
-        mock.call(['bal', '--flat', '-p', 'lime', 'salt!']),
+        mock.call(['bal', '--flat', '-p', 'lemon', 'salt!'], 0),
+        mock.call(['bal', '--flat', '-p', 'lime', 'salt!'], 0),
     ])
 
 
@@ -186,7 +225,7 @@ def test_get_grid_report_month(mock_pnames, mock_cols, mock_grid, mock_report):
     args, ledger_args = grid.get_args(['--month', 'nutmeg'])
     assert grid.get_grid_report(args, ledger_args) == flat_report
     mock_pnames.assert_called_once_with(args, ledger_args, 'month')
-    mock_cols.assert_called_once_with(sorted(period_names), ledger_args)
+    mock_cols.assert_called_once_with(sorted(period_names), ledger_args, 0)
     mock_grid.assert_called_once_with(accounts, columns)
     mock_report.assert_called_once_with(
         grid_x, accounts, columns, sorted(period_names)
@@ -279,6 +318,15 @@ def test_args_end_date(test_input, expected):
 def test_args_period(test_input, expected):
     args, _ = grid.get_args(test_input)
     assert args.period == expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (['--depth', '2'], 2),
+    ([], 0),
+])
+def test_args_depth(test_input, expected):
+    args, _ = grid.get_args(test_input)
+    assert args.depth == expected
 
 
 @pytest.mark.parametrize('test_input, expected', [
