@@ -89,24 +89,6 @@ def test_get_investment_command_options_account_with_spaces():
     assert actual == expected
 
 
-def test_get_investment_command_options_defaults_plus_begin_date():
-    begin_date = 'qrt'
-    expected = [
-        'bal',
-    ] + shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS) + [
-        '--begin',
-        begin_date,
-        '--end',
-        MockSettings.INVESTMENT_DEFAULT_END_DATE,
-    ]
-    actual = investments.get_investment_command_options(
-        accounts=MockSettings.INVESTMENT_DEFAULT_ACCOUNTS,
-        begin_date=begin_date,
-        end_date=MockSettings.INVESTMENT_DEFAULT_END_DATE
-    )
-    assert actual == expected
-
-
 @mock.patch(__name__ + '.investments.print')
 @mock.patch(__name__ + '.investments.get_ledger_output')
 def test_get_lines_default_args(mock_get_ledger_output, mock_print):
@@ -399,16 +381,6 @@ def test_main(mock_ledger_output, mock_print):
 def test_args_accounts(test_input, expected):
     args = investments.get_args(test_input)
     assert args.accounts == expected
-
-
-@pytest.mark.parametrize('test_input, expected', [
-    (['-b', 'today'], 'today'),
-    (['--begin', '2016/01/12'], '2016/01/12'),
-    ([], ''),  # default in get_args
-])
-def test_args_begin_date(test_input, expected):
-    args = investments.get_args(test_input)
-    assert args.begin == expected
 
 
 @pytest.mark.parametrize('test_input, expected', [

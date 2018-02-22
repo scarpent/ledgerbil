@@ -20,14 +20,11 @@ settings = Settings()
 def get_investment_command_options(
         shares=False,
         accounts=settings.INVESTMENT_DEFAULT_ACCOUNTS,
-        begin_date='',
         end_date=settings.INVESTMENT_DEFAULT_END_DATE):
 
     options = []
     if shares:
         options += ['--exchange', '.']  # override --market
-    if begin_date:
-        options += ['--begin', begin_date]
     options += ['--end', end_date]
 
     return ['bal'] + shlex.split(accounts) + options
@@ -47,12 +44,7 @@ def check_for_negative_dollars(amount, account):
 
 
 def get_lines(args, shares=False):
-    options = get_investment_command_options(
-        shares,
-        args.accounts,
-        args.begin,
-        args.end
-    )
+    options = get_investment_command_options(shares, args.accounts, args.end)
     output = get_ledger_output(options)
 
     if args.command:
@@ -210,13 +202,6 @@ def get_args(args=[]):
         help='balances for specified accounts,\ndefault = {}'.format(
             settings.INVESTMENT_DEFAULT_ACCOUNTS
         )
-    )
-    parser.add_argument(
-        '-b', '--begin',
-        type=str,
-        metavar='DATE',
-        default='',
-        help='begin date'
     )
     parser.add_argument(
         '-e', '--end',
