@@ -76,6 +76,7 @@ def test_get_investment_command_options_account_with_spaces():
         'bal',
         'no_space',
         'with space',
+        'also with spaces',
         '--exchange',
         '.',
         '--end',
@@ -83,7 +84,7 @@ def test_get_investment_command_options_account_with_spaces():
     ]
     actual = investments.get_investment_command_options(
         shares=True,
-        accounts='no_space "with space"',
+        accounts="""no_space "with space" 'also with spaces'""",
         end_date=MockSettings.INVESTMENT_DEFAULT_END_DATE
     )
     assert actual == expected
