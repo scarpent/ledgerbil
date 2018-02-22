@@ -19,13 +19,12 @@ def get_grid_report(args, ledger_args=[]):
 
 
 def get_flat_report(grid, accounts, columns, period_names):
-    COL_ACCOUNT = 48
     COL_PERIOD = 14
 
     headers = [f'{pn:>{COL_PERIOD}}' for pn in period_names + ['total']]
-    report = f"{' ' * COL_ACCOUNT}{Colorable('white', ''.join(headers))}\n"
+    report = f"{Colorable('white', ''.join(headers))}\n"
     for account in sorted(accounts):
-        account_f = Colorable('blue', account, fmt=COL_ACCOUNT)
+        account_f = Colorable('blue', account)
         amounts = [grid[account].get(pn, 0) for pn in period_names]
         amounts_f = [util.get_colored_amount(
             amount,
@@ -34,18 +33,18 @@ def get_flat_report(grid, accounts, columns, period_names):
             zero='grey'
         ) for amount in amounts]
         row_total = util.get_colored_amount(sum(amounts), colwidth=COL_PERIOD)
-        report += f"{account_f}{''.join(amounts_f)}{row_total}\n"
+        report += f"{''.join(amounts_f)}{row_total}  {account_f}\n"
 
     dashes = [
         f"{'-' * (COL_PERIOD - 2):>{COL_PERIOD}}" for x in period_names + [1]
     ]
-    report += f"{' ' * COL_ACCOUNT}{Colorable('white', ''.join(dashes))}\n"
+    report += f"{Colorable('white', ''.join(dashes))}\n"
 
     totals = [sum(columns[pn].values()) for pn in period_names]
     totals_f = [util.get_colored_amount(t, COL_PERIOD) for t in totals]
     row_total = util.get_colored_amount(sum(totals), colwidth=COL_PERIOD)
 
-    report += f"{' ' * COL_ACCOUNT}{''.join(totals_f)}{row_total}\n"
+    report += f"{''.join(totals_f)}{row_total}\n"
     return report
 
 
