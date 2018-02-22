@@ -54,18 +54,36 @@ def test_get_investment_command_options_defaults():
     assert actual == expected
 
 
-def test_get_investment_command_options_no_investments_ledger():
-    investments.settings.INVESTMENTS_LEDGER = None
+def test_get_investment_command_options_shares():
     expected = [
         'bal'
     ] + shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS) + [
+        '--exchange',
+        '.',
         '--end',
-        MockSettings.INVESTMENT_DEFAULT_END_DATE
+        MockSettings.INVESTMENT_DEFAULT_END_DATE,
     ]
-    # It would be nice to test with actual defaults but they appear
-    # to be set at import time so we'll do this
     actual = investments.get_investment_command_options(
+        shares=True,
         accounts=MockSettings.INVESTMENT_DEFAULT_ACCOUNTS,
+        end_date=MockSettings.INVESTMENT_DEFAULT_END_DATE
+    )
+    assert actual == expected
+
+
+def test_get_investment_command_options_account_with_spaces():
+    expected = [
+        'bal',
+        'no_space',
+        'with space',
+        '--exchange',
+        '.',
+        '--end',
+        MockSettings.INVESTMENT_DEFAULT_END_DATE,
+    ]
+    actual = investments.get_investment_command_options(
+        shares=True,
+        accounts='no_space "with space"',
         end_date=MockSettings.INVESTMENT_DEFAULT_END_DATE
     )
     assert actual == expected
@@ -116,6 +134,7 @@ def test_get_lines_shares(mock_get_ledger_output, mock_print):
         'bal',
     ] + shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS) + [
         '--exchange',
+        '.',
         '--end',
         MockSettings.INVESTMENT_DEFAULT_END_DATE,
     ])

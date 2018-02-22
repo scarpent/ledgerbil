@@ -25,7 +25,7 @@ def get_investment_command_options(
 
     options = []
     if shares:
-        options.append('--exchange')
+        options += ['--exchange', '.']  # override --market
     if begin_date:
         options += ['--begin', begin_date]
     options += ['--end', end_date]
