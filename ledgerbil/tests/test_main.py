@@ -38,6 +38,14 @@ def test_main_investments(mock_investments_main):
     mock_investments_main.assert_called_with(['-a', 'blah', '-e', 'fubar'])
 
 
+@mock.patch('main.passthrough.main')
+def test_main_passthrough(mock_passthrough_main):
+    main.main(['pass'])
+    mock_passthrough_main.assert_called_once_with([])
+    main.main(['pass', 'argle', 'bargle'])
+    mock_passthrough_main.assert_called_with(['argle', 'bargle'])
+
+
 @mock.patch('main.portfolio.main')
 def test_main_portfolio(mock_portfolio_main):
     main.main(['port'])

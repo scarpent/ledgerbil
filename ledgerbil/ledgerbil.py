@@ -100,6 +100,7 @@ def get_args(args):
             {program}
                 grid                    ledger reports in year/month tables
                 investments (or inv)    nicer view of shares and dollars
+                pass                    passthrough to ledger
                 portfolio (or port)     standalone investment tracker
                 prices                  download mutual fund prices
         ''')

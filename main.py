@@ -2,7 +2,7 @@
 import sys
 
 from ledgerbil import ledgerbil, portfolio
-from ledgerbil.ledgershell import grid, investments, prices
+from ledgerbil.ledgershell import grid, investments, passthrough, prices
 
 
 def main(argv=None):
@@ -15,6 +15,7 @@ def main(argv=None):
         'grid': grid,
         'inv': investments,
         'investments': investments,
+        'pass': passthrough,
         'port': portfolio,
         'portfolio': portfolio,
         'prices': prices,

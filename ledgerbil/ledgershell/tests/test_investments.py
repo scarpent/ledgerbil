@@ -364,10 +364,10 @@ def test_assertion_for_non_matching_accounts(mock_ledger_output):
 
 @mock.patch(__name__ + '.investments.print')
 @mock.patch(__name__ + '.investments.get_lines')
-def test_main(mock_ledger_output, mock_print):
+def test_main(mock_get_lines, mock_print):
     shares = ['        15.000 qwrty  assets: ira: glass idx', '']
     dollars = ['            $ 150.00  assets: ira: glass idx', '']
-    mock_ledger_output.side_effect = [shares, dollars]
+    mock_get_lines.side_effect = [shares, dollars]
     investments.main([])
     output = investments.Colorable.get_plain_string(mock_print.call_args[0][0])
     expected = '15.000 qwrty         $ 150.00   assets: ira: glass idx'
