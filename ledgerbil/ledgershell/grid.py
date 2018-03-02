@@ -20,6 +20,8 @@ def get_grid_report(args, ledger_args=[]):
 
 def get_flat_report(grid, accounts, columns, period_names, sort='account'):
     COL_PERIOD = 14
+    ACCOUNT = -1
+    TOTAL = -2
 
     headers = [f'{pn:>{COL_PERIOD}}' for pn in period_names + ['total']]
     report = f"{Colorable('white', ''.join(headers))}\n"
@@ -40,14 +42,14 @@ def get_flat_report(grid, accounts, columns, period_names, sort='account'):
         reverse_sort = False
 
     for row in sorted(rows, key=lambda x: x[sort_index], reverse=reverse_sort):
-        account_f = Colorable('blue', row[-1])
+        account_f = Colorable('blue', row[ACCOUNT])
         amounts_f = [util.get_colored_amount(
             amount,
             colwidth=COL_PERIOD,
             positive='yellow',
             zero='grey'
-        ) for amount in row[:-2]]
-        row_total_f = util.get_colored_amount(row[-2], colwidth=COL_PERIOD)
+        ) for amount in row[:TOTAL]]
+        row_total_f = util.get_colored_amount(row[TOTAL], colwidth=COL_PERIOD)
         report += f"{''.join(amounts_f)}{row_total_f}  {account_f}\n"
 
     dashes = [
