@@ -629,7 +629,7 @@ def get_args(args=[]):
         type=str,
         default='a',
         help='sort comparison report by:\n\tv (alue)\n\tg (ain value)\n\t'
-             'y (ears)\n\ta (ll years gain)\n\t1 (year gain)\n\t'
+             'y (ears)\n\ta (ll years gain) default\n\t1 (year gain)\n\t'
              '3 (year gain)\n\t5 (year gain)\n\t10 (year gain)'
     )
     parser.add_argument(

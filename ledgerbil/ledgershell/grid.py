@@ -15,25 +15,40 @@ def get_grid_report(args, ledger_args=[]):
     period_names = sorted(get_period_names(args, ledger_args, unit))
     accounts, columns = get_columns(period_names, ledger_args, args.depth)
     grid = get_grid(accounts, columns)
-    return get_flat_report(grid, accounts, columns, period_names)
+    return get_flat_report(grid, accounts, columns, period_names, args.sort)
 
 
-def get_flat_report(grid, accounts, columns, period_names):
+def get_flat_report(grid, accounts, columns, period_names, sort='account'):
     COL_PERIOD = 14
 
     headers = [f'{pn:>{COL_PERIOD}}' for pn in period_names + ['total']]
     report = f"{Colorable('white', ''.join(headers))}\n"
-    for account in sorted(accounts):
-        account_f = Colorable('blue', account)
+
+    rows = []
+    for account in accounts:
         amounts = [grid[account].get(pn, 0) for pn in period_names]
+        rows.append(tuple(amounts + [sum(amounts), account]))
+
+    if sort == 'total':
+        sort_index = len(period_names)
+        reverse_sort = True
+    elif sort in period_names:
+        sort_index = period_names.index(sort)
+        reverse_sort = True
+    else:
+        sort_index = len(period_names) + 1
+        reverse_sort = False
+
+    for row in sorted(rows, key=lambda x: x[sort_index], reverse=reverse_sort):
+        account_f = Colorable('blue', row[-1])
         amounts_f = [util.get_colored_amount(
             amount,
             colwidth=COL_PERIOD,
             positive='yellow',
             zero='grey'
-        ) for amount in amounts]
-        row_total = util.get_colored_amount(sum(amounts), colwidth=COL_PERIOD)
-        report += f"{''.join(amounts_f)}{row_total}  {account_f}\n"
+        ) for amount in row[:-2]]
+        row_total_f = util.get_colored_amount(row[-2], colwidth=COL_PERIOD)
+        report += f"{''.join(amounts_f)}{row_total_f}  {account_f}\n"
 
     dashes = [
         f"{'-' * (COL_PERIOD - 2):>{COL_PERIOD}}" for x in period_names + [1]
@@ -179,6 +194,12 @@ def get_args(args=[]):
         metavar='N',
         default=0,
         help='limit the depth of account tree'
+    )
+    parser.add_argument(
+        '-s', '--sort',
+        type=str,
+        default='account',
+        help='sort by column header (default by account name)'
     )
 
     # workaround for problems with nargs=argparse.REMAINDER

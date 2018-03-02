@@ -175,12 +175,29 @@ def test_get_grid():
     assert grid.get_grid(accounts, columns) == expected
 
 
-def test_get_flat_report():
+def test_get_flat_report_sort_default():
+    run_get_flat_report('account')
+
+
+def test_get_flat_report_sort_total():
+    run_get_flat_report('total')
+
+
+def test_get_flat_report_sort_column():
+    run_get_flat_report('lemon')
+
+
+def test_get_flat_report_sort_unrecognized():
+    # Will sort by account if sort key is unrecognized
+    run_get_flat_report('unrecognized')
+
+
+def run_get_flat_report(sort):
     grid_x = {
         'expenses: car: gas': {'lemon': 17.37, 'lime': 28.19},
         'expenses: car: maintenance': {'lemon': 6.50},
         'expenses: unicorns': {'lime': -10123.55},
-        'expenses: widgets': {'lemon': 1001.78, 'lime': 500.10},
+        'expenses: widgets': {'lemon': 2.65, 'lime': 500.10},
     }
     accounts = {
         'expenses: car: gas',
@@ -192,7 +209,7 @@ def test_get_flat_report():
         'lemon': {
             'expenses: car: gas': 17.37,
             'expenses: car: maintenance': 6.50,
-            'expenses: widgets': 1001.78,
+            'expenses: widgets': 2.65,
         },
         'lime': {
             'expenses: car: gas': 28.19,
@@ -202,8 +219,14 @@ def test_get_flat_report():
     }
     period_names = ['lime', 'lemon']
 
-    report = grid.get_flat_report(grid_x, accounts, columns, period_names)
-    helper = OutputFileTester('test_grid_flat_report')
+    report = grid.get_flat_report(
+        grid_x,
+        accounts,
+        columns,
+        period_names,
+        sort
+    )
+    helper = OutputFileTester(f'test_grid_flat_report_sort_{sort}')
     helper.save_out_file(report)
     helper.assert_out_equals_expected()
 
@@ -228,7 +251,7 @@ def test_get_grid_report_month(mock_pnames, mock_cols, mock_grid, mock_report):
     mock_cols.assert_called_once_with(sorted(period_names), ledger_args, 0)
     mock_grid.assert_called_once_with(accounts, columns)
     mock_report.assert_called_once_with(
-        grid_x, accounts, columns, sorted(period_names)
+        grid_x, accounts, columns, sorted(period_names), 'account'
     )
 
 
@@ -327,6 +350,16 @@ def test_args_period(test_input, expected):
 def test_args_depth(test_input, expected):
     args, _ = grid.get_args(test_input)
     assert args.depth == expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (['-s', '2007'], '2007'),
+    (['--sort', '12/2009'], '12/2009'),
+    ([], 'account'),
+])
+def test_args_sort(test_input, expected):
+    args, _ = grid.get_args(test_input)
+    assert args.sort == expected
 
 
 @pytest.mark.parametrize('test_input, expected', [
