@@ -1,6 +1,7 @@
 import argparse
 import re
 from collections import defaultdict
+from datetime import date
 from textwrap import dedent
 
 from .. import util
@@ -12,8 +13,17 @@ LINE_REGEX = re.compile(r'^\s*(?:\$ (-?[\d,.]+|0(?=  )))\s*(.*)$')
 
 def get_grid_report(args, ledger_args=[]):
     unit = 'month' if args.month else 'year'
-    period_names = sorted(get_period_names(args, ledger_args, unit))
-    accounts, columns = get_columns(period_names, ledger_args, args.depth)
+    period_names, current_period_name = get_period_names(
+        args,
+        ledger_args,
+        unit
+    )
+    accounts, columns = get_columns(
+        period_names,
+        ledger_args,
+        depth=args.depth,
+        current=current_period_name
+    )
     grid = get_grid(accounts, columns)
     return get_flat_report(grid, accounts, columns, period_names, args.sort)
 
@@ -74,10 +84,12 @@ def get_period_names(args, ledger_args, unit='year'):
     period = ['-p', args.period] if args.period else []
 
     if unit == 'year':
-        period_options = ['--yearly', '-y', '%Y']
+        date_format = '%Y'
+        period_options = ['--yearly', '-y', date_format]
         period_len = 4
     else:
-        period_options = ['--monthly', '-y', '%Y/%m']
+        date_format = '%Y/%m'
+        period_options = ['--monthly', '-y', date_format]
         period_len = 7
 
     lines = get_ledger_output([
@@ -87,13 +99,27 @@ def get_period_names(args, ledger_args, unit='year'):
         '--empty'
     ] + ledger_args).split('\n')
 
-    return {x[:period_len] for x in lines if x[:period_len].strip() != ''}
+    names = sorted(
+        {x[:period_len] for x in lines if x[:period_len].strip() != ''}
+    )
+
+    current_period_name = None
+    if args.current:
+        current_period_date = date.today().strftime(date_format)
+        if current_period_date in names:
+            current_period_name = current_period_date
+            # remove future periods
+            names = names[:names.index(current_period_date) + 1]
+
+    return names, current_period_name
 
 
-def get_columns(period_names, ledger_args, depth=0):
+def get_columns(period_names, ledger_args, depth=0, current=None):
     accounts = set()
     columns = {}
     for period_name in period_names:
+        if current and current == period_name:
+            ledger_args += ['-e', 'tomorrow']
         column = get_column(
             ['bal', '--flat', '-p', period_name] + ledger_args,
             depth
@@ -189,6 +215,12 @@ def get_args(args=[]):
         '-p', '--period',
         type=str,
         help='period expression'
+    )
+    parser.add_argument(
+        '--current',
+        action='store_true',
+        default=False,
+        help='exclude future transactions'
     )
     parser.add_argument(
         '--depth',
