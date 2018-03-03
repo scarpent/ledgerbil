@@ -8,10 +8,18 @@ from .. import util
 from ..colorable import Colorable
 from .runner import get_ledger_output
 
-LINE_REGEX = re.compile(r'^\s*(?:\$ (-?[\d,.]+|0(?=  )))\s*(.*)$')
+ACCOUNT_LINE_REGEX = re.compile(r'^\s*(?:\$ (-?[\d,.]+|0(?=  )))\s*(.*)$')
+PAYEE_SUBTOTAL_REGEX = re.compile(r'^.*?\$ (\S+)\s*\$.*$')
 
 
 def get_grid_report(args, ledger_args=[]):
+
+    if args.payee:
+        column = get_column_payees(ledger_args)
+        from pprint import pprint
+        pprint(column)
+        return ''
+
     unit = 'month' if args.month else 'year'
     period_names, current_period_name = get_period_names(
         args,
@@ -93,7 +101,7 @@ def get_period_names(args, ledger_args, unit='year'):
         period_len = 7
 
     lines = get_ledger_output([
-        'reg'
+        'register'
     ] + begin + end + period + period_options + [
         '--collapse',
         '--empty'
@@ -121,7 +129,7 @@ def get_columns(period_names, ledger_args, depth=0, current=None):
         if current and current == period_name:
             ledger_args += ['-e', 'tomorrow']
         column = get_column(
-            ['bal', '--flat', '-p', period_name] + ledger_args,
+            ['balance', '--flat', '-p', period_name] + ledger_args,
             depth
         )
         accounts.update(column.keys())
@@ -139,15 +147,40 @@ def get_column(ledger_args, depth=0):
     for line in lines:
         if line == '' or line[0] == '-':
             break
-        match = re.match(LINE_REGEX, line)
+        match = re.match(ACCOUNT_LINE_REGEX, line)
         # should match as long as --market is used?
-        assert match, f'Line regex did not match: {line}'
+        assert match, f'Account line regex did not match: {line}'
         amount = float(match.groups()[DOLLARS].replace(',', ''))
         account = match.groups()[ACCOUNT]
         if depth > 0:
             account_parts = account.split(':')
             account = ':'.join(account_parts[:depth])
         column[account] += amount
+
+    return column
+
+
+# todo: depth that lets you pick top N or exclude bottom N (-N) (or -N%)?
+def get_column_payees(ledger_args):
+    DOLLARS = 0
+    lines = get_ledger_output(
+        ['register', 'expenses', '--group-by', '(payee)',
+         '--collapse', '--subtotal', '--depth', '1'] + ledger_args
+    ).split('\n')
+    column = {}
+    payee = None
+    for line in lines:
+        if not line:
+            continue
+        if not payee:
+            payee = line
+        else:
+            match = re.match(PAYEE_SUBTOTAL_REGEX, line)
+            assert match, f'Payee subtotal regex did not match: {line}'
+            assert payee not in column, f'Payee already in column: {payee}'
+            amount = float(match.groups()[DOLLARS].replace(',', ''))
+            column[payee] = amount
+            payee = None
 
     return column
 
@@ -217,6 +250,12 @@ def get_args(args=[]):
         help='period expression'
     )
     parser.add_argument(
+        '--payee',
+        action='store_true',
+        default=False,
+        help='show expenses by payee (does not pass through extra ledger vars)'
+    )
+    parser.add_argument(
         '--current',
         action='store_true',
         default=False,
@@ -233,7 +272,7 @@ def get_args(args=[]):
         '-s', '--sort',
         type=str,
         default='account',
-        help='sort by column header (default by account name)'
+        help='sort by column header (default by account or payee)'
     )
 
     # workaround for problems with nargs=argparse.REMAINDER

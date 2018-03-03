@@ -35,7 +35,7 @@ def test_get_period_names_years(mock_ledger_output):
     expected = (['2017', '2018'], None)
     assert grid.get_period_names(args, ledger_args) == expected
     mock_ledger_output.assert_called_once_with(
-        ['reg', '-b', 'banana', '-e', 'eggplant', '-p', 'pear',
+        ['register', '-b', 'banana', '-e', 'eggplant', '-p', 'pear',
          '--yearly', '-y', '%Y', '--collapse', '--empty', 'lettuce']
     )
 
@@ -55,7 +55,7 @@ def test_get_period_names_months(mock_ledger_output):
     actual = grid.get_period_names(args, ledger_args, 'month')
     assert actual == (['2017/11', '2017/12', '2018/01'], None)
     mock_ledger_output.assert_called_once_with(
-        ['reg', '-b', 'banana', '-e', 'eggplant', '-p', 'pear',
+        ['register', '-b', 'banana', '-e', 'eggplant', '-p', 'pear',
          '--monthly', '-y', '%Y/%m', '--collapse', '--empty', 'lettuce']
     )
 
@@ -77,7 +77,7 @@ def test_get_period_names_months_with_current(mock_ledger_output, mock_date):
     actual = grid.get_period_names(args, ledger_args, 'month')
     assert actual == (['2017/11', '2017/12'], '2017/12')
     mock_ledger_output.assert_called_once_with(
-        ['reg', '-b', 'banana', '-e', 'egg', '-p', 'pear',
+        ['register', '-b', 'banana', '-e', 'egg', '-p', 'pear',
          '--monthly', '-y', '%Y/%m', '--collapse', '--empty', 'lettuce']
     )
 
@@ -100,7 +100,7 @@ def test_get_period_names_months_with_current_not_found(mock_ledger_output,
     actual = grid.get_period_names(args, ledger_args, 'month')
     assert actual == (['2017/11', '2017/12', '2018/01'], None)
     mock_ledger_output.assert_called_once_with(
-        ['reg', '-b', 'banana', '-e', 'egg', '-p', 'pear',
+        ['register', '-b', 'banana', '-e', 'egg', '-p', 'pear',
          '--monthly', '-y', '%Y/%m', '--collapse', '--empty', 'lettuce']
     )
 
@@ -163,6 +163,35 @@ def test_get_column_depth_two(mock_ledger_output):
     mock_ledger_output.assert_called_once_with(['boogy!'])
 
 
+@mock.patch(__name__ + '.grid.get_ledger_output')
+def test_get_column_payees(mock_ledger_output):
+    output = dedent('''\
+        food and stuff
+        17-Nov-01 - 18-Jan-05    <Total>      $ 102.03           $ 102.03
+
+        gas n go
+        18-Jan-03 - 18-Jan-03    <Total>       $ 23.87            $ 23.87
+
+        johnny paycheck
+        17-Nov-15 - 17-Nov-30    <Total>    $ 1,381.32         $ 1,381.32
+
+        jurassic fork
+        18-Jan-08 - 18-Jan-08    <Total>       $ 42.17            $ 42.17\
+    ''')
+    mock_ledger_output.return_value = output
+    expected = {
+        'food and stuff': 102.03,
+        'gas n go': 23.87,
+        'johnny paycheck': 1381.32,
+        'jurassic fork': 42.17
+    }
+    assert grid.get_column_payees(['bogus']) == expected
+    mock_ledger_output.assert_called_once_with(
+        ['register', 'expenses', '--group-by', '(payee)',
+         '--collapse', '--subtotal', '--depth', '1', 'bogus']
+    )
+
+
 @mock.patch(__name__ + '.grid.get_column')
 def test_get_columns(mock_get_column):
     lemon_column = {
@@ -189,8 +218,8 @@ def test_get_columns(mock_get_column):
     assert accounts == expected_accounts
     assert columns == expected_columns
     mock_get_column.assert_has_calls([
-        mock.call(['bal', '--flat', '-p', 'lemon', 'salt!'], 0),
-        mock.call(['bal', '--flat', '-p', 'lime', 'salt!'], 0),
+        mock.call(['balance', '--flat', '-p', 'lemon', 'salt!'], 0),
+        mock.call(['balance', '--flat', '-p', 'lime', 'salt!'], 0),
     ])
 
 
@@ -211,9 +240,9 @@ def test_get_columns_with_current(mock_get_column):
     assert accounts == expected_accounts
     assert columns == expected_columns
     mock_get_column.assert_has_calls([
-        mock.call(['bal', '--flat', '-p', 'lemon', 'salt!'], 0),
+        mock.call(['balance', '--flat', '-p', 'lemon', 'salt!'], 0),
         mock.call(
-            ['bal', '--flat', '-p', 'lime', 'salt!', '-e', 'tomorrow'],
+            ['balance', '--flat', '-p', 'lime', 'salt!', '-e', 'tomorrow'],
             0
         ),
     ])
@@ -418,6 +447,15 @@ def test_args_end_date(test_input, expected):
 def test_args_period(test_input, expected):
     args, _ = grid.get_args(test_input)
     assert args.period == expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (['--payee'], True),
+    ([], False),
+])
+def test_args_payee(test_input, expected):
+    args, _ = grid.get_args(test_input)
+    assert args.payee == expected
 
 
 @pytest.mark.parametrize('test_input, expected', [
