@@ -362,26 +362,19 @@ def test_get_rows(mock_get_grid, test_input, expected):
     period_names = ['lemon', 'lime']
     sort, limit = test_input
     actual = grid.get_rows(row_headers, columns, period_names, sort, limit)
-    assert actual == expected
+    assert actual == [('lemon', 'lime', 'total')] + expected
 
 
 def test_get_flat_report():
     rows = [
+        ('lemon', 'lime', 'total'),
         (2.65, 500.1, 502.75, 'expenses: widgets'),
         (17.37, 28.19, 45.56, 'expenses: car: gas'),
         (6.5, 0, 6.5, 'expenses: car: maintenance'),
         (0, -10123.55, -10123.55, 'expenses: unicorns'),
         (26.52, -9595.26, -9568.74),
     ]
-    row_headers = {
-        'expenses: car: gas',
-        'expenses: car: maintenance',
-        'expenses: unicorns',
-        'expenses: widgets'
-    }
-    period_names = ['lemon', 'lime']
-
-    report = grid.get_flat_report(rows, row_headers, period_names)
+    report = grid.get_flat_report(rows)
     helper = OutputFileTester(f'test_grid_flat_report')
     helper.save_out_file(report)
     helper.assert_out_equals_expected()
@@ -414,7 +407,7 @@ def test_get_grid_report_month(mock_pnames, mock_cols, mock_rows, mock_report):
     mock_rows.assert_called_once_with(
         row_headers, columns, period_names, 'total', 0
     )
-    mock_report.assert_called_once_with(rows, row_headers, period_names)
+    mock_report.assert_called_once_with(rows)
 
 
 @mock.patch(__name__ + '.grid.get_flat_report')

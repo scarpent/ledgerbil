@@ -28,34 +28,40 @@ def get_grid_report(args, ledger_args=[]):
         payee=args.payee
     )
     rows = get_rows(row_headers, columns, period_names, args.sort, args.limit)
-    return get_flat_report(rows, row_headers, period_names)
+    return get_flat_report(rows)
 
 
-def get_flat_report(rows, row_headers, period_names):
-    COL_PERIOD = 14
+def get_flat_report(rows):
+    FMT_PERIOD = 14
     ROW_HEADER = -1
-    TOTAL = -2
+    ROW_TOTAL = -2
+    DATA_START = 1
+    DATA_END = -1
+    COL_HEADER = 0
     COL_TOTAL = -1
 
-    headers = [f'{pn:>{COL_PERIOD}}' for pn in period_names + ['total']]
+    headers = [f'{pn:>{FMT_PERIOD}}' for pn in rows[COL_HEADER]]
     report = f"{Colorable('white', ''.join(headers))}\n"
 
-    for row in rows[:COL_TOTAL]:
+    for row in rows[DATA_START:DATA_END]:
         row_header_f = Colorable('blue', row[ROW_HEADER])
         amounts_f = [util.get_colored_amount(
             amount,
-            colwidth=COL_PERIOD,
+            colwidth=FMT_PERIOD,
             positive='yellow',
             zero='grey'
-        ) for amount in row[:TOTAL]]
-        row_total_f = util.get_colored_amount(row[TOTAL], colwidth=COL_PERIOD)
+        ) for amount in row[:ROW_TOTAL]]
+        row_total_f = util.get_colored_amount(
+            row[ROW_TOTAL],
+            colwidth=FMT_PERIOD
+        )
         report += f"{''.join(amounts_f)}{row_total_f}  {row_header_f}\n"
 
     dashes = [
-        f"{'-' * (COL_PERIOD - 2):>{COL_PERIOD}}" for x in period_names + [1]
+        f"{'-' * (FMT_PERIOD - 2):>{FMT_PERIOD}}" for x in rows[COL_TOTAL]
     ]
     col_totals_f = [
-        util.get_colored_amount(t, COL_PERIOD) for t in rows[COL_TOTAL]
+        util.get_colored_amount(t, FMT_PERIOD) for t in rows[COL_TOTAL]
     ]
     report += f"{Colorable('white', ''.join(dashes))}\n"
     report += f"{''.join(col_totals_f)}\n"
@@ -190,8 +196,9 @@ def get_rows(row_headers, columns, period_names, sort='total', limit=0):
     if limit > 0:
         rows = rows[:limit]
 
+    headers = tuple(period_name for period_name in period_names + ['total'])
     totals = tuple(sum(x) for x in list(zip(*rows))[:-1])
-    return rows + [totals]
+    return [headers] + rows + [totals]
 
 
 def get_grid(row_headers, columns):
