@@ -192,6 +192,31 @@ def test_get_column_payees(mock_ledger_output):
     )
 
 
+@mock.patch(__name__ + '.grid.get_column_payees')
+def test_get_columns_payees(mock_get_column_payees):
+    bratwurst_column = {'zig': 17.37, 'zag': 6.50}
+    knockwurst_column = {'blitz': 28.19, 'krieg': 500.10}
+    mock_get_column_payees.side_effect = [bratwurst_column, knockwurst_column]
+
+    expected_columns = {
+        'bratwurst': bratwurst_column,
+        'knockwurst': knockwurst_column,
+    }
+    expected_payees = {'zig', 'zag', 'blitz', 'krieg'}
+
+    payees, columns = grid.get_columns(
+        ['bratwurst', 'knockwurst'],
+        ['?', '!'],
+        payee=True
+    )
+    assert payees == expected_payees
+    assert columns == expected_columns
+    mock_get_column_payees.assert_has_calls([
+        mock.call(['-p', 'bratwurst', '?', '!']),
+        mock.call(['-p', 'knockwurst', '?', '!']),
+    ])
+
+
 @mock.patch(__name__ + '.grid.get_column_accounts')
 def test_get_columns(mock_get_column_accounts):
     lemon_column = {
