@@ -29,15 +29,17 @@ def test_get_period_names_years(mock_ledger_output):
         2018 - 2018          <Total>                    0         0
     ''')
     mock_ledger_output.return_value = output
-    args, ledger_args = grid.get_args(
-        ['-b', 'banana', '-e', 'eggplant', '-p', 'pear', 'lettuce']
-    )
+    args, ledger_args = grid.get_args([
+        '--begin', 'banana', '--end', 'eggplant',
+        '--period', 'pear', 'lettuce'
+    ])
     expected = (['2017', '2018'], None)
     assert grid.get_period_names(args, ledger_args) == expected
-    mock_ledger_output.assert_called_once_with(
-        ['register', '-b', 'banana', '-e', 'eggplant', '-p', 'pear',
-         '--yearly', '-y', '%Y', '--collapse', '--empty', 'lettuce']
-    )
+    mock_ledger_output.assert_called_once_with([
+        'register', '--begin', 'banana', '--end', 'eggplant',
+        '--period', 'pear', '--yearly', '--date-format', '%Y',
+        '--collapse', '--empty', 'lettuce'
+    ])
 
 
 @mock.patch(__name__ + '.grid.get_ledger_output')
@@ -49,15 +51,17 @@ def test_get_period_names_months(mock_ledger_output):
         2018/01 - 2018/01       <Total>                  0         0
     ''')
     mock_ledger_output.return_value = output
-    args, ledger_args = grid.get_args(
-        ['-b', 'banana', '-e', 'eggplant', '-p', 'pear', 'lettuce']
-    )
+    args, ledger_args = grid.get_args([
+        '--begin', 'banana', '--end', 'eggplant',
+        '--period', 'pear', 'lettuce'
+    ])
     actual = grid.get_period_names(args, ledger_args, 'month')
     assert actual == (['2017/11', '2017/12', '2018/01'], None)
-    mock_ledger_output.assert_called_once_with(
-        ['register', '-b', 'banana', '-e', 'eggplant', '-p', 'pear',
-         '--monthly', '-y', '%Y/%m', '--collapse', '--empty', 'lettuce']
-    )
+    mock_ledger_output.assert_called_once_with([
+        'register', '--begin', 'banana', '--end', 'eggplant',
+        '--period', 'pear', '--monthly', '--date-format', '%Y/%m',
+        '--collapse', '--empty', 'lettuce'
+    ])
 
 
 @mock.patch(__name__ + '.grid.date')
@@ -71,15 +75,17 @@ def test_get_period_names_months_with_current(mock_ledger_output, mock_date):
         2018/01 - 2018/01       <Total>                  0         0
     ''')
     mock_ledger_output.return_value = output
-    args, ledger_args = grid.get_args(
-        ['-b', 'banana', '-e', 'egg', '-p', 'pear', 'lettuce', '--current']
-    )
+    args, ledger_args = grid.get_args([
+        '--begin', 'banana', '--end', 'eggplant',
+        '--period', 'pear', 'lettuce', '--current'
+    ])
     actual = grid.get_period_names(args, ledger_args, 'month')
     assert actual == (['2017/11', '2017/12'], '2017/12')
-    mock_ledger_output.assert_called_once_with(
-        ['register', '-b', 'banana', '-e', 'egg', '-p', 'pear',
-         '--monthly', '-y', '%Y/%m', '--collapse', '--empty', 'lettuce']
-    )
+    mock_ledger_output.assert_called_once_with([
+        'register', '--begin', 'banana', '--end', 'eggplant',
+        '--period', 'pear', '--monthly', '--date-format', '%Y/%m',
+        '--collapse', '--empty', 'lettuce'
+    ])
 
 
 @mock.patch(__name__ + '.grid.date')
@@ -94,15 +100,17 @@ def test_get_period_names_months_with_current_not_found(mock_ledger_output,
         2018/01 - 2018/01       <Total>                  0         0
     ''')
     mock_ledger_output.return_value = output
-    args, ledger_args = grid.get_args(
-        ['-b', 'banana', '-e', 'egg', '-p', 'pear', 'lettuce', '--current']
-    )
+    args, ledger_args = grid.get_args([
+        '--begin', 'banana', '--end', 'eggplant',
+        '--period', 'pear', 'lettuce', '--current'
+    ])
     actual = grid.get_period_names(args, ledger_args, 'month')
     assert actual == (['2017/11', '2017/12', '2018/01'], None)
-    mock_ledger_output.assert_called_once_with(
-        ['register', '-b', 'banana', '-e', 'egg', '-p', 'pear',
-         '--monthly', '-y', '%Y/%m', '--collapse', '--empty', 'lettuce']
-    )
+    mock_ledger_output.assert_called_once_with([
+        'register', '--begin', 'banana', '--end', 'eggplant',
+        '--period', 'pear', '--monthly', '--date-format', '%Y/%m',
+        '--collapse', '--empty', 'lettuce'
+    ])
 
 
 @mock.patch(__name__ + '.grid.get_ledger_output')
@@ -212,8 +220,8 @@ def test_get_columns_payees(mock_get_column_payees):
     assert payees == expected_payees
     assert columns == expected_columns
     mock_get_column_payees.assert_has_calls([
-        mock.call(['-p', 'bratwurst', '?', '!']),
-        mock.call(['-p', 'knockwurst', '?', '!']),
+        mock.call(['--period', 'bratwurst', '?', '!']),
+        mock.call(['--period', 'knockwurst', '?', '!']),
     ])
 
 
@@ -243,8 +251,8 @@ def test_get_columns(mock_get_column_accounts):
     assert accounts == expected_accounts
     assert columns == expected_columns
     mock_get_column_accounts.assert_has_calls([
-        mock.call(['-p', 'lemon', 'salt!'], 0),
-        mock.call(['-p', 'lime', 'salt!'], 0),
+        mock.call(['--period', 'lemon', 'salt!'], 0),
+        mock.call(['--period', 'lime', 'salt!'], 0),
     ])
 
 
@@ -265,8 +273,8 @@ def test_get_columns_with_current(mock_get_column_accounts):
     assert accounts == expected_accounts
     assert columns == expected_columns
     mock_get_column_accounts.assert_has_calls([
-        mock.call(['-p', 'lemon', 'salt!'], 0),
-        mock.call(['-p', 'lime', 'salt!', '-e', 'tomorrow'], 0),
+        mock.call(['--period', 'lemon', 'salt!'], 0),
+        mock.call(['--period', 'lime', 'salt!', '--end', 'tomorrow'], 0),
     ])
 
 

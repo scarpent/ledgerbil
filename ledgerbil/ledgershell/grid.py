@@ -66,17 +66,17 @@ def get_period_names(args, ledger_args, unit='year'):
     # --collapse behavior seems suspicous, but --empty
     # appears to work for our purposes here
     # groups.google.com/forum/?fromgroups=#!topic/ledger-cli/HAKAMYiaL7w
-    begin = ['-b', args.begin] if args.begin else []
-    end = ['-e', args.end] if args.end else []
-    period = ['-p', args.period] if args.period else []
+    begin = ['--begin', args.begin] if args.begin else []
+    end = ['--end', args.end] if args.end else []
+    period = ['--period', args.period] if args.period else []
 
     if unit == 'year':
         date_format = '%Y'
-        period_options = ['--yearly', '-y', date_format]
+        period_options = ['--yearly', '--date-format', date_format]
         period_len = 4
     else:
         date_format = '%Y/%m'
-        period_options = ['--monthly', '-y', date_format]
+        period_options = ['--monthly', '--date-format', date_format]
         period_len = 7
 
     lines = get_ledger_output([
@@ -106,13 +106,13 @@ def get_columns(period_names, ledger_args, depth=0, current=None, payee=False):
     columns = {}
     for period_name in period_names:
         if current and current == period_name:
-            ledger_args += ['-e', 'tomorrow']
+            ledger_args += ['--end', 'tomorrow']
 
         if payee:
-            column = get_column_payees(['-p', period_name] + ledger_args)
+            column = get_column_payees(['--period', period_name] + ledger_args)
         else:
             column = get_column_accounts(
-                ['-p', period_name] + ledger_args,
+                ['--period', period_name] + ledger_args,
                 depth
             )
 
