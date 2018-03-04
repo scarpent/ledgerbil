@@ -8,6 +8,7 @@ from .. import util
 from ..colorable import Colorable
 from .runner import get_ledger_output
 
+SORT_DEFAULT = 'total'
 ACCOUNT_LINE_REGEX = re.compile(r'^\s*(?:\$ (-?[\d,.]+|0(?=  )))\s*(.*)$')
 PAYEE_SUBTOTAL_REGEX = re.compile(r'^.*?\$ (\S+)\s*\$.*$')
 
@@ -174,12 +175,23 @@ def get_column_payees(ledger_args):
     return column
 
 
-def get_rows(row_headers, columns, period_names, sort='total', limit=0):
+def get_rows(row_headers, columns, period_names, sort=SORT_DEFAULT, limit=0):
+    if len(period_names) == 1:
+        has_total_column = False
+        if sort == SORT_DEFAULT:
+            sort = period_names[0]
+    else:
+        has_total_column = True
+
     grid = get_grid(row_headers, columns)
+
     rows = []
     for row_header in row_headers:
         amounts = [grid[row_header].get(pn, 0) for pn in period_names]
-        rows.append(tuple(amounts + [sum(amounts), row_header]))
+        if has_total_column:
+            rows.append(tuple(amounts + [sum(amounts)] + [row_header]))
+        else:
+            rows.append(tuple(amounts + [row_header]))
 
     if sort == 'row':
         sort_index = len(period_names) + 1
@@ -188,7 +200,7 @@ def get_rows(row_headers, columns, period_names, sort='total', limit=0):
         sort_index = period_names.index(sort)
         reverse_sort = True
     else:
-        # 'total', or anything will fall back to default by total
+        # SORT_DEFAULT (or anything that falls through)
         sort_index = len(period_names)
         reverse_sort = True
 
@@ -196,9 +208,13 @@ def get_rows(row_headers, columns, period_names, sort='total', limit=0):
     if limit > 0:
         rows = rows[:limit]
 
-    headers = tuple(period_name for period_name in period_names + ['total'])
+    headers = period_names
+    if has_total_column:
+        headers.append(SORT_DEFAULT)
+
     totals = tuple(sum(x) for x in list(zip(*rows))[:-1])
-    return [headers] + rows + [totals]
+
+    return [tuple(headers)] + rows + [totals]
 
 
 def get_grid(row_headers, columns):
@@ -298,7 +314,7 @@ def get_args(args=[]):
     parser.add_argument(
         '-s', '--sort',
         type=str,
-        default='total',
+        default=SORT_DEFAULT,
         help='sort by specified column header, or "row" to sort\nby account '
              'or payee (default by total)'
     )

@@ -338,11 +338,11 @@ expected_sort_rows_by_total_with_limit = [
 
 
 @pytest.mark.parametrize('test_input, expected', [
-    (('total', 0), expected_sort_rows_by_total),
+    ((grid.SORT_DEFAULT, 0), expected_sort_rows_by_total),
     (('unrecognized', 0), expected_sort_rows_by_total),
     (('row', 0), expected_sort_rows_by_row_header),
     (('lime', 0), expected_sort_rows_by_column_header),
-    (('total', 2), expected_sort_rows_by_total_with_limit),
+    ((grid.SORT_DEFAULT, 2), expected_sort_rows_by_total_with_limit),
 ])
 @mock.patch(__name__ + '.grid.get_grid')
 def test_get_rows(mock_get_grid, test_input, expected):
@@ -362,12 +362,31 @@ def test_get_rows(mock_get_grid, test_input, expected):
     period_names = ['lemon', 'lime']
     sort, limit = test_input
     actual = grid.get_rows(row_headers, columns, period_names, sort, limit)
-    assert actual == [('lemon', 'lime', 'total')] + expected
+    assert actual == [('lemon', 'lime', grid.SORT_DEFAULT)] + expected
+
+
+@mock.patch(__name__ + '.grid.get_grid')
+def test_get_rows_single_column(mock_get_grid):
+    mock_get_grid.return_value = {
+        'expenses: unicorns': {'mango': 50},
+        'expenses: widgets': {'mango': 70},
+    }
+    row_headers = {'expenses: unicorns', 'expenses: widgets'}
+    columns = None  # accounted for in mock grid return value
+    period_names = ['mango']
+    actual = grid.get_rows(row_headers, columns, period_names, 'total', 0)
+    expected = [
+        ('mango', ),
+        (70, 'expenses: widgets'),
+        (50, 'expenses: unicorns'),
+        (120, ),
+    ]
+    assert actual == expected
 
 
 def test_get_flat_report():
     rows = [
-        ('lemon', 'lime', 'total'),
+        ('lemon', 'lime', grid.SORT_DEFAULT),
         (2.65, 500.1, 502.75, 'expenses: widgets'),
         (17.37, 28.19, 45.56, 'expenses: car: gas'),
         (6.5, 0, 6.5, 'expenses: car: maintenance'),
@@ -405,7 +424,7 @@ def test_get_grid_report_month(mock_pnames, mock_cols, mock_rows, mock_report):
         payee=False
     )
     mock_rows.assert_called_once_with(
-        row_headers, columns, period_names, 'total', 0
+        row_headers, columns, period_names, grid.SORT_DEFAULT, 0
     )
     mock_report.assert_called_once_with(rows)
 
