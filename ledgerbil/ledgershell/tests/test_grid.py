@@ -303,6 +303,7 @@ expected_sort_rows_by_total = [
     (100, 10, 110, 'expenses: car: gas'),
     (0, 20, 20, 'expenses: unicorns'),
     (-50, 0, -50, 'expenses: car: maintenance'),
+    (140, 80, 220),
 ]
 
 expected_sort_rows_by_row_header = [
@@ -310,6 +311,7 @@ expected_sort_rows_by_row_header = [
     (-50, 0, -50, 'expenses: car: maintenance'),
     (0, 20, 20, 'expenses: unicorns'),
     (90, 50, 140, 'expenses: widgets'),
+    (140, 80, 220),
 ]
 
 expected_sort_rows_by_column_header = [
@@ -317,14 +319,22 @@ expected_sort_rows_by_column_header = [
     (0, 20, 20, 'expenses: unicorns'),
     (100, 10, 110, 'expenses: car: gas'),
     (-50, 0, -50, 'expenses: car: maintenance'),
+    (140, 80, 220),
+]
+
+expected_sort_rows_by_total_with_limit = [
+    (90, 50, 140, 'expenses: widgets'),
+    (100, 10, 110, 'expenses: car: gas'),
+    (190, 60, 250),
 ]
 
 
 @pytest.mark.parametrize('test_input, expected', [
-    ('total', expected_sort_rows_by_total),
-    ('unrecognized', expected_sort_rows_by_total),
-    ('row', expected_sort_rows_by_row_header),
-    ('lime', expected_sort_rows_by_column_header),
+    (('total', 0), expected_sort_rows_by_total),
+    (('unrecognized', 0), expected_sort_rows_by_total),
+    (('row', 0), expected_sort_rows_by_row_header),
+    (('lime', 0), expected_sort_rows_by_column_header),
+    (('total', 2), expected_sort_rows_by_total_with_limit),
 ])
 @mock.patch(__name__ + '.grid.get_grid')
 def test_get_rows(mock_get_grid, test_input, expected):
@@ -342,7 +352,8 @@ def test_get_rows(mock_get_grid, test_input, expected):
     }
     columns = None  # accounted for in mock grid return value
     period_names = ['lemon', 'lime']
-    actual = grid.get_rows(row_headers, columns, period_names, sort=test_input)
+    sort, limit = test_input
+    actual = grid.get_rows(row_headers, columns, period_names, sort, limit)
     assert actual == expected
 
 
@@ -352,6 +363,7 @@ def test_get_flat_report():
         (17.37, 28.19, 45.56, 'expenses: car: gas'),
         (6.5, 0, 6.5, 'expenses: car: maintenance'),
         (0, -10123.55, -10123.55, 'expenses: unicorns'),
+        (26.52, -9595.26, -9568.74),
     ]
     row_headers = {
         'expenses: car: gas',
@@ -359,21 +371,9 @@ def test_get_flat_report():
         'expenses: unicorns',
         'expenses: widgets'
     }
-    columns = {
-        'lemon': {
-            'expenses: car: gas': 17.37,
-            'expenses: car: maintenance': 6.50,
-            'expenses: widgets': 2.65,
-        },
-        'lime': {
-            'expenses: car: gas': 28.19,
-            'expenses: widgets': 500.10,
-            'expenses: unicorns': -10123.55,
-        },
-    }
     period_names = ['lemon', 'lime']
 
-    report = grid.get_flat_report(rows, row_headers, columns, period_names)
+    report = grid.get_flat_report(rows, row_headers, period_names)
     helper = OutputFileTester(f'test_grid_flat_report')
     helper.save_out_file(report)
     helper.assert_out_equals_expected()
@@ -384,12 +384,12 @@ def test_get_flat_report():
 @mock.patch(__name__ + '.grid.get_columns')
 @mock.patch(__name__ + '.grid.get_period_names')
 def test_get_grid_report_month(mock_pnames, mock_cols, mock_rows, mock_report):
-    period_names, accounts, columns, rows, flat_report = (
+    period_names, row_headers, columns, rows, flat_report = (
         ['garlic', 'paprika'], 'fennel', 'tarragon', ['basil'], 'parsley',
     )
 
     mock_pnames.return_value = (period_names, None)
-    mock_cols.return_value = (accounts, columns)
+    mock_cols.return_value = (row_headers, columns)
     mock_rows.return_value = rows
     mock_report.return_value = flat_report
 
@@ -403,8 +403,10 @@ def test_get_grid_report_month(mock_pnames, mock_cols, mock_rows, mock_report):
         current=None,
         payee=False
     )
-    mock_rows.assert_called_once_with(accounts, columns, period_names, 'total')
-    mock_report.assert_called_once_with(rows, accounts, columns, period_names)
+    mock_rows.assert_called_once_with(
+        row_headers, columns, period_names, 'total', 0
+    )
+    mock_report.assert_called_once_with(rows, row_headers, period_names)
 
 
 @mock.patch(__name__ + '.grid.get_flat_report')
@@ -412,19 +414,33 @@ def test_get_grid_report_month(mock_pnames, mock_cols, mock_rows, mock_report):
 @mock.patch(__name__ + '.grid.get_columns')
 @mock.patch(__name__ + '.grid.get_period_names')
 def test_get_grid_report_year(mock_pnames, mock_cols, mock_rows, mock_report):
-    # this test just wants to make sure unit was set correctly
-    period_names, accounts, columns, flat_report = (
+    # this test wants to make sure unit was set correctly, along
+    # with passing through args depth, payee, and limit appropriately
+    period_names, row_headers, columns, flat_report = (
         {'paprika', 'garglic'}, 'fennel', 'tarragon', 'parsley',
     )
 
-    mock_pnames.return_value = (period_names, None)
-    mock_cols.return_value = (accounts, columns)
+    mock_pnames.return_value = (period_names, 'celery')
+    mock_cols.return_value = (row_headers, columns)
     mock_report.return_value = flat_report
 
     # -y defaults to True so could also be a test without -y and -m
-    args, ledger_args = grid.get_args(['--year', 'nutmeg'])
+    args, ledger_args = grid.get_args([
+        '--year', 'nutmeg', '--depth', '5', '--limit', '20',
+        '--payee', '--sort', 'cloves'
+    ])
     assert grid.get_grid_report(args, ledger_args) == flat_report
     mock_pnames.assert_called_once_with(args, ledger_args, 'year')
+    mock_cols.assert_called_once_with(
+        period_names,
+        ledger_args,
+        depth=5,
+        current='celery',
+        payee=True
+    )
+    mock_rows.assert_called_once_with(
+        row_headers, columns, period_names, 'cloves', 20
+    )
 
 
 @mock.patch(__name__ + '.grid.print')
@@ -520,6 +536,15 @@ def test_args_current(test_input, expected):
 def test_args_depth(test_input, expected):
     args, _ = grid.get_args(test_input)
     assert args.depth == expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (['--limit', '30'], 30),
+    ([], 0),
+])
+def test_args_limit(test_input, expected):
+    args, _ = grid.get_args(test_input)
+    assert args.limit == expected
 
 
 @pytest.mark.parametrize('test_input, expected', [

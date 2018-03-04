@@ -27,19 +27,20 @@ def get_grid_report(args, ledger_args=[]):
         current=current_period_name,
         payee=args.payee
     )
-    rows = get_rows(row_headers, columns, period_names, args.sort)
-    return get_flat_report(rows, row_headers, columns, period_names)
+    rows = get_rows(row_headers, columns, period_names, args.sort, args.limit)
+    return get_flat_report(rows, row_headers, period_names)
 
 
-def get_flat_report(rows, row_headers, columns, period_names):
+def get_flat_report(rows, row_headers, period_names):
     COL_PERIOD = 14
     ROW_HEADER = -1
     TOTAL = -2
+    COL_TOTAL = -1
 
     headers = [f'{pn:>{COL_PERIOD}}' for pn in period_names + ['total']]
     report = f"{Colorable('white', ''.join(headers))}\n"
 
-    for row in rows:
+    for row in rows[:COL_TOTAL]:
         row_header_f = Colorable('blue', row[ROW_HEADER])
         amounts_f = [util.get_colored_amount(
             amount,
@@ -53,13 +54,11 @@ def get_flat_report(rows, row_headers, columns, period_names):
     dashes = [
         f"{'-' * (COL_PERIOD - 2):>{COL_PERIOD}}" for x in period_names + [1]
     ]
+    col_totals_f = [
+        util.get_colored_amount(t, COL_PERIOD) for t in rows[COL_TOTAL]
+    ]
     report += f"{Colorable('white', ''.join(dashes))}\n"
-
-    totals = [sum(columns[pn].values()) for pn in period_names]
-    totals_f = [util.get_colored_amount(t, COL_PERIOD) for t in totals]
-    row_total = util.get_colored_amount(sum(totals), colwidth=COL_PERIOD)
-
-    report += f"{''.join(totals_f)}{row_total}\n"
+    report += f"{''.join(col_totals_f)}\n"
     return report
 
 
@@ -169,7 +168,7 @@ def get_column_payees(ledger_args):
     return column
 
 
-def get_rows(row_headers, columns, period_names, sort='total', depth=0):
+def get_rows(row_headers, columns, period_names, sort='total', limit=0):
     grid = get_grid(row_headers, columns)
     rows = []
     for row_header in row_headers:
@@ -188,7 +187,11 @@ def get_rows(row_headers, columns, period_names, sort='total', depth=0):
         reverse_sort = True
 
     rows = sorted(rows, key=lambda x: x[sort_index], reverse=reverse_sort)
-    return rows
+    if limit > 0:
+        rows = rows[:limit]
+
+    totals = tuple(sum(x) for x in list(zip(*rows))[:-1])
+    return rows + [totals]
 
 
 def get_grid(row_headers, columns):
@@ -259,33 +262,38 @@ def get_args(args=[]):
         help='period expression'
     )
     parser.add_argument(
+        '--current',
+        action='store_true',
+        default=False,
+        help='exclude future transactions'
+    )
+    parser.add_argument(
+        '--depth',
+        type=int,
+        metavar='N',
+        default=0,
+        help='limit the depth of account tree for account reports'
+    )
+    parser.add_argument(
         '--payee',
         action='store_true',
         default=False,
         help='show expenses by payee'
     )
     parser.add_argument(
-        '--current',
-        action='store_true',
-        default=False,
-        help='exclude future transactions'
-    )
-    # todo: payee depth that lets you pick top N
-    #       or exclude bottom N (-N) (or -N%)?
-    parser.add_argument(
-        '--depth',
+        '--limit',
         type=int,
         metavar='N',
         default=0,
-        help='limit the depth of account tree for account reports, and the '
-             'number of payees shown for payee reports'
+        help='limit the number of rows shown to top N'
     )
+    # todo: total only (in particular wanted for payees)
     parser.add_argument(
         '-s', '--sort',
         type=str,
         default='total',
-        help='sort by specified column header, or "row" to sort by account or '
-             'payee (default by total)'
+        help='sort by specified column header, or "row" to sort\nby account '
+             'or payee (default by total)'
     )
 
     # workaround for problems with nargs=argparse.REMAINDER
