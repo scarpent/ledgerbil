@@ -13,13 +13,6 @@ PAYEE_SUBTOTAL_REGEX = re.compile(r'^.*?\$ (\S+)\s*\$.*$')
 
 
 def get_grid_report(args, ledger_args=[]):
-
-    if args.payee:
-        column = get_column_payees(ledger_args)
-        from pprint import pprint
-        pprint(column)
-        return ''
-
     unit = 'month' if args.month else 'year'
     period_names, current_period_name = get_period_names(
         args,
@@ -31,13 +24,14 @@ def get_grid_report(args, ledger_args=[]):
         period_names,
         ledger_args,
         depth=args.depth,
-        current=current_period_name
+        current=current_period_name,
+        payee=args.payee
     )
     grid = get_grid(row_headers, columns)
     return get_flat_report(grid, row_headers, columns, period_names, args.sort)
 
 
-def get_flat_report(grid, row_headers, columns, period_names, sort='row'):
+def get_flat_report(grid, row_headers, columns, period_names, sort='total'):
     COL_PERIOD = 14
     ROW_HEADER = -1
     TOTAL = -2
@@ -50,15 +44,16 @@ def get_flat_report(grid, row_headers, columns, period_names, sort='row'):
         amounts = [grid[row_header].get(pn, 0) for pn in period_names]
         rows.append(tuple(amounts + [sum(amounts), row_header]))
 
-    if sort == 'total':
-        sort_index = len(period_names)
-        reverse_sort = True
+    if sort == 'row':
+        sort_index = len(period_names) + 1
+        reverse_sort = False
     elif sort in period_names:
         sort_index = period_names.index(sort)
         reverse_sort = True
     else:
-        sort_index = len(period_names) + 1
-        reverse_sort = False
+        # 'total', or anything will fall back to default by total
+        sort_index = len(period_names)
+        reverse_sort = True
 
     for row in sorted(rows, key=lambda x: x[sort_index], reverse=reverse_sort):
         row_header_f = Colorable('blue', row[ROW_HEADER])
@@ -123,28 +118,32 @@ def get_period_names(args, ledger_args, unit='year'):
     return names, current_period_name
 
 
-def get_columns(period_names, ledger_args, depth=0, current=None):
+def get_columns(period_names, ledger_args, depth=0, current=None, payee=False):
     row_headers = set()
     columns = {}
     for period_name in period_names:
         if current and current == period_name:
             ledger_args += ['-e', 'tomorrow']
-        column = get_column(
-            ['balance', '--flat', '-p', period_name] + ledger_args,
-            depth
-        )
-        # column = get_column_payees(['-p', period_name])
+
+        if payee:
+            column = get_column_payees(['-p', period_name] + ledger_args)
+        else:
+            column = get_column_accounts(
+                ['-p', period_name] + ledger_args,
+                depth
+            )
+
         row_headers.update(column.keys())
         columns[period_name] = column
 
     return row_headers, columns
 
 
-def get_column(ledger_args, depth=0):
+def get_column_accounts(ledger_args, depth=0):
     ACCOUNT = 1
     DOLLARS = 0
 
-    lines = get_ledger_output(ledger_args).split('\n')
+    lines = get_ledger_output(['balance', '--flat'] + ledger_args).split('\n')
     column = defaultdict(int)
     for line in lines:
         if line == '' or line[0] == '-':
@@ -204,13 +203,16 @@ def get_args(args=[]):
 
         Don't specify bal, balance, reg, or register!
 
-        e.g. ./main.py expenses -p 'last 2 years'
-
-        Will show expenses for last two years with separate columns for the
-        years.
+        e.g. ./main.py expenses -p 'last 2 years' will show expenses for last
+        two years with separate columns for the years.
 
         Currently supports ledger --flat reports. (Although you don't have to
         specify --flat.)
+
+        Payee reports will also pass through ledger arguments, but currently
+        they assume "expenses" and if you wanted to further constraint that
+        you would need to do something like "and @^a" to get only payees
+        starting with a.
     ''')
     parser = argparse.ArgumentParser(
         prog=program,
@@ -254,7 +256,7 @@ def get_args(args=[]):
         '--payee',
         action='store_true',
         default=False,
-        help='show expenses by payee (does not pass through extra ledger vars)'
+        help='show expenses by payee'
     )
     parser.add_argument(
         '--current',
@@ -274,8 +276,9 @@ def get_args(args=[]):
     parser.add_argument(
         '-s', '--sort',
         type=str,
-        default='row',
-        help='sort by specified column header (default by account or payee)'
+        default='total',
+        help='sort by specified column header, or "row" to sort by account or '
+             'payee (default by total)'
     )
 
     # workaround for problems with nargs=argparse.REMAINDER

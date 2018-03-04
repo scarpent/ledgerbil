@@ -106,7 +106,7 @@ def test_get_period_names_months_with_current_not_found(mock_ledger_output,
 
 
 @mock.patch(__name__ + '.grid.get_ledger_output')
-def test_get_column(mock_ledger_output):
+def test_get_column_accounts(mock_ledger_output):
     output = dedent('''\
                      $ 17.37  expenses: car: gas
                       $ 6.50  expenses: car: maintenance
@@ -120,12 +120,12 @@ def test_get_column(mock_ledger_output):
         'expenses: car: maintenance': 6.50,
         'expenses: widgets': 1001.78,
     }
-    assert grid.get_column(['boogy!']) == expected
-    mock_ledger_output.assert_called_once_with(['boogy!'])
+    assert grid.get_column_accounts(['boogy!']) == expected
+    mock_ledger_output.assert_called_once_with(['balance', '--flat', 'boogy!'])
 
 
 @mock.patch(__name__ + '.grid.get_ledger_output')
-def test_get_column_depth_one(mock_ledger_output):
+def test_get_column_accounts_depth_one(mock_ledger_output):
     output = dedent('''\
                      $ 10.00  apple: banana: cantaloupe
                      $ 20.00  apple: banana: eggplant
@@ -139,12 +139,12 @@ def test_get_column_depth_one(mock_ledger_output):
         'apple': 30,
         'grape': 120,
     }
-    assert grid.get_column(['boogy!'], depth=1) == expected
-    mock_ledger_output.assert_called_once_with(['boogy!'])
+    assert grid.get_column_accounts(['boogy!'], depth=1) == expected
+    mock_ledger_output.assert_called_once_with(['balance', '--flat', 'boogy!'])
 
 
 @mock.patch(__name__ + '.grid.get_ledger_output')
-def test_get_column_depth_two(mock_ledger_output):
+def test_get_column_accounts_depth_two(mock_ledger_output):
     output = dedent('''\
                      $ 10.00  apple: banana: cantaloupe
                      $ 20.00  apple: banana: eggplant
@@ -159,8 +159,8 @@ def test_get_column_depth_two(mock_ledger_output):
         'grape:kiwi': 40,
         'grape:fig': 80,
     }
-    assert grid.get_column(['boogy!'], depth=2) == expected
-    mock_ledger_output.assert_called_once_with(['boogy!'])
+    assert grid.get_column_accounts(['boogy!'], depth=2) == expected
+    mock_ledger_output.assert_called_once_with(['balance', '--flat', 'boogy!'])
 
 
 @mock.patch(__name__ + '.grid.get_ledger_output')
@@ -192,8 +192,8 @@ def test_get_column_payees(mock_ledger_output):
     )
 
 
-@mock.patch(__name__ + '.grid.get_column')
-def test_get_columns(mock_get_column):
+@mock.patch(__name__ + '.grid.get_column_accounts')
+def test_get_columns(mock_get_column_accounts):
     lemon_column = {
         'expenses: car: gas': 17.37,
         'expenses: car: maintenance': 6.50,
@@ -204,7 +204,7 @@ def test_get_columns(mock_get_column):
         'expenses: widgets': 500.10,
         'expenses: unicorns': -10123.55,
     }
-    mock_get_column.side_effect = [lemon_column, lime_column]
+    mock_get_column_accounts.side_effect = [lemon_column, lime_column]
 
     expected_columns = {'lemon': lemon_column, 'lime': lime_column}
     expected_accounts = {
@@ -217,17 +217,17 @@ def test_get_columns(mock_get_column):
     accounts, columns = grid.get_columns(['lemon', 'lime'], ['salt!'])
     assert accounts == expected_accounts
     assert columns == expected_columns
-    mock_get_column.assert_has_calls([
-        mock.call(['balance', '--flat', '-p', 'lemon', 'salt!'], 0),
-        mock.call(['balance', '--flat', '-p', 'lime', 'salt!'], 0),
+    mock_get_column_accounts.assert_has_calls([
+        mock.call(['-p', 'lemon', 'salt!'], 0),
+        mock.call(['-p', 'lime', 'salt!'], 0),
     ])
 
 
-@mock.patch(__name__ + '.grid.get_column')
-def test_get_columns_with_current(mock_get_column):
+@mock.patch(__name__ + '.grid.get_column_accounts')
+def test_get_columns_with_current(mock_get_column_accounts):
     lemon_column = {'expenses: widgets': 1001.78}
     lime_column = {'expenses: unicorns': -10123.55}
-    mock_get_column.side_effect = [lemon_column, lime_column]
+    mock_get_column_accounts.side_effect = [lemon_column, lime_column]
 
     expected_columns = {'lemon': lemon_column, 'lime': lime_column}
     expected_accounts = {'expenses: unicorns', 'expenses: widgets'}
@@ -239,12 +239,9 @@ def test_get_columns_with_current(mock_get_column):
     )
     assert accounts == expected_accounts
     assert columns == expected_columns
-    mock_get_column.assert_has_calls([
-        mock.call(['balance', '--flat', '-p', 'lemon', 'salt!'], 0),
-        mock.call(
-            ['balance', '--flat', '-p', 'lime', 'salt!', '-e', 'tomorrow'],
-            0
-        ),
+    mock_get_column_accounts.assert_has_calls([
+        mock.call(['-p', 'lemon', 'salt!'], 0),
+        mock.call(['-p', 'lime', 'salt!', '-e', 'tomorrow'], 0),
     ])
 
 
@@ -277,11 +274,11 @@ def test_get_grid():
 
 
 def test_get_flat_report_sort_default():
-    run_get_flat_report('row')
-
-
-def test_get_flat_report_sort_total():
     run_get_flat_report('total')
+
+
+def test_get_flat_report_sort_row():
+    run_get_flat_report('row')
 
 
 def test_get_flat_report_sort_column():
@@ -289,7 +286,7 @@ def test_get_flat_report_sort_column():
 
 
 def test_get_flat_report_sort_unrecognized():
-    # Will sort by account if sort key is unrecognized
+    # Will sort by total if sort key is unrecognized
     run_get_flat_report('unrecognized')
 
 
@@ -354,10 +351,11 @@ def test_get_grid_report_month(mock_pnames, mock_cols, mock_grid, mock_report):
         ledger_args,
         depth=0,
         current=None,
+        payee=False
     )
     mock_grid.assert_called_once_with(accounts, columns)
     mock_report.assert_called_once_with(
-        grid_x, accounts, columns, sorted(period_names), 'row'
+        grid_x, accounts, columns, sorted(period_names), 'total'
     )
 
 
@@ -479,7 +477,7 @@ def test_args_depth(test_input, expected):
 @pytest.mark.parametrize('test_input, expected', [
     (['-s', '2007'], '2007'),
     (['--sort', '12/2009'], '12/2009'),
-    ([], 'row'),
+    ([], 'total'),
 ])
 def test_args_sort(test_input, expected):
     args, _ = grid.get_args(test_input)
