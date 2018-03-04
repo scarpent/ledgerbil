@@ -298,31 +298,62 @@ def test_get_grid():
     assert grid.get_grid(accounts, columns) == expected
 
 
-def test_get_flat_report_sort_default():
-    run_get_flat_report('total')
+expected_sort_rows_by_total = [
+    (90, 50, 140, 'expenses: widgets'),
+    (100, 10, 110, 'expenses: car: gas'),
+    (0, 20, 20, 'expenses: unicorns'),
+    (-50, 0, -50, 'expenses: car: maintenance'),
+]
+
+expected_sort_rows_by_row_header = [
+    (100, 10, 110, 'expenses: car: gas'),
+    (-50, 0, -50, 'expenses: car: maintenance'),
+    (0, 20, 20, 'expenses: unicorns'),
+    (90, 50, 140, 'expenses: widgets'),
+]
+
+expected_sort_rows_by_column_header = [
+    (90, 50, 140, 'expenses: widgets'),
+    (0, 20, 20, 'expenses: unicorns'),
+    (100, 10, 110, 'expenses: car: gas'),
+    (-50, 0, -50, 'expenses: car: maintenance'),
+]
 
 
-def test_get_flat_report_sort_row():
-    run_get_flat_report('row')
-
-
-def test_get_flat_report_sort_column():
-    run_get_flat_report('lemon')
-
-
-def test_get_flat_report_sort_unrecognized():
-    # Will sort by total if sort key is unrecognized
-    run_get_flat_report('unrecognized')
-
-
-def run_get_flat_report(sort):
-    grid_x = {
-        'expenses: car: gas': {'lemon': 17.37, 'lime': 28.19},
-        'expenses: car: maintenance': {'lemon': 6.50},
-        'expenses: unicorns': {'lime': -10123.55},
-        'expenses: widgets': {'lemon': 2.65, 'lime': 500.10},
+@pytest.mark.parametrize('test_input, expected', [
+    ('total', expected_sort_rows_by_total),
+    ('unrecognized', expected_sort_rows_by_total),
+    ('row', expected_sort_rows_by_row_header),
+    ('lime', expected_sort_rows_by_column_header),
+])
+@mock.patch(__name__ + '.grid.get_grid')
+def test_get_rows(mock_get_grid, test_input, expected):
+    mock_get_grid.return_value = {
+        'expenses: car: gas': {'lemon': 100, 'lime': 10},
+        'expenses: car: maintenance': {'lemon': -50},
+        'expenses: unicorns': {'lime': 20},
+        'expenses: widgets': {'lemon': 90, 'lime': 50},
     }
-    accounts = {
+    row_headers = {
+        'expenses: car: gas',
+        'expenses: car: maintenance',
+        'expenses: unicorns',
+        'expenses: widgets'
+    }
+    columns = None  # accounted for in mock grid return value
+    period_names = ['lemon', 'lime']
+    actual = grid.get_rows(row_headers, columns, period_names, sort=test_input)
+    assert actual == expected
+
+
+def test_get_flat_report():
+    rows = [
+        (2.65, 500.1, 502.75, 'expenses: widgets'),
+        (17.37, 28.19, 45.56, 'expenses: car: gas'),
+        (6.5, 0, 6.5, 'expenses: car: maintenance'),
+        (0, -10123.55, -10123.55, 'expenses: unicorns'),
+    ]
+    row_headers = {
         'expenses: car: gas',
         'expenses: car: maintenance',
         'expenses: unicorns',
@@ -340,32 +371,26 @@ def run_get_flat_report(sort):
             'expenses: unicorns': -10123.55,
         },
     }
-    period_names = ['lime', 'lemon']
+    period_names = ['lemon', 'lime']
 
-    report = grid.get_flat_report(
-        grid_x,
-        accounts,
-        columns,
-        period_names,
-        sort
-    )
-    helper = OutputFileTester(f'test_grid_flat_report_sort_{sort}')
+    report = grid.get_flat_report(rows, row_headers, columns, period_names)
+    helper = OutputFileTester(f'test_grid_flat_report')
     helper.save_out_file(report)
     helper.assert_out_equals_expected()
 
 
 @mock.patch(__name__ + '.grid.get_flat_report')
-@mock.patch(__name__ + '.grid.get_grid')
+@mock.patch(__name__ + '.grid.get_rows')
 @mock.patch(__name__ + '.grid.get_columns')
 @mock.patch(__name__ + '.grid.get_period_names')
-def test_get_grid_report_month(mock_pnames, mock_cols, mock_grid, mock_report):
-    period_names, accounts, columns, grid_x, flat_report = (
-        ['garlic', 'paprika'], 'fennel', 'tarragon', 'basil', 'parsley',
+def test_get_grid_report_month(mock_pnames, mock_cols, mock_rows, mock_report):
+    period_names, accounts, columns, rows, flat_report = (
+        ['garlic', 'paprika'], 'fennel', 'tarragon', ['basil'], 'parsley',
     )
 
     mock_pnames.return_value = (period_names, None)
     mock_cols.return_value = (accounts, columns)
-    mock_grid.return_value = grid_x
+    mock_rows.return_value = rows
     mock_report.return_value = flat_report
 
     args, ledger_args = grid.get_args(['--month', 'nutmeg'])
@@ -378,23 +403,21 @@ def test_get_grid_report_month(mock_pnames, mock_cols, mock_grid, mock_report):
         current=None,
         payee=False
     )
-    mock_grid.assert_called_once_with(accounts, columns)
-    mock_report.assert_called_once_with(
-        grid_x, accounts, columns, sorted(period_names), 'total'
-    )
+    mock_rows.assert_called_once_with(accounts, columns, period_names, 'total')
+    mock_report.assert_called_once_with(rows, accounts, columns, period_names)
 
 
 @mock.patch(__name__ + '.grid.get_flat_report')
-@mock.patch(__name__ + '.grid.get_grid')
+@mock.patch(__name__ + '.grid.get_rows')
 @mock.patch(__name__ + '.grid.get_columns')
 @mock.patch(__name__ + '.grid.get_period_names')
-def test_get_grid_report_year(mock_pnames, mock_cols, mock_grid, mock_report):
+def test_get_grid_report_year(mock_pnames, mock_cols, mock_rows, mock_report):
     # this test just wants to make sure unit was set correctly
     period_names, accounts, columns, flat_report = (
         {'paprika', 'garglic'}, 'fennel', 'tarragon', 'parsley',
     )
 
-    mock_pnames.return_value = period_names
+    mock_pnames.return_value = (period_names, None)
     mock_cols.return_value = (accounts, columns)
     mock_report.return_value = flat_report
 

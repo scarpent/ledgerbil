@@ -27,11 +27,11 @@ def get_grid_report(args, ledger_args=[]):
         current=current_period_name,
         payee=args.payee
     )
-    grid = get_grid(row_headers, columns)
-    return get_flat_report(grid, row_headers, columns, period_names, args.sort)
+    rows = get_rows(row_headers, columns, period_names, args.sort)
+    return get_flat_report(rows, row_headers, columns, period_names)
 
 
-def get_flat_report(grid, row_headers, columns, period_names, sort='total'):
+def get_flat_report(rows, row_headers, columns, period_names):
     COL_PERIOD = 14
     ROW_HEADER = -1
     TOTAL = -2
@@ -39,23 +39,7 @@ def get_flat_report(grid, row_headers, columns, period_names, sort='total'):
     headers = [f'{pn:>{COL_PERIOD}}' for pn in period_names + ['total']]
     report = f"{Colorable('white', ''.join(headers))}\n"
 
-    rows = []
-    for row_header in row_headers:
-        amounts = [grid[row_header].get(pn, 0) for pn in period_names]
-        rows.append(tuple(amounts + [sum(amounts), row_header]))
-
-    if sort == 'row':
-        sort_index = len(period_names) + 1
-        reverse_sort = False
-    elif sort in period_names:
-        sort_index = period_names.index(sort)
-        reverse_sort = True
-    else:
-        # 'total', or anything will fall back to default by total
-        sort_index = len(period_names)
-        reverse_sort = True
-
-    for row in sorted(rows, key=lambda x: x[sort_index], reverse=reverse_sort):
+    for row in rows:
         row_header_f = Colorable('blue', row[ROW_HEADER])
         amounts_f = [util.get_colored_amount(
             amount,
@@ -185,6 +169,28 @@ def get_column_payees(ledger_args):
     return column
 
 
+def get_rows(row_headers, columns, period_names, sort='total', depth=0):
+    grid = get_grid(row_headers, columns)
+    rows = []
+    for row_header in row_headers:
+        amounts = [grid[row_header].get(pn, 0) for pn in period_names]
+        rows.append(tuple(amounts + [sum(amounts), row_header]))
+
+    if sort == 'row':
+        sort_index = len(period_names) + 1
+        reverse_sort = False
+    elif sort in period_names:
+        sort_index = period_names.index(sort)
+        reverse_sort = True
+    else:
+        # 'total', or anything will fall back to default by total
+        sort_index = len(period_names)
+        reverse_sort = True
+
+    rows = sorted(rows, key=lambda x: x[sort_index], reverse=reverse_sort)
+    return rows
+
+
 def get_grid(row_headers, columns):
     grid = {key: {} for key in row_headers}
     for period_name, column in columns.items():
@@ -271,7 +277,8 @@ def get_args(args=[]):
         type=int,
         metavar='N',
         default=0,
-        help='limit the depth of account tree'
+        help='limit the depth of account tree for account reports, and the '
+             'number of payees shown for payee reports'
     )
     parser.add_argument(
         '-s', '--sort',
