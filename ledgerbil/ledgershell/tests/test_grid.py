@@ -277,7 +277,7 @@ def test_get_grid():
 
 
 def test_get_flat_report_sort_default():
-    run_get_flat_report('account')
+    run_get_flat_report('row')
 
 
 def test_get_flat_report_sort_total():
@@ -357,7 +357,7 @@ def test_get_grid_report_month(mock_pnames, mock_cols, mock_grid, mock_report):
     )
     mock_grid.assert_called_once_with(accounts, columns)
     mock_report.assert_called_once_with(
-        grid_x, accounts, columns, sorted(period_names), 'account'
+        grid_x, accounts, columns, sorted(period_names), 'row'
     )
 
 
@@ -479,7 +479,7 @@ def test_args_depth(test_input, expected):
 @pytest.mark.parametrize('test_input, expected', [
     (['-s', '2007'], '2007'),
     (['--sort', '12/2009'], '12/2009'),
-    ([], 'account'),
+    ([], 'row'),
 ])
 def test_args_sort(test_input, expected):
     args, _ = grid.get_args(test_input)

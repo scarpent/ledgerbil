@@ -26,28 +26,29 @@ def get_grid_report(args, ledger_args=[]):
         ledger_args,
         unit
     )
-    accounts, columns = get_columns(
+    # row headers: i.e. accounts or payees
+    row_headers, columns = get_columns(
         period_names,
         ledger_args,
         depth=args.depth,
         current=current_period_name
     )
-    grid = get_grid(accounts, columns)
-    return get_flat_report(grid, accounts, columns, period_names, args.sort)
+    grid = get_grid(row_headers, columns)
+    return get_flat_report(grid, row_headers, columns, period_names, args.sort)
 
 
-def get_flat_report(grid, accounts, columns, period_names, sort='account'):
+def get_flat_report(grid, row_headers, columns, period_names, sort='row'):
     COL_PERIOD = 14
-    ACCOUNT = -1
+    ROW_HEADER = -1
     TOTAL = -2
 
     headers = [f'{pn:>{COL_PERIOD}}' for pn in period_names + ['total']]
     report = f"{Colorable('white', ''.join(headers))}\n"
 
     rows = []
-    for account in accounts:
-        amounts = [grid[account].get(pn, 0) for pn in period_names]
-        rows.append(tuple(amounts + [sum(amounts), account]))
+    for row_header in row_headers:
+        amounts = [grid[row_header].get(pn, 0) for pn in period_names]
+        rows.append(tuple(amounts + [sum(amounts), row_header]))
 
     if sort == 'total':
         sort_index = len(period_names)
@@ -60,7 +61,7 @@ def get_flat_report(grid, accounts, columns, period_names, sort='account'):
         reverse_sort = False
 
     for row in sorted(rows, key=lambda x: x[sort_index], reverse=reverse_sort):
-        account_f = Colorable('blue', row[ACCOUNT])
+        row_header_f = Colorable('blue', row[ROW_HEADER])
         amounts_f = [util.get_colored_amount(
             amount,
             colwidth=COL_PERIOD,
@@ -68,7 +69,7 @@ def get_flat_report(grid, accounts, columns, period_names, sort='account'):
             zero='grey'
         ) for amount in row[:TOTAL]]
         row_total_f = util.get_colored_amount(row[TOTAL], colwidth=COL_PERIOD)
-        report += f"{''.join(amounts_f)}{row_total_f}  {account_f}\n"
+        report += f"{''.join(amounts_f)}{row_total_f}  {row_header_f}\n"
 
     dashes = [
         f"{'-' * (COL_PERIOD - 2):>{COL_PERIOD}}" for x in period_names + [1]
@@ -123,7 +124,7 @@ def get_period_names(args, ledger_args, unit='year'):
 
 
 def get_columns(period_names, ledger_args, depth=0, current=None):
-    accounts = set()
+    row_headers = set()
     columns = {}
     for period_name in period_names:
         if current and current == period_name:
@@ -132,10 +133,11 @@ def get_columns(period_names, ledger_args, depth=0, current=None):
             ['balance', '--flat', '-p', period_name] + ledger_args,
             depth
         )
-        accounts.update(column.keys())
+        # column = get_column_payees(['-p', period_name])
+        row_headers.update(column.keys())
         columns[period_name] = column
 
-    return accounts, columns
+    return row_headers, columns
 
 
 def get_column(ledger_args, depth=0):
@@ -160,7 +162,6 @@ def get_column(ledger_args, depth=0):
     return column
 
 
-# todo: depth that lets you pick top N or exclude bottom N (-N) (or -N%)?
 def get_column_payees(ledger_args):
     DOLLARS = 0
     lines = get_ledger_output(
@@ -185,11 +186,11 @@ def get_column_payees(ledger_args):
     return column
 
 
-def get_grid(accounts, columns):
-    grid = {key: {} for key in accounts}
+def get_grid(row_headers, columns):
+    grid = {key: {} for key in row_headers}
     for period_name, column in columns.items():
-        for account, amount in column.items():
-            grid[account][period_name] = amount
+        for row_header, amount in column.items():
+            grid[row_header][period_name] = amount
 
     return grid
 
@@ -261,6 +262,8 @@ def get_args(args=[]):
         default=False,
         help='exclude future transactions'
     )
+    # todo: payee depth that lets you pick top N
+    #       or exclude bottom N (-N) (or -N%)?
     parser.add_argument(
         '--depth',
         type=int,
@@ -271,8 +274,8 @@ def get_args(args=[]):
     parser.add_argument(
         '-s', '--sort',
         type=str,
-        default='account',
-        help='sort by column header (default by account or payee)'
+        default='row',
+        help='sort by specified column header (default by account or payee)'
     )
 
     # workaround for problems with nargs=argparse.REMAINDER
