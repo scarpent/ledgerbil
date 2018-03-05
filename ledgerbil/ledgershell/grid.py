@@ -29,7 +29,7 @@ def get_grid_report(args, ledger_args=[]):
         ledger_args,
         depth=args.depth,
         current=current_period_name,
-        payee=args.payees
+        payees=args.payees
     )
     rows = get_rows(row_headers, columns, period_names, args.sort, args.limit)
     return get_flat_report(rows)

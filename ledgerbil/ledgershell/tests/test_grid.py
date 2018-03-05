@@ -421,7 +421,7 @@ def test_get_grid_report_month(mock_pnames, mock_cols, mock_rows, mock_report):
         ledger_args,
         depth=0,
         current=None,
-        payee=False
+        payees=False
     )
     mock_rows.assert_called_once_with(
         row_headers, columns, period_names, grid.SORT_DEFAULT, 0
@@ -456,7 +456,7 @@ def test_get_grid_report_year(mock_pnames, mock_cols, mock_rows, mock_report):
         ledger_args,
         depth=5,
         current='celery',
-        payee=True
+        payees=True
     )
     mock_rows.assert_called_once_with(
         row_headers, columns, period_names, 'cloves', 20
