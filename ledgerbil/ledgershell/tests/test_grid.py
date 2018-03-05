@@ -366,7 +366,7 @@ def test_get_rows(mock_get_grid, test_input, expected):
 
 
 @mock.patch(__name__ + '.grid.get_grid')
-def test_get_rows_single_column(mock_get_grid):
+def test_get_rows_single_column_sort_total(mock_get_grid):
     mock_get_grid.return_value = {
         'expenses: unicorns': {'mango': 50},
         'expenses: widgets': {'mango': 70},
@@ -379,6 +379,25 @@ def test_get_rows_single_column(mock_get_grid):
         ('mango', ),
         (70, 'expenses: widgets'),
         (50, 'expenses: unicorns'),
+        (120, ),
+    ]
+    assert actual == expected
+
+
+@mock.patch(__name__ + '.grid.get_grid')
+def test_get_rows_single_column_sort_row(mock_get_grid):
+    mock_get_grid.return_value = {
+        'expenses: widgets': {'mango': 70},
+        'expenses: unicorns': {'mango': 50},
+    }
+    row_headers = {'expenses: unicorns', 'expenses: widgets'}
+    columns = None  # accounted for in mock grid return value
+    period_names = ['mango']
+    actual = grid.get_rows(row_headers, columns, period_names, 'row', 0)
+    expected = [
+        ('mango', ),
+        (50, 'expenses: unicorns'),
+        (70, 'expenses: widgets'),
         (120, ),
     ]
     assert actual == expected

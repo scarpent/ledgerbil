@@ -202,7 +202,8 @@ def get_rows(row_headers, columns, period_names, sort=SORT_DEFAULT, limit=0):
             rows.append(tuple(amounts + [row_header]))
 
     if sort == 'row':
-        sort_index = len(period_names) + 1
+        offset = 1 if has_total_column else 0
+        sort_index = len(period_names) + offset
         reverse_sort = False
     elif sort in period_names:
         sort_index = period_names.index(sort)
