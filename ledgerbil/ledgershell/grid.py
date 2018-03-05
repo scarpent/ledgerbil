@@ -29,7 +29,7 @@ def get_grid_report(args, ledger_args=[]):
         ledger_args,
         depth=args.depth,
         current=current_period_name,
-        payee=args.payee
+        payee=args.payees
     )
     rows = get_rows(row_headers, columns, period_names, args.sort, args.limit)
     return get_flat_report(rows)
@@ -111,14 +111,19 @@ def get_period_names(args, ledger_args, unit='year'):
     return names, current_period_name
 
 
-def get_columns(period_names, ledger_args, depth=0, current=None, payee=False):
+def get_columns(period_names,
+                ledger_args,
+                depth=0,
+                current=None,
+                payees=False):
+
     row_headers = set()
     columns = {}
     for period_name in period_names:
         if current and current == period_name:
             ledger_args += ['--end', 'tomorrow']
 
-        if payee:
+        if payees:
             column = get_column_payees(['--period', period_name] + ledger_args)
         else:
             column = get_column_accounts(
@@ -301,7 +306,7 @@ def get_args(args=[]):
         help='limit the depth of account tree for account reports'
     )
     parser.add_argument(
-        '--payee',
+        '--payees',
         action='store_true',
         default=False,
         help='show expenses by payee'

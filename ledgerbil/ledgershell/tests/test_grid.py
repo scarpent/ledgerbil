@@ -215,7 +215,7 @@ def test_get_columns_payees(mock_get_column_payees):
     payees, columns = grid.get_columns(
         ['bratwurst', 'knockwurst'],
         ['?', '!'],
-        payee=True
+        payees=True
     )
     assert payees == expected_payees
     assert columns == expected_columns
@@ -538,12 +538,12 @@ def test_args_period(test_input, expected):
 
 
 @pytest.mark.parametrize('test_input, expected', [
-    (['--payee'], True),
+    (['--payees'], True),
     ([], False),
 ])
-def test_args_payee(test_input, expected):
+def test_args_payees(test_input, expected):
     args, _ = grid.get_args(test_input)
-    assert args.payee == expected
+    assert args.payees == expected
 
 
 @pytest.mark.parametrize('test_input, expected', [
