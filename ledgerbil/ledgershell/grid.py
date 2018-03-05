@@ -20,6 +20,9 @@ def get_grid_report(args, ledger_args=[]):
         ledger_args,
         unit
     )
+    if not period_names:
+        return ''
+
     # row headers: i.e. accounts or payees
     row_headers, columns = get_columns(
         period_names,

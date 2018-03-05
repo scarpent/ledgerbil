@@ -463,6 +463,12 @@ def test_get_grid_report_year(mock_pnames, mock_cols, mock_rows, mock_report):
     )
 
 
+@mock.patch(__name__ + '.grid.get_ledger_output', return_value='')
+def test_get_grid_report_no_results(mock_ledger_output):
+    args, ledger_args = grid.get_args()
+    assert grid.get_grid_report(args, ledger_args) == ''
+
+
 @mock.patch(__name__ + '.grid.print')
 @mock.patch(__name__ + '.grid.get_grid_report')
 def test_main(mock_get_grid_report, mock_print):
