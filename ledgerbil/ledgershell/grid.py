@@ -32,6 +32,8 @@ def get_grid_report(args, ledger_args=[]):
         payees=args.payees
     )
     rows = get_rows(row_headers, columns, period_names, args.sort, args.limit)
+    if len(rows) == 2:
+        return ''
     return get_flat_report(rows)
 
 
@@ -73,7 +75,7 @@ def get_flat_report(rows):
 
 
 def get_period_names(args, ledger_args, unit='year'):
-    # --collapse behavior seems suspicous, but --empty
+    # --collapse behavior seems suspicous, but with --empty
     # appears to work for our purposes here
     # groups.google.com/forum/?fromgroups=#!topic/ledger-cli/HAKAMYiaL7w
     begin = ['--begin', args.begin] if args.begin else []
@@ -250,9 +252,8 @@ def get_args(args=[]):
         specify --flat.)
 
         Payee reports will also pass through ledger arguments, but currently
-        they assume "expenses" and if you wanted to further constraint that
-        you would need to do something like "and @^a" to get only payees
-        starting with a.
+        they assume "expenses" and if you want to further constrain that, you
+        need to do something like "and @^a" to get only payees starting with a.
     ''')
     parser = argparse.ArgumentParser(
         prog=program,

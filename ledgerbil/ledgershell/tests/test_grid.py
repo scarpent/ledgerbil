@@ -483,8 +483,25 @@ def test_get_grid_report_year(mock_pnames, mock_cols, mock_rows, mock_report):
 
 
 @mock.patch(__name__ + '.grid.get_ledger_output', return_value='')
-def test_get_grid_report_no_results(mock_ledger_output):
+def test_get_grid_report_no_period_names(mock_ledger_output):
+    # no results from initial ledger query for periods
     args, ledger_args = grid.get_args()
+    assert grid.get_grid_report(args, ledger_args) == ''
+
+
+@mock.patch(__name__ + '.grid.get_rows')
+@mock.patch(__name__ + '.grid.get_columns')
+@mock.patch(__name__ + '.grid.get_period_names')
+def test_get_grid_report_no_results(mock_pnames, mock_cols, mock_rows):
+    period_names, row_headers, columns = (
+        {'paprika', 'garglic'}, 'fennel', 'tarragon',
+    )
+
+    mock_pnames.return_value = (period_names, 'celery')
+    mock_cols.return_value = (row_headers, columns)
+    mock_rows.return_value = [('2016', '2017', '2018', 'total'), ()]
+
+    args, ledger_args = grid.get_args([])
     assert grid.get_grid_report(args, ledger_args) == ''
 
 
