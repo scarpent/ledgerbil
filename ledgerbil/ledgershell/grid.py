@@ -335,4 +335,4 @@ def get_args(args=[]):
 
 def main(argv=[]):
     args, ledger_args = get_args(argv)
-    print(get_grid_report(args, ledger_args))
+    print(get_grid_report(args, ledger_args), end='')

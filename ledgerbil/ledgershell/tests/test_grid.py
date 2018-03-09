@@ -512,7 +512,7 @@ def test_main(mock_get_grid_report, mock_print):
     args, unknown = grid.get_args(['-y', 'xyz'])
     grid.main(['-y', 'xyz'])
     mock_get_grid_report.assert_called_once_with(args, ['xyz'])
-    mock_print.assert_called_once_with('bananas!')
+    mock_print.assert_called_once_with('bananas!', end='')
 
 
 @pytest.mark.parametrize('test_input, expected', [
