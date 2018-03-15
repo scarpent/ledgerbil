@@ -309,7 +309,7 @@ class Reconciler(cmd.Cmd, object):
                 )
             )
 
-        if self.previous_balance:
+        if self.previous_balance is not None:
             print(
                 '\nlast reconciled: {previous_date} '
                 'previous balance: {previous_balance}'.format(
@@ -322,6 +322,9 @@ class Reconciler(cmd.Cmd, object):
                     )
                 )
             )
+            newline = ''
+        else:
+            newline = '\n'
 
         if self.ending_balance is None:
             end_balance = Colorable('cyan', '(not set)')
@@ -331,7 +334,7 @@ class Reconciler(cmd.Cmd, object):
         print(
             '{newline}ending date: {end_date} ending balance: {end_balance} '
             'cleared: {cleared}'.format(
-                newline='' if self.previous_balance else '\n',
+                newline=newline,
                 cleared=self.get_colored_amount(self.total_cleared),
                 end_balance=end_balance,
                 end_date=Colorable(

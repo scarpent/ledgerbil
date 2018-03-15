@@ -809,6 +809,26 @@ def test_save_cache_error(mock_get_key_and_cache, mock_print):
     mock_print.assert_called_with(expected, file=sys.stderr)
 
 
+@mock.patch(__name__ + '.reconciler.print')
+@mock.patch(__name__ + '.reconciler.Reconciler.get_date_and_balance')
+@mock.patch(__name__ + '.reconciler.Reconciler.get_key_and_cache')
+def test_previous_balance_is_zero(mock_get_key, mock_get_date, mock_print):
+    teststmt = dedent('''\
+        2016/10/26 one
+            e: blurg
+            a: cash         $-10
+        ''')
+    mock_get_key.return_value = ('a: cash', {'a: cash': {}})
+    mock_get_date.return_value = (date.today(), 0)
+    with FileTester.temp_input(teststmt) as tempfilename:
+        Reconciler(LedgerFile(tempfilename, 'cash'))
+
+    output = reconciler.Colorable.get_plain_string(
+        mock_print.call_args_list[2][0][0]
+    )
+    assert 'previous balance: $ 0.00' in output
+
+
 class CacheTests(MockInput, Redirector):
 
     def setUp(self):
