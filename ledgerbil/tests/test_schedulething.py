@@ -11,6 +11,19 @@ from ..schedulething import ScheduleThing
 from .helpers import Redirector
 
 
+def test_repr():
+    lines = [
+        '2013/06/29 lightning energy',
+        '    ;; schedule ; monthly ; 12th ; ; auto'
+        '    e: xyz',
+        '    l: abc         $-10',
+    ]
+    ScheduleThing.do_file_config = False
+    schedulething = ScheduleThing(lines)
+    assert repr(schedulething) == f'ScheduleThing({lines})'
+    assert isinstance(eval(repr(schedulething)), ScheduleThing)
+
+
 class ScheduleThingTester(Redirector):
     def setUp(self):
         super().setUp()

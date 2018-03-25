@@ -47,6 +47,9 @@ class ScheduleThing(LedgerThing):
 
         self._handle_thing_config(lines[ScheduleThing.LINE_SCHEDULE])
 
+    def __repr__(self):
+        return f'ScheduleThing({self.get_lines()!r})'
+
     # file level config looks like this:
     # ;; scheduler ; enter N days
     # enter is optional
