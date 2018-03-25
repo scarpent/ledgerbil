@@ -8,6 +8,26 @@ from ..ledgerthing import UNSPECIFIED_PAYEE, LedgerThing
 from .helpers import Redirector
 
 
+def test_repr():
+    lines = [
+        '2018/01/08 blah',
+        '    e: xyz',
+        '    l: abc         $-10',
+    ]
+    thing = LedgerThing(lines)
+    assert repr(thing) == f'LedgerThing({lines}, reconcile_account=None)'
+
+
+def test_str():
+    lines = [
+        '2018/01/08 blah',
+        '    e: xyz',
+        '    l: abc         $-10',
+    ]
+    thing = LedgerThing(lines)
+    assert str(thing) == '\n'.join(lines)
+
+
 class Constructor(TestCase):
 
     def test_non_transaction_date(self):
@@ -746,3 +766,21 @@ def test_mixed_symbols_raises_exception():
         lines='\n'.join(lines)
     )
     assert str(excinfo.value) == expected
+
+
+def test_lines_is_different_than_get_lines_when_status_changes():
+    lines = [
+        '2018/01/08 blah',
+        '    e: xyz',
+        '    l: abc         $-10',
+    ]
+    lines_with_status = [
+        '2018/01/08 blah',
+        '    e: xyz',
+        '  ! l: abc         $-10',
+    ]
+    thing = LedgerThing(lines, reconcile_account='abc')
+    thing.rec_status = LedgerThing.REC_PENDING
+    assert thing.lines == lines
+    assert thing.get_lines() == lines_with_status
+    assert thing.lines != thing.get_lines()

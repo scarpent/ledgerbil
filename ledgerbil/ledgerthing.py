@@ -62,6 +62,13 @@ class LedgerThing(object):
         if self.is_transaction and self.rec_account:
             self._parse_transaction_lines(lines[1:])
 
+    def __repr__(self):
+        return (f'LedgerThing({self.get_lines()!r}, '
+                f'reconcile_account={self.rec_account!r})')
+
+    def __str__(self):
+        return '\n'.join(self.get_lines())
+
     def _parse_top_line(self, line):
         m = re.match(LedgerThing.TOP_LINE_REGEX, line)
 
