@@ -11,6 +11,16 @@ from ..schedulething import ScheduleThing
 from .helpers import Redirector
 
 
+def reset_schedule_thing():
+    ScheduleThing.do_file_config = True
+    ScheduleThing.enter_days = 0
+    ScheduleThing.entry_boundary_date = None
+
+
+def setup_function(module):
+    reset_schedule_thing()
+
+
 def test_repr():
     lines = [
         '2013/06/29 lightning energy',
@@ -27,9 +37,7 @@ def test_repr():
 class ScheduleThingTester(Redirector):
     def setUp(self):
         super().setUp()
-        ScheduleThing.do_file_config = True
-        ScheduleThing.enter_days = 0
-        ScheduleThing.entry_boundary_date = None
+        reset_schedule_thing()
 
 
 class HandleFileConfig(ScheduleThingTester):
