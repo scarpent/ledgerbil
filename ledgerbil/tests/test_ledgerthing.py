@@ -16,6 +16,7 @@ def test_repr():
     ]
     thing = LedgerThing(lines)
     assert repr(thing) == f'LedgerThing({lines}, reconcile_account=None)'
+    assert isinstance(eval(repr(thing)), LedgerThing)
 
 
 def test_str():
