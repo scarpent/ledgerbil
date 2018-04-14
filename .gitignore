@@ -9,7 +9,6 @@
 .pytest_cache
 .python-version
 /temp
-dev-bash.sh
 htmlcov
 pycallgraph.png
 settings.py

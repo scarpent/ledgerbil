@@ -29,17 +29,15 @@ def test_get_period_names_years(mock_ledger_output):
         2018 - 2018          <Total>                    0         0
     ''')
     mock_ledger_output.return_value = output
-    args, ledger_args = grid.get_args([
-        '--begin', 'banana', '--end', 'eggplant',
-        '--period', 'pear', 'lettuce'
-    ])
-    expected = (['2017', '2018'], None)
-    assert grid.get_period_names(args, ledger_args) == expected
-    mock_ledger_output.assert_called_once_with([
-        'register', '--begin', 'banana', '--end', 'eggplant',
-        '--period', 'pear', '--yearly', '--date-format', '%Y',
-        '--collapse', '--empty', 'lettuce'
-    ])
+
+    timestuff = '--begin banana --end eggplant --period pear'
+    args, ledger_args = grid.get_args(f'{timestuff} lettuce'.split())
+
+    assert grid.get_period_names(args, ledger_args) == (['2017', '2018'], None)
+    mock_ledger_output.assert_called_once_with(
+        f'register {timestuff} '
+        '--yearly --date-format %Y --collapse --empty lettuce'.split()
+    )
 
 
 @mock.patch(__name__ + '.grid.get_ledger_output')
