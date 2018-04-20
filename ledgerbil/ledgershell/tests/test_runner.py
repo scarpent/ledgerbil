@@ -6,7 +6,7 @@ import pytest
 from .. import runner
 
 
-class TestSettings(object):
+class TestSettings:
     LEDGER_COMMAND = ['ledger']
     LEDGER_DIR = 'xyz'
     LEDGER_FILES = [
@@ -15,7 +15,7 @@ class TestSettings(object):
     ]
 
 
-class MockProcess(object):
+class MockProcess:
     def __init__(self, output=b'process output...', error=None):
         self.output = output
         self.error = error

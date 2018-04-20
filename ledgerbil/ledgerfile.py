@@ -5,7 +5,7 @@ from operator import attrgetter
 from .ledgerthing import LedgerThing
 
 
-class LedgerFile(object):
+class LedgerFile:
 
     STARTING_DATE = date(1899, 1, 1)
 

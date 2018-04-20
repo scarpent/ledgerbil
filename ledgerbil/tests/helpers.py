@@ -17,7 +17,7 @@ from unittest import TestCase
 from ..colorable import Colorable
 
 
-class OutputFileTesterBase(object):
+class OutputFileTesterBase:
     path = os.path.dirname(__file__)
     TEST_FILES_DIR = os.path.join(path, 'files')
     OUT_SUFFIX = '.out'

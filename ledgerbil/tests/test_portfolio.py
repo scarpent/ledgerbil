@@ -9,7 +9,7 @@ from ..ledgerbilexceptions import LdgPortfolioError
 from .helpers import OutputFileTester
 
 
-class MockSettings(object):
+class MockSettings:
     PORTFOLIO_FILE = 'abcd'
 
 

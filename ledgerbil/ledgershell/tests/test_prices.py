@@ -26,7 +26,7 @@ response_json = b'''
 '''
 
 
-class MockSettings(object):
+class MockSettings:
     PRICES_FILE = 'default_prices.blah'
     SYMBOLS = ['fu', 'bar']
     PRICE_FILE_FORMAT = 'P {date} {symbol:10} ${price}\n'

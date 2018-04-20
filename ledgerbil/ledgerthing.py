@@ -8,7 +8,7 @@ from .ledgerbilexceptions import LdgReconcilerError
 UNSPECIFIED_PAYEE = '<Unspecified payee>'
 
 
-class LedgerThing(object):
+class LedgerThing:
 
     DATE_REGEX = r'^\d{4}(?:[-/]\d\d){2}(?=(?:\s|$))'
     # todo: this could use improvement; if payee is omitted,

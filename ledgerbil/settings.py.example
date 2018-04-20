@@ -1,7 +1,7 @@
 import os
 
 
-class Settings(object):
+class Settings:
 
     # This is where your ledger files live
     LEDGER_DIR = os.path.join(os.path.expanduser('~'), 'some', 'place')

@@ -9,7 +9,7 @@ from .schedulefile import ScheduleFile
 from .scheduler import Scheduler
 
 
-class Ledgerbil(object):
+class Ledgerbil:
 
     def __init__(self, args):
         self.args = args

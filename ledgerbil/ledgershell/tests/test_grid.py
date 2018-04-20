@@ -8,7 +8,7 @@ from .. import grid, runner
 from ...tests.helpers import OutputFileTester
 
 
-class MockSettings(object):
+class MockSettings:
     LEDGER_COMMAND = ['ledger']
     LEDGER_DIR = 'lmn'
     LEDGER_FILES = [

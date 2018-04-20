@@ -1,7 +1,7 @@
 import re
 
 
-class Colorable(object):
+class Colorable:
 
     START_CODE = '\033'
     END_CODE = f'{START_CODE}[0m'

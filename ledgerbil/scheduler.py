@@ -1,7 +1,7 @@
 from .schedulething import ScheduleThing
 
 
-class Scheduler(object):
+class Scheduler:
 
     def __init__(self, ledgerfile, schedulefile):
         self.ledgerfile = ledgerfile

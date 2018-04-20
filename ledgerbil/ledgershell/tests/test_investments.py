@@ -7,7 +7,7 @@ import pytest
 from .. import investments, runner
 
 
-class MockSettings(object):
+class MockSettings:
     LEDGER_DIR = 'lmn'
     LEDGER_FILES = [
         'blarg.ldg',

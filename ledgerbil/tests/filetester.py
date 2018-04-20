@@ -6,7 +6,7 @@ from contextlib import contextmanager
 from shutil import copyfile
 
 
-class FileTester(object):
+class FileTester:
 
     path = os.path.dirname(__file__)
     testdir = os.path.join(path, 'files')

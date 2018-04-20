@@ -51,7 +51,7 @@ testdata = dedent(f'''\
     ''')
 
 
-class MockSettings(object):
+class MockSettings:
 
     RECONCILER_CACHE_FILE = FileTester.CACHE_FILE_TEST
 
