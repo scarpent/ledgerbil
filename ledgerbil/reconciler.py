@@ -414,8 +414,6 @@ class Reconciler(cmd.Cmd, object):
                 return
 
             try:
-                # re.sub(r'$,', '', new_ending_balance)
-                # new_ending_balance.replace('$', '')
                 self.ending_balance = float(
                     re.sub(r'[$,]', '', new_ending_balance)
                 )
