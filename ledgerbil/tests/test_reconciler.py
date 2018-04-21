@@ -535,8 +535,7 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
     def setUp(self):
         super().setUp()
 
-        # monkey patch date so it will be 10/27/2016
-        class FixedDate(date):
+        class FixedDate(date):  # monkey patch date
             @classmethod
             def today(cls):
                 return cls(2016, 10, 27)
@@ -599,10 +598,10 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         self.responses = ['blurg', '', 'abc', '']
         recon.do_statement('')
         # new settings
-        self.responses = ['2016/10/30', '40']
+        self.responses = ['2016/10/30', '1,234']
         recon.do_statement('')
         # use $ symbol, no change
-        self.responses = ['2016/10/30', '$40']
+        self.responses = ['2016/10/30', '$1,234']
         recon.do_statement('')
 
         self.conclude_test()
@@ -717,11 +716,11 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         self.conclude_test()
 
     def test_cache_with_shares(self):
-        """ The reconciler relies on open transactions to determine if we're
+        """The reconciler relies on open transactions to determine if we're
         reconciling dollars or shares. This test confirms that shares =
         true/false is stored in cache and that statement info is shown
         correctly when there are no open transactions. (Both when first
-        finishing and when next reconciling this account.) """
+        finishing and when next reconciling this account.)"""
         self.init_test('test_reconciler_caching_with_shares')
 
         with FileTester.temp_input(self.teststmt_shares) as tempfilename:
@@ -742,7 +741,7 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
 class ResponseTests(MockInput, Redirector):
 
     def test_get_response_with_none(self):
-        """ None should be preserved for no response"""
+        """None should be preserved for no response"""
         self.responses = ['']
         self.assertIsNone(Reconciler.get_response('prompt', None))
         self.responses = ['']

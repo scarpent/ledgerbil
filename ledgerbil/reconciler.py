@@ -1,6 +1,7 @@
 import cmd
 import json
 import os
+import re
 import sys
 from datetime import date
 
@@ -413,8 +414,10 @@ class Reconciler(cmd.Cmd, object):
                 return
 
             try:
+                # re.sub(r'$,', '', new_ending_balance)
+                # new_ending_balance.replace('$', '')
                 self.ending_balance = float(
-                    new_ending_balance.replace('$', '')
+                    re.sub(r'[$,]', '', new_ending_balance)
                 )
                 break
             except ValueError:
