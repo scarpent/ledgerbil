@@ -90,7 +90,7 @@ def get_date(quote_date):
     return the_date.strftime('%Y/%m/%d')
 
 
-def get_args(args=[]):
+def get_args(args=None):
     program = 'ledgerbil/main.py prices'
     description = dedent('''\
         Get price data from finance.google.com. This works for mutual funds
@@ -119,7 +119,7 @@ def get_args(args=[]):
     return parser.parse_args(args)
 
 
-def main(argv=[]):
+def main(argv=None):
     args = get_args(argv)
     if args.save:
         prices_file = settings.PRICES_FILE

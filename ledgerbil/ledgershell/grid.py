@@ -13,7 +13,7 @@ ACCOUNT_LINE_REGEX = re.compile(r'^\s*(?:\$ (-?[\d,.]+|0(?=  )))\s*(.*)$')
 PAYEE_SUBTOTAL_REGEX = re.compile(r'^.*?\$ (\S+)\s*\$.*$')
 
 
-def get_grid_report(args, ledger_args=[]):
+def get_grid_report(args, ledger_args):
     unit = 'month' if args.month else 'year'
     period_names, current_period_name = get_period_names(
         args,
@@ -236,7 +236,7 @@ def get_grid(row_headers, columns):
     return grid
 
 
-def get_args(args=[]):
+def get_args(args=None):
     program = 'ledgerbil/main.py grid'
     description = dedent('''\
         Show ledger balance report in tabular form with years or months as the
@@ -333,6 +333,6 @@ def get_args(args=[]):
     return parser.parse_known_args(args)
 
 
-def main(argv=[]):
+def main(argv=None):
     args, ledger_args = get_args(argv)
     print(get_grid_report(args, ledger_args), end='')

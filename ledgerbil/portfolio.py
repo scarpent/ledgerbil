@@ -167,7 +167,10 @@ def get_annualized_total_return(gains, num_years):
     return (pow(util.product(gains[-num_years:]), 1 / num_years) - 1) * 100
 
 
-def get_formatted_gain(gains=[], num_years=1, annualized_total=None):
+def get_formatted_gain(gains=None, num_years=1, annualized_total=None):
+    if gains is None:
+        gains = []
+
     if (annualized_total == NULL_GAIN
             or (not annualized_total and len(gains) < num_years)):
         return ''
@@ -584,7 +587,7 @@ def get_portfolio_data():
         return json.loads(portfile.read())
 
 
-def get_args(args=[]):
+def get_args(args=None):
     program = 'ledgerbil/main.py port'
     description = dedent('''\
         Portfolio! This is currently independent of ledger data although
@@ -646,6 +649,6 @@ def get_args(args=[]):
     return parser.parse_args(args)
 
 
-def main(argv=[]):
+def main(argv=None):
     args = get_args(argv)
     print(get_portfolio_report(args))

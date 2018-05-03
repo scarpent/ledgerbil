@@ -7,14 +7,14 @@ from ..settings import Settings
 settings = Settings()
 
 
-def get_ledger_command(args=[]):
+def get_ledger_command(args=None):
     files = []
     for f in settings.LEDGER_FILES:
         files += ['-f', os.path.join(settings.LEDGER_DIR, f)]
-    return settings.LEDGER_COMMAND + files + args
+    return settings.LEDGER_COMMAND + files + (args or [])
 
 
-def get_ledger_output(args=[]):
+def get_ledger_output(args=None):
     cmd = get_ledger_command(args)
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     output, error = process.communicate()

@@ -149,7 +149,7 @@ def get_args(args):
     return parser.parse_args(args)
 
 
-def main(argv=[]):
+def main(argv=None):
     args = get_args(argv)
     ledgerbil = Ledgerbil(args)
 
