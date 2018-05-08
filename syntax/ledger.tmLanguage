@@ -146,7 +146,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^(\d{4}[/-]\d{2}[/-]\d{2}) (\([^)]*\) )?((?:[-\w.'$&amp;()]|(?&lt;! ) (?! ))+)</string>
+			<string>^(\d{4}[/-]\d{2}[/-]\d{2}) (\([^)]*\) )?((?:[-\w.,'$&amp;()]|(?&lt;! ) (?! ))+)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -260,9 +260,26 @@
 					<key>name</key>
 					<string>keyword.sub-directive</string>
 				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>comment.line</string>
+				</dict>
 			</dict>
 			<key>match</key>
-			<string>^\s+(alias|format|note|default)\b</string>
+			<string>^\s+(note)\b (.*)$</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.sub-directive</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>^\s+(alias|format|default)\b</string>
 		</dict>
 		<dict>
 			<key>captures</key>

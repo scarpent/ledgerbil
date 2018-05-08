@@ -51,7 +51,7 @@
       }
     },
     {
-        "match": "^(\\d{4}[/-]\\d{2}[/-]\\d{2}) (\\([^)]*\\) )?((?:[-\\w.'$&()]|(?<! ) (?! ))+)",
+        "match": "^(\\d{4}[/-]\\d{2}[/-]\\d{2}) (\\([^)]*\\) )?((?:[-\\w.,'$&()]|(?<! ) (?! ))+)",
         "captures": {
           "1": { "name": "variable.parameter.date" },
           "2": { "name": "string.quoted.transacton-number" },
@@ -105,7 +105,14 @@
         }
     },
     {
-        "match": "^\\s+(alias|format|note|default)\\b",
+        "match": "^\\s+(note)\\b (.*)$",
+        "captures": {
+          "1": { "name": "keyword.sub-directive" },
+          "2": { "name": "comment.line" }
+        }
+    },
+    {
+        "match": "^\\s+(alias|format|default)\\b",
         "captures": {
           "1": { "name": "keyword.sub-directive" }
         }
