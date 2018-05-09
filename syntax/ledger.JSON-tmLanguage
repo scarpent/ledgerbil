@@ -108,13 +108,14 @@
         "match": "^\\s+(note)\\b (.*)$",
         "captures": {
           "1": { "name": "keyword.sub-directive" },
-          "2": { "name": "comment.line" }
+          "2": { "name": "comment.line.note" }
         }
     },
     {
-        "match": "^\\s+(alias|format|default)\\b",
+        "match": "^\\s+(alias|format|default|check|assert)\\b(?: (.*))?$",
         "captures": {
-          "1": { "name": "keyword.sub-directive" }
+          "1": { "name": "keyword.sub-directive" },
+          "2": { "name": "entity.name.function.green" }
         }
     },
     {

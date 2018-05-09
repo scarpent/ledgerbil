@@ -263,7 +263,7 @@
 				<key>2</key>
 				<dict>
 					<key>name</key>
-					<string>comment.line</string>
+					<string>comment.line.note</string>
 				</dict>
 			</dict>
 			<key>match</key>
@@ -277,9 +277,14 @@
 					<key>name</key>
 					<string>keyword.sub-directive</string>
 				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>entity.name.function.green</string>
+				</dict>
 			</dict>
 			<key>match</key>
-			<string>^\s+(alias|format|default)\b</string>
+			<string>^\s+(alias|format|default|check|assert)\b(?: (.*))?$</string>
 		</dict>
 		<dict>
 			<key>captures</key>
