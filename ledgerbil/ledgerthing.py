@@ -119,6 +119,8 @@ class LedgerThing:
                     amount = None
                 else:
                     amount = util.eval_expr(re.sub(r'[$,]', '', amount))
+                    if shares is not None:
+                        amount *= util.eval_expr(shares.replace(',', ''))
                     transaction_total += amount
 
             m = re.search(self.rec_account, account)

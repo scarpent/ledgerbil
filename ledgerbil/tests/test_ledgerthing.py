@@ -651,6 +651,28 @@ class ReconcilerParsing(Redirector):
             expected_amount=-179.99
         )
 
+    def test_share_multiplication_with_math(self):
+        self.verify_reconcile_vars(
+            [
+                '2018/06/07 money',
+                '    a: investment: blerg      -10.5 xyz @ $1.25',
+                '    a: investment: cash',
+            ],
+            account='cash',
+            expected_match='a: investment: cash',
+            expected_amount=13.125
+        )
+        self.verify_reconcile_vars(
+            [
+                '2018/06/07 money',
+                '    a: investment: blerg      1,000 xyz @ $1.25',
+                '    a: investment: cash',
+            ],
+            account='cash',
+            expected_match='a: investment: cash',
+            expected_amount=-1250
+        )
+
     def test_entry_comments(self):
         self.verify_reconcile_vars(
             [
