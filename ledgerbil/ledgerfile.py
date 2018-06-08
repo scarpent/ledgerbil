@@ -106,6 +106,4 @@ class LedgerFile:
     def write_file(self):
         with open(self.filename, 'w') as the_file:
             for thing in self.get_things():
-                for line in thing.get_lines():
-                    the_file.write(line + '\n')
-                the_file.write('\n')
+                the_file.write('\n'.join(thing.get_lines()) + '\n\n')
