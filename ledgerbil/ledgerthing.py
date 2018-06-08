@@ -183,7 +183,7 @@ class LedgerThing:
                 continue
 
             status, account, shares, symbol, amount = m.groups()
-            if self.rec_account in account:
+            if re.search(self.rec_account, account):
                 m = re.match(r'^\s+[!*]?\s*(.*)$', line)
                 assert m
                 # going to use a standard 4 space indent; alternatively

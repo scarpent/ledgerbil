@@ -114,15 +114,15 @@ class GetLines(Redirector):
     def test_get_lines_reconciled_status_no_change(self):
         # uncleared
         lines = ('2016/10/24 glob', '  e: blurg', '    a: smurg   $-25')
-        thing = LedgerThing(list(lines), 'smurg')
+        thing = LedgerThing(list(lines), reconcile_account='smurg')
         self.assertEqual(lines, tuple(thing.get_lines()))
         # pending
         lines = ('2016/10/24 glob', '  ! e: blurg', '  a: smurg   $-25')
-        thing = LedgerThing(list(lines), 'blurg')
+        thing = LedgerThing(list(lines), reconcile_account='blurg')
         self.assertEqual(lines, tuple(thing.get_lines()))
         # cleared
         lines = ('2016/10/24 glob', '  * e: blurg', '  a: smurg   $-25')
-        thing = LedgerThing(list(lines), 'blurg')
+        thing = LedgerThing(list(lines), reconcile_account='blurg')
         self.assertEqual(lines, tuple(thing.get_lines()))
 
     def test_get_lines_indent_change(self):
@@ -134,7 +134,7 @@ class GetLines(Redirector):
             '  e: blurg',
             '  a: smurg   $-25',
         )
-        thing = LedgerThing(list(lines), 'smurg')
+        thing = LedgerThing(list(lines), reconcile_account='smurg')
         expected = (
             '2016/10/24 glob',
             '  ; might as well test comment handling, too',
@@ -160,7 +160,7 @@ class GetLines(Redirector):
     def test_get_lines_status_changes(self):
         # uncleared -> pending
         lines = ('2016/10/24 abc', '  e: xyz', '     a: smurg   $-25')
-        thing = LedgerThing(list(lines), 'smurg')
+        thing = LedgerThing(list(lines), reconcile_account='smurg')
         thing.rec_status = LedgerThing.REC_PENDING
         self.assertEqual(
             ('2016/10/24 abc', '  e: xyz', '  ! a: smurg   $-25'),
@@ -187,7 +187,7 @@ class GetLines(Redirector):
             ' a: smurg',
             '    a: smurg   $-25',
         )
-        thing = LedgerThing(list(lines), 'smurg')
+        thing = LedgerThing(list(lines), reconcile_account='smurg')
         thing.rec_status = LedgerThing.REC_PENDING
         expected = (
             '2016/10/24 glob',
@@ -201,6 +201,26 @@ class GetLines(Redirector):
             tuple(thing.get_lines())
         )
         self.assertEqual('', self.redirect.getvalue().rstrip())
+
+    def test_get_lines_reconcile_account_is_regex(self):
+        # uncleared -> pending
+        lines = ('2016/10/24 abc', '  e: xyz', '     a: smurg   $-25')
+        thing = LedgerThing(list(lines), reconcile_account='sm.[a-z]g')
+        thing.rec_status = LedgerThing.REC_PENDING
+        self.assertEqual(
+            ('2016/10/24 abc', '  e: xyz', '  ! a: smurg   $-25'),
+            tuple(thing.get_lines())
+        )
+        thing.rec_status = LedgerThing.REC_CLEARED
+        self.assertEqual(
+            ('2016/10/24 abc', '  e: xyz', '  * a: smurg   $-25'),
+            tuple(thing.get_lines())
+        )
+        thing.rec_status = LedgerThing.REC_UNCLEARED
+        self.assertEqual(
+            ('2016/10/24 abc', '  e: xyz', '    a: smurg   $-25'),
+            tuple(thing.get_lines())
+        )
 
 
 class IsNewThing(TestCase):
