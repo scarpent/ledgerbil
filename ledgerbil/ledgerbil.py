@@ -22,22 +22,26 @@ class Ledgerbil:
         if not self.args.file:
             return self.error('error: -f/--file is required')
 
+        ledgerfiles = None
         try:
-            ledgerfile = LedgerFile(self.args.file, self.args.reconcile)
+            ledgerfiles = [
+                LedgerFile(f, self.args.reconcile) for f in self.args.file
+            ]
         except LdgReconcilerError as e:
             return self.error(str(e))
 
+        if self.args.reconcile:
+            return self.run_reconciler(ledgerfiles)
+
         if self.args.schedule:
-            error = self.run_scheduler(ledgerfile)
+            error = self.run_scheduler(ledgerfiles[0])
             if error:
                 return error
 
         if self.args.sort:
-            ledgerfile.sort()
-            ledgerfile.write_file()
-
-        if self.args.reconcile:
-            return self.run_reconciler(ledgerfile)
+            for ledgerfile in ledgerfiles:
+                ledgerfile.sort()
+                ledgerfile.write_file()
 
         return 0
 
@@ -65,17 +69,18 @@ class Ledgerbil:
         schedule_file.write_file()
         ledgerfile.write_file()
 
-    def run_reconciler(self, ledgerfile):
-        if ledgerfile.rec_account_matched:
-            try:
-                reconciler = Reconciler(ledgerfile)
-            except LdgReconcilerError as e:
-                return self.error(str(e))
+    def run_reconciler(self, ledgerfiles):
 
-            reconciler.cmdloop()
-        else:
+        if not any(lf.rec_account_matched for lf in ledgerfiles):
             print(f'No matching account found for "{self.args.reconcile}"')
+            return 0
 
+        try:
+            reconciler = Reconciler(ledgerfiles)
+        except LdgReconcilerError as e:
+            return self.error(str(e))
+
+        reconciler.cmdloop()
         return 0
 
 
@@ -118,24 +123,29 @@ def get_args(args):
     parser.add_argument(
         '-f', '--file',
         type=str,
-        help='ledger file to be processed'
+        action='append',
+        default=[],
+        help='ledger file(s) to be processed'
     )
     parser.add_argument(
         '-S', '--sort',
         action='store_true',
-        help='sort the file by transaction date'
+        help='sort the file(s) by transaction date (can be used with\n'
+             '--schedule and will sort after scheduler entries are added)'
     )
     parser.add_argument(
         '-r', '--reconcile',
         type=str,
         metavar='ACCT',
-        help='interactively reconcile the specified account'
+        help='interactively reconcile the specified account\n'
+             '(scheduler/sort have no effect if also specified)'
     )
     parser.add_argument(
         '-s', '--schedule',
         type=str,
         metavar='FILE',
-        help='scheduled transactions file\n(to be added to -f ledger file)'
+        help='scheduled transactions file, to be added to -f ledger file\n'
+             '(if multiple ledger files specified, will use the first)'
     )
     parser.add_argument(
         '-n', '--next-scheduled-date',

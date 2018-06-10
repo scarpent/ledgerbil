@@ -75,7 +75,7 @@ class SimpleOutputTests(Redirector):
 
     def test_syntax_error(self):
         with FileTester.temp_input(testdata) as tempfilename:
-            interpreter = Reconciler(LedgerFile(tempfilename, 'cash'))
+            interpreter = Reconciler([LedgerFile(tempfilename, 'cash')])
 
         self.reset_redirect()
         bad_command = 'cthulu'
@@ -101,7 +101,7 @@ class SimpleOutputTests(Redirector):
             'unmark', 'u', 'un',
         ]
         with FileTester.temp_input(testdata) as tempfilename:
-            interpreter = Reconciler(LedgerFile(tempfilename, 'cash'))
+            interpreter = Reconciler([LedgerFile(tempfilename, 'cash')])
 
             for c in commands:
                 self.reset_redirect()
@@ -126,7 +126,7 @@ class SimpleOutputTests(Redirector):
             'help unmark', 'help u',
         ]
         with FileTester.temp_input(testdata) as tempfilename:
-            interpreter = Reconciler(LedgerFile(tempfilename, 'cash'))
+            interpreter = Reconciler([LedgerFile(tempfilename, 'cash')])
 
         for c in commands:
             self.reset_redirect()
@@ -149,7 +149,7 @@ class OutputTests(Redirector):
     def test_mark_and_unmark_errors(self):
 
         with FileTester.temp_input(testdata) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+            recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
         self.reset_redirect()
 
@@ -188,7 +188,7 @@ class OutputTests(Redirector):
     def test_finish_balancing_errors(self):
 
         with FileTester.temp_input(testdata) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+            recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
             self.reset_redirect()
             recon.finish_balancing()
@@ -210,7 +210,7 @@ class OutputTests(Redirector):
     def test_show_transaction_errors(self):
 
         with FileTester.temp_input(testdata) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'checking'))
+            recon = Reconciler([LedgerFile(tempfilename, 'checking')])
 
         self.reset_redirect()
         recon.show_transaction('')
@@ -233,7 +233,7 @@ class OutputTests(Redirector):
                 a: cash         $-20''')
 
         with FileTester.temp_input(testdata) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+            recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
         self.reset_redirect()
         recon.show_transaction('1')
@@ -251,7 +251,7 @@ class OutputTests(Redirector):
               ! a: cash         $-2.12''')
 
         with FileTester.temp_input(testdata) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+            recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
         self.reset_redirect()
         recon.show_transaction('1 2')
@@ -271,7 +271,7 @@ def test_mixed_shares_and_non_shares_raises_exception():
 
     with FileTester.temp_input(ledgerfile_data) as tempfilename:
         with pytest.raises(LdgReconcilerError) as excinfo:
-            Reconciler(LedgerFile(tempfilename, '401k: bonds'))
+            Reconciler([LedgerFile(tempfilename, '401k: bonds')])
 
     expected = 'Unhandled shares with non-shares: "a: 401k: bonds idx"'
     assert str(excinfo.value) == expected
@@ -290,17 +290,74 @@ def test_mixed_symbols_raises_exception():
 
     with FileTester.temp_input(ledgerfile_data) as tempfilename:
         with pytest.raises(LdgReconcilerError) as excinfo:
-            Reconciler(LedgerFile(tempfilename, '401k: bonds'))
+            Reconciler([LedgerFile(tempfilename, '401k: bonds')])
 
     expected = ('Unhandled multiple symbols: "a: 401k: bonds idx": '
                 "['abcde', 'qwrty']")
     assert str(excinfo.value) == expected
 
 
+def test_non_matching_accounts_in_different_files():
+    ledgerfile_data = dedent('''
+        2017/11/28 zombie investments
+            a: 401k: bonds idx            12.357 qwrty @   $20.05
+            i: investment: adjustment
+    ''')
+    ledgerfile2_data = dedent('''
+        2017/12/28 zombie investments
+            a: 401k: james bonds idx      45.678 qwrty @   $31.11
+            i: investment: adjustment
+    ''')
+
+    with FileTester.temp_input(ledgerfile_data) as tempfilename:
+        with FileTester.temp_input(ledgerfile2_data) as tempfilename2:
+            with pytest.raises(LdgReconcilerError) as excinfo:
+                Reconciler([
+                    LedgerFile(tempfilename, 'bonds'),
+                    LedgerFile(tempfilename2, 'bonds'),
+                ])
+    expected = dedent('''\
+        More than one matching account:
+            a: 401k: bonds idx
+            a: 401k: james bonds idx''')
+    assert str(excinfo.value) == expected
+
+
+def test_get_rec_account_matched_when_match_in_either_file():
+    ledgerfile_data = dedent('''
+        2017/11/28 zombie investments
+            a: 401k: stock idx            12.357 qwrty @   $20.05
+            i: investment: adjustment
+    ''')
+    ledgerfile2_data = dedent('''
+        2017/12/28 zombie investments
+            a: 401k: james bonds idx      45.678 qwrty @   $31.11
+            i: investment: adjustment
+    ''')
+
+    with FileTester.temp_input(ledgerfile_data) as tempfilename:
+        with FileTester.temp_input(ledgerfile2_data) as tempfilename2:
+            reconciler = Reconciler([
+                LedgerFile(tempfilename, 'james bonds'),
+                LedgerFile(tempfilename2, 'james bonds'),
+            ])
+
+    assert reconciler.get_rec_account_matched() == 'a: 401k: james bonds idx'
+
+    with FileTester.temp_input(ledgerfile_data) as tempfilename:
+        with FileTester.temp_input(ledgerfile2_data) as tempfilename2:
+            reconciler = Reconciler([
+                LedgerFile(tempfilename2, 'james bonds'),
+                LedgerFile(tempfilename, 'james bonds'),
+            ])
+
+    assert reconciler.get_rec_account_matched() == 'a: 401k: james bonds idx'
+
+
 def test_init_things():
     with FileTester.temp_input(testdata) as tempfilename:
         ledgerfile = LedgerFile(tempfilename, 'cash')
-        recon = Reconciler(ledgerfile)
+        recon = Reconciler([ledgerfile])
 
     verify_equal_floats(-15, recon.total_cleared)
     verify_equal_floats(-32.12, recon.total_pending)
@@ -323,7 +380,7 @@ def test_init_things():
 
 def test_list_all():
     with FileTester.temp_input(testdata) as tempfilename:
-        recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+        recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
     recon.do_list('')
     payees = {
@@ -342,7 +399,7 @@ def test_list_all():
 
 def test_list():
     with FileTester.temp_input(testdata) as tempfilename:
-        recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+        recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
     recon.do_list('')
     payees = {
@@ -383,7 +440,7 @@ def test_list_shares():
     ''')
 
     with FileTester.temp_input(ledgerfile_data) as tempfilename:
-        recon = Reconciler(LedgerFile(tempfilename, '401k: big co'))
+        recon = Reconciler([LedgerFile(tempfilename, '401k: big co')])
 
     recon.do_list('')
     verify_equal_floats(3.901233, recon.total_cleared, decimals=6)
@@ -393,7 +450,7 @@ def test_list_shares():
 def test_list_and_modify():
 
     with FileTester.temp_input(testdata) as tempfilename:
-        recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+        recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
     verify_equal_floats(-15, recon.total_cleared)
     verify_equal_floats(-32.12, recon.total_pending)
@@ -424,7 +481,7 @@ def test_list_and_modify():
 def test_mark_and_unmark():
 
     with FileTester.temp_input(testdata) as tempfilename:
-        recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+        recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
     verify_equal_floats(-15, recon.total_cleared)
     verify_equal_floats(-32.12, recon.total_pending)
@@ -455,7 +512,7 @@ def test_mark_and_unmark():
 
     # entry with account on multiple lines
     with FileTester.temp_input(testdata) as tempfilename:
-        recon = Reconciler(LedgerFile(tempfilename, 'credit'))
+        recon = Reconciler([LedgerFile(tempfilename, 'credit')])
 
     verify_equal_floats(0, recon.total_cleared)
     verify_equal_floats(0, recon.total_pending)
@@ -470,7 +527,7 @@ def test_mark_and_unmark():
 def test_mark_and_unmark_all():
 
     with FileTester.temp_input(testdata) as tempfilename:
-        recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+        recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
     verify_equal_floats(-15, recon.total_cleared)
     verify_equal_floats(-32.12, recon.total_pending)
@@ -485,7 +542,7 @@ def test_mark_and_unmark_all():
 def test_finish_balancing_with_errors():
     """Verify things don't change when there are errors"""
     with FileTester.temp_input(testdata) as tempfilename:
-        recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+        recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
     recon.finish_balancing()
 
@@ -592,7 +649,7 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         self.init_test('test_statement_stuff')
 
         with FileTester.temp_input(self.teststmt) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+            recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
         # errors and no change
         self.responses = ['blurg', '', 'abc', '']
@@ -610,7 +667,7 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         self.init_test('test_statement_stuff_for_shares')
 
         with FileTester.temp_input(self.teststmt_shares) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'big co'))
+            recon = Reconciler([LedgerFile(tempfilename, 'big co')])
 
         self.responses = ['2016/10/30', '0.1234567']
         recon.do_statement('')
@@ -624,7 +681,7 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         self.init_test('test_cancel_statement_stuff')
 
         with FileTester.temp_input(self.teststmt) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+            recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
         self.responses = ['2016/10/27', '50']
         recon.do_statement('')
@@ -634,7 +691,7 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         print('<<< test: restart >>>')
 
         with FileTester.temp_input(self.teststmt) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+            recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
         self.assertIsNone(recon.ending_balance)
         self.responses = ['2016/10/28', '40']
@@ -647,7 +704,7 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         self.init_test('test_reconcile_finish')
 
         with FileTester.temp_input(self.teststmt) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+            recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
             self.responses = ['2016/10/30', '-30']
             recon.do_statement('')
@@ -660,7 +717,7 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         self.init_test('test_reconcile_finish_and_start_again')
 
         with FileTester.temp_input(self.teststmt) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+            recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
             self.responses = ['2016/10/30', '-30']
             recon.do_statement('')
@@ -669,7 +726,7 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
 
         print('<<< test: reconcile again >>>')
         with FileTester.temp_input(self.teststmt) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+            recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
             self.responses = ['2016/10/30', '-30']
             recon.do_statement('')
@@ -678,7 +735,7 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         # To verify that previous_ entries remain
         print('<<< test: restart >>>')
         with FileTester.temp_input(self.testfinish) as tempfilename:
-            Reconciler(LedgerFile(tempfilename, 'cash'))
+            Reconciler([LedgerFile(tempfilename, 'cash')])
 
         self.conclude_test()
 
@@ -693,7 +750,7 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         self.init_test('test_reconciler_caching')
 
         with FileTester.temp_input(self.teststmt) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+            recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
         self.responses = ['2030/03/30', '-30']
         recon.do_statement('')
@@ -702,7 +759,7 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         print('<<< test: restart >>>')
 
         with FileTester.temp_input(self.teststmt) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+            recon = Reconciler([LedgerFile(tempfilename, 'cash')])
             recon.do_mark('1 2')
             recon.do_finish('')
 
@@ -711,7 +768,7 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         print('<<< test: restart >>>')
 
         with FileTester.temp_input(self.testfinish) as tempfilename:
-            Reconciler(LedgerFile(tempfilename, 'cash'))
+            Reconciler([LedgerFile(tempfilename, 'cash')])
 
         self.conclude_test()
 
@@ -724,7 +781,7 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         self.init_test('test_reconciler_caching_with_shares')
 
         with FileTester.temp_input(self.teststmt_shares) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'big'))
+            recon = Reconciler([LedgerFile(tempfilename, 'big')])
 
             self.responses = ['2030/03/30', '2.234456']
             recon.do_statement('')
@@ -733,7 +790,7 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
 
         print('<<< test: restart >>>')
         with FileTester.temp_input(self.teststmt_shares_finish) as tempfile:
-            recon = Reconciler(LedgerFile(tempfile, 'big'))
+            recon = Reconciler([LedgerFile(tempfile, 'big')])
 
         self.conclude_test()
 
@@ -770,7 +827,7 @@ testcache = dedent('''\
 def test_get_key_and_cache_no_cache():
     assert not os.path.exists(reconciler.settings.RECONCILER_CACHE_FILE)
     with FileTester.temp_input(testcache) as tempfilename:
-        recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+        recon = Reconciler([LedgerFile(tempfilename, 'cash')])
     assert not os.path.exists(reconciler.settings.RECONCILER_CACHE_FILE)
 
     key, cache = recon.get_key_and_cache()
@@ -781,7 +838,7 @@ def test_get_key_and_cache_no_cache():
 @mock.patch(__name__ + '.reconciler.print')
 def test_get_key_and_cache_error(mock_print):
     with FileTester.temp_input(testcache) as tempfilename:
-        recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+        recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
     with mock.patch(__name__ + '.reconciler.os.path.exists') as mock_exists:
         mock_exists.return_value = True
@@ -799,7 +856,7 @@ def test_get_key_and_cache_error(mock_print):
 def test_save_cache_error(mock_get_key_and_cache, mock_print):
     mock_get_key_and_cache.return_value = ('cash', {})
     with FileTester.temp_input(testcache) as tempfilename:
-        recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+        recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
     with mock.patch('builtins.open') as mock_open:
         mock_open.side_effect = IOError('BOO!')
@@ -820,7 +877,7 @@ def test_previous_balance_is_zero(mock_get_key, mock_get_date, mock_print):
     mock_get_key.return_value = ('a: cash', {'a: cash': {}})
     mock_get_date.return_value = (date.today(), 0)
     with FileTester.temp_input(teststmt) as tempfilename:
-        Reconciler(LedgerFile(tempfilename, 'cash'))
+        Reconciler([LedgerFile(tempfilename, 'cash')])
 
     output = reconciler.Colorable.get_plain_string(
         mock_print.call_args_list[2][0][0]
@@ -850,7 +907,7 @@ class CacheTests(MockInput, Redirector):
 
     def test_cache(self):
         with FileTester.temp_input(self.testcache) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+            recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
         # saving cache with ending balance "None" causes cache "ending_"
         # entries to be removed; first let's make sure it works w/o
@@ -886,7 +943,7 @@ class CacheTests(MockInput, Redirector):
         recon.save_statement_info_to_cache()
 
         with FileTester.temp_input(self.testcache) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'credit'))
+            recon = Reconciler([LedgerFile(tempfilename, 'credit')])
 
         recon.ending_balance = 222
         recon.ending_date = date(2222, 2, 22)
@@ -918,7 +975,7 @@ class CacheTests(MockInput, Redirector):
 
         # indirectly verify get_statement_info_from_cache
         with FileTester.temp_input(self.testcache) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+            recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
         # get_statement_info_from_cache will have been called in init
         self.assertEqual(111, recon.ending_balance)
@@ -957,7 +1014,7 @@ class ReloadTests(TestCase):
 
     def test_reload(self):
         with FileTester.temp_input(self.testdata) as tempfilename:
-            recon = Reconciler(LedgerFile(tempfilename, 'cash'))
+            recon = Reconciler([LedgerFile(tempfilename, 'cash')])
             self.assertEqual(-20, recon.total_cleared)
 
             with open(tempfilename, 'w') as the_file:

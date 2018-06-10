@@ -8,6 +8,7 @@ from datetime import date
 from . import util
 from .colorable import Colorable
 from .ledgerbilexceptions import LdgReconcilerError
+from .ledgerthing import LedgerThing
 from .settings import Settings
 
 settings = Settings()
@@ -18,7 +19,7 @@ class Reconciler(cmd.Cmd, object):
     UNKNOWN_SYNTAX = '*** Unknown syntax: '
     NO_HELP = '*** No help on '
 
-    def __init__(self, ledgerfile):
+    def __init__(self, ledgerfiles):
         cmd.Cmd.__init__(self)
         self.aliases = {
             'end': self.do_finish,
@@ -34,7 +35,12 @@ class Reconciler(cmd.Cmd, object):
             'start': self.do_statement,
         }
 
-        self.ledgerfile = ledgerfile
+        LedgerThing.assert_only_one_matching_account([
+            ledgerfile.rec_account_matched for ledgerfile in ledgerfiles
+            if ledgerfile.rec_account_matched is not None
+        ])
+
+        self.ledgerfiles = ledgerfiles
         self.ending_date = date.today()
         self.ending_balance = None
         self.previous_date = date.today()
@@ -105,7 +111,7 @@ class Reconciler(cmd.Cmd, object):
 
     def do_account(self, args):
         """Print the account being reconciled"""
-        print(self.ledgerfile.rec_account_matched)
+        print(self.get_rec_account_matched())
 
     def do_mark(self, args):
         """Mark a transaction as pending (!)
@@ -157,7 +163,8 @@ class Reconciler(cmd.Cmd, object):
         self.show_transaction(args)
 
     def reload(self):
-        self.ledgerfile.reset()
+        for ledgerfile in self.ledgerfiles:
+            ledgerfile.reset()
         self.populate_open_transactions()
 
     def show_transaction(self, args):
@@ -189,19 +196,20 @@ class Reconciler(cmd.Cmd, object):
         is_shareses = set()
         symbols = set()
 
-        for thing in self.ledgerfile.get_things():
-            if thing.rec_account_matched:
-                is_shareses.add(thing.rec_is_shares)
-                symbols.add(thing.rec_symbol)
+        for ledgerfile in self.ledgerfiles:
+            for thing in ledgerfile.get_things():
+                if thing.rec_account_matched:
+                    is_shareses.add(thing.rec_is_shares)
+                    symbols.add(thing.rec_symbol)
 
-                if thing.is_cleared():
-                    self.total_cleared += thing.rec_amount
-                    continue
+                    if thing.is_cleared():
+                        self.total_cleared += thing.rec_amount
+                        continue
 
-                if thing.is_pending():
-                    self.total_pending += thing.rec_amount
+                    if thing.is_pending():
+                        self.total_pending += thing.rec_amount
 
-                self.open_transactions.append(thing)
+                    self.open_transactions.append(thing)
 
         if self.open_transactions:
             self.validate_and_get_is_shares(is_shareses)
@@ -217,7 +225,7 @@ class Reconciler(cmd.Cmd, object):
         else:
             raise LdgReconcilerError(
                 'Unhandled shares with non-shares: "{}"'.format(
-                    self.ledgerfile.rec_account_matched
+                    self.get_rec_account_matched()
                 )
             )
 
@@ -225,7 +233,7 @@ class Reconciler(cmd.Cmd, object):
         if self.is_shares and len(set(symbols)) != 1:
             raise LdgReconcilerError(
                 'Unhandled multiple symbols: "{}": {}'.format(
-                    self.ledgerfile.rec_account_matched,
+                    self.get_rec_account_matched(),
                     sorted(list(symbols))
                 )
             )
@@ -269,8 +277,9 @@ class Reconciler(cmd.Cmd, object):
             at_least_one_success = True
 
         if at_least_one_success:
-            self.ledgerfile.write_file()
-            self.list_transactions()
+            for ledgerfile in self.ledgerfiles:
+                ledgerfile.write_file()
+                self.list_transactions()
 
         if messages:
             print(messages, end='')
@@ -454,7 +463,8 @@ class Reconciler(cmd.Cmd, object):
         self.cached_is_shares = self.is_shares
         self.save_statement_info_to_cache(finish=True)
 
-        self.ledgerfile.write_file()
+        for ledgerfile in self.ledgerfiles:
+            ledgerfile.write_file()
         self.populate_open_transactions()
 
     def get_zero_candidate(self):
@@ -473,7 +483,7 @@ class Reconciler(cmd.Cmd, object):
         return response
 
     def get_key_and_cache(self):
-        key = self.ledgerfile.rec_account_matched
+        key = self.get_rec_account_matched()
 
         if os.path.exists(settings.RECONCILER_CACHE_FILE):
             try:
@@ -535,3 +545,9 @@ class Reconciler(cmd.Cmd, object):
         prefix = '' if self.is_shares else '$ '
         decimals = self.get_decimals()
         return util.get_colored_amount(amount, colwidth, decimals, prefix)
+
+    def get_rec_account_matched(self):
+        return next(
+            ledgerfile.rec_account_matched for ledgerfile in self.ledgerfiles
+            if ledgerfile.rec_account_matched is not None
+        )
