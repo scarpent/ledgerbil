@@ -3,6 +3,7 @@ from datetime import date
 from operator import attrgetter
 
 from .ledgerthing import LedgerThing
+from .util import assert_only_one_matching_account
 
 
 class LedgerFile:
@@ -71,7 +72,7 @@ class LedgerFile:
                 if not self.rec_account_matched:
                     self.rec_account_matched = thing.rec_account_matched
                 else:
-                    LedgerThing.assert_only_one_matching_account({
+                    assert_only_one_matching_account({
                         self.rec_account_matched,
                         thing.rec_account_matched,
                     })

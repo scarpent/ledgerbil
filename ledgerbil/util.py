@@ -6,6 +6,7 @@ from datetime import datetime
 from functools import reduce
 
 from .colorable import Colorable
+from .ledgerbilexceptions import LdgReconcilerError
 
 DATE_FORMAT = '%Y/%m/%d'
 
@@ -108,3 +109,11 @@ def get_colored_amount(amount,
         color = positive
 
     return str(Colorable(color, amount_formatted, f'>{colwidth}'))
+
+
+def assert_only_one_matching_account(accounts):
+    if len(set(accounts)) > 1:
+        message = 'More than one matching account:\n'
+        for account in sorted(list(accounts)):
+            message += f'    {account}\n'
+        raise LdgReconcilerError(message[:-1])

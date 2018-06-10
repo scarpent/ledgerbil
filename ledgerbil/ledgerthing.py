@@ -128,7 +128,7 @@ class LedgerThing:
                 continue
 
             matched_accounts.add(account)
-            self.assert_only_one_matching_account(matched_accounts)
+            util.assert_only_one_matching_account(matched_accounts)
 
             statuses.add(status)
             self.assert_only_one_status(statuses)
@@ -213,14 +213,6 @@ class LedgerThing:
             return util.is_valid_date(match.groups()[0])
         else:
             return False
-
-    @staticmethod
-    def assert_only_one_matching_account(accounts):
-        if len(set(accounts)) > 1:
-            message = 'More than one matching account:\n'
-            for account in sorted(list(accounts)):
-                message += f'    {account}\n'
-            raise LdgReconcilerError(message[:-1])
 
     def assert_only_one_status(self, statuses):
         if len(set(statuses)) > 1:

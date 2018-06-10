@@ -8,7 +8,6 @@ from datetime import date
 from . import util
 from .colorable import Colorable
 from .ledgerbilexceptions import LdgReconcilerError
-from .ledgerthing import LedgerThing
 from .settings import Settings
 
 settings = Settings()
@@ -35,7 +34,7 @@ class Reconciler(cmd.Cmd, object):
             'start': self.do_statement,
         }
 
-        LedgerThing.assert_only_one_matching_account([
+        util.assert_only_one_matching_account([
             ledgerfile.rec_account_matched for ledgerfile in ledgerfiles
             if ledgerfile.rec_account_matched is not None
         ])
