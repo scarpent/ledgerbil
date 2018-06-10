@@ -150,7 +150,7 @@ def get_args(args):
 
 
 def main(argv=None):
-    args = get_args(argv)
+    args = get_args(argv or [])
     ledgerbil = Ledgerbil(args)
 
     return ledgerbil.process_file()

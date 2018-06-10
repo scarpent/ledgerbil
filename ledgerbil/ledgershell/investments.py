@@ -179,7 +179,7 @@ def get_investment_report(args):
     return report
 
 
-def get_args(args=None):
+def get_args(args):
     program = 'ledgerbil/main.py inv'
     description = dedent('''\
         Viewing shares with --exchange is kind of weird in ledger. This
@@ -220,5 +220,5 @@ def get_args(args=None):
 
 
 def main(argv=None):
-    args = get_args(argv)
+    args = get_args(argv or [])
     print(get_investment_report(args))

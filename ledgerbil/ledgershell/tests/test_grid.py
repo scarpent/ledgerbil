@@ -483,7 +483,7 @@ def test_get_grid_report_year(mock_pnames, mock_cols, mock_rows, mock_report):
 @mock.patch(__name__ + '.grid.get_ledger_output', return_value='')
 def test_get_grid_report_no_period_names(mock_ledger_output):
     # no results from initial ledger query for periods
-    args, ledger_args = grid.get_args()
+    args, ledger_args = grid.get_args([])
     assert grid.get_grid_report(args, ledger_args) == ''
 
 

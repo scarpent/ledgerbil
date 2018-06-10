@@ -4,7 +4,7 @@ from textwrap import dedent
 from .runner import get_ledger_command, get_ledger_output
 
 
-def get_args(args=None):
+def get_args(args):
     program = 'ledgerbil/main.py pass'
     description = dedent('''\
         Pass through args to ledger, running ledger with config
@@ -28,7 +28,7 @@ def get_args(args=None):
 
 
 def main(argv=None):
-    args, ledger_args = get_args(argv)
+    args, ledger_args = get_args(argv or [])
     if not ledger_args:
         return 0
 

@@ -587,7 +587,7 @@ def get_portfolio_data():
         return json.loads(portfile.read())
 
 
-def get_args(args=None):
+def get_args(args):
     program = 'ledgerbil/main.py port'
     description = dedent('''\
         Portfolio! This is currently independent of ledger data although
@@ -650,5 +650,5 @@ def get_args(args=None):
 
 
 def main(argv=None):
-    args = get_args(argv)
+    args = get_args(argv or [])
     print(get_portfolio_report(args))

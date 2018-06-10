@@ -236,7 +236,7 @@ def get_grid(row_headers, columns):
     return grid
 
 
-def get_args(args=None):
+def get_args(args):
     program = 'ledgerbil/main.py grid'
     description = dedent('''\
         Show ledger balance report in tabular form with years or months as the
@@ -334,5 +334,5 @@ def get_args(args=None):
 
 
 def main(argv=None):
-    args, ledger_args = get_args(argv)
+    args, ledger_args = get_args(argv or [])
     print(get_grid_report(args, ledger_args), end='')

@@ -374,6 +374,14 @@ def test_main(mock_get_lines, mock_print):
     assert output.strip() == expected
 
 
+@mock.patch(__name__ + '.investments.get_args')
+@mock.patch(__name__ + '.investments.get_investment_report')
+def test_main_no_params(mock_get_investment_report, mock_get_args):
+    investments.main()
+    mock_get_args.assert_called_once_with([])
+    assert mock_get_investment_report.called
+
+
 @pytest.mark.parametrize('test_input, expected', [
     (['-a', 'blah or blarg'], 'blah or blarg'),
     (['--accounts', 'fu or bar'], 'fu or bar'),
