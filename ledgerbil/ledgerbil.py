@@ -13,6 +13,7 @@ class Ledgerbil:
 
     def __init__(self, args):
         self.args = args
+        self.ledgerfiles = None
 
     def process_file(self):
 
@@ -22,24 +23,23 @@ class Ledgerbil:
         if not self.args.file:
             return self.error('error: -f/--file is required')
 
-        ledgerfiles = None
         try:
-            ledgerfiles = [
+            self.ledgerfiles = [
                 LedgerFile(f, self.args.reconcile) for f in self.args.file
             ]
         except LdgReconcilerError as e:
             return self.error(str(e))
 
         if self.args.reconcile:
-            return self.run_reconciler(ledgerfiles)
+            return self.run_reconciler()
 
         if self.args.schedule:
-            error = self.run_scheduler(ledgerfiles[0])
+            error = self.run_scheduler()
             if error:
                 return error
 
         if self.args.sort:
-            for ledgerfile in ledgerfiles:
+            for ledgerfile in self.ledgerfiles:
                 ledgerfile.sort()
                 ledgerfile.write_file()
 
@@ -59,7 +59,8 @@ class Ledgerbil:
         print(schedule_file.next_scheduled_date())
         return 0
 
-    def run_scheduler(self, ledgerfile):
+    def run_scheduler(self):
+        ledgerfile = self.ledgerfiles[0]
         try:
             schedule_file = ScheduleFile(self.args.schedule)
         except LdgSchedulerError as e:
@@ -69,14 +70,14 @@ class Ledgerbil:
         schedule_file.write_file()
         ledgerfile.write_file()
 
-    def run_reconciler(self, ledgerfiles):
+    def run_reconciler(self):
 
-        if not any(lf.rec_account_matched for lf in ledgerfiles):
+        if not any(lf.rec_account_matched for lf in self.ledgerfiles):
             print(f'No matching account found for "{self.args.reconcile}"')
             return 0
 
         try:
-            reconciler = Reconciler(ledgerfiles)
+            reconciler = Reconciler(self.ledgerfiles)
         except LdgReconcilerError as e:
             return self.error(str(e))
 
@@ -88,15 +89,18 @@ def get_args(args):
     program = 'ledgerbil/main.py'
     description = dedent('''\
         ledgerbil works with ledger cli files. It supports a vague subset
-        of ledger as used and tested by its author. It is biased, if not
-        welded, to dollars as the default commodity, but the author would
-        happily aspire to more flexibility with the help of motivated
-        contributors.
+        of ledger as used and tested by its author.
+
+        It is biased, if not welded, to dollars as the default commodity,
+        but the author would happily aspire to more flexibility with the
+        help of motivated contributors or users. (Similarly it assumes
+        commas as the thousands separator but certainly this shouldn't be
+        insurmountable to modify for a more international community.)
 
         Some features work on ledger files independently of the ledger cli
         program itself, while others use ledger to report on ledger data
-        in ways not currently supported by ledger. (Or at least, not
-        understood by the author.)
+        in ways not currently supported by ledger. (Or at least, in ways
+        not understood by the author.)
 
         See settings.py.example for supported config options.
     ''')
@@ -137,7 +141,7 @@ def get_args(args):
         '-r', '--reconcile',
         type=str,
         metavar='ACCT',
-        help='interactively reconcile the specified account\n'
+        help='interactively reconcile the specified account regex\n'
              '(scheduler/sort have no effect if also specified)'
     )
     parser.add_argument(
