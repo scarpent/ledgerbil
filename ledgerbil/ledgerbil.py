@@ -15,7 +15,7 @@ class Ledgerbil:
         self.args = args
         self.ledgerfiles = None
 
-    def process_file(self):
+    def run(self):
 
         if self.args.next_scheduled_date:
             return self.next_scheduled_date()
@@ -167,4 +167,4 @@ def main(argv=None):
     args = get_args(argv or [])
     ledgerbil = Ledgerbil(args)
 
-    return ledgerbil.process_file()
+    return ledgerbil.run()

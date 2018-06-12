@@ -295,7 +295,8 @@ def test_reconciler_takes_precedence_over_scheduler_and_sort(mock_reconciler,
 
 @mock.patch(__name__ + '.ledgerbil.print')
 def test_ledgerbil_error_printer_exiter(mock_print):
-    gerbil = ledgerbil.Ledgerbil(None)
+    args = ledgerbil.get_args([])
+    gerbil = ledgerbil.Ledgerbil(args)
     return_code = gerbil.error('blah blah blah')
     mock_print.assert_called_once_with('blah blah blah', file=sys.stderr)
     assert return_code == -1
