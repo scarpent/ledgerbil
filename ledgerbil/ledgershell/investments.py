@@ -182,24 +182,23 @@ def get_investment_report(args):
 def get_args(args):
     program = 'ledgerbil/main.py inv'
     description = dedent('''\
-        Viewing shares with --exchange is kind of weird in ledger. This
-        creates a report that shows share totals and dollar amounts in a
-        nicer way.
+        Viewing shares with --exchange is kind of weird in ledger. This creates
+        a report that shows share totals and dollar amounts in a nicer way.
     ''')
     parser = argparse.ArgumentParser(
         prog=program,
         description=description,
-        formatter_class=(lambda prog: argparse.RawTextHelpFormatter(
+        formatter_class=(lambda prog: argparse.RawDescriptionHelpFormatter(
             prog,
             max_help_position=40,
-            width=100
+            width=71
         ))
     )
     parser.add_argument(
         '-a', '--accounts',
         type=str,
         default=settings.INVESTMENT_DEFAULT_ACCOUNTS,
-        help='balances for specified accounts,\ndefault = {}'.format(
+        help='balances for specified accounts (default: {})'.format(
             settings.INVESTMENT_DEFAULT_ACCOUNTS
         )
     )
@@ -208,7 +207,7 @@ def get_args(args):
         type=str,
         metavar='DATE',
         default=settings.INVESTMENT_DEFAULT_END_DATE,
-        help=f'end date, default = {settings.INVESTMENT_DEFAULT_END_DATE}'
+        help=f'end date (default: {settings.INVESTMENT_DEFAULT_END_DATE})'
     )
     parser.add_argument(
         '-c', '--command',

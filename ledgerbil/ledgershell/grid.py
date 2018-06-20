@@ -251,17 +251,18 @@ def get_args(args):
         Currently supports ledger --flat reports. (Although you don't have to
         specify --flat.)
 
-        Payee reports will also pass through ledger arguments, but currently
-        they assume "expenses" and if you want to further constrain that, you
-        need to do something like "and @^a" to get only payees starting with a.
+        Payee reports will also pass through ledger arguments. Currently they
+        assume "expenses" and if you want to further constrain that, you need
+        to do something like "and @^a" to get only payees starting with the
+        letter "a."
     ''')
     parser = argparse.ArgumentParser(
         prog=program,
         description=description,
-        formatter_class=(lambda prog: argparse.RawTextHelpFormatter(
+        formatter_class=(lambda prog: argparse.RawDescriptionHelpFormatter(
             prog,
             max_help_position=40,
-            width=100
+            width=71
         ))
     )
     group = parser.add_mutually_exclusive_group()
@@ -324,8 +325,8 @@ def get_args(args):
         '-s', '--sort',
         type=str,
         default=SORT_DEFAULT,
-        help='sort by specified column header, or "row" to sort\nby account '
-             'or payee (default by total)'
+        help='sort by specified column header, or "row" to sort by account '
+             'or payee (default: by total)'
     )
 
     # workaround for problems with nargs=argparse.REMAINDER

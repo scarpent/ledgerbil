@@ -93,17 +93,17 @@ def get_date(quote_date):
 def get_args(args):
     program = 'ledgerbil/main.py prices'
     description = dedent('''\
-        Get price data from finance.google.com. This works for mutual funds
-        but not individual company symbols. Without -f/-s, just prints price
-        data to stdout. See settings PRICE_FILE_FORMAT for saving format.
+        Get price data from finance.google.com. This works for mutual funds but
+        not individual company symbols. Without -f/-s, just prints price data
+        to stdout. See settings PRICE_FILE_FORMAT for saving format.
     ''')
     parser = argparse.ArgumentParser(
         prog=program,
         description=description,
-        formatter_class=(lambda prog: argparse.RawTextHelpFormatter(
+        formatter_class=(lambda prog: argparse.RawDescriptionHelpFormatter(
             prog,
             max_help_position=40,
-            width=100
+            width=71
         ))
     )
     parser.add_argument(

@@ -1,3 +1,8 @@
+"""
+These are for the "ledgershell" commands that use the ledger client.
+The scheduler, reconciler, and sort comands take all their input from
+command line arguments.
+"""
 import os
 
 

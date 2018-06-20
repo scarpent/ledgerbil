@@ -91,21 +91,22 @@ class Ledgerbil:
 def get_args(args):
     program = 'ledgerbil/main.py'
     description = dedent('''\
-        ledgerbil works with ledger cli files. It supports a vague subset
-        of ledger as used and tested by its author.
+        ledgerbil works with ledger cli files. It supports a vague subset of
+        ledger as used and tested by its author.
 
-        It is biased, if not welded, to dollars as the default commodity,
-        but the author would happily aspire to more flexibility with the
-        help of motivated contributors or users. (Similarly it assumes
-        commas as the thousands separator but certainly this shouldn't be
-        insurmountable to modify for a more international community.)
+        It is biased, if not welded, to dollars as the default commodity, but
+        the author would happily aspire to more flexibility with the help of
+        motivated contributors or users. (Similarly it assumes commas as the
+        thousands separator but certainly this shouldn't be insurmountable to
+        modify for an international community.)
 
         Some features work on ledger files independently of the ledger cli
-        program itself, while others use ledger to report on ledger data
-        in ways not currently supported by ledger. (Or at least, in ways
-        not understood by the author.)
+        program itself, while others use ledger to report on ledger data in
+        ways not currently supported by ledger. (Or at least, in ways not
+        understood by the author.)
 
-        See settings.py.example for supported config options.
+        See settings.py.example for config options with the "other commands"
+        below. (These are "ledgershell" scripts which use the ledger client.)
     ''')
     scripts_description = dedent(f'''\
         other commands (run with -h to see command help):
@@ -121,10 +122,10 @@ def get_args(args):
         prog=program,
         description=description,
         epilog=scripts_description,
-        formatter_class=(lambda prog: argparse.RawTextHelpFormatter(
+        formatter_class=(lambda prog: argparse.RawDescriptionHelpFormatter(
             prog,
             max_help_position=40,
-            width=100
+            width=71
         ))
     )
     parser.add_argument(
@@ -137,22 +138,23 @@ def get_args(args):
     parser.add_argument(
         '-S', '--sort',
         action='store_true',
-        help='sort the file(s) by transaction date (can be used with\n'
-             '--schedule and will sort after scheduler entries are added)'
+        help='sort the file(s) by transaction date'
     )
     parser.add_argument(
         '-r', '--reconcile',
         type=str,
         metavar='ACCT',
-        help='interactively reconcile the specified account regex\n'
-             '(scheduler/sort have no effect if also specified)'
+        help='interactively reconcile ledger file(s) with this account regex; '
+             'scheduler/sort have no effect if also specified'
     )
     parser.add_argument(
         '-s', '--schedule',
         type=str,
         metavar='FILE',
-        help='scheduled transactions file, to be added to -f ledger file\n'
-             '(if multiple ledger files specified, will use the first)'
+        help='scheduled transactions file, with new entries to be added to '
+             '-f ledger file; if given multiple ledger files, will use the '
+             'first; if --sort also specified, sorts the ledger file after '
+             'entries have been added'
     )
     parser.add_argument(
         '-n', '--next-scheduled-date',
