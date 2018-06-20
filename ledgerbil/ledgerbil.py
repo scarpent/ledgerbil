@@ -52,26 +52,29 @@ class Ledgerbil:
     def next_scheduled_date(self):
         if not self.args.schedule:
             return self.error('error: -s/--schedule is required')
+
         try:
             schedule_file = ScheduleFile(self.args.schedule)
         except LdgSchedulerError as e:
             return self.error(str(e))
+
         print(schedule_file.next_scheduled_date())
         return 0
 
     def run_scheduler(self):
         ledgerfile = self.ledgerfiles[0]
+
         try:
             schedule_file = ScheduleFile(self.args.schedule)
         except LdgSchedulerError as e:
             return self.error(str(e))
+
         scheduler = Scheduler(ledgerfile, schedule_file)
         scheduler.run()
         schedule_file.write_file()
         ledgerfile.write_file()
 
     def run_reconciler(self):
-
         if not any(lf.rec_account_matched for lf in self.ledgerfiles):
             print(f'No matching account found for "{self.args.reconcile}"')
             return 0
