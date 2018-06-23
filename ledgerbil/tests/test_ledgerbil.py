@@ -57,13 +57,21 @@ class Sorting(TestCase):
 
 @mock.patch(__name__ + '.ledgerbil.LedgerFile.write_file')
 @mock.patch(__name__ + '.ledgerbil.LedgerFile.sort')
-def test_sorting_multiple_files(mock_sort, mock_write_file):
+@mock.patch(__name__ + '.ledgerbil.LedgerFile.__init__')
+def test_sorting_multiple_files(mock_init, mock_sort, mock_write_file):
+    mock_init.return_value = None
     with FT.temp_input('; no data 1') as file1:
         with FT.temp_input('; no data 2') as file2:
             ledgerbil.main(['--file', file1, '--file', file2, '--sort'])
 
-    mock_sort.call_args_list == [mock.call(), mock.call()]
-    mock_write_file.call_args_list == [mock.call(), mock.call()]
+    assert mock_init.call_args_list == [
+        mock.call(file1, None),
+        mock.call(file2, None),
+    ]
+    # It would be nice to be able to further confirm that each instanace
+    # of Ledgerfile called these methods
+    assert mock_sort.call_args_list == [mock.call(), mock.call()]
+    assert mock_write_file.call_args_list == [mock.call(), mock.call()]
 
 
 class MainErrors(Redirector):
