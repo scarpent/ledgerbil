@@ -248,8 +248,13 @@ def get_args(args):
         e.g. ./main.py expenses -p 'last 2 years' will show expenses for last
         two years with separate columns for the years.
 
-        Currently supports ledger --flat reports. (Although you don't have to
-        specify --flat.)
+        Begin and end dates only determine the range for which periods will be
+        reported. They do not limit included entries within a period. For
+        example, with --year periods, specifying --end 2018/07/01 will cause
+        all of 2018 to be included.
+
+        Currently supports ledger --flat reports. (Although you don't specify
+        --flat.)
 
         Payee reports will also pass through ledger arguments. Currently they
         assume "expenses" and if you want to further constrain that, you need
