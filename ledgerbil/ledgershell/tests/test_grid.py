@@ -1,3 +1,4 @@
+import sys
 from datetime import date
 from textwrap import dedent
 from unittest import mock
@@ -118,7 +119,7 @@ def test_get_column_accounts(mock_ledger_output):
                       $ 6.50  expenses: car: maintenance
                   $ 1,001.78  expenses: widgets
         --------------------
-                  $ 1,025.55
+                  $ 1,025.65
     ''')
     mock_ledger_output.return_value = output
     expected = {
@@ -126,8 +127,10 @@ def test_get_column_accounts(mock_ledger_output):
         'expenses: car: maintenance': 6.50,
         'expenses: widgets': 1001.78,
     }
-    assert grid.get_column_accounts(['boogy!']) == expected
-    mock_ledger_output.assert_called_once_with(['balance', '--flat', 'boogy!'])
+    assert grid.get_column_accounts(['--period', '2018']) == expected
+    mock_ledger_output.assert_called_once_with(
+        ['balance', '--flat', '--period', '2018']
+    )
 
 
 @mock.patch(__name__ + '.grid.get_ledger_output')
@@ -145,8 +148,10 @@ def test_get_column_accounts_depth_one(mock_ledger_output):
         'apple': 30,
         'grape': 120,
     }
-    assert grid.get_column_accounts(['boogy!'], depth=1) == expected
-    mock_ledger_output.assert_called_once_with(['balance', '--flat', 'boogy!'])
+    assert grid.get_column_accounts(['--period', '2018'], depth=1) == expected
+    mock_ledger_output.assert_called_once_with(
+        ['balance', '--flat', '--period', '2018']
+    )
 
 
 @mock.patch(__name__ + '.grid.get_ledger_output')
@@ -165,8 +170,81 @@ def test_get_column_accounts_depth_two(mock_ledger_output):
         'grape:kiwi': 40,
         'grape:fig': 80,
     }
-    assert grid.get_column_accounts(['boogy!'], depth=2) == expected
-    mock_ledger_output.assert_called_once_with(['balance', '--flat', 'boogy!'])
+    assert grid.get_column_accounts(['--period', '2018'], depth=2) == expected
+    mock_ledger_output.assert_called_once_with(
+        ['balance', '--flat', '--period', '2018']
+    )
+
+
+@mock.patch(__name__ + '.grid.print')
+@mock.patch(__name__ + '.grid.get_ledger_output')
+def test_get_column_accounts_differing_totals(mock_ledger_output, mock_print):
+    output = dedent('''\
+                    $ 49.998  expenses: parent
+                    $ 29.999  expenses: parent: child
+        --------------------
+                    $ 49.998
+    ''')
+    mock_ledger_output.return_value = output
+    expected = {
+        'expenses: parent': 49.998,
+        'expenses: parent: child': 29.999,
+    }
+    assert grid.get_column_accounts(['--period', '2018']) == expected
+    mock_ledger_output.assert_called_once_with(
+        ['balance', '--flat', '--period', '2018']
+    )
+    message = (
+        "Warning: Differing total found between ledger's 49.998 and "
+        "ledgerbil's 79.997 for --period 2018. Ledger's will be the correct "
+        "total. This is mostly likely caused by funds being applied to both a "
+        "parent and child account."
+    )
+    mock_print.assert_called_once_with(message, file=sys.stderr)
+
+
+@mock.patch('builtins.sum')
+@mock.patch(__name__ + '.grid.print')
+@mock.patch(__name__ + '.grid.get_ledger_output')
+def test_get_column_accounts_rounding(mock_ledger_output,
+                                      mock_print,
+                                      mock_sum):
+    """should not warn about total differences that round to same dollar"""
+    # can get much smaller rounding differences if calculations used
+    # in ledger data; but don't want to set up that test right now,
+    # and we're rounding to the dollar because that seems close enough
+    output = dedent('''\
+                     $ 17.37  expenses: car: gas
+                      $ 6.50  expenses: car: maintenance
+        --------------------
+                     $ 23.87
+    ''')
+    mock_ledger_output.return_value = output
+    expected = {
+        'expenses: car: gas': 17.37,
+        'expenses: car: maintenance': 6.50,
+    }
+    mock_sum.return_value = 23.55
+    assert grid.get_column_accounts(['--period', '2018']) == expected
+    mock_ledger_output.assert_called_once_with(
+        ['balance', '--flat', '--period', '2018']
+    )
+    mock_print.assert_not_called()
+
+
+@mock.patch(__name__ + '.grid.get_ledger_output')
+def test_get_column_accounts_no_total(mock_ledger_output):
+    output = dedent('''\
+                     $ 17.37  expenses: car: gas
+    ''')
+    mock_ledger_output.return_value = output
+    expected = {
+        'expenses: car: gas': 17.37,
+    }
+    assert grid.get_column_accounts(['--period', '2018']) == expected
+    mock_ledger_output.assert_called_once_with(
+        ['balance', '--flat', '--period', '2018']
+    )
 
 
 @mock.patch(__name__ + '.grid.get_ledger_output')

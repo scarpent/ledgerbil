@@ -57,3 +57,8 @@
 2018/01/08 jurassic fork
     e: food: dining out
     l: credit card: mega                    $-42.17
+
+2019/08/01 account test  ; ledger will appear to double count parent
+    e: parent                               $20
+    e: parent: child                        $30
+    a: checking

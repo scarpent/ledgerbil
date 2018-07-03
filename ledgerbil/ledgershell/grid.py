@@ -1,5 +1,6 @@
 import argparse
 import re
+import sys
 from collections import defaultdict
 from datetime import date
 from textwrap import dedent
@@ -145,9 +146,23 @@ def get_column_accounts(ledger_args, depth=0):
 
     lines = get_ledger_output(['balance', '--flat'] + ledger_args).split('\n')
     column = defaultdict(int)
+    next_is_total = False
+
     for line in lines:
-        if line == '' or line[0] == '-':
+
+        if next_is_total:
+            validate_column_total(
+                column_total=sum(column.values()),
+                ledgers_total=float(re.sub(r'[$, ]', '', line)),
+                period_name=ledger_args[1]
+            )
             break
+        elif line and line[0] == '-':  # ledger's total line separator
+            next_is_total = True
+            continue
+        elif line == '':  # last element when ledger doesn't give a total
+            break
+
         match = re.match(ACCOUNT_LINE_REGEX, line)
         # should match as long as --market is used?
         assert match, f'Account line regex did not match: {line}'
@@ -159,6 +174,27 @@ def get_column_accounts(ledger_args, depth=0):
         column[account] += amount
 
     return column
+
+
+def validate_column_total(column_total=0, ledgers_total=0, period_name=None):
+    # ledger has an unfortunate way of reporting things when funds are
+    # applied to both parent and child account -- it appears to double count
+    # them in line items but not in the total
+
+    # in the column total, which is "our" total and what will be shown in the
+    # report, we will get the wrong sum; let's warn when this happens (which
+    # means ledgerbil's stance is that you really shouldn't set up your
+    # accounts this way)
+
+    # (rounding to dollar and not concerning ourselves over pennies)
+    if round(ledgers_total) != round(column_total):
+        message = (
+            f"Warning: Differing total found between ledger's {ledgers_total} "
+            f"and ledgerbil's {column_total} for --period {period_name}. "
+            "Ledger's will be the correct total. This is mostly likely caused "
+            "by funds being applied to both a parent and child account."
+        )
+        print(message, file=sys.stderr)
 
 
 def get_column_payees(ledger_args):
