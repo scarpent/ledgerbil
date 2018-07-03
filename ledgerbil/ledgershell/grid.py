@@ -79,25 +79,24 @@ def get_period_names(args, ledger_args, unit='year'):
     # --collapse behavior seems suspicous, but with --empty
     # appears to work for our purposes here
     # groups.google.com/forum/?fromgroups=#!topic/ledger-cli/HAKAMYiaL7w
-    begin = ['--begin', args.begin] if args.begin else []
-    end = ['--end', args.end] if args.end else []
-    period = ['--period', args.period] if args.period else []
+    begin = ('--begin', args.begin) if args.begin else tuple()
+    end = ('--end', args.end) if args.end else tuple()
+    period = ('--period', args.period) if args.period else tuple()
 
     if unit == 'year':
         date_format = '%Y'
-        period_options = ['--yearly', '--date-format', date_format]
+        period_options = ('--yearly', '--date-format', date_format)
         period_len = 4
     else:
         date_format = '%Y/%m'
-        period_options = ['--monthly', '--date-format', date_format]
+        period_options = ('--monthly', '--date-format', date_format)
         period_len = 7
 
-    lines = get_ledger_output([
-        'register'
-    ] + begin + end + period + period_options + [
-        '--collapse',
-        '--empty'
-    ] + ledger_args).split('\n')
+    lines = get_ledger_output(
+        ('register', )
+        + begin + end + period + period_options
+        + ('--collapse', '--empty')
+        + ledger_args).split('\n')
 
     names = sorted(
         {x[:period_len] for x in lines if x[:period_len].strip() != ''}
@@ -111,7 +110,7 @@ def get_period_names(args, ledger_args, unit='year'):
             # remove future periods
             names = names[:names.index(current_period_date) + 1]
 
-    return names, current_period_name
+    return tuple(names), current_period_name
 
 
 def get_columns(period_names,
@@ -122,10 +121,10 @@ def get_columns(period_names,
 
     row_headers = set()
     columns = {}
-    ending = []
+    ending = tuple()
     for period_name in period_names:
         if current and current == period_name:
-            ending = ['--end', 'tomorrow']
+            ending = ('--end', 'tomorrow')
         if payees:
             column = get_column_payees(period_name, ledger_args + ending)
         else:
@@ -146,7 +145,7 @@ def get_column_accounts(period_name, ledger_args, depth=0):
     DOLLARS = 0
 
     lines = get_ledger_output(
-        ['balance', '--flat', '--period', period_name] + ledger_args
+        ('balance', '--flat', '--period', period_name) + ledger_args
     ).split('\n')
     column = defaultdict(int)
     next_is_total = False
@@ -203,8 +202,8 @@ def validate_column_total(period_name, column_total=0, ledgers_total=0):
 def get_column_payees(period_name, ledger_args):
     DOLLARS = 0
     lines = get_ledger_output(
-        ['register', 'expenses', '--group-by', '(payee)', '--collapse',
-         '--subtotal', '--depth', '1', '--period', period_name] + ledger_args
+        ('register', 'expenses', '--group-by', '(payee)', '--collapse',
+         '--subtotal', '--depth', '1', '--period', period_name) + ledger_args
     ).split('\n')
     column = {}
     payee = None
@@ -257,13 +256,14 @@ def get_rows(row_headers, columns, period_names, sort=SORT_DEFAULT, limit=0):
     if limit > 0:
         rows = rows[:limit]
 
-    headers = period_names
     if has_total_column:
-        headers.append(SORT_DEFAULT)
+        headers = period_names + (SORT_DEFAULT, )
+    else:
+        headers = period_names
 
     totals = tuple(sum(x) for x in list(zip(*rows))[:-1])
 
-    return [tuple(headers)] + rows + [totals]
+    return [headers] + rows + [totals]
 
 
 def get_grid(row_headers, columns):
@@ -380,4 +380,4 @@ def get_args(args):
 
 def main(argv=None):
     args, ledger_args = get_args(argv or [])
-    print(get_grid_report(args, ledger_args), end='')
+    print(get_grid_report(args, tuple(ledger_args)), end='')

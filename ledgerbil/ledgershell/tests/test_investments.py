@@ -14,7 +14,7 @@ class MockSettings:
         'glurg.ldg',
     ]
     PRICES_FILE = os.path.join(LEDGER_DIR, 'ijk')
-    LEDGER_COMMAND = ['ledger', '--market', '--price-db', PRICES_FILE]
+    LEDGER_COMMAND = ('ledger', '--market', '--price-db', PRICES_FILE)
     INVESTMENT_DEFAULT_ACCOUNTS = 'abc or cba'
     INVESTMENT_DEFAULT_END_DATE = 'xyz'
 
@@ -39,12 +39,11 @@ def test_check_for_negative_dollars_warning(mock_print):
 
 
 def test_get_investment_command_options_defaults():
-    expected = [
-        'bal'
-    ] + shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS) + [
-        '--end',
-        MockSettings.INVESTMENT_DEFAULT_END_DATE
-    ]
+    expected = (
+        ('bal', )
+        + tuple(shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS))
+        + ('--end', MockSettings.INVESTMENT_DEFAULT_END_DATE)
+    )
     # It would be nice to test with actual defaults but they appear
     # to be set at import time so we'll do this
     actual = investments.get_investment_command_options(
@@ -55,14 +54,12 @@ def test_get_investment_command_options_defaults():
 
 
 def test_get_investment_command_options_shares():
-    expected = [
-        'bal'
-    ] + shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS) + [
-        '--exchange',
-        '.',
-        '--end',
-        MockSettings.INVESTMENT_DEFAULT_END_DATE,
-    ]
+    expected = (
+        ('bal', )
+        + tuple(shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS))
+        + ('--exchange', '.')
+        + ('--end', MockSettings.INVESTMENT_DEFAULT_END_DATE)
+    )
     actual = investments.get_investment_command_options(
         shares=True,
         accounts=MockSettings.INVESTMENT_DEFAULT_ACCOUNTS,
@@ -72,7 +69,7 @@ def test_get_investment_command_options_shares():
 
 
 def test_get_investment_command_options_account_with_spaces():
-    expected = [
+    expected = (
         'bal',
         'no_space',
         'with space',
@@ -81,7 +78,7 @@ def test_get_investment_command_options_account_with_spaces():
         '.',
         '--end',
         MockSettings.INVESTMENT_DEFAULT_END_DATE,
-    ]
+    )
     actual = investments.get_investment_command_options(
         shares=True,
         accounts="""no_space "with space" 'also with spaces'""",
@@ -97,12 +94,11 @@ def test_get_lines_default_args(mock_get_ledger_output, mock_print):
     mock_get_ledger_output.return_value = '1\n2\n3\n'
     lines = investments.get_lines(args)
     assert lines == ['1', '2', '3', '']
-    mock_get_ledger_output.assert_called_once_with([
-        'bal',
-    ] + shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS) + [
-        '--end',
-        MockSettings.INVESTMENT_DEFAULT_END_DATE,
-    ])
+    mock_get_ledger_output.assert_called_once_with(
+        ('bal', )
+        + tuple(shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS))
+        + ('--end', MockSettings.INVESTMENT_DEFAULT_END_DATE)
+    )
     assert not mock_print.called
 
 
@@ -113,14 +109,12 @@ def test_get_lines_shares(mock_get_ledger_output, mock_print):
     mock_get_ledger_output.return_value = '1\n2\n3\n'
     lines = investments.get_lines(args, shares=True)
     assert lines == ['1', '2', '3', '']
-    mock_get_ledger_output.assert_called_once_with([
-        'bal',
-    ] + shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS) + [
-        '--exchange',
-        '.',
-        '--end',
-        MockSettings.INVESTMENT_DEFAULT_END_DATE,
-    ])
+    mock_get_ledger_output.assert_called_once_with(
+        ('bal', )
+        + tuple(shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS))
+        + ('--exchange', '.')
+        + ('--end', MockSettings.INVESTMENT_DEFAULT_END_DATE)
+    )
     assert not mock_print.called
 
 
@@ -131,12 +125,11 @@ def test_get_lines_print_command(mock_get_ledger_output, mock_print):
     mock_get_ledger_output.return_value = '1\n2\n3\n'
     lines = investments.get_lines(args)
     assert lines == ['1', '2', '3', '']
-    mock_get_ledger_output.assert_called_once_with([
-        'bal',
-    ] + shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS) + [
-        '--end',
-        MockSettings.INVESTMENT_DEFAULT_END_DATE,
-    ])
+    mock_get_ledger_output.assert_called_once_with(
+        ('bal', )
+        + tuple(shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS))
+        + ('--end', MockSettings.INVESTMENT_DEFAULT_END_DATE),
+    )
     expected_print = ('ledger --market --price-db lmn/ijk -f lmn/blarg.ldg '
                       '-f lmn/glurg.ldg bal abc or cba --end xyz')
     mock_print.assert_called_once_with(expected_print)

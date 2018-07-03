@@ -7,7 +7,7 @@ from .. import runner
 
 
 class TestSettings:
-    LEDGER_COMMAND = ['ledger']
+    LEDGER_COMMAND = ('ledger', )
     LEDGER_DIR = 'xyz'
     LEDGER_FILES = [
         'blarg.ldg',
@@ -31,7 +31,7 @@ def test_get_ledger_command():
     runner.settings = TestSettings()
     file1 = os.path.join(TestSettings.LEDGER_DIR, 'blarg.ldg')
     file2 = os.path.join(TestSettings.LEDGER_DIR, 'glurg.ldg')
-    expected = ['ledger', '-f', file1, '-f', file2]
+    expected = ('ledger', '-f', file1, '-f', file2)
     actual = runner.get_ledger_command()
     assert actual == expected
 
@@ -40,8 +40,8 @@ def test_get_ledger_command_with_options():
     runner.settings = TestSettings()
     file1 = os.path.join(TestSettings.LEDGER_DIR, 'blarg.ldg')
     file2 = os.path.join(TestSettings.LEDGER_DIR, 'glurg.ldg')
-    expected = ['ledger', '-f', file1, '-f', file2, 'booga booga']
-    actual = runner.get_ledger_command(['booga booga'])
+    expected = ('ledger', '-f', file1, '-f', file2, 'booga booga')
+    actual = runner.get_ledger_command(('booga booga', ))
     assert actual == expected
 
 
@@ -63,7 +63,7 @@ def test_get_ledger_output(mock_popen):
 def test_get_ledger_output_with_options(mock_popen):
     runner.settings = TestSettings()
     mock_popen.return_value = MockProcess(output=b'blargle')
-    output = runner.get_ledger_output(['--arghh', 'hooey'])
+    output = runner.get_ledger_output(('--arghh', 'hooey'))
     assert output == 'blargle'
 
 

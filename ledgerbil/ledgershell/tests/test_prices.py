@@ -137,12 +137,12 @@ def test_get_prices_with_file(mock_quote_data, mock_print):
         ('2009/10/11', '123.45')
     ]
     expected_opens = [
-        (('dummy_prices.db', 'a'),),
-        (('dummy_prices.db', 'a'),),
+        (('dummy_prices.db', 'a'), ),
+        (('dummy_prices.db', 'a'), ),
     ]
     expected_writes = [
-        (('P 2011/12/13 fu         $67.89\n',),),
-        (('P 2009/10/11 bar        $123.45\n',),),
+        (('P 2011/12/13 fu         $67.89\n', ), ),
+        (('P 2009/10/11 bar        $123.45\n', ), ),
     ]
     m = mock.mock_open()
     with mock.patch(__name__ + '.prices.open', m):

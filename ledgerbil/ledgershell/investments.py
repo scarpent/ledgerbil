@@ -27,7 +27,7 @@ def get_investment_command_options(
         options += ['--exchange', '.']  # override --market
     options += ['--end', end_date]
 
-    return ['bal'] + shlex.split(accounts) + options
+    return tuple(['bal'] + shlex.split(accounts) + options)
 
 
 def check_for_negative_dollars(amount, account):
