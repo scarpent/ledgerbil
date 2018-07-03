@@ -127,7 +127,7 @@ def test_get_column_accounts(mock_ledger_output):
         'expenses: car: maintenance': 6.50,
         'expenses: widgets': 1001.78,
     }
-    assert grid.get_column_accounts(['--period', '2018']) == expected
+    assert grid.get_column_accounts('2018', []) == expected
     mock_ledger_output.assert_called_once_with(
         ['balance', '--flat', '--period', '2018']
     )
@@ -148,7 +148,7 @@ def test_get_column_accounts_depth_one(mock_ledger_output):
         'apple': 30,
         'grape': 120,
     }
-    assert grid.get_column_accounts(['--period', '2018'], depth=1) == expected
+    assert grid.get_column_accounts('2018', [], depth=1) == expected
     mock_ledger_output.assert_called_once_with(
         ['balance', '--flat', '--period', '2018']
     )
@@ -170,7 +170,7 @@ def test_get_column_accounts_depth_two(mock_ledger_output):
         'grape:kiwi': 40,
         'grape:fig': 80,
     }
-    assert grid.get_column_accounts(['--period', '2018'], depth=2) == expected
+    assert grid.get_column_accounts('2018', [], depth=2) == expected
     mock_ledger_output.assert_called_once_with(
         ['balance', '--flat', '--period', '2018']
     )
@@ -190,7 +190,7 @@ def test_get_column_accounts_differing_totals(mock_ledger_output, mock_print):
         'expenses: parent': 49.998,
         'expenses: parent: child': 29.999,
     }
-    assert grid.get_column_accounts(['--period', '2018']) == expected
+    assert grid.get_column_accounts('2018', []) == expected
     mock_ledger_output.assert_called_once_with(
         ['balance', '--flat', '--period', '2018']
     )
@@ -225,7 +225,7 @@ def test_get_column_accounts_rounding(mock_ledger_output,
         'expenses: car: maintenance': 6.50,
     }
     mock_sum.return_value = 23.55
-    assert grid.get_column_accounts(['--period', '2018']) == expected
+    assert grid.get_column_accounts('2018', []) == expected
     mock_ledger_output.assert_called_once_with(
         ['balance', '--flat', '--period', '2018']
     )
@@ -241,7 +241,7 @@ def test_get_column_accounts_no_total(mock_ledger_output):
     expected = {
         'expenses: car: gas': 17.37,
     }
-    assert grid.get_column_accounts(['--period', '2018']) == expected
+    assert grid.get_column_accounts('2018', []) == expected
     mock_ledger_output.assert_called_once_with(
         ['balance', '--flat', '--period', '2018']
     )
@@ -269,10 +269,10 @@ def test_get_column_payees(mock_ledger_output):
         'johnny paycheck': 1381.32,
         'jurassic fork': 42.17
     }
-    assert grid.get_column_payees(['bogus']) == expected
+    assert grid.get_column_payees('blah', ['bogus']) == expected
     mock_ledger_output.assert_called_once_with(
-        ['register', 'expenses', '--group-by', '(payee)',
-         '--collapse', '--subtotal', '--depth', '1', 'bogus']
+        ['register', 'expenses', '--group-by', '(payee)', '--collapse',
+         '--subtotal', '--depth', '1', '--period', 'blah', 'bogus']
     )
 
 
@@ -296,8 +296,8 @@ def test_get_columns_payees(mock_get_column_payees):
     assert payees == expected_payees
     assert columns == expected_columns
     mock_get_column_payees.assert_has_calls([
-        mock.call(['--period', 'bratwurst', '?', '!']),
-        mock.call(['--period', 'knockwurst', '?', '!']),
+        mock.call('bratwurst', ['?', '!']),
+        mock.call('knockwurst', ['?', '!']),
     ])
 
 
@@ -327,8 +327,8 @@ def test_get_columns(mock_get_column_accounts):
     assert accounts == expected_accounts
     assert columns == expected_columns
     mock_get_column_accounts.assert_has_calls([
-        mock.call(['--period', 'lemon', 'salt!'], 0),
-        mock.call(['--period', 'lime', 'salt!'], 0),
+        mock.call('lemon', ['salt!'], 0),
+        mock.call('lime', ['salt!'], 0),
     ])
 
 
@@ -349,8 +349,8 @@ def test_get_columns_with_current(mock_get_column_accounts):
     assert accounts == expected_accounts
     assert columns == expected_columns
     mock_get_column_accounts.assert_has_calls([
-        mock.call(['--period', 'lemon', 'salt!'], 0),
-        mock.call(['--period', 'lime', 'salt!', '--end', 'tomorrow'], 0),
+        mock.call('lemon', ['salt!'], 0),
+        mock.call('lime', ['salt!', '--end', 'tomorrow'], 0),
     ])
 
 

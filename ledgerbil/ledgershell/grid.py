@@ -122,15 +122,16 @@ def get_columns(period_names,
 
     row_headers = set()
     columns = {}
+    ending = []
     for period_name in period_names:
         if current and current == period_name:
-            ledger_args += ['--end', 'tomorrow']
-
+            ending = ['--end', 'tomorrow']
         if payees:
-            column = get_column_payees(['--period', period_name] + ledger_args)
+            column = get_column_payees(period_name, ledger_args + ending)
         else:
             column = get_column_accounts(
-                ['--period', period_name] + ledger_args,
+                period_name,
+                ledger_args + ending,
                 depth
             )
 
@@ -140,11 +141,13 @@ def get_columns(period_names,
     return row_headers, columns
 
 
-def get_column_accounts(ledger_args, depth=0):
+def get_column_accounts(period_name, ledger_args, depth=0):
     ACCOUNT = 1
     DOLLARS = 0
 
-    lines = get_ledger_output(['balance', '--flat'] + ledger_args).split('\n')
+    lines = get_ledger_output(
+        ['balance', '--flat', '--period', period_name] + ledger_args
+    ).split('\n')
     column = defaultdict(int)
     next_is_total = False
 
@@ -152,9 +155,9 @@ def get_column_accounts(ledger_args, depth=0):
 
         if next_is_total:
             validate_column_total(
+                period_name,
                 column_total=sum(column.values()),
-                ledgers_total=float(re.sub(r'[$, ]', '', line)),
-                period_name=ledger_args[1]
+                ledgers_total=float(re.sub(r'[$, ]', '', line))
             )
             break
         elif line and line[0] == '-':  # ledger's total line separator
@@ -176,7 +179,7 @@ def get_column_accounts(ledger_args, depth=0):
     return column
 
 
-def validate_column_total(column_total=0, ledgers_total=0, period_name=None):
+def validate_column_total(period_name, column_total=0, ledgers_total=0):
     # ledger has an unfortunate way of reporting things when funds are
     # applied to both parent and child account -- it appears to double count
     # them in line items but not in the total
@@ -197,11 +200,11 @@ def validate_column_total(column_total=0, ledgers_total=0, period_name=None):
         print(message, file=sys.stderr)
 
 
-def get_column_payees(ledger_args):
+def get_column_payees(period_name, ledger_args):
     DOLLARS = 0
     lines = get_ledger_output(
-        ['register', 'expenses', '--group-by', '(payee)',
-         '--collapse', '--subtotal', '--depth', '1'] + ledger_args
+        ['register', 'expenses', '--group-by', '(payee)', '--collapse',
+         '--subtotal', '--depth', '1', '--period', period_name] + ledger_args
     ).split('\n')
     column = {}
     payee = None
