@@ -33,6 +33,6 @@ def main(argv=None):
         return 0
 
     if args.command:
-        print(' '.join(get_ledger_command(ledger_args)))
+        print(' '.join(get_ledger_command(tuple(ledger_args))))
 
-    print(get_ledger_output(ledger_args), end='')
+    print(get_ledger_output(tuple(ledger_args)), end='')
