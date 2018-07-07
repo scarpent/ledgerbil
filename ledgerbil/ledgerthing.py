@@ -7,16 +7,12 @@ from .ledgerbilexceptions import LdgReconcilerError
 
 UNSPECIFIED_PAYEE = '<Unspecified payee>'
 
-DATE_REGEX = r'^\d{4}(?:[-/]\d\d){2}(?=(?:\s|$))'
-# todo: this could use improvement; if payee is omitted,
-#       there can't be a comment; also, must be at least
-#       two spaces between payee and comment
-#       (perhaps should just rely on ledger validation for one or both)
+DATE_REGEX = r'^\d{4}(?:[-/]\d\d){2}(?=\s|$)'
+# not matching optional comment since we don't do anything with it
 TOP_LINE_REGEX = re.compile(
-    r'(' + DATE_REGEX + ')'        # date
-    r'(?:\s+\(([^)]*)\))?'         # optional transaction #
-    r'\s*([^;]+)?'                 # optional payee
-    r'(?:;.*$|$)'                  # optional comment
+    r'(' + DATE_REGEX + r')(?:\s+|$)'  # date with required whitespace (or $)
+    r'(?:\(([^)]*)\)\s*)?'             # optional transaction # and whitespace
+    r'(.*?)(?=  |$)'                   # opt. payee ends with two spaces (or $)
 )
 ENTRY_REGEX = re.compile(r'''(?x)  # verbose mode
     ^\s+                           # opening indent

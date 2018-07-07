@@ -36,61 +36,128 @@ class Constructor(TestCase):
     def test_non_transaction_date(self):
         """non-transactions initially have date = None"""
         thing = LedgerThing(['blah', 'blah blah blah'])
-        self.assertIsNone(thing.thing_date)
+        assert thing.thing_date is None
 
     def test_transaction_date(self):
         thing = LedgerThing(['2013/05/18 blah', '    ; something...'])
         self.assertEqual(thing.thing_date, date(2013, 5, 18))
 
-    def verify_top_line(self, line, the_date, code, payee):
+    def verify_top_line(self, line=None, the_date=None, code=None, payee=None):
         thing = LedgerThing([line])
-        self.assertEqual(thing.thing_date, the_date)
-        self.assertEqual(code, thing.transaction_code)
-        self.assertEqual(payee, thing.payee)
+        assert thing.thing_date == the_date
+        assert thing.transaction_code == code
+        assert thing.payee == payee
 
     def test_top_line(self):
         self.verify_top_line(
-            '2016/10/20',
-            date(2016, 10, 20), '', UNSPECIFIED_PAYEE
+            line='2016/10/20',
+            the_date=date(2016, 10, 20),
+            code='',
+            payee=UNSPECIFIED_PAYEE
         )
         self.verify_top_line(
-            '2016/10/20 someone',
-            date(2016, 10, 20), '', 'someone'
+            line='2016/10/20 someone',
+            the_date=date(2016, 10, 20),
+            code='',
+            payee='someone'
         )
         self.verify_top_line(
-            '2016/10/20 someone           ; some comment',
-            date(2016, 10, 20), '', 'someone'
+            line='2016/10/20     someone',
+            the_date=date(2016, 10, 20),
+            code='',
+            payee='someone'
         )
         self.verify_top_line(
-            '2016/02/04 (123)',
-            date(2016, 2, 4), '123', UNSPECIFIED_PAYEE
+            line='2016/10/20 someone           ; some comment',
+            the_date=date(2016, 10, 20),
+            code='',
+            payee='someone'
         )
         self.verify_top_line(
-            '2016/02/04 (123) someone',
-            date(2016, 2, 4), '123', 'someone'
+            line='2016/02/04 (123)',
+            the_date=date(2016, 2, 4),
+            code='123',
+            payee=UNSPECIFIED_PAYEE
         )
         self.verify_top_line(
-            '2016/02/04 (123)someone',
-            date(2016, 2, 4), '123', 'someone'
-        )
-        # todo: this is invalid in ledger; see if we can exclude?
-        self.verify_top_line(
-            '2001/04/11 (abc)                 ; yah',
-            date(2001, 4, 11), 'abc', UNSPECIFIED_PAYEE
+            line='2016/02/04      (123)',
+            the_date=date(2016, 2, 4),
+            code='123',
+            payee=UNSPECIFIED_PAYEE
         )
         self.verify_top_line(
-            '2001/04/11 (abc) someone        ; yah',
-            date(2001, 4, 11), 'abc', 'someone'
+            line='2016/02/04 (123) someone',
+            the_date=date(2016, 2, 4),
+            code='123',
+            payee='someone'
         )
         self.verify_top_line(
-            '2001/04/11 () someone        ; yah',
-            date(2001, 4, 11), '', 'someone'
+            line='2016/02/04    (123)     someone',
+            the_date=date(2016, 2, 4),
+            code='123',
+            payee='someone'
         )
-        self.verify_top_line('2001/04/11(abc)', None, '', None)
-        self.verify_top_line('2001/04/11someone', None, '', None)
-
-        # todo: add tests for requiring two spaces after payee;
-        #       test payee names with spaces
+        self.verify_top_line(
+            line='2016/02/04 (123)someone',
+            the_date=date(2016, 2, 4),
+            code='123',
+            payee='someone'
+        )
+        # semicolons are possible in names, like in this case
+        self.verify_top_line(
+            line='2001/04/11 (abc)                 ; yah',
+            the_date=date(2001, 4, 11),
+            code='abc',
+            payee='; yah'
+        )
+        self.verify_top_line(
+            line='2001/04/11 (abc)        ; yah      ; comment',
+            the_date=date(2001, 4, 11),
+            code='abc',
+            payee='; yah'
+        )
+        self.verify_top_line(
+            line='2001/04/11 (abc) someone        ; yah',
+            the_date=date(2001, 4, 11),
+            code='abc',
+            payee='someone'
+        )
+        self.verify_top_line(
+            line='2001/04/11 () someone        ; yah',
+            the_date=date(2001, 4, 11),
+            code='',
+            payee='someone'
+        )
+        self.verify_top_line(
+            line='2018/07/07 payee name with spaces',
+            the_date=date(2018, 7, 7),
+            code='',
+            payee='payee name with spaces'
+        )
+        self.verify_top_line(
+            line='2018/07/07 payee name with spaces  ; and comment',
+            the_date=date(2018, 7, 7),
+            code='',
+            payee='payee name with spaces'
+        )
+        self.verify_top_line(
+            line='2018/07/07 payee name ; includes semicolon',
+            the_date=date(2018, 7, 7),
+            code='',
+            payee='payee name ; includes semicolon'
+        )
+        self.verify_top_line(
+            line='2001/04/11(abc)',
+            the_date=None,
+            code='',
+            payee=None
+        )
+        self.verify_top_line(
+            line='2001/04/11someone',
+            the_date=None,
+            code='',
+            payee=None
+        )
 
 
 class GetLines(Redirector):
@@ -228,83 +295,55 @@ class GetLines(Redirector):
 class IsNewThing(TestCase):
 
     def test_is_new_thing(self):
-        self.assertTrue(LedgerThing.is_new_thing('2013/04/15 ab store'))
+        assert LedgerThing.is_new_thing('2013/04/15 ab store')
 
     def test_is_not_thing(self):
-        self.assertFalse(LedgerThing.is_new_thing(''))
+        assert not LedgerThing.is_new_thing('')
 
 
 class IsTransactionStart(TestCase):
 
     def test_valid_transaction_start(self):
         """date recognized as the start of a transaction"""
-        self.assertTrue(
-            LedgerThing.is_transaction_start('2013/04/14 abc store')
-        )
+        assert LedgerThing.is_transaction_start('2013/04/14 abc store')
 
     def test_valid_transaction_start_with_tabs(self):
         """date recognized as the start of a transaction"""
-        self.assertTrue(
-            LedgerThing.is_transaction_start('2013/04/14\t\tabc store')
-        )
+        assert LedgerThing.is_transaction_start('2013/04/14\t\tabc store')
 
     def test_leading_white_space(self):
         """leading whitespace should return false"""
-        self.assertFalse(
-            LedgerThing.is_transaction_start('    2013/04/14 abc store')
-        )
+        assert not LedgerThing.is_transaction_start('    2013/04/14 abc store')
 
     def test_date_only(self):
-        self.assertTrue(LedgerThing.is_transaction_start('2013/04/14 '))
-        self.assertTrue(LedgerThing.is_transaction_start('2013/04/14'))
+        assert LedgerThing.is_transaction_start('2013/04/14 ')
+        assert LedgerThing.is_transaction_start('2013/04/14')
 
     def test_empty_line(self):
-        self.assertFalse(LedgerThing.is_transaction_start(''))
+        assert not LedgerThing.is_transaction_start('')
 
     def test_newline(self):
         line = '\n'
-        self.assertFalse(
-            LedgerThing.is_transaction_start(line)
-        )
+        assert not LedgerThing.is_transaction_start(line)
 
     def test_whitespace(self):
-        self.assertFalse(
-            LedgerThing.is_transaction_start('            \t    ')
-        )
+        assert not LedgerThing.is_transaction_start('            \t    ')
 
     def test_invalid_date(self):
-        self.assertFalse(
-            LedgerThing.is_transaction_start('2013/02/30 abc store')
-        )
+        assert not LedgerThing.is_transaction_start('2013/02/30 abc store')
 
     def test_invalid_date_formats(self):
-        self.assertFalse(
-            LedgerThing.is_transaction_start('2013/5/12 abc store')
-        )
-        self.assertFalse(
-            LedgerThing.is_transaction_start('2013/06/1 abc store')
-        )
+        assert not LedgerThing.is_transaction_start('2013/5/12 abc store')
+        assert not LedgerThing.is_transaction_start('2013/06/1 abc store')
 
     def test_transaction_code(self):
-        self.assertTrue(
-            LedgerThing.is_transaction_start('2016/10/20 (123) store')
-        )
-        self.assertTrue(
-            LedgerThing.is_transaction_start('2016/10/20 (abc)store')
-        )
-        self.assertTrue(
-            LedgerThing.is_transaction_start('2016/10/20 (123)')
-        )
+        assert LedgerThing.is_transaction_start('2016/10/20 (123) store')
+        assert LedgerThing.is_transaction_start('2016/10/20 (abc)store')
+        assert LedgerThing.is_transaction_start('2016/10/20 (123)')
         # todo: this is invalid in ledger; see if we can exclude
-        self.assertTrue(
-            LedgerThing.is_transaction_start('2016/10/20 (123)   ; xyz')
-        )
-        self.assertFalse(
-            LedgerThing.is_transaction_start('2016/10/20(123)')
-        )
-        self.assertFalse(
-            LedgerThing.is_transaction_start('2016/10/20someone')
-        )
+        assert LedgerThing.is_transaction_start('2016/10/20 (123)   ; xyz')
+        assert not LedgerThing.is_transaction_start('2016/10/20(123)')
+        assert not LedgerThing.is_transaction_start('2016/10/20someone')
 
 
 class ReconcilerParsing(Redirector):
@@ -722,17 +761,17 @@ class ReconcilerParsing(Redirector):
             ],
             'checking'
         )
-        self.assertFalse(thing.is_pending())
-        self.assertFalse(thing.is_cleared())
+        assert not thing.is_pending()
+        assert not thing.is_cleared()
         thing.set_pending()
-        self.assertTrue(thing.is_pending())
-        self.assertFalse(thing.is_cleared())
+        assert thing.is_pending()
+        assert not thing.is_cleared()
         thing.set_cleared()
-        self.assertFalse(thing.is_pending())
-        self.assertTrue(thing.is_cleared())
+        assert not thing.is_pending()
+        assert thing.is_cleared()
         thing.set_uncleared()
-        self.assertFalse(thing.is_pending())
-        self.assertFalse(thing.is_cleared())
+        assert not thing.is_pending()
+        assert not thing.is_cleared()
 
 
 def test_mixed_shares_and_non_shares_raises_exception():
