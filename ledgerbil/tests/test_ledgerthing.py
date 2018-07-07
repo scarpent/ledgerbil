@@ -318,8 +318,8 @@ class IsTransactionStart(TestCase):
         assert LedgerThing.is_transaction_start('2016/10/20 (123) store')
         assert LedgerThing.is_transaction_start('2016/10/20 (abc)store')
         assert LedgerThing.is_transaction_start('2016/10/20 (123)')
-        # todo: this is invalid in ledger; see if we can exclude
         assert LedgerThing.is_transaction_start('2016/10/20 (123)   ; xyz')
+        assert LedgerThing.is_transaction_start('2016/10/20 (123)  ; xyz  ; a')
         assert not LedgerThing.is_transaction_start('2016/10/20(123)')
         assert not LedgerThing.is_transaction_start('2016/10/20someone')
 
