@@ -8,7 +8,7 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 
 from .ledgerbilexceptions import LdgSchedulerError
-from .ledgerthing import LedgerThing
+from .ledgerthing import DATE_REGEX, LedgerThing
 
 
 class ScheduleThing(LedgerThing):
@@ -210,7 +210,7 @@ class ScheduleThing(LedgerThing):
         entry_lines = copy(self.lines)
         del entry_lines[ScheduleThing.LINE_SCHEDULE]
         entry_lines[ScheduleThing.LINE_DATE] = re.sub(
-            self.DATE_REGEX,
+            DATE_REGEX,
             self.get_date_string(),
             entry_lines[ScheduleThing.LINE_DATE]
         )

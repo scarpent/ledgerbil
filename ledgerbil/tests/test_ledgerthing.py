@@ -4,7 +4,9 @@ from unittest import TestCase
 import pytest
 
 from ..ledgerbilexceptions import LdgReconcilerError
-from ..ledgerthing import UNSPECIFIED_PAYEE, LedgerThing
+from ..ledgerthing import (
+    REC_CLEARED, REC_PENDING, REC_UNCLEARED, UNSPECIFIED_PAYEE, LedgerThing
+)
 from .helpers import Redirector
 
 
@@ -161,19 +163,19 @@ class GetLines(Redirector):
         # uncleared -> pending
         lines = ('2016/10/24 abc', '  e: xyz', '     a: smurg   $-25')
         thing = LedgerThing(list(lines), reconcile_account='smurg')
-        thing.rec_status = LedgerThing.REC_PENDING
+        thing.rec_status = REC_PENDING
         self.assertEqual(
             ('2016/10/24 abc', '  e: xyz', '  ! a: smurg   $-25'),
             tuple(thing.get_lines())
         )
         # pending -> cleared
-        thing.rec_status = LedgerThing.REC_CLEARED
+        thing.rec_status = REC_CLEARED
         self.assertEqual(
             ('2016/10/24 abc', '  e: xyz', '  * a: smurg   $-25'),
             tuple(thing.get_lines())
         )
         # cleared -> uncleared
-        thing.rec_status = LedgerThing.REC_UNCLEARED
+        thing.rec_status = REC_UNCLEARED
         self.assertEqual(
             ('2016/10/24 abc', '  e: xyz', '    a: smurg   $-25'),
             tuple(thing.get_lines())
@@ -188,7 +190,7 @@ class GetLines(Redirector):
             '    a: smurg   $-25',
         )
         thing = LedgerThing(list(lines), reconcile_account='smurg')
-        thing.rec_status = LedgerThing.REC_PENDING
+        thing.rec_status = REC_PENDING
         expected = (
             '2016/10/24 glob',
             '  ; might as well test comment handling, too',
@@ -206,17 +208,17 @@ class GetLines(Redirector):
         # uncleared -> pending
         lines = ('2016/10/24 abc', '  e: xyz', '     a: smurg   $-25')
         thing = LedgerThing(list(lines), reconcile_account='sm.[a-z]g')
-        thing.rec_status = LedgerThing.REC_PENDING
+        thing.rec_status = REC_PENDING
         self.assertEqual(
             ('2016/10/24 abc', '  e: xyz', '  ! a: smurg   $-25'),
             tuple(thing.get_lines())
         )
-        thing.rec_status = LedgerThing.REC_CLEARED
+        thing.rec_status = REC_CLEARED
         self.assertEqual(
             ('2016/10/24 abc', '  e: xyz', '  * a: smurg   $-25'),
             tuple(thing.get_lines())
         )
-        thing.rec_status = LedgerThing.REC_UNCLEARED
+        thing.rec_status = REC_UNCLEARED
         self.assertEqual(
             ('2016/10/24 abc', '  e: xyz', '    a: smurg   $-25'),
             tuple(thing.get_lines())
@@ -467,7 +469,7 @@ class ReconcilerParsing(Redirector):
             account='check',
             expected_match='a: checking',
             expected_amount=-25,
-            expected_status=LedgerThing.REC_PENDING
+            expected_status=REC_PENDING
         )
         self.verify_reconcile_vars(
             [
@@ -478,7 +480,7 @@ class ReconcilerParsing(Redirector):
             account='check',
             expected_match='a: checking',
             expected_amount=-25,
-            expected_status=LedgerThing.REC_CLEARED
+            expected_status=REC_CLEARED
         )
         self.verify_reconcile_vars(
             [
@@ -489,7 +491,7 @@ class ReconcilerParsing(Redirector):
             account='check',
             expected_match='a: checking',
             expected_amount=-25,
-            expected_status=LedgerThing.REC_PENDING
+            expected_status=REC_PENDING
         )
 
     def test_status_with_math(self):
@@ -503,7 +505,7 @@ class ReconcilerParsing(Redirector):
             account='check',
             expected_match='a: checking',
             expected_amount=-25,
-            expected_status=LedgerThing.REC_PENDING
+            expected_status=REC_PENDING
         )
         self.verify_reconcile_vars(
             [
@@ -514,7 +516,7 @@ class ReconcilerParsing(Redirector):
             account='check',
             expected_match='a: checking',
             expected_amount=50,
-            expected_status=LedgerThing.REC_CLEARED
+            expected_status=REC_CLEARED
         )
 
     def test_multiple_statuses_raises_exception(self):
@@ -632,7 +634,7 @@ class ReconcilerParsing(Redirector):
             account='a: checking',
             expected_match='a: checking',
             expected_amount=-35,
-            expected_status=LedgerThing.REC_PENDING
+            expected_status=REC_PENDING
         )
         self.assertEqual('', self.redirect.getvalue().rstrip())
 
@@ -823,7 +825,7 @@ def test_lines_is_different_than_get_lines_when_status_changes():
         '  ! l: abc         $-10',
     ]
     thing = LedgerThing(lines, reconcile_account='abc')
-    thing.rec_status = LedgerThing.REC_PENDING
+    thing.rec_status = REC_PENDING
     assert thing.lines == lines
     assert thing.get_lines() == lines_with_status
     assert thing.lines != thing.get_lines()

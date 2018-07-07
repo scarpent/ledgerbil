@@ -4,7 +4,7 @@ from unittest import mock
 
 sys.path.insert(0, os.path.realpath(os.path.dirname(__file__) + "/../.."))
 
-import main  # noqa: module level import won't be happy at top of file
+import main  # isort:skip # noqa: has to follow sys path hack
 
 
 @mock.patch('main.ledgerbil.main')

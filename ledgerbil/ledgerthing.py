@@ -7,36 +7,36 @@ from .ledgerbilexceptions import LdgReconcilerError
 
 UNSPECIFIED_PAYEE = '<Unspecified payee>'
 
+DATE_REGEX = r'^\d{4}(?:[-/]\d\d){2}(?=(?:\s|$))'
+# todo: this could use improvement; if payee is omitted,
+#       there can't be a comment; also, must be at least
+#       two spaces between payee and comment
+#       (perhaps should just rely on ledger validation for one or both)
+TOP_LINE_REGEX = re.compile(
+    r'(' + DATE_REGEX + ')'        # date
+    r'(?:\s+\(([^)]*)\))?'         # optional transaction #
+    r'\s*([^;]+)?'                 # optional payee
+    r'(?:;.*$|$)'                  # optional comment
+)
+ENTRY_REGEX = re.compile(r'''(?x)  # verbose mode
+    ^\s+                           # opening indent
+    ([!*])?                        # optional pending/cleared
+    (?:\s*)?                       # optional whitespace after pending/cleared
+    ([^;]+?)(?=\ \ |$)             # account (2 spaces ends acct)
+    (?:\s*                         # optional share info, leading whitespace
+      (-?\s*[.,0-9]+)              # num shares
+      (?:\s+([^@; ]+))             # symbol
+      (?:\s*@\s*)?                 # optional @
+    )?                             # close of optional share stuff
+    \(?([-+*/()$\d.,\s]+)?\)?      # optional amount expression
+    (?:;.*$|$)                     # optional end comment
+    ''')
+REC_PENDING = '!'
+REC_CLEARED = '*'
+REC_UNCLEARED = ''
+
 
 class LedgerThing:
-
-    DATE_REGEX = r'^\d{4}(?:[-/]\d\d){2}(?=(?:\s|$))'
-    # todo: this could use improvement; if payee is omitted,
-    #       there can't be a comment; also, must be at least
-    #       two spaces between payee and comment
-    #       (perhaps should just rely on ledger validation for one or both)
-    TOP_LINE_REGEX = re.compile(
-        r'(' + DATE_REGEX + ')'        # date
-        r'(?:\s+\(([^)]*)\))?'         # optional transaction #
-        r'\s*([^;]+)?'                 # optional payee
-        r'(?:;.*$|$)'                  # optional comment
-    )
-    ENTRY_REGEX = re.compile(r'''(?x)  # verbose mode
-        ^\s+                           # opening indent
-        ([!*])?                        # optional pending/cleared
-        (?:\s*)?                       # optional whitespace after p/c
-        ([^;]+?)(?=\ \ |$)             # account (2 spaces ends acct)
-        (?:\s*                         # optional share info, leading white
-          (-?\s*[.,0-9]+)              # num shares
-          (?:\s+([^@; ]+))             # symbol
-          (?:\s*@\s*)?                 # optional @
-        )?                             # close of optional share stuff
-        \(?([-+*/()$\d.,\s]+)?\)?      # optional amount expression
-        (?:;.*$|$)                     # optional end comment
-        ''')
-    REC_PENDING = '!'
-    REC_CLEARED = '*'
-    REC_UNCLEARED = ''
 
     def __init__(self, lines, reconcile_account=None):
 
@@ -70,7 +70,7 @@ class LedgerThing:
         return '\n'.join(self.get_lines())
 
     def _parse_top_line(self, line):
-        m = re.match(LedgerThing.TOP_LINE_REGEX, line)
+        m = re.match(TOP_LINE_REGEX, line)
 
         the_date, code, payee = m.groups()
 
@@ -107,7 +107,7 @@ class LedgerThing:
         symbols = set()
 
         for line in lines:
-            m = re.match(self.ENTRY_REGEX, line)
+            m = re.match(ENTRY_REGEX, line)
             if not m:
                 continue
 
@@ -165,11 +165,7 @@ class LedgerThing:
         if not self.is_transaction:
             return self.lines[:]
 
-        lines_out = [re.sub(
-            self.DATE_REGEX,
-            self.get_date_string(),
-            self.lines[0]
-        )]
+        lines_out = [re.sub(DATE_REGEX, self.get_date_string(), self.lines[0])]
 
         if self.rec_account_matched is None:
             return lines_out + self.lines[1:]
@@ -177,7 +173,7 @@ class LedgerThing:
         current_status = self.rec_status or ' '
 
         for line in self.lines[1:]:
-            m = re.match(self.ENTRY_REGEX, line)
+            m = re.match(ENTRY_REGEX, line)
             if not m:  # e.g. a comment
                 lines_out.append(line)
                 continue
@@ -208,7 +204,7 @@ class LedgerThing:
 
     @staticmethod
     def is_transaction_start(line):
-        match = re.match(LedgerThing.TOP_LINE_REGEX, line)
+        match = re.match(TOP_LINE_REGEX, line)
         if match:
             return util.is_valid_date(match.groups()[0])
         else:
@@ -244,16 +240,16 @@ class LedgerThing:
         return util.get_date_string(self.thing_date)
 
     def is_pending(self):
-        return self.rec_status == self.REC_PENDING
+        return self.rec_status == REC_PENDING
 
     def set_pending(self):
-        self.rec_status = self.REC_PENDING
+        self.rec_status = REC_PENDING
 
     def is_cleared(self):
-        return self.rec_status == self.REC_CLEARED
+        return self.rec_status == REC_CLEARED
 
     def set_cleared(self):
-        self.rec_status = self.REC_CLEARED
+        self.rec_status = REC_CLEARED
 
     def set_uncleared(self):
-        self.rec_status = self.REC_UNCLEARED
+        self.rec_status = REC_UNCLEARED
