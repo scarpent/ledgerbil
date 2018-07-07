@@ -1,0 +1,238 @@
+; monokai color scheme
+
+; comments with one semicolon have grey fg (something like that - dim, anyway)
+; either for whole line or after non-comment stuff
+
+;; line comments with two semicolons have yellow fg
+    ;; still yellow even if indented
+
+;;;; line comments with four semicolons have white fg and purple bg
+;;;; and extend to edge of window
+    ;;;; only if at the start of the line, otherwise looks like two ;;
+; maybe you want a banner:
+;;;; ------------------------------------------------------------------------ ;
+;;;; future
+;;;; ------------------------------------------------------------------------ ;
+
+; a todo in a comment also has white fg and purple bg
+; just the last todo is the specially highlighted todo
+
+; Capital letters have white fg and pink bg and break whole line highlighting
+
+; top line
+2018/07/06 some payee           ; date has orange fg, payee has purple fg
+2018/07/06 (1234) some payee    ; optional transaction # has yellow fg
+2018/07/06  payee  ; can have multiple spaces between date and payee
+2018/07/06  (123)  payee  ; and with optional
+2018/07/06 payee ;  ; first semicolon is part of payee name
+2018/07/06 ! some payee         ; pending (!) has white fg and pink bg
+2018/07/06 * some payee         ; cleared (*) has green fg
+2018/07/06 ! (abc) some payee   ; pending (!) with optional transaction #
+2018/07/06 * (xyz) some payee   ; cleared (*) with transaction #
+2018/07/06 (xyz) * some payee   ; valid but weird (payee = "* some payee")
+2018/07/06 !some payee          ; space is optional after !
+2018/07/06 *some payee          ; space is optional after *
+2018/07/06 !(abc) some payee    ; space is optional after !
+2018/07/06 *(abc) some payee    ; space is optional after *
+
+; line items can have pending and cleared, too
+  ! a: xyz      ; pending
+  * a: xyz      ; cleared
+   !a: xyz      ; space is optional between ! and account
+   *a: xyz      ; more below in edge cases...
+
+; standard account types
+
+    e: parent: child: grandchild    ; expenses (e)
+    expenses: parent: child         ; first two account levels have yellow fg
+                                    ; rest have white fg
+
+    a: checking: bank name          ; assets (a)
+    assets: misc: etc: etc          ; first level (a/assets) has green fg
+                                    ; second level has cyan fg
+                                    ; rest have white fg
+
+    l: credit card: etc: etc        ; liabilities (l)
+    liabilities: credit card        ; first level (l/liabilities) has red fg
+                                    ; rest are same as with assets
+
+    i: wages: gross pay             ; income (i)
+    income: wages: bonus            ; first level (i/income) has green fg
+                                    ; rest have white fg
+
+    equity: blah: blah              ; equity has white fg all the way
+
+; negative and postive dollar amounts
+
+    e: fu            $25            ; normal positive expense has orange fg
+    e: bar           $-25           ; negative expense has yellow fg
+    e: lic           ($25 + $10)    ; same for calculations
+    e: ious          ($-25 - $5)    ; maybe negative expense should be income
+                                    ; but sometimes makes sense this way
+    e: elided
+
+    a: something    $25             ; money going into an asset has green fg
+    a: wicked       $-25            ; coming out has red fg
+    a: this way     ($25 * 2)       ; same for calculations
+    a: comes        ($-25 * 2)
+    a: elided
+
+    l: bats         $25             ; money paid to liability has green fg
+    l: in           $-25            ; money added to liability has red fg
+    l: the          ($25 * 8)       ; same for calculations
+    l: belfry       ($-25 * 8)
+    l: elided
+
+    a: money we have    $100        ; see how they are opposing forces
+    l: money we owe     $-100
+
+    i: one          $-25            ; negative income green fg (this is good)
+    i: last         $25             ; positive income red fg (probably makes
+                                    ; more sense as an expense)
+    i: drink        ($-25 * 10)     ; same for calculations
+    i: please       ($25 * 10)
+    i: elided
+
+    equity: fu      $25             ; i usually elide equity amounts so haven't
+    equity: bar     $-25            ; made a rule, this matches
+                                    ; "(\\$ ?-?[\\d\\.,_]+)"
+                                    ; "string.unquoted.amount" for yellow fg
+                                    ; would match income coloring if i bothered
+
+; again relying on string.unquoted.amount to match the hanging value on the end
+2017/12/31 balance assertions
+    l: credit card: mega       = $-56.87        ; assignment, yellow fg
+    l: credit card: man     $0 = $-56.87        ; yellow fg
+    l: credit card: man   $-10 = $-56.87        ; yellow fg
+    a: bank                    = $50            ; assigment, green fg
+                                                ; (not bothering with)
+    a: bank                 $0 = $50            ; yellow fg
+    a: bank                $-0 = $50            ; yellow fg
+    e: something           $10 = $10            ; yellow fg
+    i: something          $-10 = $-20           ; yellow fg
+    a: 401k: abc  10.000 abx @ $80.00 = 20.555 abx  ; white fg
+                                                    ; (not bothering with)
+
+; stock / mutual fund prices
+2017/10/01 opening balance
+    a: 401k: big co 500 idx    10.000 abcdx @   $80.00  ; num shares green fg
+                                                        ; commodity cyan fg
+                                                        ; @ pink fg
+                                                        ; amount yellow fg
+    ; negative shares sold/removed have red fg
+    a: 401k: big co 500 idx    -10.000 abcdx @   $80.00
+
+
+2017/11/03 def  ; todo fix these
+    a: sna: fu    -0.103 abcdx @   $80.65   ; usual
+    a: sna: fu    -0.103 abcdx@   $80.65    ; no space needed before @
+    a: sna: fu    -0.103 abcdx @$80.65      ; nor after @
+    a: sna: fu    -0.103 abcdx@$80.65       ; getting tight in here
+    a: sna: fu    -0.103abcdx@$80.65        ; really cramped but valid
+
+; metadata tags
+
+    ; :the_tag: single tag          ; just the_tag higlighted, cyan fg
+    ; :one_tag:two_tag:             ; can chain tags; ideally all would have
+    ; :one_tag:two_tag:three_tag:   ; cyan fg, but something weird with syntax
+                                    ; highlighting for multiple matches, so
+                                    ; last has cyan fg and others white fg
+    ; :one_tag: :two_tag:           ; only the first is recognized
+    ; :a_tag: key_tag: some value   ; only standalone a_tag counts
+    ; tags with values
+    ; key has cyan fg and no spaces
+    ; space is required after colon and everything after is part of the value
+    ; a_tag: a value
+    ;; value = "a value x: y"
+    ; a_tag: a value x: y
+    ; special payee metadata field
+    ; Payee: some person
+
+; misc
+
+; tag keyword (directive?) has cyan fg, name of the tag has orange fg
+tag car
+tag abc
+tag xyz  ; this is invalid
+; this is a valid tag but we're not going to highlight it (i mean, come on)
+tag abc;
+; this is not a valid tag because can't have have space in tag name
+tag abc ;
+
+; commodity keyword has cyan fg, name of the commodity has orange fg'
+; sub-directives have pink fg, format value has green fg
+; note also pink fg as sub-directive and grey fg for the value
+commodity $
+    format $ 1,000.00
+    default
+    note this is a note
+
+commodity abcdx ; comments allowed on commodities, apparently, even w/ 1 space
+    format 1,000.000
+    note big co 500 idx
+
+; payee directive has cyan fg and name of payee has purple fg
+payee name of same
+; we're not going to highlight valid payee names that include semicolons
+; valid "apple;"
+payee apple;
+; valid "apple ;"
+payee apple ;
+; valid "apple ; banana"
+payee apple ; banana
+; ledger will let you have two spaces like this but it's not a comment and you
+; can't use it because in an entry, the payee name is terminated after 2 spaces
+payee apple  ; banana
+
+; account directive has cyan fg and value has orange fg
+; this is only for equity/income/expenses/assets/liabilities, or more
+; specifically, if no spaces/colons for the value
+; alias sub-directive has pink fg and value has green fg
+account assets
+    alias a
+; assets in this case has white fg, "one" has yellow fg, and rest white
+account assets: one: two: three
+; ideally wouldn't highlight line at all but if a comment we'll do *something*
+; - account directive becomes white fg, and "assets" highlighting kicks in with
+; green fg, and so on...
+account assets: one: two: three  ;
+; same for others
+account liabilities
+
+; misc combinations
+2018/07/06  payee  ; can have multiple spaces between date and payee
+2018/07/06  (123)  payee  ; and with optional
+2018/07/06 blah blah payee  ; comment blah blah todo (not really todo)
+2018/07/06 xy ; z  ; two spaces terminate the payee, making this "xy ; z"
+; a tab character also terminates a payee name
+; https://www.ledger-cli.org/3.0/doc/ledger3.html#Transaction-notes-1
+2018/07/06 this is unfortunate	; comment
+
+
+;; ledgerbil specific --------------------------------------------------------
+
+; top of file config - ;; scheduler has ping fg, ; enter 40 days has yellow fg
+;; scheduler ; enter 40 days
+
+; entry configs - ;; schedule has ping fg, rest has yellow fg
+2018/08/24 something
+    ;; schedule ; weekly ;; every 2 weeks
+
+;; more pending and cleared ---------------------------------------------------
+
+   !l: xyz ;
+   *l: xyz ;  ; similarly to payees, can have weirdness with semicolons
+  * l: xyz
+  ! l: xyz
+   !e: xyz
+   *e: xyz
+  * e: xyz
+  ! e: xyz
+   !i: xyz
+   *i: xyz
+  * i: xyz
+  ! i: xyz
+   !equity: xyz ; hard tabs again
+   *equity: xyz
+  * equity: xyz
+  ! equity: xyz

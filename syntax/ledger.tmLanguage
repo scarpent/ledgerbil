@@ -98,21 +98,38 @@
 				<key>2</key>
 				<dict>
 					<key>name</key>
-					<string>support.class</string>
+					<string>support.class.tag-without-value</string>
 				</dict>
 				<key>3</key>
-				<dict>
-					<key>name</key>
-					<string>string.unquoted</string>
-				</dict>
-				<key>4</key>
 				<dict>
 					<key>name</key>
 					<string>comment.line</string>
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(;[^A-Z]*)(\b\w+:) ((?:\w+\W)+)(.*)$</string>
+			<string>(;[^A-Z]*?)(:\w+:|(?&lt;=:)\w+:)+(.*)$</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>comment.line</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>support.class.tag-key</string>
+				</dict>
+				<key>3</key>
+				<dict>
+					<key>name</key>
+					<string>string.unquoted.tag-value</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>(;[^A-Z]*?)(\b\w+:) (.*)$</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -137,6 +154,60 @@
 				<key>2</key>
 				<dict>
 					<key>name</key>
+					<string>invalid.pending</string>
+				</dict>
+				<key>3</key>
+				<dict>
+					<key>name</key>
+					<string>string.quoted.transacton-number</string>
+				</dict>
+				<key>4</key>
+				<dict>
+					<key>name</key>
+					<string>constant.character.payee</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>^(\d{4}[/-]\d{2}[/-]\d{2})\s+(!)\s*(\([^)]*\)\s+)?(.*?)(?=  |\t|$)</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>variable.parameter.date</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>entity.name.function.cleared</string>
+				</dict>
+				<key>3</key>
+				<dict>
+					<key>name</key>
+					<string>string.quoted.transacton-number</string>
+				</dict>
+				<key>4</key>
+				<dict>
+					<key>name</key>
+					<string>constant.character.payee</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>^(\d{4}[/-]\d{2}[/-]\d{2})\s+(\*)\s*(\([^)]*\)\s+)?(.*?)(?=  |\t|$)</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>variable.parameter.date</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
 					<string>string.quoted.transacton-number</string>
 				</dict>
 				<key>3</key>
@@ -146,7 +217,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^(\d{4}[/-]\d{2}[/-]\d{2}) (\([^)]*\) )?((?:[-\w.,'$&amp;()]|(?&lt;! ) (?! ))+)</string>
+			<string>^(\d{4}[/-]\d{2}[/-]\d{2})\s+(\([^)]*\)\s+)?(.*?)(?=  |\t|$)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -170,7 +241,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^(\s+!)\s+</string>
+			<string>^(\s+!)\s*</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -178,11 +249,11 @@
 				<key>1</key>
 				<dict>
 					<key>name</key>
-					<string>entity.name.function.reconciled</string>
+					<string>entity.name.function.cleared</string>
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^\s+(\*)\s+</string>
+			<string>^\s+(\*)\s*</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -199,7 +270,24 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^(commodity|tag)\b ([^;]+)</string>
+			<string>^(tag) ([^ ;]+)$</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>support.class.directive</string>
+				</dict>
+				<key>2</key>
+				<dict>
+					<key>name</key>
+					<string>variable.parameter.name</string>
+				</dict>
+			</dict>
+			<key>match</key>
+			<string>^(commodity) ([^ ]+)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -216,7 +304,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^(account)\b (?:[a-z]+:) ?([a-z0-9 ]+(?::|$))</string>
+			<string>^(account) (?:[a-z]+:) ?([a-z0-9 ]+(?::|$))[^;]*$</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -233,7 +321,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^(account)\b ([a-z]+)$</string>
+			<string>^(account) ([a-z]+)$</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -250,7 +338,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^(payee)\b ([^;]+)</string>
+			<string>^(payee) ([^;]+)$</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -333,7 +421,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(- ?[\d\.,_]+)\s+([a-zA-z_]+)(?:\s+(@)\s+|\s+(?=;)|\s*$)</string>
+			<string>(\ba(?:ssets)?:) ?([^:;=]+?(?::|(?=  )))[^;]*?(- ?[\d\.,_]+)\s*([a-zA-z_]+)(?:\s*(@)\s*|\s+(?=;)|\s*$)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -365,7 +453,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?([\d\.,_]+)\s+([a-zA-z_]+)(?:\s*(@)\s*|\s+(?=;)|\s*$)</string>
+			<string>(\ba(?:ssets)?:) ?([^:;=]+?(?::|(?=  )))[^;]*?([\d\.,_]+)\s*([a-zA-z_]+)(?:\s*(@)\s*|\s+(?=;)|\s*$)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -387,7 +475,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\(?\$ ?-(?:[\d\.,()+*/$-]| (?! )|$)+)</string>
+			<string>(\ba(?:ssets)?:) ?([^:;=]+?(?::|(?=  )))[^;]*?(\(?\$ ?-(?:[\d\.,()+*/$-]| (?! )|$)+)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -409,7 +497,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\(?\$ ?(?:[\d\.,()+*/$]| (?! )|(?&lt;= )-(?= ))+)</string>
+			<string>(\ba(?:ssets)?:) ?([^:;=]+?(?::|(?=  )))[^;]*?(\(?\$ ?(?:[\d\.,()+*/$]| (?! )|(?&lt;= )-(?= ))+)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -426,7 +514,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )|$))[^;]*</string>
+			<string>(\ba(?:ssets)?:) ?([^:;]+?(?::|(?=  )|$))[^;=]*</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -448,7 +536,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(\bl(?:iabilities)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\(?\$ ?-(?:[\d\.,()+*/$-]| (?! )|$)+)</string>
+			<string>(\bl(?:iabilities)?:) ?([^:;]+?(?::|(?=  )))[^;=]*?(\(?\$ ?-(?:[\d\.,()+*/$-]| (?! )|$)+)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -470,7 +558,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(\bl(?:iabilities)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\(?\$ ?(?:[\d\.,()+*/$]| (?! )|(?&lt;= )-(?= ))+)</string>
+			<string>(\bl(?:iabilities)?:) ?([^:;]+?(?::|(?=  )))[^;=]*?(\(?\$ ?(?:[\d\.,()+*/$]| (?! )|(?&lt;= )-(?= ))+)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -487,7 +575,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(\bl(?:iabilities)?:) ?([^:;]+?(?::|(?=  )|$))[^;]*</string>
+			<string>(\bl(?:iabilities)?:) ?([^:;]+?(?::|(?=  )|$))[^;=]*</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -509,7 +597,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^\s+[!*]?\s+(e(?:xpenses)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\(?\$ ?-(?:[\d\.,()+*/$-]| (?! ))+)</string>
+			<string>(\be(?:xpenses)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\(?\$ ?-(?:[\d\.,()+*/$-]| (?! ))+)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -531,7 +619,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^\s+[!*]?\s+(e(?:xpenses)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\(?\$ ?(?:[\d\.,()+*/$-]| (?! ))+)</string>
+			<string>(\be(?:xpenses)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\(?\$ ?(?:[\d\.,()+*/$-]| (?! ))+)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -548,7 +636,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^\s+[!*]?\s+(e(?:xpenses)?:) ?([^:;]+?(?::|(?=  )|$))[^;]*</string>
+			<string>(\be(?:xpenses)?:) ?([^:;]+?(?::|(?=  )|$))[^;]*</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -570,7 +658,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^\s+[!*]?\s+(i(?:ncome)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\(?\$ ?-(?:[\d\.,()+*/$-]| (?! ))+)</string>
+			<string>(\bi(?:ncome)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\(?\$ ?-(?:[\d\.,()+*/$-]| (?! ))+)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -592,7 +680,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^\s+[!*]?\s+(i(?:ncome)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\(?\$ ?(?:[\d\.,()+*/$-]| (?! ))+)</string>
+			<string>(\bi(?:ncome)?:) ?([^:;]+?(?::|(?=  )))[^;]*?(\(?\$ ?(?:[\d\.,()+*/$-]| (?! ))+)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -609,7 +697,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^\s+[!*]?\s+(i(?:ncome)?:) ?([^:;]+?(?::|(?=  )|$))[^;]*</string>
+			<string>(\bi(?:ncome)?:) ?([^:;]+?(?::|(?=  )|$))[^;]*</string>
 		</dict>
 	</array>
 	<key>scopeName</key>
