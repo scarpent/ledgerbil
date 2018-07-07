@@ -168,7 +168,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^(\d{4}[/-]\d{2}[/-]\d{2})\s+(!)\s*(\([^)]*\)\s+)?(.*?)(?=  |\t|$)</string>
+			<string>^(\d{4}[/-]\d{2}[/-]\d{2})\s+(!)\s*(\([^)]*\)\s*)?(.*?)(?=  |\t|$)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -195,7 +195,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^(\d{4}[/-]\d{2}[/-]\d{2})\s+(\*)\s*(\([^)]*\)\s+)?(.*?)(?=  |\t|$)</string>
+			<string>^(\d{4}[/-]\d{2}[/-]\d{2})\s+(\*)\s*(\([^)]*\)\s*)?(.*?)(?=  |\t|$)</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -217,7 +217,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>^(\d{4}[/-]\d{2}[/-]\d{2})\s+(\([^)]*\)\s+)?(.*?)(?=  |\t|$)</string>
+			<string>^(\d{4}[/-]\d{2}[/-]\d{2})\s+(\([^)]*\)\s*)?(.*?)(?=  |\t|$)</string>
 		</dict>
 		<dict>
 			<key>captures</key>

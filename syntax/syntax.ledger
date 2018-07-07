@@ -22,9 +22,10 @@
 ; top line
 2018/07/06 some payee           ; date has orange fg, payee has purple fg
 2018/07/06 (1234) some payee    ; optional transaction # has yellow fg
-2018/07/06  payee  ; can have multiple spaces between date and payee
-2018/07/06  (123)  payee  ; and with optional
-2018/07/06 payee ;  ; first semicolon is part of payee name
+2018/07/06  payee               ; can have mult spaces between date and payee
+2018/07/06  (123)  payee        ; and with optional
+2018/07/06 (123)payee           ; space not required between trans # and payee
+2018/07/06 payee ;              ; first semicolon is part of payee name
 2018/07/06 ! some payee         ; pending (!) has white fg and pink bg
 2018/07/06 * some payee         ; cleared (*) has green fg
 2018/07/06 ! (abc) some payee   ; pending (!) with optional transaction #
