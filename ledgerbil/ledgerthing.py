@@ -15,18 +15,18 @@ TOP_LINE_REGEX = re.compile(
     r'(?:\(([^)]*)\)\s*)?'             # optional transaction # and whitespace
     r'(.*?)(?=  |$)'                   # opt. payee ends with two spaces (or $)
 )
-ENTRY_REGEX = re.compile(r'''(?x)  # verbose mode
-    ^\s+                           # opening indent
-    ([!*])?                        # optional pending/cleared
-    (?:\s*)?                       # optional whitespace after pending/cleared
-    ([^;]+?)(?=\ \ |$)             # account (2 spaces ends acct)
-    (?:\s*                         # optional share info, leading whitespace
-      (-?\s*[.,0-9]+)              # num shares
-      (?:\s+([^@; ]+))             # symbol
-      (?:\s*@\s*)?                 # optional @
-    )?                             # close of optional share stuff
-    \(?([-+*/()$\d.,\s]+)?\)?      # optional amount expression
-    (?:;.*$|$)                     # optional end comment
+POSTING_REGEX = re.compile(r'''(?x)  # verbose mode
+    ^\s+                             # opening indent
+    ([!*])?                          # optional pending/cleared
+    (?:\s*)?                         # optional whitespace after p/c
+    ([^;]+?)(?=\ \ |$)               # account - 2 spaces ends acct
+    (?:\s*                           # optional share info, leading whitespace
+      (-?\s*[.,0-9]+)                # num shares
+      (?:\s+([^@; ]+))               # symbol
+      (?:\s*@\s*)?                   # optional @
+    )?                               # close of optional share stuff
+    \(?([-+*/()$\d.,\s]+)?\)?        # optional amount expression
+    (?:;.*$|$)                       # optional end comment
     ''')
 REC_PENDING = '!'
 REC_CLEARED = '*'
@@ -39,7 +39,7 @@ LedgerPosting = namedtuple(
 
 
 def get_ledger_posting(line):
-    m = re.match(ENTRY_REGEX, line)
+    m = re.match(POSTING_REGEX, line)
     if not m:
         return None
 
