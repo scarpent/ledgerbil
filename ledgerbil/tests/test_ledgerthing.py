@@ -32,193 +32,110 @@ def test_str():
     assert str(thing) == '\n'.join(lines)
 
 
-class Constructor(TestCase):
+def test_non_transaction_date():
+    """non-transactions initially have date = None"""
+    thing = LedgerThing(['blah', 'blah blah blah'])
+    assert thing.thing_date is None
 
-    def test_non_transaction_date(self):
-        """non-transactions initially have date = None"""
-        thing = LedgerThing(['blah', 'blah blah blah'])
-        assert thing.thing_date is None
 
-    def test_transaction_date(self):
-        thing = LedgerThing(['2013/05/18 blah', '    ; something...'])
-        assert date(2013, 5, 18) == thing.thing_date
+def test_transaction_date():
+    thing = LedgerThing(['2013/05/18 blah', '    ; something...'])
+    assert date(2013, 5, 18) == thing.thing_date
 
-    def verify_top_line(self, line=None, the_date=None, code=None, payee=None):
-        thing = LedgerThing([line])
-        assert thing.thing_date == the_date
-        assert thing.transaction_code == code
-        assert thing.payee == payee
 
-    def test_top_line(self):
-        self.verify_top_line(
-            line='2016/10/20',
-            the_date=date(2016, 10, 20),
-            code='',
-            payee=UNSPECIFIED_PAYEE
-        )
-        self.verify_top_line(
-            line='2016/10/20 someone',
-            the_date=date(2016, 10, 20),
-            code='',
-            payee='someone'
-        )
-        self.verify_top_line(
-            line='2016/10/20     someone',
-            the_date=date(2016, 10, 20),
-            code='',
-            payee='someone'
-        )
-        self.verify_top_line(
-            line='2016/10/20 someone           ; some comment',
-            the_date=date(2016, 10, 20),
-            code='',
-            payee='someone'
-        )
-        self.verify_top_line(
-            line='2016/02/04 (123)',
-            the_date=date(2016, 2, 4),
-            code='123',
-            payee=UNSPECIFIED_PAYEE
-        )
-        self.verify_top_line(
-            line='2016/02/04      (123)',
-            the_date=date(2016, 2, 4),
-            code='123',
-            payee=UNSPECIFIED_PAYEE
-        )
-        self.verify_top_line(
-            line='2016/02/04 (123) someone',
-            the_date=date(2016, 2, 4),
-            code='123',
-            payee='someone'
-        )
-        self.verify_top_line(
-            line='2016/02/04    (123)     someone',
-            the_date=date(2016, 2, 4),
-            code='123',
-            payee='someone'
-        )
-        self.verify_top_line(
-            line='2016/02/04 (123)someone',
-            the_date=date(2016, 2, 4),
-            code='123',
-            payee='someone'
-        )
-        # semicolons are possible in names, like in this case
-        self.verify_top_line(
-            line='2001/04/11 (abc)                 ; yah',
-            the_date=date(2001, 4, 11),
-            code='abc',
-            payee='; yah'
-        )
-        self.verify_top_line(
-            line='2001/04/11 (abc)        ; yah      ; comment',
-            the_date=date(2001, 4, 11),
-            code='abc',
-            payee='; yah'
-        )
-        self.verify_top_line(
-            line='2001/04/11 (abc) someone        ; yah',
-            the_date=date(2001, 4, 11),
-            code='abc',
-            payee='someone'
-        )
-        self.verify_top_line(
-            line='2001/04/11 () someone        ; yah',
-            the_date=date(2001, 4, 11),
-            code='',
-            payee='someone'
-        )
-        self.verify_top_line(
-            line='2018/07/07 payee name with spaces',
-            the_date=date(2018, 7, 7),
-            code='',
-            payee='payee name with spaces'
-        )
-        self.verify_top_line(
-            line='2018/07/07 payee name with spaces  ; and comment',
-            the_date=date(2018, 7, 7),
-            code='',
-            payee='payee name with spaces'
-        )
-        self.verify_top_line(
-            line='2018/07/07 payee name ; includes semicolon',
-            the_date=date(2018, 7, 7),
-            code='',
-            payee='payee name ; includes semicolon'
-        )
-        self.verify_top_line(
-            line='2001/04/11(abc)',
-            the_date=None,
-            code='',
-            payee=None
-        )
-        self.verify_top_line(
-            line='2001/04/11someone',
-            the_date=None,
-            code='',
-            payee=None
-        )
-        self.verify_top_line(
-            line='2018/07/07 * someone',
-            the_date=date(2018, 7, 7),
-            code='',
-            payee='someone'
-        )
-        self.verify_top_line(
-            line='2018/07/07 ! someone',
-            the_date=date(2018, 7, 7),
-            code='',
-            payee='someone'
-        )
-        self.verify_top_line(
-            line='2018/07/07 *someone',
-            the_date=date(2018, 7, 7),
-            code='',
-            payee='someone'
-        )
-        self.verify_top_line(
-            line='2018/07/07 !someone',
-            the_date=date(2018, 7, 7),
-            code='',
-            payee='someone'
-        )
-        self.verify_top_line(
-            line='2018/07/07 * (123) someone',
-            the_date=date(2018, 7, 7),
-            code='123',
-            payee='someone'
-        )
-        self.verify_top_line(
-            line='2018/07/07 ! (123) someone',
-            the_date=date(2018, 7, 7),
-            code='123',
-            payee='someone'
-        )
-        self.verify_top_line(
-            line='2018/07/07 *(123) someone',
-            the_date=date(2018, 7, 7),
-            code='123',
-            payee='someone'
-        )
-        self.verify_top_line(
-            line='2018/07/07 !(123) someone',
-            the_date=date(2018, 7, 7),
-            code='123',
-            payee='someone'
-        )
-        self.verify_top_line(
-            line='2018/07/07  *  (123) someone',
-            the_date=date(2018, 7, 7),
-            code='123',
-            payee='someone'
-        )
-        self.verify_top_line(
-            line='2018/07/07  !  (123) someone',
-            the_date=date(2018, 7, 7),
-            code='123',
-            payee='someone'
-        )
+@pytest.mark.parametrize('test_input, expected', [
+    ('2016/10/20', (date(2016, 10, 20), '', UNSPECIFIED_PAYEE)),
+    ('2016/10/20 someone', (date(2016, 10, 20), '', 'someone')),
+    ('2016/10/20     someone', (date(2016, 10, 20), '', 'someone')),
+    ('2016/10/20 someone     ; comment', (date(2016, 10, 20), '', 'someone')),
+    ('2016/02/04 (123)', (date(2016, 2, 4), '123', UNSPECIFIED_PAYEE)),
+    ('2016/02/04      (123)', (date(2016, 2, 4), '123', UNSPECIFIED_PAYEE)),
+    ('2016/02/04 (123) someone', (date(2016, 2, 4), '123', 'someone')),
+    ('2016/02/04    (123)     someone', (date(2016, 2, 4), '123', 'someone')),
+    ('2016/02/04 (123)someone', (date(2016, 2, 4), '123', 'someone')),
+    # semicolons are possible in names, like in this case
+    ('2001/04/11 (abc)           ; yah', (date(2001, 4, 11), 'abc', '; yah')),
+    ('2001/04/11 (abc)     ; fu    ; bar', (date(2001, 4, 11), 'abc', '; fu')),
+    ('2001/04/11 (abc) some1     ; c', (date(2001, 4, 11), 'abc', 'some1')),
+    ('2001/04/11 () someone        ; yah', (date(2001, 4, 11), '', 'someone')),
+    ('2018/07/07 name w/ spaces', (date(2018, 7, 7), '', 'name w/ spaces')),
+    ('2018/07/07 payee name with spaces  ; and comment',
+        (date(2018, 7, 7), '', 'payee name with spaces')),
+    ('2018/07/07 payee name ; includes semicolon',
+        (date(2018, 7, 7), '', 'payee name ; includes semicolon')),
+    ('2001/04/11(abc)', (None, '', None)),
+    ('2001/04/11someone', (None, '', None)),
+    ('2018/07/07 * someone', (date(2018, 7, 7), '', 'someone')),
+    ('2018/07/07 ! someone', (date(2018, 7, 7), '', 'someone')),
+    ('2018/07/07 *someone', (date(2018, 7, 7), '', 'someone')),
+    ('2018/07/07 !someone', (date(2018, 7, 7), '', 'someone')),
+    ('2018/07/07 * (123) someone', (date(2018, 7, 7), '123', 'someone')),
+    ('2018/07/07 ! (123) someone', (date(2018, 7, 7), '123', 'someone')),
+    ('2018/07/07 *(123) someone', (date(2018, 7, 7), '123', 'someone')),
+    ('2018/07/07 !(123) someone', (date(2018, 7, 7), '123', 'someone')),
+    ('2018/07/07  *  (123) someone', (date(2018, 7, 7), '123', 'someone')),
+    ('2018/07/07  !  (123) someone', (date(2018, 7, 7), '123', 'someone')),
+])
+def test_transaction_top_line_parsing(test_input, expected):
+    thing = LedgerThing([test_input])
+    assert (thing.thing_date, thing.transaction_code, thing.payee) == expected
+
+
+@pytest.mark.parametrize('test_input', [
+    '; comment',
+    '  ; indented comment',
+    '    ; indented comment',
+    'a: something',
+])
+def test_get_ledger_posting_is_none(test_input):
+    assert get_ledger_posting(test_input) is None
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    # simplest valid posting is an indented account
+    ('  a: bc', (None, 'a: bc', None, None, None)),
+    # transaction status (state)
+    ('  * a: bc', ('*', 'a: bc', None, None, None)),
+    ('  ! a: bc', ('!', 'a: bc', None, None, None)),
+    # spaces optional after transaction status
+    ('  *a: bc', ('*', 'a: bc', None, None, None)),
+    ('  !a: bc', ('!', 'a: bc', None, None, None)),
+    # tests amount.strip() == ''
+    ('  !a: bc      ; comment', ('!', 'a: bc', None, None, None)),
+    # only one space before $10 so it's part of account name
+    ('  a: bc $10', (None, 'a: bc $10', None, None, None)),
+    # dollar amounts converted to floats and calculations are evaluated
+    ('  a: bc  $10.25', (None, 'a: bc', None, None, 10.25)),
+    ('  a: bc  $10.25 ; comment', (None, 'a: bc', None, None, 10.25)),
+    ('  a: bc  $10.25  ; comment', (None, 'a: bc', None, None, 10.25)),
+    ('  a: bc  $-10.25', (None, 'a: bc', None, None, -10.25)),
+    ('  a: bc  ($10.25 * 2)', (None, 'a: bc', None, None, 20.5)),
+    ('  a: bc  ($-2 * 4 / (3 + 1) - 5)', (None, 'a: bc', None, None, -7)),
+    # shares
+    ('  a: bc  -1.123 yx', (None, 'a: bc', -1.123, 'yx', None)),
+    ('  a: bc  -1.123 yx  ; comment', (None, 'a: bc', -1.123, 'yx', None)),
+    ('  a: bc  2.125 yx @ $10', (None, 'a: bc', 2.125, 'yx', 21.25)),
+    ('  a: bc  2.125 yx @ $10  ; blah', (None, 'a: bc', 2.125, 'yx', 21.25)),
+    # optional spacing
+    ('  a: bc  2.125yx @ $10', (None, 'a: bc', 2.125, 'yx', 21.25)),
+    ('  a: bc  2.125yx@ $10', (None, 'a: bc', 2.125, 'yx', 21.25)),
+    ('  a: bc  2.125yx@$10', (None, 'a: bc', 2.125, 'yx', 21.25)),
+    # these are invalid; ledger will error out on them - would be better if we
+    # errored out as well or returned None for LedgerPosting, but not bothering
+    # with it right now
+    ('  a: bc  2.125 yx @', (None, 'a: bc', 2.125, 'yx', None)),
+    ('  a: bc  2.125 yx @   ; comment', (None, 'a: bc', 2.125, 'yx', None)),
+    # balance assertions
+    ('  a: bc  = $10', (None, 'a: bc', None, None, None)),
+    ('  a: bc  $20 = $10', (None, 'a: bc', None, None, 20)),
+    ('  l: bc  $-20 = $-10', (None, 'l: bc', None, None, -20)),
+    ('  a: bc  = 5 yx', (None, 'a: bc', None, None, None)),
+    ('  a: bc  2.125 yx = 5 yx', (None, 'a: bc', 2.125, 'yx', None)),
+    ('  a: bc  2.125 yx @ $10 = 5 yx', (None, 'a: bc', 2.125, 'yx', 21.25)),
+])
+def test_get_ledger_posting(test_input, expected):
+    # ledger posting = status, account, shares, symbol, amount
+    assert get_ledger_posting(test_input) == LedgerPosting(*expected)
 
 
 class GetLines(Redirector):
@@ -954,60 +871,3 @@ def test_lines_is_different_than_get_lines_when_status_changes():
     assert thing.lines == lines
     assert thing.get_lines() == lines_with_status
     assert thing.lines != thing.get_lines()
-
-
-@pytest.mark.parametrize('test_input', [
-    '; comment',
-    '  ; indented comment',
-    '    ; indented comment',
-    'a: something',
-])
-def test_get_ledger_posting_is_none(test_input):
-    assert get_ledger_posting(test_input) is None
-
-
-@pytest.mark.parametrize('test_input, expected', [
-    # simplest valid posting is an indented account
-    ('  a: bc', (None, 'a: bc', None, None, None)),
-    # transaction status (state)
-    ('  * a: bc', ('*', 'a: bc', None, None, None)),
-    ('  ! a: bc', ('!', 'a: bc', None, None, None)),
-    # spaces optional after transaction status
-    ('  *a: bc', ('*', 'a: bc', None, None, None)),
-    ('  !a: bc', ('!', 'a: bc', None, None, None)),
-    # tests amount.strip() == ''
-    ('  !a: bc      ; comment', ('!', 'a: bc', None, None, None)),
-    # only one space before $10 so it's part of account name
-    ('  a: bc $10', (None, 'a: bc $10', None, None, None)),
-    # dollar amounts converted to floats and calculations are evaluated
-    ('  a: bc  $10.25', (None, 'a: bc', None, None, 10.25)),
-    ('  a: bc  $10.25 ; comment', (None, 'a: bc', None, None, 10.25)),
-    ('  a: bc  $10.25  ; comment', (None, 'a: bc', None, None, 10.25)),
-    ('  a: bc  $-10.25', (None, 'a: bc', None, None, -10.25)),
-    ('  a: bc  ($10.25 * 2)', (None, 'a: bc', None, None, 20.5)),
-    ('  a: bc  ($-2 * 4 / (3 + 1) - 5)', (None, 'a: bc', None, None, -7)),
-    # shares
-    ('  a: bc  -1.123 yx', (None, 'a: bc', -1.123, 'yx', None)),
-    ('  a: bc  -1.123 yx  ; comment', (None, 'a: bc', -1.123, 'yx', None)),
-    ('  a: bc  2.125 yx @ $10', (None, 'a: bc', 2.125, 'yx', 21.25)),
-    ('  a: bc  2.125 yx @ $10  ; blah', (None, 'a: bc', 2.125, 'yx', 21.25)),
-    # optional spacing
-    ('  a: bc  2.125yx @ $10', (None, 'a: bc', 2.125, 'yx', 21.25)),
-    ('  a: bc  2.125yx@ $10', (None, 'a: bc', 2.125, 'yx', 21.25)),
-    ('  a: bc  2.125yx@$10', (None, 'a: bc', 2.125, 'yx', 21.25)),
-    # these are invalid; ledger will error out on them - would be better if we
-    # errored out as well or returned None for LedgerPosting, but not bothering
-    # with it right now
-    ('  a: bc  2.125 yx @', (None, 'a: bc', 2.125, 'yx', None)),
-    ('  a: bc  2.125 yx @   ; comment', (None, 'a: bc', 2.125, 'yx', None)),
-    # balance assertions
-    ('  a: bc  = $10', (None, 'a: bc', None, None, None)),
-    ('  a: bc  $20 = $10', (None, 'a: bc', None, None, 20)),
-    ('  l: bc  $-20 = $-10', (None, 'l: bc', None, None, -20)),
-    ('  a: bc  = 5 yx', (None, 'a: bc', None, None, None)),
-    ('  a: bc  2.125 yx = 5 yx', (None, 'a: bc', 2.125, 'yx', None)),
-    ('  a: bc  2.125 yx @ $10 = 5 yx', (None, 'a: bc', 2.125, 'yx', 21.25)),
-])
-def test_get_ledger_posting(test_input, expected):
-    # ledger posting = status, account, shares, symbol, amount
-    assert get_ledger_posting(test_input) == LedgerPosting(*expected)
