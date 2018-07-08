@@ -158,6 +158,66 @@ class Constructor(TestCase):
             code='',
             payee=None
         )
+        self.verify_top_line(
+            line='2018/07/07 * someone',
+            the_date=date(2018, 7, 7),
+            code='',
+            payee='someone'
+        )
+        self.verify_top_line(
+            line='2018/07/07 ! someone',
+            the_date=date(2018, 7, 7),
+            code='',
+            payee='someone'
+        )
+        self.verify_top_line(
+            line='2018/07/07 *someone',
+            the_date=date(2018, 7, 7),
+            code='',
+            payee='someone'
+        )
+        self.verify_top_line(
+            line='2018/07/07 !someone',
+            the_date=date(2018, 7, 7),
+            code='',
+            payee='someone'
+        )
+        self.verify_top_line(
+            line='2018/07/07 * (123) someone',
+            the_date=date(2018, 7, 7),
+            code='123',
+            payee='someone'
+        )
+        self.verify_top_line(
+            line='2018/07/07 ! (123) someone',
+            the_date=date(2018, 7, 7),
+            code='123',
+            payee='someone'
+        )
+        self.verify_top_line(
+            line='2018/07/07 *(123) someone',
+            the_date=date(2018, 7, 7),
+            code='123',
+            payee='someone'
+        )
+        self.verify_top_line(
+            line='2018/07/07 !(123) someone',
+            the_date=date(2018, 7, 7),
+            code='123',
+            payee='someone'
+        )
+        self.verify_top_line(
+            line='2018/07/07  *  (123) someone',
+            the_date=date(2018, 7, 7),
+            code='123',
+            payee='someone'
+        )
+        self.verify_top_line(
+            line='2018/07/07  !  (123) someone',
+            the_date=date(2018, 7, 7),
+            code='123',
+            payee='someone'
+        )
 
 
 class GetLines(Redirector):
@@ -823,6 +883,34 @@ def test_mixed_symbols_raises_exception():
         symbols=['abc', 'qqq'],
         lines='\n'.join(lines)
     )
+    assert str(excinfo.value) == expected
+
+
+def test_top_line_cleared_status_raises_exception_when_account_matched():
+    lines = [
+        '2017/11/28 * so',
+        '    fu: bar     $20',
+        '    credit card'
+    ]
+
+    with pytest.raises(LdgReconcilerError) as excinfo:
+        LedgerThing(lines, reconcile_account='credit card')
+
+    expected = 'Unhandled top line transaction status:\n2017/11/28 * so'
+    assert str(excinfo.value) == expected
+
+
+def test_top_line_pending_status_raises_exception_when_account_matched():
+    lines = [
+        '2017/11/28 ! so',
+        '    fu: bar     $20',
+        '    credit card'
+    ]
+
+    with pytest.raises(LdgReconcilerError) as excinfo:
+        LedgerThing(lines, reconcile_account='credit card')
+
+    expected = 'Unhandled top line transaction status:\n2017/11/28 ! so'
     assert str(excinfo.value) == expected
 
 

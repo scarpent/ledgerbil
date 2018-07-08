@@ -297,6 +297,60 @@ def test_mixed_symbols_raises_exception():
     assert str(excinfo.value) == expected
 
 
+def test_top_line_cleared_status_raises_exception_when_account_matched():
+    ledgerfile_data = dedent('''
+        2017/11/28 so
+            fu: bar     $20
+            credit card
+
+        2017/11/28 * nar
+            ra: dar     $30
+            checking
+    ''')
+
+    with FileTester.temp_input(ledgerfile_data) as tempfilename:
+        with pytest.raises(LdgReconcilerError) as excinfo:
+            Reconciler([LedgerFile(tempfilename, 'checking')])
+
+    expected = 'Unhandled top line transaction status:\n2017/11/28 * nar'
+    assert str(excinfo.value) == expected
+
+
+def test_top_line_pending_status_raises_exception_when_account_matched():
+    ledgerfile_data = dedent('''
+        2017/11/28 so
+            fu: bar     $20
+            credit card
+
+        2017/11/28 ! nar
+            ra: dar     $30
+            checking
+    ''')
+
+    with FileTester.temp_input(ledgerfile_data) as tempfilename:
+        with pytest.raises(LdgReconcilerError) as excinfo:
+            Reconciler([LedgerFile(tempfilename, 'checking')])
+
+    expected = 'Unhandled top line transaction status:\n2017/11/28 ! nar'
+    assert str(excinfo.value) == expected
+
+
+def test_top_line_status_does_not_raise_exception_when_account_not_matched():
+    ledgerfile_data = dedent('''
+        2017/11/28 so
+            fu: bar     $20
+            credit card
+
+        2017/11/28 * nar
+            ra: dar     $30
+            checking
+    ''')
+
+    with FileTester.temp_input(ledgerfile_data) as tempfilename:
+        # should not raise LdgReconcilerError
+        Reconciler([LedgerFile(tempfilename, 'credit')])
+
+
 def test_non_matching_accounts_in_different_files():
     ledgerfile_data = dedent('''
         2017/11/28 zombie investments

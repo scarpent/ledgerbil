@@ -11,6 +11,7 @@ DATE_REGEX = r'^\d{4}(?:[-/]\d\d){2}(?=\s|$)'
 # not matching optional comment since we don't do anything with it
 TOP_LINE_REGEX = re.compile(
     r'(' + DATE_REGEX + r')(?:\s+|$)'  # date with required whitespace (or $)
+    r'\s*([!*])?\s*'                   # optional transaction state (c/p)
     r'(?:\(([^)]*)\)\s*)?'             # optional transaction # and whitespace
     r'(.*?)(?=  |$)'                   # opt. payee ends with two spaces (or $)
 )
@@ -51,6 +52,9 @@ class LedgerThing:
         self.rec_is_shares = False
         self.rec_symbol = None
 
+        # not currently supported by reconciler - error out if matched account
+        self.rec_top_line_status = False  # e.g. 2018/07/07 * payee name
+
         if self.is_transaction_start(lines[0]):
             self.is_transaction = True
             self._parse_top_line(lines[0])
@@ -68,10 +72,13 @@ class LedgerThing:
     def _parse_top_line(self, line):
         m = re.match(TOP_LINE_REGEX, line)
 
-        the_date, code, payee = m.groups()
+        the_date, status, code, payee = m.groups()
 
         # date can be modified
         self.thing_date = util.get_date(the_date)
+
+        if status:
+            self.rec_top_line_status = True  # pending or cleared
 
         # payee and transaction code are read-only
         if code is not None:
@@ -122,6 +129,8 @@ class LedgerThing:
             m = re.search(self.rec_account, account)
             if not m:
                 continue
+
+            self.assert_not_top_line_status()
 
             matched_accounts.add(account)
             util.assert_only_one_matching_account(matched_accounts)
@@ -227,6 +236,12 @@ class LedgerThing:
                 'Unhandled shares with non-shares:\n{}'.format(
                     '\n'.join(self.lines)
                 )
+            )
+
+    def assert_not_top_line_status(self):
+        if self.rec_top_line_status:
+            raise LdgReconcilerError(
+                f'Unhandled top line transaction status:\n{self.lines[0]}'
             )
 
     def get_date_and_payee(self):
