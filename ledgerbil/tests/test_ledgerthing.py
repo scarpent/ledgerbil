@@ -5,7 +5,8 @@ import pytest
 
 from ..ledgerbilexceptions import LdgReconcilerError
 from ..ledgerthing import (
-    REC_CLEARED, REC_PENDING, REC_UNCLEARED, UNSPECIFIED_PAYEE, LedgerThing
+    REC_CLEARED, REC_PENDING, REC_UNCLEARED, UNSPECIFIED_PAYEE, LedgerPosting,
+    LedgerThing, get_ledger_posting
 )
 from .helpers import Redirector
 
@@ -953,3 +954,60 @@ def test_lines_is_different_than_get_lines_when_status_changes():
     assert thing.lines == lines
     assert thing.get_lines() == lines_with_status
     assert thing.lines != thing.get_lines()
+
+
+@pytest.mark.parametrize('test_input', [
+    '; comment',
+    '  ; indented comment',
+    '    ; indented comment',
+    'a: something',
+])
+def test_get_ledger_posting_is_none(test_input):
+    assert get_ledger_posting(test_input) is None
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    # simplest valid posting is an indented account
+    ('  a: bc', (None, 'a: bc', None, None, None)),
+    # transaction status (state)
+    ('  * a: bc', ('*', 'a: bc', None, None, None)),
+    ('  ! a: bc', ('!', 'a: bc', None, None, None)),
+    # spaces optional after transaction status
+    ('  *a: bc', ('*', 'a: bc', None, None, None)),
+    ('  !a: bc', ('!', 'a: bc', None, None, None)),
+    # tests amount.strip() == ''
+    ('  !a: bc      ; comment', ('!', 'a: bc', None, None, None)),
+    # only one space before $10 so it's part of account name
+    ('  a: bc $10', (None, 'a: bc $10', None, None, None)),
+    # dollar amounts converted to floats and calculations are evaluated
+    ('  a: bc  $10.25', (None, 'a: bc', None, None, 10.25)),
+    ('  a: bc  $10.25 ; comment', (None, 'a: bc', None, None, 10.25)),
+    ('  a: bc  $10.25  ; comment', (None, 'a: bc', None, None, 10.25)),
+    ('  a: bc  $-10.25', (None, 'a: bc', None, None, -10.25)),
+    ('  a: bc  ($10.25 * 2)', (None, 'a: bc', None, None, 20.5)),
+    ('  a: bc  ($-2 * 4 / (3 + 1) - 5)', (None, 'a: bc', None, None, -7)),
+    # shares
+    ('  a: bc  -1.123 yx', (None, 'a: bc', -1.123, 'yx', None)),
+    ('  a: bc  -1.123 yx  ; comment', (None, 'a: bc', -1.123, 'yx', None)),
+    ('  a: bc  2.125 yx @ $10', (None, 'a: bc', 2.125, 'yx', 21.25)),
+    ('  a: bc  2.125 yx @ $10  ; blah', (None, 'a: bc', 2.125, 'yx', 21.25)),
+    # optional spacing
+    ('  a: bc  2.125yx @ $10', (None, 'a: bc', 2.125, 'yx', 21.25)),
+    ('  a: bc  2.125yx@ $10', (None, 'a: bc', 2.125, 'yx', 21.25)),
+    ('  a: bc  2.125yx@$10', (None, 'a: bc', 2.125, 'yx', 21.25)),
+    # these are invalid; ledger will error out on them - would be better if we
+    # errored out as well or returned None for LedgerPosting, but not bothering
+    # with it right now
+    ('  a: bc  2.125 yx @', (None, 'a: bc', 2.125, 'yx', None)),
+    ('  a: bc  2.125 yx @   ; comment', (None, 'a: bc', 2.125, 'yx', None)),
+    # balance assertions
+    ('  a: bc  = $10', (None, 'a: bc', None, None, None)),
+    ('  a: bc  $20 = $10', (None, 'a: bc', None, None, 20)),
+    ('  l: bc  $-20 = $-10', (None, 'l: bc', None, None, -20)),
+    ('  a: bc  = 5 yx', (None, 'a: bc', None, None, None)),
+    ('  a: bc  2.125 yx = 5 yx', (None, 'a: bc', 2.125, 'yx', None)),
+    ('  a: bc  2.125 yx @ $10 = 5 yx', (None, 'a: bc', 2.125, 'yx', 21.25)),
+])
+def test_get_ledger_posting(test_input, expected):
+    # ledger posting = status, account, shares, symbol, amount
+    assert get_ledger_posting(test_input) == LedgerPosting(*expected)

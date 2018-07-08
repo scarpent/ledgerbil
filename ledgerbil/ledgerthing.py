@@ -15,17 +15,19 @@ TOP_LINE_REGEX = re.compile(
     r'(?:\(([^)]*)\)\s*)?'             # optional transaction # and whitespace
     r'(.*?)(?=  |$)'                   # opt. payee ends with two spaces (or $)
 )
+# todo: should require dollar amount when @ symbol is found
 POSTING_REGEX = re.compile(r'''(?x)  # verbose mode
     ^\s+                             # opening indent
     ([!*])?                          # optional pending/cleared
     (?:\s*)?                         # optional whitespace after p/c
-    ([^;]+?)(?=\ \ |$)               # account - 2 spaces ends acct
+    ([^;]+?)(?<=\S)(?=\ \ |$)        # account - 2 spaces ends acct
     (?:\s*                           # optional share info, leading whitespace
       (-?\s*[.,0-9]+)                # num shares
-      (?:\s+([^@; ]+))               # symbol
+      (?:\s*([^@; ]+))               # symbol
       (?:\s*@\s*)?                   # optional @
     )?                               # close of optional share stuff
     \(?([-+*/()$\d.,\s]+)?\)?        # optional amount expression
+    (?:\s*=\s*[^;]+\s*)?             # optional balance assertion
     (?:;.*$|$)                       # optional end comment
     ''')
 REC_PENDING = '!'
@@ -45,6 +47,9 @@ def get_ledger_posting(line):
 
     status, account, shares, symbol, amount = m.groups()
 
+    if shares is not None:
+        shares = float(re.sub(r'[, ]', '', shares))
+
     if amount is not None:
         amount = amount.strip()
         if amount == '':
@@ -52,7 +57,7 @@ def get_ledger_posting(line):
         else:
             amount = util.eval_expr(re.sub(r'[$,]', '', amount))
             if shares is not None:
-                amount *= util.eval_expr(shares.replace(',', ''))
+                amount *= shares
 
     return LedgerPosting(status, account, shares, symbol, amount)
 
@@ -159,7 +164,7 @@ class LedgerThing:
                 symbols.add(posting.symbol)
                 self.assert_only_one_symbol(symbols)
                 # We're interested in number of shares rather than $ amount
-                account_amount = float(re.sub(r'[, ]', '', posting.shares))
+                account_amount = posting.shares
             else:
                 account_amount = posting.amount
 

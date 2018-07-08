@@ -3,7 +3,6 @@ from textwrap import dedent
 from ..schedulefile import ScheduleFile
 from .filetester import FileTester
 
-
 schedule_testdata = dedent('''\
     ;; scheduler ; enter 45 days
 
