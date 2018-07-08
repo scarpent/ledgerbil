@@ -8,7 +8,7 @@ This will apply syntax highlighting to files with extensions ldg,
 ledger, and ldgr.
 
 ![syntax highlighting
-example](../docs/images/ledger-syntax-highlighting-again.png)
+example](../docs/images/ledger-syntax-highlighting-2.png)
 
 `ledger.JSON-tmLanguage file` is used to generate the XML `.tmLanguage`
 file.
