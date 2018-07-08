@@ -250,6 +250,19 @@ class LedgerThing:
             )
 
     def assert_only_shares_if_shares(self, shareses):
+        """ ledgerbil isn't smart enough yet to handle a scenario like this:
+
+        2018/07/08 zombie investments
+            a: abc: xyz: little co idx                        2.345 abcdx
+            a: 401k: big co 500 idx
+
+        ledger can and will assume the elided amount is -2.345 abcdx, but
+        ledgerbil assumes elided amounts are in dollars; ledger will
+        further handle scenarios with multiple commodities that are *far*
+        outside ledgerbil's reconciliation scope:
+
+        https://www.ledger-cli.org/3.0/doc/ledger3.html#Eliding-amounts
+        """
         if self.rec_is_shares and None in shareses:
             raise LdgReconcilerError(
                 'Unhandled shares with non-shares:\n{}'.format(
