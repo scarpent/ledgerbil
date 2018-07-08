@@ -10,7 +10,7 @@ ledger, and ldgr.
 ![syntax highlighting
 example](../docs/images/ledger-syntax-highlighting-2.png)
 
-`ledger.JSON-tmLanguage file` is used to generate the XML `.tmLanguage`
+`ledger.JSON-tmLanguage` file is used to generate the XML `.tmLanguage`
 file.
 
 More about Sublime Text syntax definitions here:
