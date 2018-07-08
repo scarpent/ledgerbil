@@ -475,6 +475,29 @@ class ReconcilerParsing(Redirector):
             expected_match='a: checking',
             expected_amount=50
         )
+        # Matched account with elided amount first
+        self.verify_reconcile_vars(
+            [
+                '2016/10/23 blah',
+                '    a: checking',
+                '    e: blurg      $25',
+            ],
+            account='check',
+            expected_match='a: checking',
+            expected_amount=-25
+        )
+        # Matched account with elided amount in middle of others
+        self.verify_reconcile_vars(
+            [
+                '2016/10/23 blah',
+                '    e: blurg      $25',
+                '    a: checking',
+                '    e: blurg      $25',
+            ],
+            account='check',
+            expected_match='a: checking',
+            expected_amount=-50
+        )
 
     def test_two_spaces_ends_account(self):
         self.verify_reconcile_vars(

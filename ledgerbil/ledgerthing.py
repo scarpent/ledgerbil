@@ -1,6 +1,6 @@
 """objects in ledger file: transactions, etc"""
-
 import re
+from collections import namedtuple
 
 from . import util
 from .ledgerbilexceptions import LdgReconcilerError
@@ -31,6 +31,30 @@ ENTRY_REGEX = re.compile(r'''(?x)  # verbose mode
 REC_PENDING = '!'
 REC_CLEARED = '*'
 REC_UNCLEARED = ''
+
+LedgerPosting = namedtuple(
+    'LedgerPosting',
+    'status account shares symbol amount'
+)
+
+
+def get_ledger_posting(line):
+    m = re.match(ENTRY_REGEX, line)
+    if not m:
+        return None
+
+    status, account, shares, symbol, amount = m.groups()
+
+    if amount is not None:
+        amount = amount.strip()
+        if amount == '':
+            amount = None
+        else:
+            amount = util.eval_expr(re.sub(r'[$,]', '', amount))
+            if shares is not None:
+                amount *= util.eval_expr(shares.replace(',', ''))
+
+    return LedgerPosting(status, account, shares, symbol, amount)
 
 
 class LedgerThing:
@@ -97,8 +121,8 @@ class LedgerThing:
         # reconciling. We only care about total for the account,
         # but we need to total everything up in case our account
         # doesn't have a dollar amount and we need to calculate it.
-        transaction_total = 0
-        account_total = 0
+        transaction_total = 0  # Always in dollars
+        account_total = 0  # Dollars or number of shares
         need_math = False
 
         # There are lots of scenarios that are valid for ledger but
@@ -110,52 +134,48 @@ class LedgerThing:
         symbols = set()
 
         for line in lines:
-            m = re.match(ENTRY_REGEX, line)
-            if not m:
+            posting = get_ledger_posting(line)
+            if not posting:
                 continue
 
-            status, account, shares, symbol, amount = m.groups()
+            if posting.amount is not None:
+                transaction_total += posting.amount
 
-            if amount is not None:
-                amount = amount.strip()
-                if amount == '':
-                    amount = None
-                else:
-                    amount = util.eval_expr(re.sub(r'[$,]', '', amount))
-                    if shares is not None:
-                        amount *= util.eval_expr(shares.replace(',', ''))
-                    transaction_total += amount
-
-            m = re.search(self.rec_account, account)
+            m = re.search(self.rec_account, posting.account)
             if not m:
                 continue
 
             self.assert_not_top_line_status()
 
-            matched_accounts.add(account)
+            matched_accounts.add(posting.account)
             util.assert_only_one_matching_account(matched_accounts)
 
-            statuses.add(status)
+            statuses.add(posting.status)
             self.assert_only_one_status(statuses)
 
-            shareses.add(shares)
-            if shares is not None:
+            shareses.add(posting.shares)
+            if posting.shares is not None:
                 self.rec_is_shares = True
-                symbols.add(symbol)
+                symbols.add(posting.symbol)
                 self.assert_only_one_symbol(symbols)
-                amount = float(re.sub(r'[, ]', '', shares))
+                # We're interested in number of shares rather than $ amount
+                account_amount = float(re.sub(r'[, ]', '', posting.shares))
+            else:
+                account_amount = posting.amount
 
             self.assert_only_shares_if_shares(shareses)
 
-            if amount is None:
+            if account_amount is None:
                 # We're relying on a valid ledger file so that only one
-                # entry can need math in a transaction
+                # entry can need math in a transaction. With ledgerbil's
+                # current understanding of things, math will only ever be
+                # needed for dollar amounts, not share amounts.
                 need_math = True
             else:
-                account_total += amount
+                account_total += account_amount
 
         if need_math:
-            # transaction_total should be 0; if math is needed, use
+            # Transaction_total should be 0; if math is needed, use
             # the part away from zero to figure out account_total
             account_total -= transaction_total
 
@@ -178,13 +198,12 @@ class LedgerThing:
         current_status = self.rec_status or ' '
 
         for line in self.lines[1:]:
-            m = re.match(ENTRY_REGEX, line)
-            if not m:  # e.g. a comment
+            posting = get_ledger_posting(line)
+            if not posting:  # i.e. a comment
                 lines_out.append(line)
                 continue
 
-            status, account, shares, symbol, amount = m.groups()
-            if re.search(self.rec_account, account):
+            if re.search(self.rec_account, posting.account):
                 m = re.match(r'^\s+[!*]?\s*(.*)$', line)
                 assert m
                 # going to use a standard 4 space indent; alternatively
