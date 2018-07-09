@@ -483,15 +483,8 @@ class Reconciler(cmd.Cmd, object):
 
     def get_key_and_cache(self):
         key = self.get_rec_account_matched()
-
-        if os.path.exists(settings.RECONCILER_CACHE_FILE):
-            try:
-                with open(settings.RECONCILER_CACHE_FILE, 'r') as the_file:
-                    return key, json.loads(the_file.read())
-            except (IOError, ValueError) as e:
-                print(f'Error getting reconciler cache: {e}', file=sys.stderr)
-
-        return key, {}
+        cache = get_reconciler_cache()
+        return key, cache
 
     def get_statement_info_from_cache(self):
         key, cache = self.get_key_and_cache()
@@ -550,3 +543,14 @@ class Reconciler(cmd.Cmd, object):
             ledgerfile.rec_account_matched for ledgerfile in self.ledgerfiles
             if ledgerfile.rec_account_matched is not None
         )
+
+
+def get_reconciler_cache():
+    if os.path.exists(settings.RECONCILER_CACHE_FILE):
+        try:
+            with open(settings.RECONCILER_CACHE_FILE, 'r') as the_file:
+                return json.loads(the_file.read())
+        except (IOError, ValueError) as e:
+            print(f'Error getting reconciler cache: {e}', file=sys.stderr)
+
+    return {}
