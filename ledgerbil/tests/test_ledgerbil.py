@@ -346,8 +346,8 @@ def test_main_investments_with_argv_none(mock_error):
     mock_error.assert_called_once_with(expected)
 
 
-@mock.patch(__name__ + '.ledgerbil.Ledgerbil.error')
-def test_next_scheduled_date_scheduler_exception(mock_error):
+@mock.patch('builtins.print')
+def test_next_scheduled_date_scheduler_exception(mock_print):
     schedulefile_data = ';; scheduler enter 567 days'
     with FT.temp_input(schedulefile_data) as tempfilename:
         ledgerbil.main(['--schedule', tempfilename, '-n'])
@@ -356,16 +356,22 @@ def test_next_scheduled_date_scheduler_exception(mock_error):
             ;; scheduler enter 567 days
             Expected:
             ;; scheduler ; enter N days''')
-    mock_error.assert_called_once_with(expected)
+    mock_print.assert_called_once_with(expected, file=sys.stderr)
 
 
-def test_scheduler_exception():
-    schedulefile_data = ';; scheduler enter 321 days'
-    with FT.temp_input(schedulefile_data) as tempfilename:
+@mock.patch('builtins.print')
+def test_scheduler_exception(mock_print):
+    with FT.temp_input(';; scheduler enter 321 days') as tempfilename:
         return_value = ledgerbil.main(
             ['--schedule', tempfilename, '-f', FT.testfile]
         )
     assert return_value == -1
+    expected = dedent('''\
+        Invalid schedule file config:
+        ;; scheduler enter 321 days
+        Expected:
+        ;; scheduler ; enter N days''')
+    mock_print.assert_called_once_with(expected, file=sys.stderr)
 
 
 @mock.patch(__name__ + '.ledgerbil.argparse.ArgumentParser.print_help')

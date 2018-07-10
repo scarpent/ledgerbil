@@ -43,6 +43,15 @@ def run_scheduler(ledgerfile, schedule_filename):
     ledgerfile.write_file()
 
 
+def print_next_scheduled_date(schedule_filename):
+    try:
+        schedule_file = ScheduleFile(schedule_filename)
+    except LdgSchedulerError as e:
+        return scheduler_error(str(e))
+
+    print(schedule_file.next_scheduled_date())
+
+
 def scheduler_error(message):
     print(message, file=sys.stderr)
     return -1

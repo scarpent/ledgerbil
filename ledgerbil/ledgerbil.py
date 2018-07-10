@@ -2,11 +2,10 @@ import argparse
 import sys
 from textwrap import dedent
 
-from .ledgerbilexceptions import LdgReconcilerError, LdgSchedulerError
+from .ledgerbilexceptions import LdgReconcilerError
 from .ledgerfile import LedgerFile
 from .reconciler import Reconciler
-from .schedulefile import ScheduleFile
-from .scheduler import run_scheduler
+from .scheduler import print_next_scheduled_date, run_scheduler
 
 
 class Ledgerbil:
@@ -18,7 +17,9 @@ class Ledgerbil:
     def run(self):
 
         if self.args.next_scheduled_date:
-            return self.next_scheduled_date()
+            if not self.args.schedule:
+                return self.error('error: -s/--schedule is required')
+            return print_next_scheduled_date(self.args.schedule)
 
         if not self.args.file:
             return self.error('error: -f/--file is required')
@@ -46,17 +47,6 @@ class Ledgerbil:
     def error(self, message):
         print(message, file=sys.stderr)
         return -1
-
-    def next_scheduled_date(self):
-        if not self.args.schedule:
-            return self.error('error: -s/--schedule is required')
-
-        try:
-            schedule_file = ScheduleFile(self.args.schedule)
-        except LdgSchedulerError as e:
-            return self.error(str(e))
-
-        print(schedule_file.next_scheduled_date())
 
     def run_reconciler(self):
         if not any(lf.rec_account_matched for lf in self.ledgerfiles):
