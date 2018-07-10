@@ -6,7 +6,7 @@ from .ledgerbilexceptions import LdgReconcilerError, LdgSchedulerError
 from .ledgerfile import LedgerFile
 from .reconciler import Reconciler
 from .schedulefile import ScheduleFile
-from .scheduler import Scheduler
+from .scheduler import run_scheduler
 
 
 class Ledgerbil:
@@ -34,7 +34,7 @@ class Ledgerbil:
             return self.run_reconciler()
 
         if self.args.schedule:
-            error = self.run_scheduler()
+            error = run_scheduler(self.ledgerfiles[0], self.args.schedule)
             if error:
                 return error
 
@@ -42,8 +42,6 @@ class Ledgerbil:
             for ledgerfile in self.ledgerfiles:
                 ledgerfile.sort()
                 ledgerfile.write_file()
-
-        return 0
 
     def error(self, message):
         print(message, file=sys.stderr)
@@ -59,25 +57,11 @@ class Ledgerbil:
             return self.error(str(e))
 
         print(schedule_file.next_scheduled_date())
-        return 0
-
-    def run_scheduler(self):
-        ledgerfile = self.ledgerfiles[0]
-
-        try:
-            schedule_file = ScheduleFile(self.args.schedule)
-        except LdgSchedulerError as e:
-            return self.error(str(e))
-
-        scheduler = Scheduler(ledgerfile, schedule_file)
-        scheduler.run()
-        schedule_file.write_file()
-        ledgerfile.write_file()
 
     def run_reconciler(self):
         if not any(lf.rec_account_matched for lf in self.ledgerfiles):
             print(f'No matching account found for "{self.args.reconcile}"')
-            return 0
+            return
 
         try:
             reconciler = Reconciler(self.ledgerfiles)
@@ -85,7 +69,6 @@ class Ledgerbil:
             return self.error(str(e))
 
         reconciler.cmdloop()
-        return 0
 
 
 def get_args(args):

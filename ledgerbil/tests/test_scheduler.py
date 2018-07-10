@@ -1,133 +1,118 @@
-"""unit test for scheduler.py"""
-
-import os
+import sys
 from datetime import date
-from unittest import TestCase
+from textwrap import dedent
+from unittest import mock
 
 from dateutil.relativedelta import relativedelta
 
 from .. import util
 from ..ledgerfile import LedgerFile
-from ..schedulefile import ScheduleFile
-from ..scheduler import Scheduler
+from ..scheduler import run_scheduler
 from .filetester import FileTester
 
 
-class SchedulerRun(TestCase):
+def get_schedule_file(the_date, schedule, enter_days=7):
+    return (
+        f';; scheduler ; enter {enter_days} days\n'
+        '\n'
+        f'{the_date} bananas unlimited\n'
+        f'    ;; schedule ; {schedule}\n'
+        '    e: misc\n'
+        '    l: credit card                     $-50\n\n'
+    )
 
-    @staticmethod
-    def get_schedule_file(the_date, schedule, enter_days=7):
-        return (
-            f';; scheduler ; enter {enter_days} days\n'
-            '\n'
-            f'{the_date} bananas unlimited\n'
-            f'    ;; schedule ; {schedule}\n'
-            '    e: misc\n'
-            '    l: credit card                     $-50\n\n'
-        )
 
-    def run_it(self, before_date, after_date, schedule, enter_days=7):
-        schedulefiledata = self.get_schedule_file(
-            util.get_date_string(before_date),
-            schedule,
-            enter_days
-        )
-        tempschedulefile = FileTester.write_to_temp_file(
-            FileTester.testdir + 'run_it_schedule_file',
-            schedulefiledata
-        )
-        schedulefile = ScheduleFile(tempschedulefile)
+def run_it(before_date, after_date, schedule, enter_days=7):
+    schedulefiledata = get_schedule_file(
+        util.get_date_string(before_date),
+        schedule,
+        enter_days
+    )
+    with FileTester.temp_input(schedulefiledata) as temp_schedule_filename:
+        with FileTester.temp_input('') as temp_ledger_filename:
 
-        templedgerfile = FileTester.write_to_temp_file(
-            FileTester.testdir + 'run_it_ledger_file',
-            ''
-        )
-        ledgerfile = LedgerFile(templedgerfile)
+            ledgerfile = LedgerFile(temp_ledger_filename)
+            return_value = run_scheduler(ledgerfile, temp_schedule_filename)
+            assert not return_value
 
-        scheduler = Scheduler(ledgerfile, schedulefile)
-        scheduler.run()
+            actual_data = FileTester.read_file(temp_schedule_filename)
+            expected_data = get_schedule_file(
+                util.get_date_string(after_date),
+                schedule,
+                enter_days
+            )
 
-        ledgerfile.write_file()
-        schedulefile.write_file()
+    assert actual_data == expected_data
 
-        schedulefile_actual = FileTester.read_file(tempschedulefile)
 
-        schedulefile_expected = self.get_schedule_file(
-            util.get_date_string(after_date),
-            schedule,
-            enter_days
-        )
+def test_weekly():
+    run_it(
+        date.today() - relativedelta(days=7),
+        date.today() + relativedelta(days=21),
+        'weekly ;; every 2 weeks'
+    )
 
-        os.remove(templedgerfile)
-        os.remove(tempschedulefile)
 
-        self.assertEqual(schedulefile_expected, schedulefile_actual)
+def test_bimonthly():
+    lastmonth = date.today() - relativedelta(months=1)
+    testdate = date(lastmonth.year, lastmonth.month, 15)
 
-    def test_weekly(self):
-        self.run_it(
-            date.today() - relativedelta(days=7),
-            date.today() + relativedelta(days=21),
-            'weekly ;; every 2 weeks'
-        )
+    run_it(
+        testdate,
+        testdate + relativedelta(months=2),
+        'bimonthly'
+    )
 
-    def test_bimonthly(self):
-        lastmonth = date.today() - relativedelta(months=1)
-        testdate = date(lastmonth.year, lastmonth.month, 15)
 
-        self.run_it(
-            testdate,
-            testdate + relativedelta(months=2),
-            'bimonthly'
-        )
+def test_quarterly():
+    lastmonth = date.today() - relativedelta(months=1)
+    testdate = date(lastmonth.year, lastmonth.month, 15)
 
-    def test_quarterly(self):
-        lastmonth = date.today() - relativedelta(months=1)
-        testdate = date(lastmonth.year, lastmonth.month, 15)
+    run_it(
+        testdate,
+        testdate + relativedelta(months=3),
+        'quarterly'
+    )
 
-        self.run_it(
-            testdate,
-            testdate + relativedelta(months=3),
-            'quarterly'
-        )
 
-    def test_biannual(self):
-        lastmonth = date.today() - relativedelta(months=1)
-        testdate = date(lastmonth.year, lastmonth.month, 15)
+def test_biannual():
+    lastmonth = date.today() - relativedelta(months=1)
+    testdate = date(lastmonth.year, lastmonth.month, 15)
 
-        self.run_it(
-            testdate,
-            testdate + relativedelta(months=6),
-            'biannual'
-        )
+    run_it(
+        testdate,
+        testdate + relativedelta(months=6),
+        'biannual'
+    )
 
-    def testRunEnterDaysLessThanOne(self):
-        schedulefiledata = FileTester.read_file(
-            FileTester.test_enter_lessthan1
-        )
-        tempschedulefile = FileTester.write_to_temp_file(
-            FileTester.test_enter_lessthan1,
-            schedulefiledata
-        )
-        schedulefile = ScheduleFile(tempschedulefile)
 
-        templedgerfile = FileTester.create_temp_file('')
-        ledgerfile = LedgerFile(templedgerfile)
+def test_run_enter_days_less_than_one():
+    schedulefiledata = FileTester.read_file(
+        FileTester.test_enter_lessthan1
+    )
+    with FileTester.temp_input(schedulefiledata) as temp_schedule_filename:
+        with FileTester.temp_input('') as temp_ledger_file:
 
-        scheduler = Scheduler(ledgerfile, schedulefile)
-        scheduler.run()
+            ledgerfile = LedgerFile(temp_ledger_file)
+            return_value = run_scheduler(ledgerfile, temp_schedule_filename)
+            assert not return_value
 
-        ledgerfile.write_file()
-        schedulefile.write_file()
+            actual_data = FileTester.read_file(temp_schedule_filename)
+            expected_data = schedulefiledata
 
-        schedulefile_actual = FileTester.read_file(tempschedulefile)
-        schedulefile_expected = FileTester.read_file(
-            FileTester.test_enter_lessthan1
-        )
+    assert actual_data == expected_data
 
-        os.remove(templedgerfile)
-        os.remove(tempschedulefile)
 
-        self.assertEqual(
-            schedulefile_expected,
-            schedulefile_actual
-        )
+@mock.patch('builtins.print')
+def test_scheduler_error(mock_print):
+    schedulefiledata = ';; scheduler enter 321 days'
+    with FileTester.temp_input(schedulefiledata) as temp_schedule_filename:
+        ledgerfile = None  # is going to error before we use ledgerfile
+        return_value = run_scheduler(ledgerfile, temp_schedule_filename)
+        assert return_value == -1
+        expected = dedent('''\
+            Invalid schedule file config:
+            ;; scheduler enter 321 days
+            Expected:
+            ;; scheduler ; enter N days''')
+        mock_print.assert_called_once_with(expected, file=sys.stderr)
