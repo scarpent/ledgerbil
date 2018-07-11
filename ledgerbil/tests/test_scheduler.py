@@ -1,4 +1,3 @@
-import sys
 from datetime import date
 from textwrap import dedent
 from unittest import mock
@@ -109,22 +108,21 @@ def test_run_enter_days_less_than_one():
     assert actual_data == expected_data
 
 
-@mock.patch('builtins.print')
-def test_scheduler_error(mock_print):
+@mock.patch(__name__ + '.scheduler.handle_error')
+def test_scheduler_error(mock_error):
     schedulefiledata = ';; scheduler enter 321 days'
     with FileTester.temp_input(schedulefiledata) as temp_schedule_filename:
         ledgerfile = None  # is going to error before we use ledgerfile
-        return_value = scheduler.run_scheduler(
+        scheduler.run_scheduler(
             ledgerfile,
             temp_schedule_filename
         )
-        assert return_value == -1
         expected = dedent('''\
             Invalid schedule file config:
             ;; scheduler enter 321 days
             Expected:
             ;; scheduler ; enter N days''')
-        mock_print.assert_called_once_with(expected, file=sys.stderr)
+        mock_error.assert_called_once_with(expected)
 
 
 @mock.patch('builtins.print')
@@ -143,7 +141,7 @@ def test_next_scheduled_date_no_next(mock_print):
     mock_print.assert_called_once_with('')
 
 
-@mock.patch(__name__ + '.scheduler.scheduler_error')
+@mock.patch(__name__ + '.scheduler.handle_error')
 def test_next_scheduled_date_scheduler_exception(mock_error):
     schedulefile_data = ';; scheduler enter 567 days'
     with FileTester.temp_input(schedulefile_data) as temp_schedule_filename:

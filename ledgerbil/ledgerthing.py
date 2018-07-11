@@ -15,7 +15,7 @@ TOP_LINE_REGEX = re.compile(
     r'(?:\(([^)]*)\)\s*)?'             # optional transaction # and whitespace
     r'(.*?)(?=  |$)'                   # opt. payee ends with two spaces (or $)
 )
-# todo: should require dollar amount when @ symbol is found
+# todo: should require amount when @ symbol is found
 POSTING_REGEX = re.compile(r'''(?x)  # verbose mode
     ^\s+                             # opening indent
     ([!*])?                          # optional pending/cleared

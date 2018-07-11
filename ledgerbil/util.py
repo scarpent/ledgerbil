@@ -2,6 +2,7 @@ import ast
 import operator as op
 import re
 import shlex
+import sys
 from datetime import datetime
 from functools import reduce
 
@@ -117,3 +118,8 @@ def assert_only_one_matching_account(accounts):
         for account in sorted(list(accounts)):
             message += f'    {account}\n'
         raise LdgReconcilerError(message[:-1])
+
+
+def handle_error(message):
+    print(message, file=sys.stderr)
+    return -1

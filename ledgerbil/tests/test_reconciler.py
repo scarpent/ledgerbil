@@ -10,7 +10,7 @@ from dateutil.relativedelta import relativedelta
 from .. import reconciler, util
 from ..ledgerbilexceptions import LdgReconcilerError
 from ..ledgerfile import LedgerFile
-from ..reconciler import Reconciler
+from ..reconciler import Reconciler, run_reconciler
 from .filetester import FileTester
 from .helpers import OutputFileTesterStdout, Redirector
 
@@ -1077,3 +1077,36 @@ class ReloadTests(TestCase):
             self.assertEqual(-20, recon.total_cleared)
             recon.do_reload('')
             self.assertEqual(-55, recon.total_cleared)
+
+
+@mock.patch(__name__ + '.reconciler.Reconciler.cmdloop')
+def test_reconciler_cmdloop_called(mock_cmdloop):
+    ledgerfile_data = dedent('''
+        2017/11/28 zombie investments
+            a: 401k: bonds idx            12.357 qwrty @   $20.05
+            i: investment: adjustment
+    ''')
+    with FileTester.temp_input(ledgerfile_data) as tempfilename:
+        ledgerfile = LedgerFile(tempfilename, reconcile_account='bonds')
+        return_value = run_reconciler([ledgerfile])
+    assert return_value is None
+    mock_cmdloop.assert_called_once()
+
+
+@mock.patch('builtins.print')
+def test_reconciler_exception(mock_print):
+    ledgerfile_data = dedent('''
+        2017/11/28 zombie investments
+            a: 401k: bonds idx            12.357 qwrty @   $20.05
+            i: investment: adjustment
+
+        2017/11/28 zombie investments
+            a: 401k: bonds idx
+            i: investment: adjustment     $100,000
+    ''')
+    with FileTester.temp_input(ledgerfile_data) as tempfilename:
+        ledgerfile = LedgerFile(tempfilename, reconcile_account='bonds')
+        return_value = run_reconciler([ledgerfile])
+    assert return_value == -1
+    expected = 'Unhandled shares with non-shares: "a: 401k: bonds idx"'
+    mock_print.assert_called_once_with(expected, file=sys.stderr)

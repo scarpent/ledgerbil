@@ -13,6 +13,15 @@ from .settings import Settings
 settings = Settings()
 
 
+def run_reconciler(ledgerfiles):
+    try:
+        reconciler = Reconciler(ledgerfiles)
+    except LdgReconcilerError as e:
+        return util.handle_error(str(e))
+
+    reconciler.cmdloop()
+
+
 class Reconciler(cmd.Cmd, object):
 
     UNKNOWN_SYNTAX = '*** Unknown syntax: '

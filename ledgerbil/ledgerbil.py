@@ -1,11 +1,11 @@
 import argparse
-import sys
 from textwrap import dedent
 
 from .ledgerbilexceptions import LdgReconcilerError
 from .ledgerfile import LedgerFile
-from .reconciler import Reconciler
+from .reconciler import get_reconciler_cache, run_reconciler
 from .scheduler import print_next_scheduled_date, run_scheduler
+from .util import handle_error
 
 
 class Ledgerbil:
@@ -18,21 +18,26 @@ class Ledgerbil:
 
         if self.args.next_scheduled_date:
             if not self.args.schedule:
-                return self.error('error: -s/--schedule is required')
+                return handle_error('error: -s/--schedule is required')
             return print_next_scheduled_date(self.args.schedule)
 
+        if self.args.reconcile_status:
+            return self.reconcile_status()
+
         if not self.args.file:
-            return self.error('error: -f/--file is required')
+            return handle_error('error: -f/--file is required')
 
         try:
             self.ledgerfiles = [
                 LedgerFile(f, self.args.reconcile) for f in self.args.file
             ]
         except LdgReconcilerError as e:
-            return self.error(str(e))
+            return handle_error(str(e))
 
         if self.args.reconcile:
-            return self.run_reconciler()
+            if self.no_matching_account_found():
+                return
+            return run_reconciler(self.ledgerfiles)
 
         if self.args.schedule:
             error = run_scheduler(self.ledgerfiles[0], self.args.schedule)
@@ -44,21 +49,16 @@ class Ledgerbil:
                 ledgerfile.sort()
                 ledgerfile.write_file()
 
-    def error(self, message):
-        print(message, file=sys.stderr)
-        return -1
-
-    def run_reconciler(self):
+    def no_matching_account_found(self):
         if not any(lf.rec_account_matched for lf in self.ledgerfiles):
             print(f'No matching account found for "{self.args.reconcile}"')
-            return
+            return True
+        else:
+            return False
 
-        try:
-            reconciler = Reconciler(self.ledgerfiles)
-        except LdgReconcilerError as e:
-            return self.error(str(e))
-
-        reconciler.cmdloop()
+    def reconcile_status(self):
+        from pprint import pprint
+        pprint(get_reconciler_cache())
 
 
 def get_args(args):
@@ -119,6 +119,11 @@ def get_args(args):
         metavar='ACCT',
         help='interactively reconcile ledger file(s) with this account regex; '
              'scheduler/sort have no effect if also specified'
+    )
+    parser.add_argument(
+        '-R', '--reconcile-status',
+        action='store_true',
+        help='show last reconcilation status for accounts'
     )
     parser.add_argument(
         '-s', '--schedule',

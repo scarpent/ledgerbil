@@ -1,8 +1,7 @@
-import sys
-
 from .ledgerbilexceptions import LdgSchedulerError
 from .schedulefile import ScheduleFile
 from .schedulething import ScheduleThing
+from .util import handle_error
 
 
 def run_scheduler(ledgerfile, schedule_filename):
@@ -10,7 +9,7 @@ def run_scheduler(ledgerfile, schedule_filename):
     try:
         schedulefile = ScheduleFile(schedule_filename)
     except LdgSchedulerError as e:
-        return scheduler_error(str(e))
+        return handle_error(str(e))
 
     print('Schedule file (enter days = {days}):'.format(
         days=ScheduleThing.enter_days
@@ -47,11 +46,6 @@ def print_next_scheduled_date(schedule_filename):
     try:
         schedule_file = ScheduleFile(schedule_filename)
     except LdgSchedulerError as e:
-        return scheduler_error(str(e))
+        return handle_error(str(e))
 
     print(schedule_file.next_scheduled_date())
-
-
-def scheduler_error(message):
-    print(message, file=sys.stderr)
-    return -1

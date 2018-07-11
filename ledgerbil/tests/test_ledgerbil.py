@@ -274,11 +274,14 @@ class ReconcilerTests(Redirector):
 
 @mock.patch(__name__ + '.ledgerbil.LedgerFile.sort')
 @mock.patch(__name__ + '.ledgerbil.run_scheduler')
-@mock.patch(__name__ + '.ledgerbil.Ledgerbil.run_reconciler')
+@mock.patch(__name__ + '.ledgerbil.Ledgerbil.no_matching_account_found')
+@mock.patch(__name__ + '.ledgerbil.run_reconciler')
 def test_reconciler_takes_precedence_over_scheduler_and_sort(mock_reconciler,
+                                                             mock_no_match,
                                                              mock_scheduler,
                                                              mock_sort):
     mock_scheduler.return_value = None
+    mock_no_match.return_value = False
     with FT.temp_input('; schedule file') as schedule_filename:
         with FT.temp_input('; ledger file') as ledger_filename:
             ledgerbil.main([
@@ -293,33 +296,25 @@ def test_reconciler_takes_precedence_over_scheduler_and_sort(mock_reconciler,
     assert not mock_sort.called
 
 
-@mock.patch(__name__ + '.ledgerbil.print')
-def test_ledgerbil_error_printer_exiter(mock_print):
-    args = ledgerbil.get_args([])
-    gerbil = ledgerbil.Ledgerbil(args)
-    return_code = gerbil.error('blah blah blah')
-    mock_print.assert_called_once_with('blah blah blah', file=sys.stderr)
-    assert return_code == -1
-
-
-@mock.patch(__name__ + '.ledgerbil.Reconciler.cmdloop')
-def test_reconciler_cmdloop_called(mock_cmdloop):
+@mock.patch(__name__ + '.ledgerbil.run_reconciler')
+def test_run_reconciler_called(mock_run_reconciler):
     ledgerfile_data = dedent('''
         2017/11/28 zombie investments
             a: 401k: bonds idx            12.357 qwrty @   $20.05
             i: investment: adjustment
     ''')
     with FT.temp_input(ledgerfile_data) as tempfilename:
-        return_code = ledgerbil.main([
+        ledgerbil.main([
             '--file', tempfilename,
             '--reconcile', 'bonds'
         ])
-    mock_cmdloop.assert_called_once()
-    assert return_code is None
+    mock_run_reconciler.assert_called_once()
 
 
-@mock.patch(__name__ + '.ledgerbil.Ledgerbil.error')
-def test_reconciler_exception(mock_error):
+# testing print here is kind of usurping the util test of handle_error, but
+# would like to test more than just -1 return value
+@mock.patch('builtins.print')
+def test_reconciler_exception(mock_print):
     ledgerfile_data = dedent('''
         2017/11/28 zombie investments
             a: 401k: bonds idx            12.357 qwrty @   $20.05
@@ -330,15 +325,16 @@ def test_reconciler_exception(mock_error):
             i: investment: adjustment     $100,000
     ''')
     with FT.temp_input(ledgerfile_data) as tempfilename:
-        ledgerbil.main([
+        return_value = ledgerbil.main([
             '--file', tempfilename,
             '--reconcile', 'bonds'
         ])
+    assert return_value == -1
     expected = 'Unhandled shares with non-shares: "a: 401k: bonds idx"'
-    mock_error.assert_called_once_with(expected)
+    mock_print.assert_called_once_with(expected, file=sys.stderr)
 
 
-@mock.patch(__name__ + '.ledgerbil.Ledgerbil.error')
+@mock.patch(__name__ + '.ledgerbil.handle_error')
 def test_main_investments_with_argv_none(mock_error):
     with mock.patch('sys.argv', ['/script']):
         ledgerbil.main()
@@ -438,3 +434,16 @@ def test_args_next_scheduled_date(test_input, expected):
         options.append(test_input)
     args = ledgerbil.get_args(options)
     assert args.next_scheduled_date is expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    ('-R', True),
+    ('--reconcile-status', True),
+    ('', False),
+])
+def test_args_reconcile_status(test_input, expected):
+    options = ['-f', 'gargle']
+    if test_input:
+        options.append(test_input)
+    args = ledgerbil.get_args(options)
+    assert args.reconcile_status is expected
