@@ -8,9 +8,9 @@ from textwrap import dedent
 from .. import util
 from ..colorable import Colorable
 from .runner import get_ledger_output
+from .util import get_balance_line
 
 SORT_DEFAULT = 'total'
-ACCOUNT_LINE_REGEX = re.compile(r'^\s*(?:\$ (-?[\d,.]+|0(?=  )))\s*(.*)$')
 PAYEE_SUBTOTAL_REGEX = re.compile(r'^.*?\$ (\S+)\s*\$.*$')
 
 
@@ -141,9 +141,6 @@ def get_columns(period_names,
 
 
 def get_column_accounts(period_name, ledger_args, depth=0):
-    ACCOUNT = 1
-    DOLLARS = 0
-
     lines = get_ledger_output(
         ('balance', '--flat', '--period', period_name) + ledger_args
     ).split('\n')
@@ -165,15 +162,14 @@ def get_column_accounts(period_name, ledger_args, depth=0):
         elif line == '':  # last element when ledger doesn't give a total
             break
 
-        match = re.match(ACCOUNT_LINE_REGEX, line)
+        dollars = get_balance_line(line)
         # should match as long as --market is used?
-        assert match, f'Account line regex did not match: {line}'
-        amount = util.get_float(match.groups()[DOLLARS])
-        account = match.groups()[ACCOUNT]
+        assert dollars, f'Account line regex did not match: {line}'
+        account = dollars.account
         if depth > 0:
-            account_parts = account.split(':')
+            account_parts = dollars.account.split(':')
             account = ':'.join(account_parts[:depth])
-        column[account] += amount
+        column[account] += dollars.amount
 
     return column
 

@@ -6,7 +6,7 @@ from textwrap import dedent
 from ..colorable import Colorable
 from ..settings import Settings
 from .runner import get_ledger_command, get_ledger_output
-from .util import Shares, get_balance_line_dollars, get_balance_line_shares
+from .util import Shares, get_balance_line
 
 settings = Settings()
 
@@ -64,7 +64,7 @@ def get_dollars(args):
     for line in lines:
         if line == '' or line[0] == '-':
             break
-        dollars = get_balance_line_dollars(line)
+        dollars = get_balance_line(line, strip_account=False)
         assert dollars, f'Dollars regex did not match: {line}'
         if dollars.amount < 0:
                 warn_negative_dollars(dollars.amount, dollars.account)
@@ -110,7 +110,7 @@ def get_shares(args):
     # indented tree structure of account names
     last_indent = 0
     for line in reversed(lines):
-        dollars = get_balance_line_dollars(line)
+        dollars = get_balance_line(line, strip_account=False)
         if dollars:
             # Cash lines don't have share amounts, just dollars; we'll
             # make shares/symbol be empty and just have the account
@@ -119,7 +119,7 @@ def get_shares(args):
                 warn_negative_dollars(dollars.amount, dollars.account)
             shares = Shares('', '', dollars.account)
         else:
-            shares = get_balance_line_shares(line)
+            shares = get_balance_line(line, shares=True, strip_account=False)
             assert shares, f'Shares regex did not match: {line}'
 
         # Only use the shares from the leaf nodes, which will be
