@@ -6,32 +6,26 @@ from ..util import get_float
 DOLLARS_REGEX = re.compile(r'^\s*(?:(\$ -?[\d,.]+|0(?=  )))(.*)$')
 SHARES_REGEX = re.compile(r'\s*(-?[\d,.]+) ([a-zA-Z]+)(.*)$')
 
-Dollars = namedtuple('Dollars', 'amount account')
-Shares = namedtuple('Shares', 'num symbol account')
+AccountBalance = namedtuple('AccountBalance', 'account amount symbol')
 
 
-def get_balance_line(line, shares=False, strip_account=True):
+def get_account_balance_new(line, shares=False, strip_account=True):
     if shares:
-        get_balance = get_balance_line_shares
+        match = re.match(SHARES_REGEX, line)
+        if match:
+            amount, symbol, account = match.groups()
     else:
-        get_balance = get_balance_line_dollars
+        match = re.match(DOLLARS_REGEX, line)
+        if match:
+            amount, account = match.groups()
+            amount = get_float(amount)  # todo: float it below
+            symbol = '$'
 
-    return get_balance(line, strip_account)
+    if not match:
+        return None
 
-
-def get_balance_line_dollars(line, strip_account=True):
-    match = re.match(DOLLARS_REGEX, line)
-    if match:
-        amount, account = match.groups()
-        account = account.strip() if strip_account else account
-        return Dollars(get_float(amount), account)
-    return None
-
-
-def get_balance_line_shares(line, strip_account=True):
-    match = re.match(SHARES_REGEX, line)
-    if match:
-        num, symbol, account = match.groups()
-        account = account.strip() if strip_account else account
-        return Shares(num, symbol, account)
-    return None
+    return AccountBalance(
+        account.strip() if strip_account else account,
+        amount,  # todo: will make both a float here
+        symbol
+    )

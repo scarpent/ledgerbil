@@ -6,7 +6,7 @@ from textwrap import dedent
 from ..colorable import Colorable
 from ..settings import Settings
 from .runner import get_ledger_command, get_ledger_output
-from .util import Shares, get_balance_line
+from .util import AccountBalance, get_account_balance_new
 
 settings = Settings()
 
@@ -64,7 +64,7 @@ def get_dollars(args):
     for line in lines:
         if line == '' or line[0] == '-':
             break
-        dollars = get_balance_line(line, strip_account=False)
+        dollars = get_account_balance_new(line, strip_account=False)
         assert dollars, f'Dollars regex did not match: {line}'
         if dollars.amount < 0:
                 warn_negative_dollars(dollars.amount, dollars.account)
@@ -110,24 +110,33 @@ def get_shares(args):
     # indented tree structure of account names
     last_indent = 0
     for line in reversed(lines):
-        dollars = get_balance_line(line, strip_account=False)
+        dollars = get_account_balance_new(line, strip_account=False)
         if dollars:
             # Cash lines don't have share amounts, just dollars; we'll
             # make shares/symbol be empty and just have the account
             # to keep our lists lined up
             if dollars.amount < 0:
-                warn_negative_dollars(dollars.amount, dollars.account)
-            shares = Shares('', '', dollars.account)
+                warn_negative_dollars(
+                    dollars.amount,
+                    dollars.account
+                )
+            shares = AccountBalance(dollars.account, '', '')
         else:
-            shares = get_balance_line(line, shares=True, strip_account=False)
+            shares = get_account_balance_new(
+                line,
+                shares=True,
+                strip_account=False
+            )
             assert shares, f'Shares regex did not match: {line}'
 
         # Only use the shares from the leaf nodes, which will be
         # at the same indent or further indented
-        indent = len(shares.account) - len(shares.account.strip())
+        indent = (
+            len(shares.account) - len(shares.account.strip())
+        )
         if indent < last_indent:
-            # Same as with cash lines, make shares/symbol empty
-            shares = Shares('', '', shares.account)
+            # Same as with cash lines, make share amount and symbol empty
+            shares = AccountBalance(shares.account, '', '')
         last_indent = indent
 
         listing.append(shares)
@@ -163,7 +172,7 @@ def get_investment_report(args):
         dollars_f = '0' if dollars.amount == 0 else f'$ {dollars.amount:,.2f}'
 
         report += ('{shares} {symbol} {dollars} {investment}\n'.format(
-            shares=Colorable('gray', shares.num, '>12', bright=True),
+            shares=Colorable('gray', shares.amount, '>12', bright=True),
             symbol=Colorable('purple', shares.symbol, 5),
             dollars=Colorable(dollar_color, dollars_f, '>16'),
             investment=Colorable('blue', dollars.account)

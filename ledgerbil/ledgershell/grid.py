@@ -8,7 +8,7 @@ from textwrap import dedent
 from .. import util
 from ..colorable import Colorable
 from .runner import get_ledger_output
-from .util import get_balance_line
+from .util import get_account_balance_new
 
 SORT_DEFAULT = 'total'
 PAYEE_SUBTOTAL_REGEX = re.compile(r'^.*?\$ (\S+)\s*\$.*$')
@@ -162,14 +162,14 @@ def get_column_accounts(period_name, ledger_args, depth=0):
         elif line == '':  # last element when ledger doesn't give a total
             break
 
-        dollars = get_balance_line(line)
+        balance = get_account_balance_new(line)
         # should match as long as --market is used?
-        assert dollars, f'Account line regex did not match: {line}'
-        account = dollars.account
+        assert balance, f'Account line regex did not match: {line}'
+        account = balance.account
         if depth > 0:
-            account_parts = dollars.account.split(':')
+            account_parts = balance.account.split(':')
             account = ':'.join(account_parts[:depth])
-        column[account] += dollars.amount
+        column[account] += balance.amount
 
     return column
 
