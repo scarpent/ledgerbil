@@ -1,7 +1,6 @@
 import cmd
 import json
 import os
-import re
 import sys
 from datetime import date
 
@@ -431,9 +430,7 @@ class Reconciler(cmd.Cmd, object):
                 return
 
             try:
-                self.ending_balance = float(
-                    re.sub(r'[$,]', '', new_ending_balance)
-                )
+                self.ending_balance = util.get_float(new_ending_balance)
                 break
             except ValueError:
                 print('*** Invalid number')

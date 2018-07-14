@@ -156,7 +156,7 @@ def get_column_accounts(period_name, ledger_args, depth=0):
             validate_column_total(
                 period_name,
                 column_total=sum(column.values()),
-                ledgers_total=float(re.sub(r'[$, ]', '', line))
+                ledgers_total=util.get_float(line)
             )
             break
         elif line and line[0] == '-':  # ledger's total line separator
@@ -168,7 +168,7 @@ def get_column_accounts(period_name, ledger_args, depth=0):
         match = re.match(ACCOUNT_LINE_REGEX, line)
         # should match as long as --market is used?
         assert match, f'Account line regex did not match: {line}'
-        amount = float(match.groups()[DOLLARS].replace(',', ''))
+        amount = util.get_float(match.groups()[DOLLARS])
         account = match.groups()[ACCOUNT]
         if depth > 0:
             account_parts = account.split(':')
@@ -216,7 +216,7 @@ def get_column_payees(period_name, ledger_args):
             match = re.match(PAYEE_SUBTOTAL_REGEX, line)
             assert match, f'Payee subtotal regex did not match: {line}'
             assert payee not in column, f'Payee already in column: {payee}'
-            amount = float(match.groups()[DOLLARS].replace(',', ''))
+            amount = util.get_float(match.groups()[DOLLARS])
             column[payee] = amount
             payee = None
 

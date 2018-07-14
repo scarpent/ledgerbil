@@ -67,7 +67,7 @@ def teardown_module(module):
     FileTester.delete_test_cache_file()
 
 
-def verify_equal_floats(float1, float2, decimals=2):
+def assert_equal_floats(float1, float2, decimals=2):
     assert f'{float1:.{decimals}f}' == f'{float2:.{decimals}f}'
 
 
@@ -413,8 +413,8 @@ def test_init_things():
         ledgerfile = LedgerFile(tempfilename, 'cash')
         recon = Reconciler([ledgerfile])
 
-    verify_equal_floats(-15, recon.total_cleared)
-    verify_equal_floats(-32.12, recon.total_pending)
+    assert_equal_floats(-15, recon.total_cleared)
+    assert_equal_floats(-32.12, recon.total_pending)
     payees = {
         thing.payee for thing in recon.open_transactions
     }
@@ -462,8 +462,8 @@ def test_list():
     }
     # future items included only if pending ('three')
     assert payees == ({'two', 'two pt five', 'three'})
-    verify_equal_floats(-15, recon.total_cleared)
-    verify_equal_floats(-32.12, recon.total_pending)
+    assert_equal_floats(-15, recon.total_cleared)
+    assert_equal_floats(-32.12, recon.total_pending)
 
 
 def test_list_shares():
@@ -497,8 +497,8 @@ def test_list_shares():
         recon = Reconciler([LedgerFile(tempfilename, '401k: big co')])
 
     recon.do_list('')
-    verify_equal_floats(3.901233, recon.total_cleared, decimals=6)
-    verify_equal_floats(3.222221, recon.total_pending, decimals=6)
+    assert_equal_floats(3.901233, recon.total_cleared, decimals=6)
+    assert_equal_floats(3.222221, recon.total_pending, decimals=6)
 
 
 def test_list_and_modify():
@@ -506,8 +506,8 @@ def test_list_and_modify():
     with FileTester.temp_input(testdata) as tempfilename:
         recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
-    verify_equal_floats(-15, recon.total_cleared)
-    verify_equal_floats(-32.12, recon.total_pending)
+    assert_equal_floats(-15, recon.total_cleared)
+    assert_equal_floats(-32.12, recon.total_pending)
     recon.do_list('')
     payees = {
         thing.payee for k, thing in
@@ -524,8 +524,8 @@ def test_list_and_modify():
         recon.current_listing.items()
     }
     assert payees == ({'two', 'two pt five'})
-    verify_equal_floats(-15, recon.total_cleared)
-    verify_equal_floats(-2.12, recon.total_pending)
+    assert_equal_floats(-15, recon.total_cleared)
+    assert_equal_floats(-2.12, recon.total_pending)
 
     # open transactions shouldn't change
     payees = {thing.payee for thing in recon.open_transactions}
@@ -537,45 +537,45 @@ def test_mark_and_unmark():
     with FileTester.temp_input(testdata) as tempfilename:
         recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
-    verify_equal_floats(-15, recon.total_cleared)
-    verify_equal_floats(-32.12, recon.total_pending)
+    assert_equal_floats(-15, recon.total_cleared)
+    assert_equal_floats(-32.12, recon.total_pending)
     recon.do_mark('1')
-    verify_equal_floats(-15, recon.total_cleared)
-    verify_equal_floats(-52.12, recon.total_pending)
+    assert_equal_floats(-15, recon.total_cleared)
+    assert_equal_floats(-52.12, recon.total_pending)
     recon.do_unmark('1 2')
-    verify_equal_floats(-15, recon.total_cleared)
-    verify_equal_floats(-30, recon.total_pending)
+    assert_equal_floats(-15, recon.total_cleared)
+    assert_equal_floats(-30, recon.total_pending)
     recon.do_mark('1 2')
-    verify_equal_floats(-15, recon.total_cleared)
-    verify_equal_floats(-52.12, recon.total_pending)
+    assert_equal_floats(-15, recon.total_cleared)
+    assert_equal_floats(-52.12, recon.total_pending)
     recon.do_unmark('2')
-    verify_equal_floats(-15, recon.total_cleared)
-    verify_equal_floats(-50, recon.total_pending)
+    assert_equal_floats(-15, recon.total_cleared)
+    assert_equal_floats(-50, recon.total_pending)
     recon.do_mark('1 2 blurg')
-    verify_equal_floats(-15, recon.total_cleared)
-    verify_equal_floats(-52.12, recon.total_pending)
+    assert_equal_floats(-15, recon.total_cleared)
+    assert_equal_floats(-52.12, recon.total_pending)
     recon.do_unmark('blarg 2')
-    verify_equal_floats(-15, recon.total_cleared)
-    verify_equal_floats(-50, recon.total_pending)
+    assert_equal_floats(-15, recon.total_cleared)
+    assert_equal_floats(-50, recon.total_pending)
     recon.do_unmark('1 sdjfkljsdfkljsdl 2')
-    verify_equal_floats(-15, recon.total_cleared)
-    verify_equal_floats(-30, recon.total_pending)
+    assert_equal_floats(-15, recon.total_cleared)
+    assert_equal_floats(-30, recon.total_pending)
     recon.default('1')
-    verify_equal_floats(-15, recon.total_cleared)
-    verify_equal_floats(-50, recon.total_pending)
+    assert_equal_floats(-15, recon.total_cleared)
+    assert_equal_floats(-50, recon.total_pending)
 
     # entry with account on multiple lines
     with FileTester.temp_input(testdata) as tempfilename:
         recon = Reconciler([LedgerFile(tempfilename, 'credit')])
 
-    verify_equal_floats(0, recon.total_cleared)
-    verify_equal_floats(0, recon.total_pending)
+    assert_equal_floats(0, recon.total_cleared)
+    assert_equal_floats(0, recon.total_pending)
     recon.do_mark('1')
-    verify_equal_floats(0, recon.total_cleared)
-    verify_equal_floats(-33, recon.total_pending)
+    assert_equal_floats(0, recon.total_cleared)
+    assert_equal_floats(-33, recon.total_pending)
     recon.do_unmark('1')
-    verify_equal_floats(0, recon.total_cleared)
-    verify_equal_floats(0, recon.total_pending)
+    assert_equal_floats(0, recon.total_cleared)
+    assert_equal_floats(0, recon.total_pending)
 
 
 def test_mark_and_unmark_all():
@@ -583,14 +583,14 @@ def test_mark_and_unmark_all():
     with FileTester.temp_input(testdata) as tempfilename:
         recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
-    verify_equal_floats(-15, recon.total_cleared)
-    verify_equal_floats(-32.12, recon.total_pending)
+    assert_equal_floats(-15, recon.total_cleared)
+    assert_equal_floats(-32.12, recon.total_pending)
     recon.do_unmark('all')
-    verify_equal_floats(-15, recon.total_cleared)
-    verify_equal_floats(0, recon.total_pending)
+    assert_equal_floats(-15, recon.total_cleared)
+    assert_equal_floats(0, recon.total_pending)
     recon.do_mark('all')
-    verify_equal_floats(-15, recon.total_cleared)
-    verify_equal_floats(-22.12, recon.total_pending)
+    assert_equal_floats(-15, recon.total_cleared)
+    assert_equal_floats(-22.12, recon.total_pending)
 
 
 def test_finish_balancing_with_errors():

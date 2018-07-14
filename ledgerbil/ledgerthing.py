@@ -48,7 +48,7 @@ def get_ledger_posting(line):
     status, account, shares, symbol, amount = m.groups()
 
     if shares is not None:
-        shares = float(re.sub(r'[, ]', '', shares))
+        shares = util.get_float(shares)
 
     if amount is not None:
         amount = amount.strip()
