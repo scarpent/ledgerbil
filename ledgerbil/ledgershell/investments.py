@@ -65,7 +65,7 @@ def get_dollars(args):
         if line == '' or line[0] == '-':
             break
         dollars = get_account_balance_new(line, strip_account=False)
-        assert dollars, f'Dollars regex did not match: {line}'
+        assert dollars, f'Did not find expected account and dollars: {line}'
         if dollars.amount < 0:
                 warn_negative_dollars(dollars.amount, dollars.account)
         listing.append(dollars)
@@ -127,7 +127,7 @@ def get_shares(args):
                 shares=True,
                 strip_account=False
             )
-            assert shares, f'Shares regex did not match: {line}'
+            assert shares, f'Did not find expected account and shares: {line}'
 
         # Only use the shares from the leaf nodes, which will be
         # at the same indent or further indented

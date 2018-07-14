@@ -164,7 +164,7 @@ def get_column_accounts(period_name, ledger_args, depth=0):
 
         balance = get_account_balance_new(line)
         # should match as long as --market is used?
-        assert balance, f'Account line regex did not match: {line}'
+        assert balance, f'Did not find expected account and dollars: {line}'
         account = balance.account
         if depth > 0:
             account_parts = balance.account.split(':')

@@ -341,7 +341,8 @@ def test_assertion_for_non_matching_shares_regex(mock_ledger_output):
     args = investments.get_args([])
     with pytest.raises(AssertionError) as excinfo:
         investments.get_investment_report(args)
-    expected = 'Shares regex did not match: bad abcdx  assets: blah: blah'
+    expected = ('Did not find expected account and shares: '
+                'bad abcdx  assets: blah: blah')
     assert str(excinfo.value) == expected
 
 
@@ -353,7 +354,7 @@ def test_assertion_for_non_matching_dollar_regex(mock_ledger_output):
     args = investments.get_args([])
     with pytest.raises(AssertionError) as excinfo:
         investments.get_investment_report(args)
-    expected = 'Dollars regex did not match: bad assets: fu: bar'
+    expected = 'Did not find expected account and dollars: bad assets: fu: bar'
     assert str(excinfo.value) == expected
 
 
