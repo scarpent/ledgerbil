@@ -133,21 +133,21 @@ def test_get_lines_print_command(mock_get_ledger_output, mock_print):
 def test_get_investment_report(mock_ledger_output):
     shares = [
         '            $ 189.00',
-        '         9.897 abcdx',
+        '     1,019.897 abcdx',
         '        20.000 lmnop',
         '        15.000 qwrty',
         '         5.000 yyzxx  assets',
         '            $ 189.00',
-        '         9.897 abcdx',
+        '     1,019.897 abcdx',
         '        20.000 lmnop     401k',
-        '         9.897 abcdx       big co 500 idx',
+        '     1,019.897 abcdx       big co 500 idx',
         '        20.000 lmnop       bonds idx',
         '            $ 189.00       cash',
         '        15.000 qwrty     ira: glass idx',
         '         5.000 yyzxx     mutual: total idx',
         '--------------------',
         '            $ 189.00',
-        '         9.897 abcdx',
+        '     1,019.897 abcdx',
         '        20.000 lmnop',
         '        15.000 qwrty',
         '         5.000 yyzxx',
@@ -172,11 +172,11 @@ def test_get_investment_report(mock_ledger_output):
     )
     expected = '''$ 1,737.19   assets
                          $ 1,387.19      401k
-       9.897 abcdx         $ 798.19        big co 500 idx
-      20.000 lmnop         $ 400.00        bonds idx
+   1,019.897 abcdx         $ 798.19        big co 500 idx
+        20.0 lmnop         $ 400.00        bonds idx
                            $ 189.00        cash
-      15.000 qwrty         $ 150.00      ira: glass idx
-       5.000 yyzxx         $ 200.00      mutual: total idx'''
+        15.0 qwrty         $ 150.00      ira: glass idx
+         5.0 yyzxx         $ 200.00      mutual: total idx'''
     assert report.strip() == expected
 
 
@@ -223,11 +223,11 @@ def test_get_investment_report_matching_shares_and_symbol(mock_ledger_output):
     expected = '''$ 2,592.87   assets
                          $ 1,390.94      401k
        9.898 abcdx         $ 801.94        big co 500 idx
-      20.000 lmnop         $ 400.00        bonds idx
+        20.0 lmnop         $ 400.00        bonds idx
                            $ 189.00        cash
                          $ 1,201.94      abc: xyz
        9.898 abcdx         $ 801.94        big co 500 idx
-      20.000 lmnop         $ 400.00        bonds idx'''
+        20.0 lmnop         $ 400.00        bonds idx'''
     assert report.strip() == expected
 
 
@@ -258,8 +258,8 @@ def test_zero_dollar_amount(mock_ledger_output):
         investments.get_investment_report(args)
     )
     expected = '''0   assets: 401k
-      10.000 abcdx         $ 800.00      big co 500 idx
-     -40.000 lmnop        $ -800.00      bonds idx'''
+        10.0 abcdx         $ 800.00      big co 500 idx
+       -40.0 lmnop        $ -800.00      bonds idx'''
     assert report.strip() == expected
 
 
@@ -272,7 +272,7 @@ def test_get_investment_report_single_line(mock_ledger_output):
     report = investments.Colorable.get_plain_string(
         investments.get_investment_report(args)
     )
-    expected = '15.000 qwrty         $ 150.00   assets: ira: glass idx'
+    expected = '15.0 qwrty         $ 150.00   assets: ira: glass idx'
     assert report.strip() == expected
 
 
@@ -378,7 +378,7 @@ def test_main(mock_get_lines, mock_print):
     mock_get_lines.side_effect = [shares, dollars]
     investments.main([])
     output = investments.Colorable.get_plain_string(mock_print.call_args[0][0])
-    expected = '15.000 qwrty         $ 150.00   assets: ira: glass idx'
+    expected = '15.0 qwrty         $ 150.00   assets: ira: glass idx'
     assert output.strip() == expected
 
 

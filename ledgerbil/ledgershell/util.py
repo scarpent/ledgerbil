@@ -18,7 +18,6 @@ def get_account_balance_new(line, shares=False, strip_account=True):
         match = re.match(DOLLARS_REGEX, line)
         if match:
             amount, account = match.groups()
-            amount = get_float(amount)  # todo: float it below
             symbol = '$'
 
     if not match:
@@ -26,6 +25,6 @@ def get_account_balance_new(line, shares=False, strip_account=True):
 
     return AccountBalance(
         account.strip() if strip_account else account,
-        amount,  # todo: will make both a float here
+        get_float(amount),
         symbol
     )

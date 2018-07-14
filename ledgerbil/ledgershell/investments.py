@@ -113,14 +113,14 @@ def get_shares(args):
         dollars = get_account_balance_new(line, strip_account=False)
         if dollars:
             # Cash lines don't have share amounts, just dollars; we'll
-            # make shares/symbol be empty and just have the account
-            # to keep our lists lined up
+            # make share amount be 0 and symbol empty and just have the
+            # account to keep our lists lined up
             if dollars.amount < 0:
                 warn_negative_dollars(
                     dollars.amount,
                     dollars.account
                 )
-            shares = AccountBalance(dollars.account, '', '')
+            shares = AccountBalance(dollars.account, 0, '')
         else:
             shares = get_account_balance_new(
                 line,
@@ -135,8 +135,8 @@ def get_shares(args):
             len(shares.account) - len(shares.account.strip())
         )
         if indent < last_indent:
-            # Same as with cash lines, make share amount and symbol empty
-            shares = AccountBalance(shares.account, '', '')
+            # Same as with cash lines, make share amount 0 and symbol empty
+            shares = AccountBalance(shares.account, 0, '')
         last_indent = indent
 
         listing.append(shares)
@@ -170,9 +170,10 @@ def get_investment_report(args):
 
         dollar_color = 'red' if dollars.amount < 0 else 'green'
         dollars_f = '0' if dollars.amount == 0 else f'$ {dollars.amount:,.2f}'
+        shares_amount_f = '' if shares.amount == 0 else f'{shares.amount:,}'
 
         report += ('{shares} {symbol} {dollars} {investment}\n'.format(
-            shares=Colorable('gray', shares.amount, '>12', bright=True),
+            shares=Colorable('gray', shares_amount_f, '>12', bright=True),
             symbol=Colorable('purple', shares.symbol, 5),
             dollars=Colorable(dollar_color, dollars_f, '>16'),
             investment=Colorable('blue', dollars.account)
