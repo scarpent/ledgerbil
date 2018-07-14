@@ -57,6 +57,16 @@ def test_is_integer(test_input, expected):
 
 
 @pytest.mark.parametrize('test_input, expected', [
+    ('$ -1,234.56', -1234.56),
+    ('$ 567', 567),
+    ('-789.2', -789.2),
+    ('9876.54321', 9876.54321)
+])
+def test_get_float(test_input, expected):
+    assert util.get_float(test_input) == expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
     (['1', '7', '2'], (1, 8)),
     ({'90', '7', '3'}, (3, 91)),
     (['1', '-7', '2'], (-7, 3)),

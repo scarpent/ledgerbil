@@ -58,6 +58,10 @@ def is_integer(value):
         return False
 
 
+def get_float(value):
+    return float(re.sub(r'[ $,]', '', value))
+
+
 def get_start_and_end_range(numbers):
     int_nums = [int(num) for num in numbers]
     return min(int_nums), max(int_nums) + 1

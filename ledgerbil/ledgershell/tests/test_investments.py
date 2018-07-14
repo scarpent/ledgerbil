@@ -25,15 +25,9 @@ def setup_function(module):
 
 
 @mock.patch(__name__ + '.investments.print')
-def test_check_for_negative_dollars_no_warning(mock_print):
-    investments.check_for_negative_dollars('$ 10', 'blah')
-    assert not mock_print.called
-
-
-@mock.patch(__name__ + '.investments.print')
-def test_check_for_negative_dollars_warning(mock_print):
-    expected = 'Negative dollar amount $ -10 for "blah."'
-    investments.check_for_negative_dollars('$ -10', 'blah')
+def test_warn_negative_dollars(mock_print):
+    expected = 'Negative dollar amount -10 for "blah".'
+    investments.warn_negative_dollars('-10', 'blah')
     output = investments.Colorable.get_plain_string(mock_print.call_args[0][0])
     assert expected in output
 
@@ -292,8 +286,29 @@ def test_less_than_zero(mock_ledger_output, mock_print):
 
     expected_report = ('-0.103 abcdx          $ -8.31'
                        '   assets: 401k: big co 500 idx')
-    expected_print = ('Negative dollar amount $ -8.31'
-                      ' for "assets: 401k: big co 500 idx."')
+    expected_print = ('Negative dollar amount -8.31'
+                      ' for "assets: 401k: big co 500 idx".')
+    actual_report = investments.Colorable.get_plain_string(
+        investments.get_investment_report(args)
+    )
+    actual_print = investments.Colorable.get_plain_string(
+        mock_print.call_args[0][0]
+    )
+
+    assert actual_report.strip() == expected_report
+    assert expected_print in actual_print
+
+
+@mock.patch(__name__ + '.investments.print')
+@mock.patch(__name__ + '.investments.get_lines')
+def test_less_than_zero_cash(mock_ledger_output, mock_print):
+    shares = ['        $ -10.00  cash', '']
+    dollars = ['             $ -10.00  cash', '']
+    mock_ledger_output.side_effect = [shares, dollars]
+    args = investments.get_args([])
+
+    expected_report = ('$ -10.00   cash')
+    expected_print = ('Negative dollar amount -10.0 for "cash".')
     actual_report = investments.Colorable.get_plain_string(
         investments.get_investment_report(args)
     )

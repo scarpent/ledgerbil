@@ -24,17 +24,16 @@ def get_investment_command_options(
     return tuple(['bal'] + shlex.split(accounts) + options)
 
 
-def check_for_negative_dollars(amount, account):
-    if amount[:3] == '$ -':
-        print(
-            '{warning} Negative dollar amount {amount} for "{account}." '
-            'This may be a data entry mistake, or because we are '
-            'looking at a date range.\n'.format(
-                warning=Colorable('red', 'WARNING:'),
-                amount=Colorable('red', amount),
-                account=account.strip()
-            )
+def warn_negative_dollars(amount, account):
+    print(
+        '{warning} Negative dollar amount {amount} for "{account}". '
+        'This may be a data entry mistake, or because we are '
+        'looking at a date range.\n'.format(
+            warning=Colorable('red', 'WARNING:'),
+            amount=Colorable('red', amount),
+            account=account.strip()
         )
+    )
 
 
 def get_lines(args, shares=False):
@@ -67,7 +66,8 @@ def get_dollars(args):
             break
         dollars = get_balance_line_dollars(line)
         assert dollars, f'Dollars regex did not match: {line}'
-        check_for_negative_dollars(dollars.amount, dollars.account)
+        if dollars.amount < 0:
+                warn_negative_dollars(dollars.amount, dollars.account)
         listing.append(dollars)
 
     return listing
@@ -115,7 +115,8 @@ def get_shares(args):
             # Cash lines don't have share amounts, just dollars; we'll
             # make shares/symbol be empty and just have the account
             # to keep our lists lined up
-            check_for_negative_dollars(dollars.amount, dollars.account)
+            if dollars.amount < 0:
+                warn_negative_dollars(dollars.amount, dollars.account)
             shares = Shares('', '', dollars.account)
         else:
             shares = get_balance_line_shares(line)
@@ -158,12 +159,13 @@ def get_investment_report(args):
                        f'Dollars: {dollars.account}')
         assert shares.account == dollars.account, err_message
 
-        dollar_color = 'red' if '-' in dollars.amount else 'green'
+        dollar_color = 'red' if dollars.amount < 0 else 'green'
+        dollars_f = '0' if dollars.amount == 0 else f'$ {dollars.amount:,.2f}'
 
         report += ('{shares} {symbol} {dollars} {investment}\n'.format(
             shares=Colorable('gray', shares.num, '>12', bright=True),
             symbol=Colorable('purple', shares.symbol, 5),
-            dollars=Colorable(dollar_color, dollars.amount, '>16'),
+            dollars=Colorable(dollar_color, dollars_f, '>16'),
             investment=Colorable('blue', dollars.account)
         ))
 
