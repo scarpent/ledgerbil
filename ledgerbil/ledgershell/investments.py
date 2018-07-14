@@ -6,7 +6,7 @@ from textwrap import dedent
 from ..colorable import Colorable
 from ..settings import Settings
 from .runner import get_ledger_command, get_ledger_output
-from .util import AccountBalance, get_account_balance_new
+from .util import AccountBalance, get_account_balance
 
 settings = Settings()
 
@@ -64,7 +64,7 @@ def get_dollars(args):
     for line in lines:
         if line == '' or line[0] == '-':
             break
-        dollars = get_account_balance_new(line, strip_account=False)
+        dollars = get_account_balance(line, strip_account=False)
         assert dollars, f'Did not find expected account and dollars: {line}'
         if dollars.amount < 0:
                 warn_negative_dollars(dollars.amount, dollars.account)
@@ -110,7 +110,7 @@ def get_shares(args):
     # indented tree structure of account names
     last_indent = 0
     for line in reversed(lines):
-        dollars = get_account_balance_new(line, strip_account=False)
+        dollars = get_account_balance(line, strip_account=False)
         if dollars:
             # Cash lines don't have share amounts, just dollars; we'll
             # make share amount be 0 and symbol empty and just have the
@@ -122,7 +122,7 @@ def get_shares(args):
                 )
             shares = AccountBalance(dollars.account, 0, '')
         else:
-            shares = get_account_balance_new(
+            shares = get_account_balance(
                 line,
                 shares=True,
                 strip_account=False

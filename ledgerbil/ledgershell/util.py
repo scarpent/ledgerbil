@@ -9,7 +9,7 @@ SHARES_REGEX = re.compile(r'\s*(-?[\d,.]+) ([a-zA-Z]+)(.*)$')
 AccountBalance = namedtuple('AccountBalance', 'account amount symbol')
 
 
-def get_account_balance_new(line, shares=False, strip_account=True):
+def get_account_balance(line, shares=False, strip_account=True):
     if shares:
         match = re.match(SHARES_REGEX, line)
         if match:
