@@ -21,7 +21,7 @@ class Ledgerbil:
                 return handle_error('error: -s/--schedule is required')
             return print_next_scheduled_date(self.args.schedule)
 
-        if self.args.reconcile_status:
+        if self.args.reconcile_status:  # pragma: no cover (coming soon...)
             return self.reconcile_status()
 
         if not self.args.file:
@@ -56,7 +56,7 @@ class Ledgerbil:
         else:
             return False
 
-    def reconcile_status(self):
+    def reconcile_status(self):  # pragma: no cover
         from pprint import pprint
         pprint(get_reconciler_cache())
 

@@ -1,18 +1,12 @@
 import argparse
 import re
 import shlex
-from collections import namedtuple
 from textwrap import dedent
 
 from ..colorable import Colorable
 from ..settings import Settings
 from .runner import get_ledger_command, get_ledger_output
-
-DOLLARS_REGEX = re.compile(r'^\s*(?:(\$ -?[\d,.]+|0(?=  )))(.*)$')
-SHARES_REGEX = re.compile(r'\s*(-?[\d,.]+) ([a-zA-Z]+)(.*)$')
-
-Dollars = namedtuple('Dollars', 'amount account')
-Shares = namedtuple('Shares', 'num symbol account')
+from .util import Shares, get_balance_line_dollars, get_balance_line_shares
 
 settings = Settings()
 
@@ -71,9 +65,8 @@ def get_dollars(args):
     for line in lines:
         if line == '' or line[0] == '-':
             break
-        match = re.match(DOLLARS_REGEX, line)
-        assert match, f'Dollars regex did not match: {line}'
-        dollars = Dollars(*match.groups())
+        dollars = get_balance_line_dollars(line)
+        assert dollars, f'Dollars regex did not match: {line}'
         check_for_negative_dollars(dollars.amount, dollars.account)
         listing.append(dollars)
 
@@ -117,18 +110,16 @@ def get_shares(args):
     # indented tree structure of account names
     last_indent = 0
     for line in reversed(lines):
-        match = re.match(DOLLARS_REGEX, line)
-        if match:
+        dollars = get_balance_line_dollars(line)
+        if dollars:
             # Cash lines don't have share amounts, just dollars; we'll
             # make shares/symbol be empty and just have the account
             # to keep our lists lined up
-            dollars = Dollars(*match.groups())
             check_for_negative_dollars(dollars.amount, dollars.account)
             shares = Shares('', '', dollars.account)
         else:
-            match = re.match(SHARES_REGEX, line)
-            assert match, f'Shares regex did not match: {line}'
-            shares = Shares(*match.groups())
+            shares = get_balance_line_shares(line)
+            assert shares, f'Shares regex did not match: {line}'
 
         # Only use the shares from the leaf nodes, which will be
         # at the same indent or further indented
