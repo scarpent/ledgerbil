@@ -200,7 +200,7 @@ def test_get_column_accounts_differing_totals(mock_ledger_output, mock_print):
     mock_print.assert_called_once_with(message, file=sys.stderr)
 
 
-@mock.patch('builtins.sum')
+@mock.patch(__name__ + '.grid.sum')
 @mock.patch(__name__ + '.grid.print')
 @mock.patch(__name__ + '.grid.get_ledger_output')
 def test_get_column_accounts_rounding(mock_ledger_output,
