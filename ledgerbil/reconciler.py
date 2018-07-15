@@ -567,7 +567,7 @@ def get_reconciler_cache():
 
 
 @dataclass
-class ReconData():
+class ReconData:
     account: str
     previous_date: str
     previous_balance: float
@@ -575,22 +575,20 @@ class ReconData():
 
 
 def reconciled_status():
-    cache = get_reconciler_cache()
-    accounts = {}
-    for account_name, recon_info in cache.items():
-        expanded_account_name = get_expanded_account_name(account_name)
-
-        accounts[expanded_account_name] = ReconData(
-            account_name,
-            recon_info.get('previous_date', '-'),
-            recon_info.get('previous_balance', 0),
-        )
+    accounts = get_accounts_reconciled_data()
 
     query_accounts = []
     for expanded_account_name in accounts.keys():
         query_accounts.append(f'^{expanded_account_name}$')
 
-    query = ('balance', '--cleared', '--no-total', '--flat', '--exchange', '.')
+    query = (
+        'balance',
+        '--cleared',
+        '--no-total',
+        '--flat',
+        '--exchange',
+        '.'
+    )
 
     balance_lines = get_ledger_output(
         query + tuple(query_accounts)
@@ -602,6 +600,20 @@ def reconciled_status():
             accounts[ledger.account].ledger_balance = ledger.amount
 
     reconciled_status_report(accounts)
+
+
+def get_accounts_reconciled_data():
+    cache = get_reconciler_cache()
+    accounts = {}
+    for account_name, recon_info in cache.items():
+        expanded_account_name = get_expanded_account_name(account_name)
+
+        accounts[expanded_account_name] = ReconData(
+            account_name,
+            recon_info.get('previous_date', '-'),
+            recon_info.get('previous_balance', 0),
+        )
+    return accounts
 
 
 def get_expanded_account_name(account):
@@ -621,7 +633,7 @@ def get_expanded_account_name(account):
 
 def reconciled_status_report(accounts):
     disagreement = False
-    for account, recon_data in accounts.items():
+    for _, recon_data in accounts.items():
         if recon_data.previous_balance != recon_data.ledger_balance:
             disagreement = True
             print_reconciled_status_line(

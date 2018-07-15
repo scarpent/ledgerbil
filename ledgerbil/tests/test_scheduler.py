@@ -125,7 +125,7 @@ def test_scheduler_error(mock_error):
         mock_error.assert_called_once_with(expected)
 
 
-@mock.patch('builtins.print')
+@mock.patch(__name__ + '.scheduler.print')
 def test_next_scheduled_date(mock_print):
     with FileTester.temp_input(schedule_testdata) as tempfile:
         return_value = scheduler.print_next_scheduled_date(tempfile)
@@ -133,7 +133,7 @@ def test_next_scheduled_date(mock_print):
     mock_print.assert_called_once_with('2007/07/07')
 
 
-@mock.patch('builtins.print')
+@mock.patch(__name__ + '.scheduler.print')
 def test_next_scheduled_date_no_next(mock_print):
     with FileTester.temp_input(';; scheduler ; enter 45 days') as tempfile:
         return_value = scheduler.print_next_scheduled_date(tempfile)

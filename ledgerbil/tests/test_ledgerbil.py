@@ -1,5 +1,4 @@
 import os
-import sys
 from datetime import date
 from textwrap import dedent
 from unittest import TestCase, mock
@@ -7,7 +6,8 @@ from unittest import TestCase, mock
 import pytest
 from dateutil.relativedelta import relativedelta
 
-from .. import ledgerbil, util
+# reconciler and scheduler used in patches
+from .. import ledgerbil, reconciler, scheduler, util  # noqa
 from .filetester import FileTester as FT
 from .helpers import Redirector
 from .test_schedulefile import schedule_testdata
@@ -319,10 +319,27 @@ def test_reconciled_status(mock_reconciled, mock_error, mock_ledgerfile):
     mock_reconciled.assert_called_once_with()
 
 
-# testing print here is kind of usurping the util test of handle_error, but
-# would like to test more than just -1 return value
-@mock.patch('builtins.print')
-def test_reconciler_exception(mock_print):
+@mock.patch(__name__ + '.reconciler.util.handle_error')
+def test_reconciler_exception(mock_handle_error):
+    ledgerfile_data = dedent('''
+        2017/11/28 zombie investments
+            a: 401k: bonds idx            12.357 qwrty @   $20.05
+            i: investment: adjustment
+
+        2017/11/28 zombie investments
+            a: 401k: bonds idx
+            i: investment: adjustment     $100,000
+    ''')
+    with FT.temp_input(ledgerfile_data) as tempfilename:
+        ledgerbil.main([
+            '--file', tempfilename,
+            '--reconcile', 'bonds'
+        ])
+    expected = 'Unhandled shares with non-shares: "a: 401k: bonds idx"'
+    mock_handle_error.assert_called_once_with(expected)
+
+
+def test_reconciler_exception_return_value():
     ledgerfile_data = dedent('''
         2017/11/28 zombie investments
             a: 401k: bonds idx            12.357 qwrty @   $20.05
@@ -338,20 +355,23 @@ def test_reconciler_exception(mock_print):
             '--reconcile', 'bonds'
         ])
     assert return_value == -1
-    expected = 'Unhandled shares with non-shares: "a: 401k: bonds idx"'
-    mock_print.assert_called_once_with(expected, file=sys.stderr)
 
 
 @mock.patch(__name__ + '.ledgerbil.handle_error')
-def test_main_investments_with_argv_none(mock_error):
+def test_main_investments_with_argv_none(mock_handle_error):
     with mock.patch('sys.argv', ['/script']):
         ledgerbil.main()
     expected = 'error: -f/--file is required'
-    mock_error.assert_called_once_with(expected)
+    mock_handle_error.assert_called_once_with(expected)
 
 
-@mock.patch('builtins.print')
-def test_next_scheduled_date_scheduler_exception(mock_print):
+def test_main_investments_with_argv_none_retun_value():
+    with mock.patch('sys.argv', ['/script']):
+        assert ledgerbil.main() == -1
+
+
+@mock.patch(__name__ + '.scheduler.handle_error')
+def test_next_scheduled_date_scheduler_exception(mock_handle_error):
     schedulefile_data = ';; scheduler enter 567 days'
     with FT.temp_input(schedulefile_data) as tempfilename:
         ledgerbil.main(['--schedule', tempfilename, '-n'])
@@ -360,22 +380,35 @@ def test_next_scheduled_date_scheduler_exception(mock_print):
             ;; scheduler enter 567 days
             Expected:
             ;; scheduler ; enter N days''')
-    mock_print.assert_called_once_with(expected, file=sys.stderr)
+    mock_handle_error.assert_called_once_with(expected)
 
 
-@mock.patch('builtins.print')
-def test_scheduler_exception(mock_print):
+def test_next_scheduled_date_scheduler_exception_return_value():
+    schedulefile_data = ';; scheduler enter 567 days'
+    with FT.temp_input(schedulefile_data) as tempfilename:
+        assert ledgerbil.main(['--schedule', tempfilename, '-n']) == -1
+
+
+@mock.patch(__name__ + '.scheduler.handle_error')
+def test_scheduler_exception(mock_handle_error):
     with FT.temp_input(';; scheduler enter 321 days') as tempfilename:
-        return_value = ledgerbil.main(
+        ledgerbil.main(
             ['--schedule', tempfilename, '-f', FT.testfile]
         )
-    assert return_value == -1
     expected = dedent('''\
         Invalid schedule file config:
         ;; scheduler enter 321 days
         Expected:
         ;; scheduler ; enter N days''')
-    mock_print.assert_called_once_with(expected, file=sys.stderr)
+    mock_handle_error.assert_called_once_with(expected)
+
+
+def test_scheduler_exception_return_value():
+    with FT.temp_input(';; scheduler enter 321 days') as tempfilename:
+        return_value = ledgerbil.main(
+            ['--schedule', tempfilename, '-f', FT.testfile]
+        )
+    assert return_value == -1
 
 
 @mock.patch(__name__ + '.ledgerbil.argparse.ArgumentParser.print_help')

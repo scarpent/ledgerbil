@@ -1100,7 +1100,7 @@ def test_reconciler_cmdloop_called(mock_cmdloop):
     mock_cmdloop.assert_called_once()
 
 
-@mock.patch('builtins.print')
+@mock.patch(__name__ + '.util.handle_error')
 def test_reconciler_exception(mock_print):
     ledgerfile_data = dedent('''
         2017/11/28 zombie investments
@@ -1113,10 +1113,9 @@ def test_reconciler_exception(mock_print):
     ''')
     with FileTester.temp_input(ledgerfile_data) as tempfilename:
         ledgerfile = LedgerFile(tempfilename, reconcile_account='bonds')
-        return_value = run_reconciler([ledgerfile])
-    assert return_value == -1
+        run_reconciler([ledgerfile])
     expected = 'Unhandled shares with non-shares: "a: 401k: bonds idx"'
-    mock_print.assert_called_once_with(expected, file=sys.stderr)
+    mock_print.assert_called_once_with(expected)
 
 
 @pytest.mark.parametrize('test_input, expected', [
@@ -1125,7 +1124,7 @@ def test_reconciler_exception(mock_print):
     (('a', 2.0, 0, 'd'),
         '         a           2.0             0  d'),
 ])
-@mock.patch('builtins.print')
+@mock.patch(__name__ + '.reconciler.print')
 def test_print_reconciled_status_line(mock_print, test_input, expected):
     reconciler.print_reconciled_status_line(*test_input)
     mock_print.assert_called_once_with(expected)
@@ -1145,3 +1144,47 @@ def test_get_expanded_account_name_aliases_not_defined():
         pass
     reconciler.settings = MockSettingsNoAliases()
     assert reconciler.get_expanded_account_name('abc: def') == 'abc: def'
+
+
+@mock.patch(__name__ + '.reconciler.print')
+def test_reconciled_status_report_no_mismatches(mock_print):
+    accounts = {
+        'a': reconciler.ReconData('fu: bar', '1997/01/01', 10.0, 10.0),
+    }
+    reconciler.reconciled_status_report(accounts)
+    expected = ('Previous balances match cleared balances from ledger '
+                'for 1 accounts found in reconciler cache.')
+    mock_print.assert_called_once_with(expected)
+
+
+@pytest.mark.skip(reason='want to see if this covers a branch')
+@mock.patch(__name__ + '.reconciler.print')
+def test_reconciled_status_report_no_accounts(mock_print):
+    accounts = {}
+    reconciler.reconciled_status_report(accounts)
+    expected = ('Previous balances match cleared balances from ledger '
+                'for 0 accounts found in reconciler cache.')
+    mock_print.assert_called_once_with(expected)
+
+
+@mock.patch(__name__ + '.reconciler.print_reconciled_status_line')
+@mock.patch(__name__ + '.reconciler.print')
+def test_reconciled_status_report_mismatch(mock_print, mock_print_status_line):
+    accounts = {
+        'fu: bar': reconciler.ReconData('f: bar', '1997/01/01', 10.0, 10.0),
+        'abc: def': reconciler.ReconData('a: def', '2007/07/07', 15.0, 10.0),
+    }
+    reconciler.reconciled_status_report(accounts)
+
+    mock_print_status_line.assert_has_calls([
+        mock.call('2007/07/07', 15.0, 10.0, 'a: def'),
+        mock.call('prev date', 'prev balance', 'ldg cleared', 'account'),
+    ])
+
+    expected = reconciler.Colorable(
+        'red',
+        'Accounts found in reconciler cache with differing amounts '
+        'between previous balance and cleared balance from ledger.'
+    )
+
+    mock_print.assert_called_once_with(expected)
