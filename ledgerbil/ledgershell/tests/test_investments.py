@@ -36,6 +36,7 @@ def test_get_investment_command_options_defaults():
     expected = (
         ('bal', )
         + tuple(shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS))
+        + ('--no-total', )
         + ('--end', MockSettings.INVESTMENT_DEFAULT_END_DATE)
     )
     # It would be nice to test with actual defaults but they appear
@@ -51,7 +52,7 @@ def test_get_investment_command_options_shares():
     expected = (
         ('bal', )
         + tuple(shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS))
-        + ('--exchange', '.')
+        + ('--no-total', '--exchange', '.')
         + ('--end', MockSettings.INVESTMENT_DEFAULT_END_DATE)
     )
     actual = investments.get_investment_command_options(
@@ -68,6 +69,7 @@ def test_get_investment_command_options_account_with_spaces():
         'no_space',
         'with space',
         'also with spaces',
+        '--no-total',
         '--exchange',
         '.',
         '--end',
@@ -85,12 +87,13 @@ def test_get_investment_command_options_account_with_spaces():
 @mock.patch(__name__ + '.investments.get_ledger_output')
 def test_get_lines_default_args(mock_get_ledger_output, mock_print):
     args = investments.get_args([])
-    mock_get_ledger_output.return_value = '1\n2\n3\n'
+    mock_get_ledger_output.return_value = '1\n2\n3'
     lines = investments.get_lines(args)
-    assert lines == ['1', '2', '3', '']
+    assert lines == ['1', '2', '3']
     mock_get_ledger_output.assert_called_once_with(
         ('bal', )
         + tuple(shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS))
+        + ('--no-total', )
         + ('--end', MockSettings.INVESTMENT_DEFAULT_END_DATE)
     )
     assert not mock_print.called
@@ -100,13 +103,13 @@ def test_get_lines_default_args(mock_get_ledger_output, mock_print):
 @mock.patch(__name__ + '.investments.get_ledger_output')
 def test_get_lines_shares(mock_get_ledger_output, mock_print):
     args = investments.get_args([])
-    mock_get_ledger_output.return_value = '1\n2\n3\n'
+    mock_get_ledger_output.return_value = '1\n2\n3'
     lines = investments.get_lines(args, shares=True)
-    assert lines == ['1', '2', '3', '']
+    assert lines == ['1', '2', '3']
     mock_get_ledger_output.assert_called_once_with(
         ('bal', )
         + tuple(shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS))
-        + ('--exchange', '.')
+        + ('--no-total', '--exchange', '.')
         + ('--end', MockSettings.INVESTMENT_DEFAULT_END_DATE)
     )
     assert not mock_print.called
@@ -116,16 +119,17 @@ def test_get_lines_shares(mock_get_ledger_output, mock_print):
 @mock.patch(__name__ + '.investments.get_ledger_output')
 def test_get_lines_print_command(mock_get_ledger_output, mock_print):
     args = investments.get_args(['--command'])
-    mock_get_ledger_output.return_value = '1\n2\n3\n'
+    mock_get_ledger_output.return_value = '1\n2\n3'
     lines = investments.get_lines(args)
-    assert lines == ['1', '2', '3', '']
+    assert lines == ['1', '2', '3']
     mock_get_ledger_output.assert_called_once_with(
         ('bal', )
         + tuple(shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS))
+        + ('--no-total', )
         + ('--end', MockSettings.INVESTMENT_DEFAULT_END_DATE),
     )
     expected_print = ('ledger --market --price-db lmn/ijk -f lmn/blarg.ldg '
-                      '-f lmn/glurg.ldg bal abc or cba --end xyz')
+                      '-f lmn/glurg.ldg bal abc or cba --no-total --end xyz')
     mock_print.assert_called_once_with(expected_print)
 
 
@@ -145,13 +149,6 @@ def test_get_investment_report(mock_ledger_output):
         '            $ 189.00       cash',
         '        15.000 qwrty     ira: glass idx',
         '         5.000 yyzxx     mutual: total idx',
-        '--------------------',
-        '            $ 189.00',
-        '     1,019.897 abcdx',
-        '        20.000 lmnop',
-        '        15.000 qwrty',
-        '         5.000 yyzxx',
-        ''
     ]
     dollars = [
         '          $ 1,737.19  assets',
@@ -161,9 +158,6 @@ def test_get_investment_report(mock_ledger_output):
         '            $ 189.00       cash',
         '            $ 150.00     ira: glass idx',
         '            $ 200.00     mutual: total idx',
-        '--------------------',
-        '          $ 1,737.19',
-        ''
     ]
     mock_ledger_output.side_effect = [shares, dollars]
     args = investments.get_args([])
@@ -196,11 +190,6 @@ def test_get_investment_report_matching_shares_and_symbol(mock_ledger_output):
         '        20.000 lmnop     abc: xyz',
         '         9.898 abcdx       big co 500 idx',
         '        20.000 lmnop       bonds idx',
-        '--------------------',
-        '            $ 189.00',
-        '        19.796 abcdx',
-        '        40.000 lmnop',
-        ''
     ]
     dollars = [
         '          $ 2,592.87  assets',
@@ -211,9 +200,6 @@ def test_get_investment_report_matching_shares_and_symbol(mock_ledger_output):
         '          $ 1,201.94     abc: xyz',
         '            $ 801.94       big co 500 idx',
         '            $ 400.00       bonds idx',
-        '--------------------',
-        '          $ 2,592.87',
-        ''
     ]
     mock_ledger_output.side_effect = [shares, dollars]
     args = investments.get_args([])
@@ -238,19 +224,11 @@ def test_zero_dollar_amount(mock_ledger_output):
         '       -40.000 lmnop  assets: 401k',
         '        10.000 abcdx     big co 500 idx',
         '       -40.000 lmnop     bonds idx',
-        '--------------------',
-        '        10.000 abcdx',
-        '       -40.000 lmnop',
-        '',
-        ''
     ]
     dollars = [
         '                   0  assets: 401k',
         '            $ 800.00     big co 500 idx',
         '           $ -800.00     bonds idx',
-        '--------------------',
-        '                   0',
-        ''
     ]
     mock_ledger_output.side_effect = [shares, dollars]
     args = investments.get_args([])
@@ -265,8 +243,8 @@ def test_zero_dollar_amount(mock_ledger_output):
 
 @mock.patch(__name__ + '.investments.get_lines')
 def test_get_investment_report_single_line(mock_ledger_output):
-    shares = ['        15.000 qwrty  assets: ira: glass idx', '']
-    dollars = ['            $ 150.00  assets: ira: glass idx', '']
+    shares = ['        15.000 qwrty  assets: ira: glass idx']
+    dollars = ['            $ 150.00  assets: ira: glass idx']
     mock_ledger_output.side_effect = [shares, dollars]
     args = investments.get_args([])
     report = investments.Colorable.get_plain_string(
@@ -279,8 +257,8 @@ def test_get_investment_report_single_line(mock_ledger_output):
 @mock.patch(__name__ + '.investments.print')
 @mock.patch(__name__ + '.investments.get_lines')
 def test_less_than_zero(mock_ledger_output, mock_print):
-    shares = ['        -0.103 abcdx  assets: 401k: big co 500 idx', '']
-    dollars = ['             $ -8.31  assets: 401k: big co 500 idx', '']
+    shares = ['        -0.103 abcdx  assets: 401k: big co 500 idx']
+    dollars = ['             $ -8.31  assets: 401k: big co 500 idx']
     mock_ledger_output.side_effect = [shares, dollars]
     args = investments.get_args([])
 
@@ -302,8 +280,8 @@ def test_less_than_zero(mock_ledger_output, mock_print):
 @mock.patch(__name__ + '.investments.print')
 @mock.patch(__name__ + '.investments.get_lines')
 def test_less_than_zero_cash(mock_ledger_output, mock_print):
-    shares = ['        $ -10.00  cash', '']
-    dollars = ['             $ -10.00  cash', '']
+    shares = ['        $ -10.00  cash']
+    dollars = ['             $ -10.00  cash']
     mock_ledger_output.side_effect = [shares, dollars]
     args = investments.get_args([])
 
@@ -322,8 +300,8 @@ def test_less_than_zero_cash(mock_ledger_output, mock_print):
 
 @mock.patch(__name__ + '.investments.get_lines')
 def test_less_than_one_share(mock_ledger_output):
-    shares = ['         0.001 abcdx  assets: 401k: big co 500 idx', '']
-    dollars = ['              $ 0.08  assets: 401k: big co 500 idx', '']
+    shares = ['         0.001 abcdx  assets: 401k: big co 500 idx']
+    dollars = ['              $ 0.08  assets: 401k: big co 500 idx']
     mock_ledger_output.side_effect = [shares, dollars]
     args = investments.get_args([])
     report = investments.Colorable.get_plain_string(
@@ -335,8 +313,8 @@ def test_less_than_one_share(mock_ledger_output):
 
 @mock.patch(__name__ + '.investments.get_lines')
 def test_assertion_for_non_matching_shares_regex(mock_ledger_output):
-    shares = ['bad abcdx  assets: blah: blah', '']
-    dollars = ['              $ 0.08  assets: 401k: big co 500 idx', '']
+    shares = ['bad abcdx  assets: blah: blah']
+    dollars = ['              $ 0.08  assets: 401k: big co 500 idx']
     mock_ledger_output.side_effect = [shares, dollars]
     args = investments.get_args([])
     with pytest.raises(AssertionError) as excinfo:
@@ -348,8 +326,8 @@ def test_assertion_for_non_matching_shares_regex(mock_ledger_output):
 
 @mock.patch(__name__ + '.investments.get_lines')
 def test_assertion_for_non_matching_dollar_regex(mock_ledger_output):
-    shares = ['         0.001 abcdx  assets: 401k: big co 500 idx', '']
-    dollars = ['bad assets: fu: bar', '']
+    shares = ['         0.001 abcdx  assets: 401k: big co 500 idx']
+    dollars = ['bad assets: fu: bar']
     mock_ledger_output.side_effect = [shares, dollars]
     args = investments.get_args([])
     with pytest.raises(AssertionError) as excinfo:
@@ -360,8 +338,8 @@ def test_assertion_for_non_matching_dollar_regex(mock_ledger_output):
 
 @mock.patch(__name__ + '.investments.get_lines')
 def test_assertion_for_non_matching_accounts(mock_ledger_output):
-    shares = ['         0.001 abcdx  assets: fu', '']
-    dollars = ['              $ 0.08  assets: bar', '']
+    shares = ['         0.001 abcdx  assets: fu']
+    dollars = ['              $ 0.08  assets: bar']
     mock_ledger_output.side_effect = [shares, dollars]
     args = investments.get_args([])
     with pytest.raises(AssertionError) as excinfo:
@@ -374,8 +352,8 @@ def test_assertion_for_non_matching_accounts(mock_ledger_output):
 @mock.patch(__name__ + '.investments.print')
 @mock.patch(__name__ + '.investments.get_lines')
 def test_main(mock_get_lines, mock_print):
-    shares = ['        15.000 qwrty  assets: ira: glass idx', '']
-    dollars = ['            $ 150.00  assets: ira: glass idx', '']
+    shares = ['        15.000 qwrty  assets: ira: glass idx']
+    dollars = ['            $ 150.00  assets: ira: glass idx']
     mock_get_lines.side_effect = [shares, dollars]
     investments.main([])
     output = investments.Colorable.get_plain_string(mock_print.call_args[0][0])

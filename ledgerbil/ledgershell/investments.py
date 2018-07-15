@@ -16,7 +16,7 @@ def get_investment_command_options(
         accounts=settings.INVESTMENT_DEFAULT_ACCOUNTS,
         end_date=settings.INVESTMENT_DEFAULT_END_DATE):
 
-    options = []
+    options = ['--no-total']
     if shares:
         options += ['--exchange', '.']  # override --market
     options += ['--end', end_date]
@@ -38,7 +38,7 @@ def warn_negative_dollars(amount, account):
 
 def get_lines(args, shares=False):
     options = get_investment_command_options(shares, args.accounts, args.end)
-    output = get_ledger_output(options)
+    output = (get_ledger_output(options)).strip()
 
     if args.command:
         print(' '.join(get_ledger_command(options)))
@@ -56,14 +56,10 @@ def get_dollars(args):
                     $ 189.00       cash
                     $ 150.00     ira: glass idx
                     $ 200.00     mutual: total idx
-        --------------------
-                  $ 1,737.19
     """
     listing = []
     lines = get_lines(args)
     for line in lines:
-        if line == '' or line[0] == '-':
-            break
         dollars = get_account_balance(line, strip_account=False)
         assert dollars, f'Did not find expected account and dollars: {line}'
         if dollars.amount < 0:
@@ -91,12 +87,6 @@ def get_shares(args):
                     $ 189.00       cash
                 15.000 qwrty     ira: glass idx
                  5.000 yyzxx     mutual: total idx
-        --------------------
-                    $ 189.00
-                 9.897 abcdx
-                20.000 lmnop
-                15.000 qwrty
-                 5.000 yyzxx
     """
     listing = []
     lines = get_lines(args, shares=True)
