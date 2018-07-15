@@ -18,7 +18,7 @@ class MockSettings:
     ]
 
 
-def setup_module(module):
+def setup_function(module):
     grid.settings = MockSettings()
     runner.settings = MockSettings()
 

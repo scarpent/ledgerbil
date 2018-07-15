@@ -65,12 +65,12 @@ class MockSettings:
         FileTester.delete_test_cache_file()
 
 
-def setup_module(module):
+def setup_function(module):
     reconciler.settings = MockSettings()
     runner.settings = MockSettings()
 
 
-def teardown_module(module):
+def teardown_function(module):
     FileTester.delete_test_cache_file()
 
 
@@ -1188,3 +1188,55 @@ def test_reconciled_status_report_mismatch(mock_print, mock_print_status_line):
     )
 
     mock_print.assert_called_once_with(expected)
+
+
+@mock.patch(__name__ + '.reconciler.get_reconciler_cache')
+def test_get_accounts_reconciled_data(mock_get_cache):
+    mock_get_cache.return_value = {
+        'a: 401k: big co 500 idx': {},  # not sure if can happen
+        'a: 401k: bonds idx': {  # account has been reconciled
+            'ending_balance': -59.0,
+            'ending_date': '2018/01/16',
+            'previous_balance': 22.357,
+            'previous_date': '2018/01/16'
+        },
+        # account reconciling in progress, never fully reconciled
+        'fu: glurg': {  # alias fu: = expanded fubar:
+            'ending_balance': 500.0,
+            'ending_date': '2018/07/13'
+        },
+        # shares example although we don't care about this for recon status
+        'a: ira: glass idx': {
+            'previous_balance': 15.0,
+            'previous_date': '2018/07/15',
+            'shares': True
+        }
+    }
+    accounts = reconciler.get_accounts_reconciled_data()
+    expected = {
+        'a: 401k: big co 500 idx': reconciler.ReconData(
+            account='a: 401k: big co 500 idx',
+            previous_date='-',
+            previous_balance=0,
+            ledger_balance=0
+        ),
+        'a: 401k: bonds idx': reconciler.ReconData(
+            account='a: 401k: bonds idx',
+            previous_date='2018/01/16',
+            previous_balance=22.357,
+            ledger_balance=0
+        ),
+        'fubar: glurg': reconciler.ReconData(
+            account='fu: glurg',
+            previous_date='-',
+            previous_balance=0,
+            ledger_balance=0
+        ),
+        'a: ira: glass idx': reconciler.ReconData(
+            account='a: ira: glass idx',
+            previous_date='2018/07/15',
+            previous_balance=15.0,
+            ledger_balance=0
+        ),
+    }
+    assert accounts == expected
