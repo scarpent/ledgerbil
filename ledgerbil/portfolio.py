@@ -285,11 +285,10 @@ def get_yearly_combined_accounts(accounts, included_years):
         previous_value = 0
         for year in range(year_start, year_end):
             if str(year) not in account['years'].keys():
-                if previous_value:
-                    # todo: integration with ledger to get current info
-                    totals[year]['contributions'] += 0
-                    totals[year]['transfers'] += 0
-                    totals[year]['value'] += previous_value
+                # todo: integration with ledger to get current info
+                totals[year]['contributions'] += 0
+                totals[year]['transfers'] += 0
+                totals[year]['value'] += previous_value
                 continue
 
             data = account['years'][str(year)]
@@ -482,8 +481,10 @@ def get_comparison_report(accounts,
                 get_yearly_with_gains(totals),
                 label
             ))
-            if len(totals) > max_years:
-                max_years = len(totals)
+            # todo: removing because branch coverage never hit:
+            #       if len(totals) > max_years:
+            # if things break this is why...
+            max_years = len(totals)
     else:
         for account in accounts:
             included_years = set(account['years'].keys())

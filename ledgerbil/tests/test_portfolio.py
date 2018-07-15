@@ -272,11 +272,9 @@ def test_account_matching_all(mock_get_data):
     mock_get_data.return_value = portfolio_data
     matched_accounts, _, included_years = portfolio.get_matching_accounts('')
     expected_included_years = {'2014', '2015', '2016', '2017', '2019'}
-    assert matched_accounts == sorted(
-        portfolio_data,
-        key=lambda k: k['account']
-    )
     assert included_years == expected_included_years
+    expected_matched = sorted(portfolio_data, key=lambda k: k['account'])
+    assert matched_accounts == expected_matched
 
 
 @mock.patch(__name__ + '.portfolio.get_portfolio_data')

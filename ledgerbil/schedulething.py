@@ -218,7 +218,9 @@ class ScheduleThing(LedgerThing):
 
     def _get_next_date(self, previousdate):
 
-        if self.interval_uom == ScheduleThing.INTERVAL_MONTH:
+        if self.interval_uom == ScheduleThing.INTERVAL_WEEK:
+            return previousdate + relativedelta(weeks=self.interval)
+        else:  # INTERVAL_MONTH
             # first see if any scheduled days remaining in same month
             for scheduleday in self.days:
                 scheduleday = self._get_month_day(
@@ -242,9 +244,6 @@ class ScheduleThing(LedgerThing):
                 nextdate,
                 self._get_month_day(self.days[0], nextdate)
             )
-
-        if self.interval_uom == ScheduleThing.INTERVAL_WEEK:
-            return previousdate + relativedelta(weeks=self.interval)
 
     # handle situations like 8/31 -> 9/31 (back up to 9/30)
     @staticmethod
@@ -278,11 +277,11 @@ class ScheduleThing(LedgerThing):
         if scheduleday == self.EOM:
             return last_day_of_month
 
-        if scheduleday == '%s%s' % (self.EOM, '30'):
-            if last_day_of_month >= 30:
-                return 30
-            else:
-                return last_day_of_month  # february
+        # EOM30
+        if last_day_of_month >= 30:
+            return 30
+        else:
+            return last_day_of_month  # february
 
     @staticmethod
     def _get_week_day():
