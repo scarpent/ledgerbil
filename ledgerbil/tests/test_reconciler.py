@@ -1157,7 +1157,6 @@ def test_reconciled_status_report_no_mismatches(mock_print):
     mock_print.assert_called_once_with(expected)
 
 
-@pytest.mark.skip(reason='want to see if this covers a branch')
 @mock.patch(__name__ + '.reconciler.print')
 def test_reconciled_status_report_no_accounts(mock_print):
     accounts = {}

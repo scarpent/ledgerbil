@@ -30,7 +30,17 @@ def test_next_scheduled_transaction():
 
 
 def test_next_scheduled_transaction_no_next():
-    no_next = ';; scheduler ; enter 45 days'
-    with FileTester.temp_input(no_next) as tempfilename:
+    scheduler_data = ';; scheduler ; enter 45 days'
+    with FileTester.temp_input(scheduler_data) as tempfilename:
         schedulefile = ScheduleFile(tempfilename)
     assert schedulefile.next_scheduled_date() == ''
+
+
+def test_add_thing_with_no_lines():
+    scheduler_data = ';; scheduler ; enter 45 days'
+    with FileTester.temp_input(scheduler_data) as tempfilename:
+        schedulefile = ScheduleFile(tempfilename)
+
+    assert len(schedulefile.things) == 1
+    schedulefile._add_thing_from_lines([])
+    assert len(schedulefile.things) == 1
