@@ -761,6 +761,15 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         recon.do_statement('')
         self.assertIsNone(recon.ending_balance)
 
+    def test_cancel_statement_no_previous_ending(self):
+        self.init_test('test_cancel_statement_stuff_no_previous')
+
+        with FileTester.temp_input(self.teststmt) as tempfilename:
+            recon = Reconciler([LedgerFile(tempfilename, 'cash')])
+
+        self.responses = ['cAnCeL']
+        recon.do_statement('')
+
     def test_finish(self):
         self.init_test('test_reconcile_finish')
 
