@@ -1240,3 +1240,36 @@ def test_get_accounts_reconciled_data(mock_get_cache):
         ),
     }
     assert accounts == expected
+
+
+@mock.patch(__name__ + '.reconciler.get_ledger_output')
+@mock.patch(__name__ + '.reconciler.reconciled_status_report')
+@mock.patch(__name__ + '.reconciler.get_accounts_reconciled_data')
+def test_reconciled_status(mock_get_accounts,
+                           mock_status_report,
+                           mock_ledger_output):
+    accounts = {
+        'fu: bar': reconciler.ReconData('f: bar', '1997/01/01', 10.0, 10.0),
+        'abc: def': reconciler.ReconData('a: def', '2007/07/07', 15.0, 10.0),
+    }
+    mock_get_accounts.return_value = accounts
+    mock_ledger_output.return_value = dedent('''\
+        1.234 abc  fu: bar
+        $ -98.76 abc: def''')
+
+    reconciler.reconciled_status()
+
+    mock_ledger_output.assert_called_once_with((
+        'balance',
+        '--cleared',
+        '--no-total',
+        '--flat',
+        '--exchange',
+        '.',
+        '^fu: bar$',
+        '^abc: def$'
+    ))
+
+    accounts['fu: bar'].ledger_balance = 1.234
+    accounts['abc: def'].ledger_balance = -98.76
+    mock_status_report.assert_called_once_with(accounts)
