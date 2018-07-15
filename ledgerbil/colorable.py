@@ -54,6 +54,9 @@ class Colorable:
     def __len__(self):
         return len(self.value)
 
+    def __eq__(self, other):
+        return str(self) == str(other)
+
     def ansi_sequence(self, code, bright=False):
         offset = 60 if bright else 0
         return '{start}[0;{color}m'.format(

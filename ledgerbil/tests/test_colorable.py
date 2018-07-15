@@ -92,3 +92,11 @@ def test_unsupported_color_error():
         Colorable('badcolor', None)
     expected = "I don't know what to do with this color: badcolor"
     assert str(excinfo.value) == expected
+
+
+def test_equality():
+    a = Colorable('green', 'testing')
+    b = Colorable('green', 'testing')
+    c = Colorable('red', 'testing')
+    assert a == b
+    assert a != c
