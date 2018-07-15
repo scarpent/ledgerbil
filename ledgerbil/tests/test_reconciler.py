@@ -405,6 +405,7 @@ def test_get_rec_account_matched_when_match_in_either_file():
 
     assert reconciler.get_rec_account_matched() == 'a: 401k: james bonds idx'
 
+    # reverse order of reconciler files
     with FileTester.temp_input(ledgerfile_data) as tempfilename:
         with FileTester.temp_input(ledgerfile2_data) as tempfilename2:
             reconciler = Reconciler([
@@ -413,6 +414,27 @@ def test_get_rec_account_matched_when_match_in_either_file():
             ])
 
     assert reconciler.get_rec_account_matched() == 'a: 401k: james bonds idx'
+
+
+def test_get_rec_account_matched_when_match_in_neither_file():
+    ledgerfile_data = dedent('''
+        2017/11/28 zombie investments
+            a: 401k: stock idx            12.357 qwrty @   $20.05
+            i: investment: adjustment
+    ''')
+    ledgerfile2_data = dedent('''
+        2017/12/28 zombie investments
+            a: 401k: james bonds idx      45.678 qwrty @   $31.11
+            i: investment: adjustment
+    ''')
+
+    with FileTester.temp_input(ledgerfile_data) as tempfilename:
+        with FileTester.temp_input(ledgerfile2_data) as tempfilename2:
+            with pytest.raises(StopIteration):
+                Reconciler([
+                    LedgerFile(tempfilename, 'goldfinger'),
+                    LedgerFile(tempfilename2, 'goldfinger'),
+                ])
 
 
 def test_init_things():

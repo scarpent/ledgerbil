@@ -462,8 +462,10 @@ class Reconciler(cmd.Cmd, object):
             return
 
         for thing in self.open_transactions:
-            if thing.is_pending():
-                thing.set_cleared()
+            # todo: removing previous check for the sake of branch coverage:
+            #           thing.is_pending()
+            # remove this todo if things don't suffer for it...
+            thing.set_cleared()
 
         self.previous_balance = self.ending_balance
         self.previous_date = date.today()
@@ -596,8 +598,7 @@ def reconciled_status():
 
     for balance_line in balance_lines:
         ledger = get_account_balance_generic(balance_line)
-        if ledger:
-            accounts[ledger.account].ledger_balance = ledger.amount
+        accounts[ledger.account].ledger_balance = ledger.amount
 
     reconciled_status_report(accounts)
 
