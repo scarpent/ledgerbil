@@ -1,12 +1,16 @@
 import cmd
 import json
 import os
+import re
 import sys
+from dataclasses import dataclass
 from datetime import date
 
 from . import util
 from .colorable import Colorable
 from .ledgerbilexceptions import LdgReconcilerError
+from .ledgershell.runner import get_ledger_output
+from .ledgershell.util import get_account_balance_generic
 from .settings import Settings
 
 settings = Settings()
@@ -560,3 +564,93 @@ def get_reconciler_cache():
             print(f'Error getting reconciler cache: {e}', file=sys.stderr)
 
     return {}
+
+
+@dataclass
+class ReconData():
+    account: str
+    previous_date: str
+    previous_balance: float
+    ledger_balance: float = 0
+
+
+def reconciled_status():
+    cache = get_reconciler_cache()
+    accounts = {}
+    for account_name, recon_info in cache.items():
+        expanded_account_name = get_expanded_account_name(account_name)
+
+        accounts[expanded_account_name] = ReconData(
+            account_name,
+            recon_info.get('previous_date', '-'),
+            recon_info.get('previous_balance', 0),
+        )
+
+    query_accounts = []
+    for expanded_account_name in accounts.keys():
+        query_accounts.append(f'^{expanded_account_name}$')
+
+    query = ('balance', '--cleared', '--no-total', '--flat', '--exchange', '.')
+
+    balance_lines = get_ledger_output(
+        query + tuple(query_accounts)
+    ).split('\n')
+
+    for balance_line in balance_lines:
+        ledger = get_account_balance_generic(balance_line)
+        if ledger:
+            accounts[ledger.account].ledger_balance = ledger.amount
+
+    reconciled_status_report(accounts)
+
+
+def get_expanded_account_name(account):
+    if not hasattr(settings, 'ACCOUNT_ALIASES'):
+        return account
+
+    expanded_account = account
+    for alias_regex, replacement in settings.ACCOUNT_ALIASES.items():
+        expanded_account = re.sub(
+            alias_regex,
+            replacement,
+            expanded_account
+        )
+
+    return expanded_account
+
+
+def reconciled_status_report(accounts):
+    disagreement = False
+    for account, recon_data in accounts.items():
+        if recon_data.previous_balance != recon_data.ledger_balance:
+            disagreement = True
+            print_reconciled_status_line(
+                recon_data.previous_date,
+                recon_data.previous_balance,
+                recon_data.ledger_balance,
+                recon_data.account
+            )
+
+    if disagreement:
+        print_reconciled_status_line(
+            'prev date', 'prev balance', 'ldg cleared', 'account'
+        )
+        print(Colorable(
+            'red',
+            'Accounts found in reconciler cache with differing amounts '
+            'between previous balance and cleared balance from ledger.'
+        ))
+    else:
+        print('Previous balances match cleared balances from ledger for '
+              f'{len(accounts)} accounts found in reconciler cache.')
+
+
+def print_reconciled_status_line(previous_date,
+                                 previous_balance,
+                                 ledger_balance,
+                                 account):
+    amount_col = '>12'
+    print(
+        f'{previous_date:>10}  {str(previous_balance):{amount_col}}  '
+        f'{ledger_balance:{amount_col}}  {account}'
+    )

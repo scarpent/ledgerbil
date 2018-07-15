@@ -28,3 +28,10 @@ def get_account_balance(line, shares=False, strip_account=True):
         get_float(amount),
         symbol
     )
+
+
+def get_account_balance_generic(line):
+    balance = get_account_balance(line, shares=False)
+    if not balance:
+        return get_account_balance(line, shares=True)
+    return balance

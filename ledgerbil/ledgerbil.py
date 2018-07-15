@@ -3,7 +3,7 @@ from textwrap import dedent
 
 from .ledgerbilexceptions import LdgReconcilerError
 from .ledgerfile import LedgerFile
-from .reconciler import get_reconciler_cache, run_reconciler
+from .reconciler import reconciled_status, run_reconciler
 from .scheduler import print_next_scheduled_date, run_scheduler
 from .util import handle_error
 
@@ -21,8 +21,8 @@ class Ledgerbil:
                 return handle_error('error: -s/--schedule is required')
             return print_next_scheduled_date(self.args.schedule)
 
-        if self.args.reconcile_status:  # pragma: no cover (coming soon...)
-            return self.reconcile_status()
+        if self.args.reconciled_status:
+            return reconciled_status()
 
         if not self.args.file:
             return handle_error('error: -f/--file is required')
@@ -55,10 +55,6 @@ class Ledgerbil:
             return True
         else:
             return False
-
-    def reconcile_status(self):  # pragma: no cover
-        from pprint import pprint
-        pprint(get_reconciler_cache())
 
 
 def get_args(args):
@@ -121,9 +117,10 @@ def get_args(args):
              'scheduler/sort have no effect if also specified'
     )
     parser.add_argument(
-        '-R', '--reconcile-status',
+        '-R', '--reconciled-status',
         action='store_true',
-        help='show last reconcilation status for accounts'
+        help='show accounts where reconciler previous balance differs '
+             'from cleared balance in ledger'
     )
     parser.add_argument(
         '-s', '--schedule',

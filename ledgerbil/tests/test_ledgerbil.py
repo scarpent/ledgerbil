@@ -304,11 +304,19 @@ def test_run_reconciler_called(mock_run_reconciler):
             i: investment: adjustment
     ''')
     with FT.temp_input(ledgerfile_data) as tempfilename:
-        ledgerbil.main([
-            '--file', tempfilename,
-            '--reconcile', 'bonds'
-        ])
+        ledgerbil.main(['--file', tempfilename, '--reconcile', 'bonds'])
     mock_run_reconciler.assert_called_once()
+
+
+@mock.patch(__name__ + '.ledgerbil.LedgerFile')
+@mock.patch(__name__ + '.ledgerbil.handle_error')
+@mock.patch(__name__ + '.ledgerbil.reconciled_status')
+def test_reconciled_status(mock_reconciled, mock_error, mock_ledgerfile):
+    # reconciled status takes precedence over calling subsequent stuff
+    ledgerbil.main(['--reconciled-status'])
+    assert not mock_error.called
+    assert not mock_ledgerfile.called
+    mock_reconciled.assert_called_once_with()
 
 
 # testing print here is kind of usurping the util test of handle_error, but
@@ -438,12 +446,12 @@ def test_args_next_scheduled_date(test_input, expected):
 
 @pytest.mark.parametrize('test_input, expected', [
     ('-R', True),
-    ('--reconcile-status', True),
+    ('--reconciled-status', True),
     ('', False),
 ])
-def test_args_reconcile_status(test_input, expected):
+def test_args_reconciled_status(test_input, expected):
     options = ['-f', 'gargle']
     if test_input:
         options.append(test_input)
     args = ledgerbil.get_args(options)
-    assert args.reconcile_status is expected
+    assert args.reconciled_status is expected

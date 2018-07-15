@@ -10,6 +10,7 @@ from dateutil.relativedelta import relativedelta
 from .. import reconciler, util
 from ..ledgerbilexceptions import LdgReconcilerError
 from ..ledgerfile import LedgerFile
+from ..ledgershell import runner
 from ..reconciler import Reconciler, run_reconciler
 from .filetester import FileTester
 from .helpers import OutputFileTesterStdout, Redirector
@@ -55,12 +56,18 @@ class MockSettings:
 
     RECONCILER_CACHE_FILE = FileTester.CACHE_FILE_TEST
 
+    ACCOUNT_ALIASES = {
+        r'^sna:': 'snafu:',
+        r'^fu:': 'fubar:',
+    }
+
     def __init__(self):
         FileTester.delete_test_cache_file()
 
 
 def setup_module(module):
     reconciler.settings = MockSettings()
+    runner.settings = MockSettings()
 
 
 def teardown_module(module):
@@ -1110,3 +1117,31 @@ def test_reconciler_exception(mock_print):
     assert return_value == -1
     expected = 'Unhandled shares with non-shares: "a: 401k: bonds idx"'
     mock_print.assert_called_once_with(expected, file=sys.stderr)
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (('a', 'b', 'c', 'd'),
+        '         a             b             c  d'),
+    (('a', 2.0, 0, 'd'),
+        '         a           2.0             0  d'),
+])
+@mock.patch('builtins.print')
+def test_print_reconciled_status_line(mock_print, test_input, expected):
+    reconciler.print_reconciled_status_line(*test_input)
+    mock_print.assert_called_once_with(expected)
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    ('fu: blah', 'fubar: blah'),
+    ('sna: glarg', 'snafu: glarg'),
+    ('ra: dar', 'ra: dar'),
+])
+def test_get_expanded_account_name(test_input, expected):
+    assert reconciler.get_expanded_account_name(test_input) == expected
+
+
+def test_get_expanded_account_name_aliases_not_defined():
+    class MockSettingsNoAliases():
+        pass
+    reconciler.settings = MockSettingsNoAliases()
+    assert reconciler.get_expanded_account_name('abc: def') == 'abc: def'

@@ -44,3 +44,13 @@ class Settings:
         'vbtlx',    # vanguard total bond index
     ]
     PRICE_FILE_FORMAT = 'P {date} {symbol:10} ${price}\n'
+
+    # When querying ledger with accounts (say, from reconciler),
+    # will expand these regex patterns (since ledger doesn't
+    # appear to interpret aliases in queries)
+    ACCOUNT_ALIASES = {
+        r'^a:': 'assets:',
+        r'^e:': 'expenses:',
+        r'^i:': 'income:',
+        r'^l:': 'liabilities:',
+    }

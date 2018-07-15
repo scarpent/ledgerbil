@@ -10,7 +10,7 @@ from ...tests.helpers import OutputFileTester
 
 
 class MockSettings:
-    LEDGER_COMMAND = ['ledger']
+    LEDGER_COMMAND = ('ledger', )
     LEDGER_DIR = 'lmn'
     LEDGER_FILES = [
         'blarg.ldg',
