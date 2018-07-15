@@ -75,3 +75,11 @@ def test_get_ledger_output_error(mock_popen, mock_print):
     with pytest.raises(SystemExit):
         runner.get_ledger_output()
     mock_print.assert_called_once_with('kaboom!')
+
+
+@mock.patch(__name__ + '.runner.subprocess.Popen')
+def test_get_ledger_output_stripping(mock_popen):
+    runner.settings = TestSettings()
+    mock_popen.return_value = MockProcess(output=b'   fubar   ')
+    output = runner.get_ledger_output(('--arghh', 'hooey'))
+    assert output == '   fubar'
