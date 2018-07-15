@@ -27,8 +27,7 @@ def setup_module(module):
 def test_get_period_names_years(mock_ledger_output):
     output = dedent('''\
         2017 - 2017          <Total>                    0         0
-        2018 - 2018          <Total>                    0         0
-    ''')
+        2018 - 2018          <Total>                    0         0''')
     mock_ledger_output.return_value = output
 
     timestuff = '--begin banana --end eggplant --period pear'
@@ -48,8 +47,7 @@ def test_get_period_names_months(mock_ledger_output):
         2017/11 - 2017/11       <Total>                  0         0
         2017/12 - 2017/12       <Total>                  0         0
 
-        2018/01 - 2018/01       <Total>                  0         0
-    ''')
+        2018/01 - 2018/01       <Total>                  0         0''')
     mock_ledger_output.return_value = output
     args, ledger_args = grid.get_args([
         '--begin', 'banana', '--end', 'eggplant',
@@ -73,8 +71,8 @@ def test_get_period_names_months_with_current(mock_ledger_output, mock_date):
         2017/11 - 2017/11       <Total>                  0         0
         2017/12 - 2017/12       <Total>                  0         0
 
-        2018/01 - 2018/01       <Total>                  0         0
-    ''')
+                                <Total>                  0         0
+        2018/01 - 2018/01       <Total>                  0         0''')
     mock_ledger_output.return_value = output
     args, ledger_args = grid.get_args([
         '--begin', 'banana', '--end', 'eggplant',
@@ -99,8 +97,7 @@ def test_get_period_names_months_with_current_not_found(mock_ledger_output,
         2017/11 - 2017/11       <Total>                  0         0
         2017/12 - 2017/12       <Total>                  0         0
 
-        2018/01 - 2018/01       <Total>                  0         0
-    ''')
+        2018/01 - 2018/01       <Total>                  0         0''')
     mock_ledger_output.return_value = output
     args, ledger_args = grid.get_args([
         '--begin', 'banana', '--end', 'eggplant',
@@ -123,8 +120,7 @@ def test_get_column_accounts(mock_ledger_output):
                       $ 6.50  expenses: car: maintenance
                   $ 1,001.78  expenses: widgets
         --------------------
-                  $ 1,025.65
-    ''')
+                  $ 1,025.65''')
     mock_ledger_output.return_value = output
     expected = {
         'expenses: car: gas': 17.37,
@@ -145,8 +141,7 @@ def test_get_column_accounts_depth_one(mock_ledger_output):
                      $ 40.00  grape: kiwi
                      $ 80.00  grape: fig
         --------------------
-                    $ 150.00
-    ''')
+                    $ 150.00''')
     mock_ledger_output.return_value = output
     expected = {
         'apple': 30,
@@ -166,8 +161,7 @@ def test_get_column_accounts_depth_two(mock_ledger_output):
                      $ 40.00  grape:kiwi
                      $ 80.00  grape:fig
         --------------------
-                    $ 150.00
-    ''')
+                    $ 150.00''')
     mock_ledger_output.return_value = output
     expected = {
         'apple: banana': 30,
@@ -187,8 +181,7 @@ def test_get_column_accounts_differing_totals(mock_ledger_output, mock_print):
                     $ 49.998  expenses: parent
                     $ 29.999  expenses: parent: child
         --------------------
-                    $ 49.998
-    ''')
+                    $ 49.998''')
     mock_ledger_output.return_value = output
     expected = {
         'expenses: parent': 49.998,
@@ -221,8 +214,7 @@ def test_get_column_accounts_rounding(mock_ledger_output,
                      $ 17.37  expenses: car: gas
                       $ 6.50  expenses: car: maintenance
         --------------------
-                     $ 23.87
-    ''')
+                     $ 23.87''')
     mock_ledger_output.return_value = output
     expected = {
         'expenses: car: gas': 17.37,
@@ -239,13 +231,22 @@ def test_get_column_accounts_rounding(mock_ledger_output,
 @mock.patch(__name__ + '.grid.get_ledger_output')
 def test_get_column_accounts_no_total(mock_ledger_output):
     output = dedent('''\
-                     $ 17.37  expenses: car: gas
-    ''')
+                     $ 17.37  expenses: car: gas''')
     mock_ledger_output.return_value = output
     expected = {
         'expenses: car: gas': 17.37,
     }
     assert grid.get_column_accounts('2018', tuple()) == expected
+    mock_ledger_output.assert_called_once_with(
+        ('balance', '--flat', '--period', '2018')
+    )
+
+
+@mock.patch(__name__ + '.grid.get_ledger_output')
+def test_get_column_accounts_no_values(mock_ledger_output):
+    output = ''
+    mock_ledger_output.return_value = output
+    assert grid.get_column_accounts('2018', tuple()) == {}
     mock_ledger_output.assert_called_once_with(
         ('balance', '--flat', '--period', '2018')
     )
@@ -264,8 +265,7 @@ def test_get_column_payees(mock_ledger_output):
         17-Nov-15 - 17-Nov-30    <Total>    $ 1,381.32         $ 1,381.32
 
         jurassic fork
-        18-Jan-08 - 18-Jan-08    <Total>       $ 42.17            $ 42.17\
-    ''')
+        18-Jan-08 - 18-Jan-08    <Total>       $ 42.17            $ 42.17''')
     mock_ledger_output.return_value = output
     expected = {
         'food and stuff': 102.03,

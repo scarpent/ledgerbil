@@ -13,7 +13,7 @@ def test_main(mock_ledger_output, mock_print):
     expected = ('argle', 'bargle')
     passthrough.main(expected)
     mock_ledger_output.assert_called_once_with(expected)
-    mock_print.assert_called_once_with(bill_the_cat_sayeth, end='')
+    mock_print.assert_called_once_with(bill_the_cat_sayeth)
 
 
 @mock.patch(__name__ + '.passthrough.print')
@@ -28,7 +28,7 @@ def test_main_with_command(mock_ledger_output, mock_ledger_cmd, mock_print):
     mock_ledger_output.assert_called_once_with(('argle', 'bargle'))
     mock_print.assert_has_calls([
         mock.call('a b'),
-        mock.call(bill_the_cat_sayeth, end='')
+        mock.call(bill_the_cat_sayeth)
     ])
 
 

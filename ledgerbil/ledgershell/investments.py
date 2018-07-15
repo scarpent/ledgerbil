@@ -38,7 +38,7 @@ def warn_negative_dollars(amount, account):
 
 def get_lines(args, shares=False):
     options = get_investment_command_options(shares, args.accounts, args.end)
-    output = (get_ledger_output(options)).strip()
+    output = get_ledger_output(options)
 
     if args.command:
         print(' '.join(get_ledger_command(options)))

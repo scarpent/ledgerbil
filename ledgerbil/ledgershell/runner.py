@@ -21,4 +21,4 @@ def get_ledger_output(args=None):
     if error:
         print(error)
         sys.exit(1)
-    return output.decode('unicode_escape')
+    return output.decode('unicode_escape').strip()
