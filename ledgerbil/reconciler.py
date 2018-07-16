@@ -462,10 +462,8 @@ class Reconciler(cmd.Cmd, object):
             return
 
         for thing in self.open_transactions:
-            # todo: removing previous check for the sake of branch coverage:
-            #           thing.is_pending()
-            # remove this todo if things don't suffer for it...
-            thing.set_cleared()
+            if thing.is_pending():
+                thing.set_cleared()
 
         self.previous_balance = self.ending_balance
         self.previous_date = date.today()

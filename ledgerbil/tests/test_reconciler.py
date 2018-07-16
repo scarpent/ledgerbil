@@ -805,6 +805,19 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
 
         self.conclude_test()
 
+    def test_finish_not_all_cleared(self):
+        self.init_test('test_reconcile_finish_not_all_cleared')
+
+        with FileTester.temp_input(self.teststmt) as tempfilename:
+            recon = Reconciler([LedgerFile(tempfilename, 'cash')])
+
+            self.responses = ['2016/10/30', '-20']
+            recon.do_statement('')
+            recon.do_mark('2')
+            recon.do_finish('')
+
+        self.conclude_test()
+
     def test_finish_and_start_again(self):
         self.init_test('test_reconcile_finish_and_start_again')
 
