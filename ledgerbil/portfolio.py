@@ -463,7 +463,7 @@ def get_comparison_report(accounts,
     total_value = all_totals[max(all_totals.keys())]['value']
 
     comparison_items = []
-    max_years = 0
+    num_years = set()
     percent_total = 0
     if labels and not accounts_only:
         for label in labels:
@@ -481,10 +481,7 @@ def get_comparison_report(accounts,
                 get_yearly_with_gains(totals),
                 label
             ))
-            # todo: removing because branch coverage never hit:
-            #       if len(totals) > max_years:
-            # if things break this is why...
-            max_years = len(totals)
+            num_years.add(len(totals))
     else:
         for account in accounts:
             included_years = set(account['years'].keys())
@@ -495,8 +492,7 @@ def get_comparison_report(accounts,
                 get_yearly_with_gains(totals),
                 strip_assets_prefix(account['account'])
             ))
-            if len(totals) > max_years:
-                max_years = len(totals)
+            num_years.add(len(totals))
 
     items_sorted = get_sorted_comparison_items(comparison_items, sort)
 
@@ -534,7 +530,7 @@ def get_comparison_report(accounts,
 
     return '{col_headers}\n{report}'.format(
         col_headers=get_comparison_report_column_headers(
-            max_years,
+            max(num_years),
             labels if not accounts_only else ''
         ),
         report=report
