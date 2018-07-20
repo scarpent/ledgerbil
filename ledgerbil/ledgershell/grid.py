@@ -175,24 +175,28 @@ def get_column_accounts(period_name, ledger_args, depth=0):
 
 
 def validate_column_total(period_name, column_total=0, ledgers_total=0):
-    # ledger has an unfortunate way of reporting things when funds are
-    # applied to both parent and child account -- it appears to double count
-    # them in line items but not in the total
+    # Ledger has an unfortunate way of reporting things when funds are
+    # applied to both parent and child account. It appears to double count
+    # them in line items but not in the total.
 
-    # in the column total, which is "our" total and what will be shown in the
-    # report, we will get the wrong sum; let's warn when this happens (which
-    # means ledgerbil's stance is that you really shouldn't set up your
-    # accounts this way)
+    # In the column total, which is "our" total and what will be shown in the
+    # report, we will get the wrong sum. Let's warn when this happens.
+    # (Which means ledgerbil's stance is that you really shouldn't set
+    # up your accounts this way.)
 
-    # (rounding to dollar and not concerning ourselves over pennies)
-    if round(ledgers_total) != round(column_total):
-        message = (
-            f"Warning: Differing total found between ledger's {ledgers_total} "
-            f"and ledgerbil's {column_total} for --period {period_name}. "
-            "Ledger's will be the correct total. This is mostly likely caused "
-            "by funds being applied to both a parent and child account."
-        )
-        print(message, file=sys.stderr)
+    # We'll not concern ourselves over small floating point differences
+    if abs(column_total - ledgers_total) > .01:
+        warn_column_total(period_name, column_total, ledgers_total)
+
+
+def warn_column_total(period_name, column_total=0, ledgers_total=0):
+    message = (
+        f"Warning: Differing total found between ledger's {ledgers_total} "
+        f"and ledgerbil's {column_total} for --period {period_name}. "
+        "Ledger's will be the correct total. This is mostly likely caused "
+        "by funds being applied to both a parent and child account."
+    )
+    print(message, file=sys.stderr)
 
 
 def get_column_payees(period_name, ledger_args):

@@ -200,32 +200,65 @@ def test_get_column_accounts_differing_totals(mock_ledger_output, mock_print):
     mock_print.assert_called_once_with(message, file=sys.stderr)
 
 
+@pytest.mark.parametrize('test_input', [-2.5, 2.51000001, 2.4899999999])
 @mock.patch(__name__ + '.grid.sum')
 @mock.patch(__name__ + '.grid.print')
 @mock.patch(__name__ + '.grid.get_ledger_output')
-def test_get_column_accounts_rounding(mock_ledger_output,
-                                      mock_print,
-                                      mock_sum):
-    """should not warn about total differences that round to same dollar"""
-    # can get much smaller rounding differences if calculations used
-    # in ledger data; but don't want to set up that test right now,
-    # and we're rounding to the dollar because that seems close enough
+def test_get_column_accounts_floating_point_diffs_not_ok(mock_ledger_output,
+                                                         mock_print,
+                                                         mock_sum,
+                                                         test_input):
+    """should warn about total difference greater than .01"""
     output = dedent('''\
-                     $ 17.37  expenses: car: gas
-                      $ 6.50  expenses: car: maintenance
+                      $ 1.25  expenses: car: gas
+                      $ 1.25  expenses: car: maintenance
         --------------------
-                     $ 23.87''')
+                      $ 2.50''')
     mock_ledger_output.return_value = output
     expected = {
-        'expenses: car: gas': 17.37,
-        'expenses: car: maintenance': 6.50,
+        'expenses: car: gas': 1.25,
+        'expenses: car: maintenance': 1.25,
     }
-    mock_sum.return_value = 23.55
+    mock_sum.return_value = test_input
     assert grid.get_column_accounts('2018', tuple()) == expected
     mock_ledger_output.assert_called_once_with(
         ('balance', '--flat', '--period', '2018')
     )
-    mock_print.assert_not_called()
+    message = (
+        "Warning: Differing total found between ledger's 2.5 and "
+        f"ledgerbil's {test_input} for --period 2018. Ledger's will be "
+        "the correct total. This is mostly likely caused by funds being "
+        "applied to both a parent and child account."
+    )
+    mock_print.assert_called_once_with(message, file=sys.stderr)
+
+
+@pytest.mark.parametrize('test_input', [2.51, 2.5, 2.49])
+@mock.patch(__name__ + '.grid.sum')
+@mock.patch(__name__ + '.grid.warn_column_total')
+@mock.patch(__name__ + '.grid.get_ledger_output')
+def test_get_column_accounts_floating_point_diffs_ok(mock_ledger_output,
+                                                     mock_warn,
+                                                     mock_sum,
+                                                     test_input):
+    """should not warn about total difference less than or equal to .01"""
+    # within a penny seems close enough
+    output = dedent('''\
+                      $ 1.25  expenses: car: gas
+                      $ 1.25  expenses: car: maintenance
+        --------------------
+                      $ 2.50''')
+    mock_ledger_output.return_value = output
+    expected = {
+        'expenses: car: gas': 1.25,
+        'expenses: car: maintenance': 1.25,
+    }
+    mock_sum.return_value = test_input
+    assert grid.get_column_accounts('2018', tuple()) == expected
+    mock_ledger_output.assert_called_once_with(
+        ('balance', '--flat', '--period', '2018')
+    )
+    mock_warn.assert_not_called()
 
 
 @mock.patch(__name__ + '.grid.get_ledger_output')
