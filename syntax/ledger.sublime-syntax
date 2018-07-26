@@ -18,11 +18,12 @@ variables:
   equity: "{{label_start}}equity{{label_end}}"
   commodity: "[a-zA-Z_]+"
   comment_lookahead: "(?=\\s*(;|$))"
-  # =? up front will include the equals sign in amounts for
+  # =? up front will include the equal sign in amounts for
   # balance assertions and assignments
-  amount: "\\s*=?\\s*\\(?\\s*\\$?\\s*[ \\d\\.,()+*/$-]+"
-  less_than_zero_lookahead: "(?=\\s*=?\\s*\\(?\\s*\\$?\\s*-)"
-  more_than_zero_lookahead: "(?=\\s*=?\\s*\\(?\\s*\\$?\\s*\\d)"
+  amount_common: "\\s*=?\\s*\\(?\\s*\\$?\\s*"
+  amount: "{{amount_common}}[ \\d\\.,()+*/$-]+"
+  less_than_zero_lookahead: "(?={{amount_common}}-)"
+  more_than_zero_lookahead: "(?={{amount_common}}\\d)"
 
 contexts:
   main:
