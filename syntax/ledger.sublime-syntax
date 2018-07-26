@@ -7,8 +7,8 @@ scope: source.ledger
 variables:
   date: "\\d{4}[/-]\\d{2}[/-]\\d{2}"
   name_terminator: "(?=  |\\t|$)"
-  account_parent: "[^:;]+?(?::|(?=  )|$)"
-  account_children: "[^;]*?(?=  |$)"
+  account_parent: "[^:;]+?(?::|{{name_terminator}})"
+  account_children: "[^;]*?{{name_terminator}}"
   label_start: "(?<!^)\\b"
   label_end: "?: ?"
   expenses: "{{label_start}}e(?:xpenses){{label_end}}"

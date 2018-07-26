@@ -379,6 +379,10 @@ P 2018/07/25 cesop $11.32
 #      ^^^^^^ string.unquoted.expenses-parent
 #            ^^^^^^^^ comment.comment
 
+    e: parent	;blah
+#      ^^^^^^ string.unquoted.expenses-parent
+#            ^^^^^^ comment.comment
+
     e: parent: child  ; blah
 #   ^^^ string.unquoted.expenses-label
 #      ^^^^^^^ string.unquoted.expenses-parent
