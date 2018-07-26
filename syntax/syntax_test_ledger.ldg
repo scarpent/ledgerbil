@@ -1,0 +1,694 @@
+# SYNTAX TEST "Packages/User/ledger.sublime-syntax"
+;;;; a B c
+# <- invalid.caps-not-allowed
+#^^^^^^^^^^ invalid.caps-not-allowed
+
+;;;; banner text
+# <- invalid.deprecated.separator
+#^^^^^^^^^^^^^^^^ invalid.deprecated.separator
+
+    ;;;; still banner text
+# <- invalid.deprecated.separator
+#^^^^^^^^^^^^^^^^^^^^^^^^^^ invalid.deprecated.separator
+
+;; header comment or just bold comment
+# <- string.unquoted.header-bold-comment
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string.unquoted.header-bold-comment
+
+    ;; header comment / bold comment
+# <- string.unquoted.header-bold-comment
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string.unquoted.header-bold-comment
+
+    ;; scheduler ; enter 40 days
+# <- keyword.scheduler-config
+#^^^^^^^^^^^^^^^ keyword.scheduler-config
+#               ^^^^^^^^^^^^^^^^ string.unquoted.scheduler-config
+
+    ;; schedule ; weekly ;; every 2 weeks
+# <- keyword.scheduler-config
+#^^^^^^^^^^^^^^ keyword.scheduler-config
+#              ^^^^^^^^^^^^^^^^^^^^^^^^^^ string.unquoted.scheduler-config
+
+; regular old comment
+# <- comment.comment
+#^^^^^^^^^^^^^^^^^^^^ comment.comment
+
+       ; regular old comment
+# <- unscoped.indent
+#^^^^^^ unscoped.indent
+#      ^^^^^^^^^^^^^^^^^^^^^ comment.comment
+
+2018/07/23 some payee  ; regular old comment after other stuff
+# <- variable.parameter.date
+#^^^^^^^^^ variable.parameter.date
+#          ^^^^^^^^^^ constant.character.payee
+#                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.comment
+
+2018/07/23 some payee  ;; bold/header is regular if not leading
+#                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.comment
+
+2018/07/23 some payee  ;;;; banner is regular after other stuff
+#                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.comment
+
+       ; blah todo blah
+# <- unscoped.indent
+#^^^^^^ unscoped.indent
+#      ^^^^^^^ comment.comment
+#             ^^^^ invalid.deprecated.todo
+#                 ^^^^^ comment.comment
+
+       ; only the last todo is highlighted as a todo blah
+#^^^^^^ unscoped.indent
+#      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.comment
+#                                               ^^^^ invalid.deprecated.todo
+#                                                   ^^^^^ comment.comment
+
+    ; :the_tag: single tag
+#^^^ unscoped.indent
+#   ^^ comment.comment
+#     ^^^^^^^^^ support.class.tag-without-value
+#               ^^^^^^^^^^
+
+2018/07/24 someone    ; :one_tag: :two_tag:
+#                 ^^^^^^ comment.comment
+#                       ^^^^^^^^^ support.class.tag-without-value
+#                                ^^^^^^^^^^ comment.comment
+
+        ; abc :one_tag:two_tag:three_tag: xyz
+#^^^^^^^ unscoped.indent
+#       ^^^^^^ comment.comment
+#             ^^^^^^^^^^^^^^^^^^^^^^^^^^^ support.class.tag-without-value
+#                                        ^^^^ comment.comment
+
+    ; a_tag: a value
+#^^^ unscoped.indent
+#   ^^ comment.comment
+#     ^^^^^^^ support.class.tag-key
+#            ^^^^^^^ string.unquoted.tag-value
+
+;; key: value valid but not highlighted
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string.unquoted.header-bold-comment
+
+2018/07/24  payee  ;;key: value valid but not highlighted
+                 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.comment
+
+    ; a_tag: a value x: y
+#^^^ unscoped.indent
+#   ^^ comment.comment
+#     ^^^^^^^ support.class.tag-key
+#            ^^^^^^^^^^^^ string.unquoted.tag-value
+
+    ; a_tag: a value :part:  ; abc
+#   ^^ comment.comment
+#     ^^^^^^^ support.class.tag-key
+#            ^^^^^^^^^^^^^^^^^^^^^ string.unquoted.tag-value
+
+    ; abc a_tag: not a valid tag
+#^^^ unscoped.indent
+#   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    ; Payee: some person
+#^^^ unscoped.indent
+#   ^^ comment.comment
+#     ^^^^^^^ support.class.tag-key
+#            ^^^^^^^^^^^ string.unquoted.tag-value
+
+2018/07/25 blah  ; Payee: some person
+#              ^^^^ comment.comment
+#                  ^^^^^^^ support.class.tag-key
+#                         ^^^^^^^^^^^ string.unquoted.tag-value
+
+2018/07/24
+# <- variable.parameter.date
+#^^^^^^^^^^ variable.parameter.date
+
+2018/07/23 someone
+# <- variable.parameter.date
+#^^^^^^^^^^variable.parameter.date
+#          ^^^^^^^ constant.character.payee
+
+2018/07/24  ; can't have comment with omitted payee
+#^^^^^^^^^^^ variable.parameter.date
+#           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ constant.character.payee
+
+2018/07/23 !
+#^^^^^^^^^^ variable.parameter.date
+#          ^ invalid.pending
+
+2018/07/23  !
+#^^^^^^^^^^^ variable.parameter.date
+#           ^ invalid.pending
+
+2018/07/23 *
+#^^^^^^^^^^ variable.parameter.date
+#          ^ entity.name.function.cleared
+
+2018/07/23  *
+#^^^^^^^^^^^ variable.parameter.date
+#           ^ entity.name.function.cleared
+
+2018/07/24 ! someone
+#^^^^^^^^^^ variable.parameter.date
+#          ^^ invalid.pending
+#            ^^^^^^^ constant.character.payee
+
+2018/07/24  *  someone
+#^^^^^^^^^^^ variable.parameter.date
+#           ^^^ entity.name.function.cleared
+#              ^^^^^^^ constant.character.payee
+
+2018/07/24 (123)
+#^^^^^^^^^^ variable.parameter.date
+#          ^^^^^^ string.quoted.transacton-number
+
+2018/07/24  (123)
+#^^^^^^^^^^^ variable.parameter.date
+#           ^^^^^^ string.quoted.transacton-number
+
+2018/07/24 (xyz) someone
+#^^^^^^^^^^ variable.parameter.date
+#          ^^^^^^ string.quoted.transacton-number
+#                ^^^^^^^ constant.character.payee
+
+2018/07/24  (123)  someone
+#^^^^^^^^^^^ variable.parameter.date
+#           ^^^^^^^ string.quoted.transacton-number
+#                  ^^^^^^^ constant.character.payee
+
+2018/07/24 ! (abc)
+#^^^^^^^^^^ variable.parameter.date
+#          ^^ invalid.pending
+#            ^^^^^^ string.quoted.transacton-number
+
+2018/07/24  *  (abc)
+#^^^^^^^^^^^ variable.parameter.date
+#           ^^^ entity.name.function.cleared
+#              ^^^^^^ string.quoted.transacton-number
+
+2018/07/24 ! (789) some place
+#^^^^^^^^^^ variable.parameter.date
+#          ^^ invalid.pending
+#            ^^^^^^ string.quoted.transacton-number
+#                  ^^^^^^^^^^ constant.character.payee
+
+2018/07/24  *  (xyz)  blah blah blah
+#^^^^^^^^^^^ variable.parameter.date
+#           ^^^ entity.name.function.cleared
+#                   ^^ string.quoted.transacton-number
+#                     ^^^^^^^^^^^^^^ constant.character.payee
+
+2018/07/24 blah  blah  ; invalid
+#^^^^^^^^^^ variable.parameter.date
+#          ^^^^ constant.character.payee
+#              ^^^^^^^
+
+2018/07/24 fubar ;
+#^^^^^^^^^^ variable.parameter.date
+#          ^^^^^^^ constant.character.payee
+
+2018/07/24 fubar ;  ; not an appetizing payee name
+#          ^^^^^^^ constant.character.payee
+#                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.comment
+
+2018/07/24 sna             ; fu
+#          ^^^ constant.character.payee
+#             ^^^^^^^^^^^^^^^^^ comment.comment
+
+2018/07/24 fu          ; bar: iffic
+#          ^^ constant.character.payee
+#            ^^^^^^^^^^^^ comment.comment
+#                        ^^^^^ support.class.tag-key
+#                             ^^^^^ string.unquoted.tag-value
+
+2018/07/24 fubar	; tab as payee name terminator
+#          ^^^^^ constant.character.payee
+#               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.comment
+
+tag a_tag
+# <- support.class.directive
+#^^^ support.class.directive
+#   ^^^^^^ variable.parameter.name
+
+tag   a_tag
+#^^^^^ support.class.directive
+#     ^^^^^^ variable.parameter.name
+
+tag with spaces is invalid
+# <- invalid
+#^^^^^^^^^^^^^^^^^^^^^^^^^ invalid
+
+tag blah;is_valid_but_let_us_not_use_semi_colons
+# <- invalid
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ invalid
+
+commodity $
+# <- support.class.directive
+#^^^^^^^^^ support.class.directive
+#         ^^ variable.parameter.name
+
+commodity abcdx ; comments allowed and with one space
+#^^^^^^^^^ support.class.directive
+#         ^^^^^ variable.parameter.name
+#              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.comment
+
+commodity   abcdx ; blah
+#^^^^^^^^^^^ support.class.directive
+#           ^^^^^ variable.parameter.name
+#                ^^^^^^^ comment.comment
+
+commodity abcdx; is not valid
+# <- invalid
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^ invalid
+
+commodity abc dx
+#^^^^^^^^^^^^^^^ invalid
+
+account assets
+# <- support.class.directive
+#^^^^^^^ support.class.directive
+#       ^^^^^^^ variable.parameter.name
+
+account assets: one: two: three
+# <- support.class.directive
+#^^^^^^^ support.class.directive
+#       ^^^^^^^^ unscoped.account-name
+#               ^^^^ string.unquoted.top-level
+#                   ^^^^^^^^^^^^ unscoped.account-name
+
+account  assets: one: two: three
+#^^^^^^^^ support.class.directive
+#        ^^^^^^^^
+#                ^^^^ string.unquoted.top-level
+#                    ^^^^^^^^^^^^ unscoped.account-name
+
+account assets:  not: valid
+# <- invalid
+#^^^^^^^^^^^^^^^^^^^^^^^^^^ invalid
+
+account assets: not:  valid because of two spaces
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ invalid
+
+account assets ; invalid
+# <- invalid
+#^^^^^^^^^^^^^^^^^^^^^^^ invalid
+
+payee something anything
+# <- support.class.directive
+#^^^^^ support.class.directive
+#     ^^^^^^^^^^^^^^^^^^^ constant.character.name
+
+payee could inlude ; but let's mark invalid
+# <- invalid
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ invalid
+
+payee abc  xyz
+#^^^^^^^^^^^^^ invalid
+
+    note this is a note
+#^^^^^^^^ keyword.sub-directive
+#        ^^^^^^^^^^^^^^ comment.comment.note
+
+    format $ 1,000.00
+# <- keyword.sub-directive
+#^^^^^^^^^^ keyword.sub-directive
+#          ^^^^^^^^^^ entity.name.function.subdir-value
+
+    default
+#^^^^^^^^^^^ keyword.sub-directive
+
+    check something
+#^^^^^^^^^ keyword.sub-directive
+#         ^^^^^^^^^ entity.name.function.subdir-value
+
+ assert some thing
+#^^^^^^^ keyword.sub-directive
+
+    alias a
+#^^^^^^^^^ keyword.sub-directive
+#         ^ entity.name.function.subdir-value
+
+P  2018/07/25  cesop      $11.32
+# <- keyword.price
+#^^ keyword.price
+#  ^^^^^^^^^^^^ variable.parameter.date
+#              ^^^^^^^^^^^ support.class.commodity
+#                         ^^^^^^ string.unquoted.amount
+
+P 2018/07/25 cesop $11.32
+#^ keyword.price
+# ^^^^^^^^^^^ variable.parameter.date
+#            ^^^^^^ support.class.commodity
+#                  ^^^^^^ string.unquoted.amount
+
+    a
+# <- unscoped.indent
+#^^^ unscoped.indent
+
+    ; comment
+# <- unscoped.indent
+#^^^ unscoped.indent
+#   ^^^^^^^^^ comment.comment
+
+    e: parent
+# <- unscoped.indent
+#^^^ unscoped.indent
+#   ^^^ string.unquoted.expenses-label
+#      ^^^^^^ string.unquoted.expenses-parent
+
+    expenses: parent
+#   ^^^^^^^^^^ string.unquoted.expenses-label
+#             ^^^^^^ string.unquoted.expenses-parent
+
+    e: parent: child
+#^^^ unscoped.indent
+#   ^^^ string.unquoted.expenses-label
+#      ^^^^^^^ string.unquoted.expenses-parent
+#             ^^^^^^ unscoped.account-name
+
+    expenses: parent: child
+#             ^^^^^^^ string.unquoted.expenses-parent
+#                    ^^^^^^ unscoped.account-name
+
+    e: a: b: c: d
+#   ^^^ string.unquoted.expenses-label
+#      ^^ string.unquoted.expenses-parent
+#        ^^^^^^^^ unscoped.account-name
+
+    e: parent  ; blah
+#   ^^^ string.unquoted.expenses-label
+#      ^^^^^^ string.unquoted.expenses-parent
+#            ^^^^^^^^ comment.comment
+
+    e: parent: child  ; blah
+#   ^^^ string.unquoted.expenses-label
+#      ^^^^^^^ string.unquoted.expenses-parent
+#             ^^^^^^ unscoped.account-name
+#                   ^^^^^^^^ comment.comment
+
+    e: fu: bar      $25
+#^^^ unscoped.indent
+#   ^^^ string.unquoted.expenses-label
+#      ^^^ string.unquoted.expenses-parent
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^^ variable.parameter.money-out
+
+    e: bar           $-25
+#                    ^^^^ string.unquoted.money-in
+
+    e: fu: bar:     ($25 * (2 / 2 - 2 + 2))
+#                   ^^^^^^^^^^^^^^^^^^^^^^^ variable.parameter.money-out
+
+    e: fu: bar:     ($-25 * (2 / 2 - 2 + 2))
+#                   ^^^^^^^^^^^^^^^^^^^^^^^^ string.unquoted.money-in
+
+    e: fu: bar      $25  ; comment
+#                   ^^^^^ variable.parameter.money-out
+#                        ^^^^^^^^^ comment.comment
+
+    e: fu: bar      103 abcx @ $10
+#^^^ unscoped.indent
+#   ^^^ string.unquoted.expenses-label
+#      ^^^ string.unquoted.expenses-parent
+#         ^^^^ unscoped.account-name
+#             ^^^^^^^^^^ variable.parameter.money-out
+#                       ^^^^^ support.class.commodity
+#                            ^^ keyword.at
+#                              ^^^ string.unquoted.amount
+
+    e: fu: bar     -103abcx@$10
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^^ string.unquoted.money-in
+#                      ^^^^ support.class.commodity
+#                          ^ keyword.at
+#                           ^^^ string.unquoted.amount
+
+    e: fu: bar      103 abcx @ $10 ; comment
+#                              ^^^^ string.unquoted.amount
+#                                  ^^^^^^^^^ comment.comment
+
+    e: fu: bar      103 abcx @ ($10 * 2)
+#                              ^^^^^^^^^ string.unquoted.amount
+
+    e: fu: bar      103 abcx @ ($10 * 2)  ; comment
+#                              ^^^^^^^^^^^ string.unquoted.amount
+#                                         ^^^^^^^^^ comment.comment
+
+    a: fu
+# <- unscoped.indent
+#^^^ unscoped.indent
+#   ^^^ entity.name.function.assets-label
+#      ^^ support.class.assets-parent
+
+    assets: fu
+#   ^^^^^^^^ entity.name.function.assets-label
+#           ^^ support.class.assets-parent
+
+    a: fu  ; comment
+#      ^^ support.class.assets-parent
+#        ^^^^^^^^^^^ comment.comment
+
+    a: fu: bar
+#   ^^^ entity.name.function.assets-label
+#      ^^^ support.class.assets-parent
+#         ^^^^ unscoped.account-name
+
+    a: one: two: three: four
+#   ^^^ entity.name.function.assets-label
+#      ^^^^ support.class.assets-parent
+#          ^^^^^^^^^^^^^^^^^ unscoped.account-name
+
+    a: fu: bar  ; comment
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^^^^ comment.comment
+
+    a: fu: bar      $25.11
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^^ entity.name.function.money-in
+
+    a: fu: bar      $25 ; comment
+#             ^^^^^^^^^^ entity.name.function.money-in
+#                       ^^^^^^^^^ comment.comment
+
+    a: fu: bar      $-25.23
+#          ^^^ unscoped.account-name
+
+    a: fu: bar: blah    $-25  ; comment
+#                       ^^^^^^ message.error.money-out
+#                             ^^^^^^^^^ comment.comment
+
+    a: fu: bar  ($25 * (2 / 2 - 2 + 2))
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^^^^^^^^^^^^^^^^^^ entity.name.function.money-in
+
+    a: fu: bar  ($-25 * 2 / 2 - 2 + 2)
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^^^^^^^^^^^^^^^^^ message.error.money-out
+
+    a: fu: bar    (   $25 *  (2 / 2 - 2 + 2)   )
+#          ^^^ unscoped.account-name
+#                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ entity.name.function.money-in
+
+    a: fu: bar  ( $ -25  *  2  /  2  -  2  +  2)
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ message.error.money-out
+
+
+    a: fu: bar  111.222 abcx @ $12.34
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^^^ entity.name.function.money-in
+#                       ^^^^^ support.class.commodity
+#                            ^^ keyword.at
+#                              ^^^^^^ string.unquoted.amount
+
+    a: fu: bar  -111.222abcx@$12.34
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^^^ message.error.money-out
+#                       ^^^^ support.class.commodity
+#                           ^ keyword.at
+#                            ^^^^^^ string.unquoted.amount
+
+    a: fu: bar  111.222 abcx @ $12.34 ; comment
+#                              ^^^^^^^ string.unquoted.amount
+#                                     ^^^^^^^^^ comment.comment
+
+    a: fu: bar  111.222 abcx @ ($12.34 * 2)
+#                            ^^ keyword.at
+#                              ^^^^^^^^^^^^ string.unquoted.amount
+
+    a: fu: bar  111.222 abcx @ ($12.34 * 2)  ; comment
+#                              ^^^^^^^^^^^^^^ string.unquoted.amount
+#                                            ^^^^^^^^^ comment.comment
+
+    liabilities: parent
+# <- unscoped.indent
+#^^^ unscoped.indent
+#   ^^^^^^^^^^^^^ message.error.liabilities-label
+#                ^^^^^^ support.class.liabilities-parent
+
+    liabilities: parent: child: grandchild
+#                ^^^^^^^ support.class.liabilities-parent
+#                       ^^^^^^^^^^^^^^^^^^ unscoped.account-name
+
+    l: parent
+# <- unscoped.indent
+#^^^ unscoped.indent
+#   ^^^ message.error.liabilities-label
+#      ^^^^^^ support.class.liabilities-parent
+
+    l: parent: child
+#      ^^^^^^^ support.class.liabilities-parent
+#             ^^^^^^ unscoped.account-name
+
+    l: parent: child: grandchild
+#      ^^^^^^^ support.class.liabilities-parent
+#              ^^^^^^^^^^^^^^^^^ unscoped.account-name
+
+    l: fu: bar      $-25
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^^^ message.error.money-out
+
+    l: fu: bar      $25
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^^ entity.name.function.money-in
+
+    income: wages
+# <- unscoped.indent
+#^^^ unscoped.indent
+#   ^^^^^^^^ entity.name.function.income-label
+#           ^^^^^ entity.name.function.income-parent
+
+    income: wages: gross pay
+#   ^^^^^^^^ entity.name.function.income-label
+#           ^^^^^^ entity.name.function.income-parent
+#                 ^^^^^^^^^^ unscoped.account-name
+
+    i: wages
+#   ^^^ entity.name.function.income-label
+#      ^^^^^ entity.name.function.income-parent
+
+    i: wages: fu: bar
+#   ^^^ entity.name.function.income-label
+#      ^^^^^^ entity.name.function.income-parent
+#            ^^^^^^^^ unscoped.account-name
+
+    i: fu: bar      $-25
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^^^ entity.name.function.money-in
+
+    i: fu: bar      $12.34
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^^^^^ message.error.money-out
+
+    equity: parent
+# <- unscoped.indent
+#^^^ unscoped.indent
+#   ^^^^^^^^ unscoped.equity-label
+#           ^^^^^^ unscoped.equity-parent
+
+    equity: parent: child
+#           ^^^^^^^ unscoped.equity-parent
+#                  ^^^^^^ unscoped.account-name
+
+    equity: parent: child: grandchild
+#                   ^^^^^^^^^^^^^^^^^ unscoped.account-name
+
+    equity: fu      $25
+#           ^^ unscoped.equity-parent
+#             ^^^^^^^^^
+
+    equity: bar     $-25
+#           ^^^ unscoped.equity-parent
+#              ^^^^^^^^^ entity.name.function.money-in
+
+    l: credit card: mega       = $-56.87
+#                   ^^^^ unscoped.account-name
+#                       ^^^^^^^^
+#                               ^^^^^^^^ message.error.money-out
+
+    a: balance: assignment      = $12.34
+#               ^^^^^^^^^^ unscoped.account-name
+#                         ^^^^^^^^^^^^^^ entity.name.function.money-in
+
+    a: fu: bar          = -43.21
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^^^^^^^^^^^ message.error.money-out
+
+    a: fu: bar          =   20
+#             ^^^^^^^^^^^^^^^^ entity.name.function.money-in
+
+    l: fu: bar          = 56.78
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^^^^^^^^^^ entity.name.function.money-in
+
+    l: fu: bar          = -33.7
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^^^^^^^^^^ message.error.money-out
+
+    e: fu: bar          = 12.45
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^^^^^^^^^^ variable.parameter.money-out
+
+    e: fu: bar          = -9876
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^^^^^^^^^^ string.unquoted.money-in
+
+    a: 401k: abc        = 20.555 abx
+#            ^^^ unscoped.account-name
+#               ^^^^^^^^^^^^^^^^^ entity.name.function.money-in
+#                                ^^^^ support.class.commodity
+
+    a: 401k: abc        = -20.555 abx  ; comment
+#            ^^^ unscoped.account-name
+#               ^^^^^^^^^^^^^^^^^^ message.error.money-out
+#                                 ^^^^^ support.class.commodity
+#                                      ^^^^^^^^^ comment.comment
+
+    a: balance: assertion      $10 = $100
+#               ^^^^^^^^^ unscoped.account-name
+#                        ^^^^^^^^^^ entity.name.function.money-in
+#                                  ^^^^^^ string.unquoted.amount
+
+    a: ra: dar              $-10 = -$100
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^^^^^^^^^^^^ message.error.money-out
+#                                ^^^^^^^ string.unquoted.amount
+
+    a: ra: dar              $10   =   $1000
+#             ^^^^^^^^^^^^^^^^^^^^ entity.name.function.money-in
+#                                 ^^^^^^^^^ string.unquoted.amount
+
+    l: ra: dar              $-20 = $-150
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^^^^^^^^^^^^ message.error.money-out
+#                                ^^^^^^^ string.unquoted.amount
+
+    a: 401k: abc  10.000 abx @ $80.00 = 20.555 abx
+#                            ^^ keyword.at
+#                              ^^^^^^^^^^^^^^^^ string.unquoted.amount
+#                                              ^^^ support.class.commodity
+
+    a: 401k: abc  10.000 abx @ $80.00 = -20.555 abx
+#                            ^^ keyword.at
+#                              ^^^^^^^^^^^^^^^^^ string.unquoted.amount
+#                                               ^^^^ support.class.commodity
+
+    a: 401k: abc  -10.000 abx @ $80.00 = -20.555 abx
+#                             ^^ keyword.at
+#                               ^^^^^^^^^^^^^^^^^ string.unquoted.amount
+#                                                ^^^^ support.class.commodity
+
+    e: something           $10 = $10
+#               ^^^^^^^^^^^^^^^ variable.parameter.money-out
+#                              ^^^^^
+
+    e: something           $-10 = $-20
+#               ^^^^^^^^^^^^^^^^ string.unquoted.money-in
+#                               ^^^^^^ string.unquoted.amount
+
+    i: something          $-10 = $-20
+#               ^^^^^^^^^^^^^^^ entity.name.function.money-in
+#                              ^^^^^^ string.unquoted.amount
+
+    i: something          $10 = $20
+#               ^^^^^^^^^^^^^^ message.error.money-out
+#                             ^^^^^ string.unquoted.amount

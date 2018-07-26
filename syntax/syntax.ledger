@@ -1,31 +1,43 @@
 ; monokai color scheme
 
+; this file describes ledger.sublime-syntax rules (not ledger.tmLanguage)
+; (they're similar, but some things changed with the newer syntax definition)
+
 ; comments with one semicolon have grey fg (something like that - dim, anyway)
 ; either for whole line or after non-comment stuff
 
-;; line comments with two semicolons have yellow fg
+;; comments with two semicolons have yellow fg
     ;; still yellow even if indented
+2018/07/22 payee  ;; only if at start of line or after whitespace
 
-;;;; line comments with four semicolons have white fg and purple bg
-;;;; and extend to edge of window
-    ;;;; only if at the start of the line, otherwise looks like two ;;
+;;;; comments with four semicolons have white fg and purple bg
+    ;;;; and extend to edge of window
+2018/07/22 payee  ;;;; only if at start of line or after whitespace
 ; maybe you want a banner:
 ;;;; ------------------------------------------------------------------------ ;
 ;;;; future
 ;;;; ------------------------------------------------------------------------ ;
 
 ; a todo in a comment also has white fg and purple bg
-; just the last todo is the specially highlighted todo
+; just the last todo on a line is the specially highlighted todo
 
-; Capital letters have white fg and pink bg and break whole line highlighting
+; Lines with capital letters have white fg and pink bg, extending to edge
+; except for special case for prices db:
+P 2013/05/10 abcdx      $11.59
+; and for the special payee tag:
+; Payee: george
 
 ; top line
+; can omit payee
+2018/07/23
+2018/07/24 some payee
 2018/07/06 some payee           ; date has orange fg, payee has purple fg
 2018/07/06 (1234) some payee    ; optional transaction # has yellow fg
 2018/07/06  payee               ; can have mult spaces between date and payee
 2018/07/06  (123)  payee        ; and with optional
 2018/07/06 (123)payee           ; space not required between trans # and payee
-2018/07/06 payee ;              ; first semicolon is part of payee name
+2018/07/24 (123)
+2018/07/06 payee ;              ; first se micolon is part of payee name
 2018/07/06 ! some payee         ; pending (!) has white fg and pink bg
 2018/07/06 * some payee         ; cleared (*) has green fg
 2018/07/06 ! (abc) some payee   ; pending (!) with optional transaction #
@@ -35,6 +47,10 @@
 2018/07/06 *some payee          ; space is optional after *
 2018/07/06 !(abc) some payee    ; space is optional after !
 2018/07/06 *(abc) some payee    ; space is optional after *
+2018/07/06 !(abc)some payee     ; space is optional after ! and trans #
+2018/07/06 *(abc)some payee     ; space is optional after * and trans #
+2018/07/24 !
+2018/07/24 *
 
 ; line items can have pending and cleared, too
   ! a: xyz      ; pending
@@ -47,21 +63,30 @@
     e: parent: child: grandchild    ; expenses (e)
     expenses: parent: child         ; first two account levels have yellow fg
                                     ; rest have white fg
+    e: parent
+    e: parent: child
 
     a: checking: bank name          ; assets (a)
     assets: misc: etc: etc          ; first level (a/assets) has green fg
                                     ; second level has cyan fg
                                     ; rest have white fg
+    a: checking
+    a: checking: bank name
 
     l: credit card: etc: etc        ; liabilities (l)
     liabilities: credit card        ; first level (l/liabilities) has red fg
                                     ; rest are same as with assets
+    l: credit card
+    l: credit card: etc
 
     i: wages: gross pay             ; income (i)
-    income: wages: bonus            ; first level (i/income) has green fg
+    income: wages: bonus            ; first two levels have green fg
                                     ; rest have white fg
+    i: wages
+    i: wages: gross pay
 
     equity: blah: blah              ; equity has white fg all the way
+    equity: blah
 
 ; negative and postive dollar amounts
 
@@ -70,19 +95,16 @@
     e: lic           ($25 + $10)    ; same for calculations
     e: ious          ($-25 - $5)    ; maybe negative expense should be income
                                     ; but sometimes makes sense this way
-    e: elided
 
     a: something    $25             ; money going into an asset has green fg
     a: wicked       $-25            ; coming out has red fg
     a: this way     ($25 * 2)       ; same for calculations
     a: comes        ($-25 * 2)
-    a: elided
 
     l: bats         $25             ; money paid to liability has green fg
     l: in           $-25            ; money added to liability has red fg
     l: the          ($25 * 8)       ; same for calculations
     l: belfry       ($-25 * 8)
-    l: elided
 
     a: money we have    $100        ; see how they are opposing forces
     l: money we owe     $-100
@@ -92,27 +114,41 @@
                                     ; more sense as an expense)
     i: drink        ($-25 * 10)     ; same for calculations
     i: please       ($25 * 10)
-    i: elided
 
-    equity: fu      $25             ; i usually elide equity amounts so haven't
-    equity: bar     $-25            ; made a rule, this matches
-                                    ; "(\\$ ?-?[\\d\\.,_]+)"
-                                    ; "string.unquoted.amount" for yellow fg
-                                    ; would match income coloring if i bothered
+    equity: bar     $-25            ; negative equity green fg
+    equity: fu      $25             ; positive equity red fg
 
-; again relying on string.unquoted.amount to match the hanging value on the end
+2017/12/31 balance assignments
+    ; balance assignments will color the equal sign and the amount the
+    ; same as above; (balance assignments don't really seem applicable
+    ; to expenses and income but we get the highlighting for free)
+    l: fu: bar       = $-56.87
+    l: fu: bar       = $12
+    a: fubar         = $50
+    a: fubar         = $-50
+    e: fu: bar       = $50
+    e: fu: bar       = $-50
+    i: fu: bar       = $-50
+    i: fu: bar       = $50
+    ; works for commodities, too (with the commodity code having cyan fg,
+    ; same as in other commodity entries)
+    a: 401k: abc        = 20.555 abx
+
 2017/12/31 balance assertions
-    l: credit card: mega       = $-56.87        ; assignment, yellow fg
-    l: credit card: man     $0 = $-56.87        ; yellow fg
-    l: credit card: man   $-10 = $-56.87        ; yellow fg
-    a: bank                    = $50            ; assigment, green fg
-                                                ; (not bothering with)
-    a: bank                 $0 = $50            ; yellow fg
-    a: bank                $-0 = $50            ; yellow fg
-    e: something           $10 = $10            ; yellow fg
-    i: something          $-10 = $-20           ; yellow fg
-    a: 401k: abc  10.000 abx @ $80.00 = 20.555 abx  ; white fg
-                                                    ; (not bothering with)
+    ; balance assertions have the usual colors on the left side
+    ; of the equal sign, and yellow fg numbers for the equal sign
+    ; and right side of the equal, regardless of sign or account
+    ; type
+    l: credit card: man     $0 = $-56.87
+    l: credit card: man   $-10 = $-56.87
+
+    a: bank                 $0 = $50
+    a: bank                $-0 = $50
+    e: something           $10 = $10
+    e: something          $-10 = $10
+    i: something          $-10 = $-20
+    a: 401k: abc  10.000 abx @ $80.00 = 20.555 abx
+    a: 401k: abc  10.000 abx @ $80.00 = -20.555 abx
 
 ; stock / mutual fund prices
 2017/10/01 opening balance
@@ -133,48 +169,56 @@
 
 ; metadata tags
 
+    ; tags without values
     ; :the_tag: single tag          ; just the_tag higlighted, cyan fg
-    ; :one_tag:two_tag:             ; can chain tags; ideally all would have
-    ; :one_tag:two_tag:three_tag:   ; cyan fg, but something weird with syntax
-                                    ; highlighting for multiple matches, so
-                                    ; last has cyan fg and others white fg
+    ; :one_tag:two_tag:             ; can chain tags, all highlighted cyan fg
+    ; abc :one:two:three: xyz       ; three chained tags
     ; :one_tag: :two_tag:           ; only the first is recognized
     ; :a_tag: key_tag: some value   ; only standalone a_tag counts
+
     ; tags with values
     ; key has cyan fg and no spaces
     ; space is required after colon and everything after is part of the value
     ; a_tag: a value
     ;; value = "a value x: y"
     ; a_tag: a value x: y
-    ; special payee metadata field
+    ; a_tag: a value :part:
+    ; abc a_tag: tag value          ; this isn't a valid tag
+
+    ; special payee metadata field (cyan: yellow)
     ; Payee: some person
 
 ; misc
 
 ; tag keyword (directive?) has cyan fg, name of the tag has orange fg
 tag car
-tag abc
-tag xyz  ; this is invalid
-; this is a valid tag but we're not going to highlight it (i mean, come on)
+tag xyz  ; this is invalid (can't have comment) pink bg, white fg
+; this is a valid tag but we'll highlight as invalid (i mean, come on)
 tag abc;
 ; this is not a valid tag because can't have have space in tag name
 tag abc ;
 
-; commodity keyword has cyan fg, name of the commodity has orange fg'
-; sub-directives have pink fg, format value has green fg
-; note also pink fg as sub-directive and grey fg for the value
+; commodity keyword has cyan fg, name of the commodity has orange fg
+; sub-directives have pink fg, values have green fg, except for
+; "note" which has comment coloring
 commodity $
     format $ 1,000.00
     default
     note this is a note
+    check something
+    assert something
 
-commodity abcdx ; comments allowed on commodities, apparently, even w/ 1 space
+commodity abcdx ; comments allowed on commodities, even w/ 1 space
     format 1,000.000
     note big co 500 idx
 
+; these are invalid (pink bg, white fg)
+commodity abcdx; ; is not valid
+commodity also not valid
+
 ; payee directive has cyan fg and name of payee has purple fg
 payee name of same
-; we're not going to highlight valid payee names that include semicolons
+; we'll mark valid names with semicolons as invalid
 ; valid "apple;"
 payee apple;
 ; valid "apple ;"
@@ -182,20 +226,21 @@ payee apple ;
 ; valid "apple ; banana"
 payee apple ; banana
 ; ledger will let you have two spaces like this but it's not a comment and you
-; can't use it because in an entry, the payee name is terminated after 2 spaces
+; it will cause validation errors because in an entry, the payee name is
+; terminated after 2 spaces
 payee apple  ; banana
+; again two spaces isn't a good idea because of the two space termination
+payee abc  xyz
 
 ; account directive has cyan fg and value has orange fg
 ; this is only for equity/income/expenses/assets/liabilities, or more
-; specifically, if no spaces/colons for the value
+; specifically, if no spaces in hte value
 ; alias sub-directive has pink fg and value has green fg
 account assets
     alias a
-; assets in this case has white fg, "one" has yellow fg, and rest white
+; assets with children has white fg, "one" has yellow fg, and rest white
 account assets: one: two: three
-; ideally wouldn't highlight line at all but if a comment we'll do *something*
-; - account directive becomes white fg, and "assets" highlighting kicks in with
-; green fg, and so on...
+; comments not allowed on account line, mark as invalid (pink bg, white fg)
 account assets: one: two: three  ;
 ; same for others
 account liabilities
@@ -212,10 +257,10 @@ account liabilities
 
 ;; ledgerbil specific --------------------------------------------------------
 
-; top of file config - ;; scheduler has ping fg, ; enter 40 days has yellow fg
+; top of file config - ;; scheduler has pink fg, ; enter 40 days has yellow fg
 ;; scheduler ; enter 40 days
 
-; entry configs - ;; schedule has ping fg, rest has yellow fg
+; entry configs - ;; schedule has pink fg, rest has yellow fg
 2018/08/24 something
     ;; schedule ; weekly ;; every 2 weeks
 
@@ -233,7 +278,7 @@ account liabilities
    *i: xyz
   * i: xyz
   ! i: xyz
-   !equity: xyz ; hard tabs again
+   !equity: xyz	; hard tabs again
    *equity: xyz
   * equity: xyz
   ! equity: xyz

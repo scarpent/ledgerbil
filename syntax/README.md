@@ -1,25 +1,25 @@
 # Syntax Highlighting
 
-`ledger.tmLanguage` can be placed in Sublime Text's `User` dir, e.g.
+`ledger.sublime-syntax` can be placed in Sublime Text's `User` dir, e.g.
 
     ~/Library/Application Support/Sublime Text 3/Packages/User
 
-This will apply syntax highlighting to files with extensions ldg,
-ledger, and ldgr. From the included sample file for the Monokai 
-color scheme:
+This will apply syntax highlighting to files with extensions `ldg` and
+`ledger`. From the included sample file for the Monokai color scheme:
 
-![syntax highlighting
-example](../docs/images/ledger-syntax-highlighting-2.png)
+![syntax highlighting example](../docs/images/ledger-syntax-highlighting-3.png)
 
-`ledger.JSON-tmLanguage` file is used to generate the XML `.tmLanguage`
-file.
+`syntax_test_ledger.ldg` can be placed in the `User` dir as well and the
+`build` command will run the included tests. (My User dir is symlinked
+to Drobox and I got errors running the tests, so I moved it up a level
+to Packages.)
 
-More about Sublime Text syntax definitions here:
+More about Sublime Text syntax definitions:
 
-http://docs.sublimetext.info/en/latest/extensibility/syntaxdefs.html
+* http://docs.sublimetext.info/en/latest/extensibility/syntaxdefs.html
+* http://www.sublimetext.com/docs/3/syntax.html
 
-And, lo, there's now a `.sublime-syntax` definition:
-
-http://www.sublimetext.com/docs/3/syntax.html
-
-We'll be wanting to change to this new format.
+`.sublime-syntax` is a newer syntax definition format. Still included
+here are the older tmLanguage files. The `ledger.JSON-tmLanguage` file
+is used to generate the XML `.tmLanguage` file, which likewise would be
+placed in the User dir.
