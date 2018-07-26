@@ -5,7 +5,7 @@
     ~/Library/Application Support/Sublime Text 3/Packages/User
 
 This will apply syntax highlighting to files with extensions `ldg` and
-`ledger`. From the included sample file for the Monokai color scheme:
+`ledger`. From the included example file for the Monokai color scheme:
 
 ![syntax highlighting example](../docs/images/ledger-syntax-highlighting-3.png)
 
