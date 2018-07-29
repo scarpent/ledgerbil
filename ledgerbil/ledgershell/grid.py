@@ -185,7 +185,7 @@ def validate_column_total(period_name, column_total=0, ledgers_total=0):
     # up your accounts this way.)
 
     # We'll not concern ourselves over small floating point differences
-    if abs(column_total - ledgers_total) > .01:
+    if round(abs(column_total - ledgers_total), 2) > .02:
         warn_column_total(period_name, column_total, ledgers_total)
 
 
