@@ -15,7 +15,7 @@ from .util import get_account_balance
 TOTAL_HEADER = 'total'
 SORT_DEFAULT = TOTAL_HEADER
 EMPTY_VALUE = ''
-PAYEE_SUBTOTAL_REGEX = re.compile(r'^.*?\$ (\S+)\s*\$.*$')
+PAYEE_SUBTOTAL_REGEX = re.compile(r'^.*?\$\s*(\S+)\s*\$.*$')
 
 
 def get_grid_report(args, ledger_args):

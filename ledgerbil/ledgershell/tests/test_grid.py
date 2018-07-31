@@ -278,7 +278,7 @@ def test_get_column_payees(mock_ledger_output):
         17-Nov-01 - 18-Jan-05    <Total>      $ 102.03           $ 102.03
 
         gas n go
-        18-Jan-03 - 18-Jan-03    <Total>       $ 23.87            $ 23.87
+        18-Jan-03 - 18-Jan-03    <Total>        $23.87             $23.87
 
         johnny paycheck
         17-Nov-15 - 17-Nov-30    <Total>    $ 1,381.32         $ 1,381.32
