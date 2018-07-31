@@ -3,7 +3,7 @@ from collections import namedtuple
 
 from ..util import get_float
 
-DOLLARS_REGEX = re.compile(r'^\s*(?:(\$ -?[\d,.]+|0(?=  )))(.*)$')
+DOLLARS_REGEX = re.compile(r'^\s*(?:(\$\s*-?[\d,.]+|0(?=  )))(.*)$')
 SHARES_REGEX = re.compile(r'\s*(-?[\d,.]+) ([a-zA-Z]+)(.*)$')
 
 AccountBalance = namedtuple('AccountBalance', 'account amount symbol')

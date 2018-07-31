@@ -153,8 +153,8 @@ def test_get_investment_report(mock_ledger_output):
     dollars = [
         '          $ 1,737.19  assets',
         '          $ 1,387.19     401k',
-        '            $ 798.19       big co 500 idx',
-        '            $ 400.00       bonds idx',
+        '             $798.19       big co 500 idx',
+        '           $  400.00       bonds idx',
         '            $ 189.00       cash',
         '            $ 150.00     ira: glass idx',
         '            $ 200.00     mutual: total idx',
