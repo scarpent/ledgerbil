@@ -52,7 +52,7 @@ contexts:
     - match: "^(tag|account)\\s+.*[ ;].*$"
       scope: invalid
       # this will also mark trailing spaces as invalid but that's okay
-    - match: "^commodity\\s+[^ ;]+(;|\\s+[^;]).*$"
+    - match: "^commodity\\s+[^ ;]+(;|\\s+[^ ;]).*$"
       scope: invalid
     - match: "^(commodity\\s+)([^ ;]+)"
       captures:

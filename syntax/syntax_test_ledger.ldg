@@ -251,10 +251,10 @@ commodity abcdx ; comments allowed and with one space
 #         ^^^^^ variable.parameter.name
 #              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.comment
 
-commodity   abcdx ; blah
+commodity   abcdx  ; comment with more than one space
 #^^^^^^^^^^^ support.class.directive
 #           ^^^^^ variable.parameter.name
-#                ^^^^^^^ comment.comment
+#                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.comment
 
 commodity abcdx; is not valid
 # <- invalid
