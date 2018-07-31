@@ -9,19 +9,6 @@ from .. import grid
 from ...tests.helpers import OutputFileTester
 
 
-class MockSettings:
-    LEDGER_COMMAND = ('ledger', )
-    LEDGER_DIR = 'lmn'
-    LEDGER_FILES = [
-        'blarg.ldg',
-        'glurg.ldg',
-    ]
-
-
-def setup_function(module):
-    grid.settings = MockSettings()
-
-
 @mock.patch(__name__ + '.grid.get_ledger_output')
 def test_get_period_names_years(mock_ledger_output):
     output = dedent('''\
