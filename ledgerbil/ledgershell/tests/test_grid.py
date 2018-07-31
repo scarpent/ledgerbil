@@ -5,7 +5,7 @@ from unittest import mock
 
 import pytest
 
-from .. import grid, runner
+from .. import grid
 from ...tests.helpers import OutputFileTester
 
 
@@ -20,7 +20,6 @@ class MockSettings:
 
 def setup_function(module):
     grid.settings = MockSettings()
-    runner.settings = MockSettings()
 
 
 @mock.patch(__name__ + '.grid.get_ledger_output')
