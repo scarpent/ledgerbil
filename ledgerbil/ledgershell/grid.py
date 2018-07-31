@@ -1,8 +1,10 @@
 import argparse
+import csv
 import re
 import sys
 from collections import defaultdict
 from datetime import date
+from io import StringIO
 from textwrap import dedent
 
 from .. import util
@@ -10,7 +12,9 @@ from ..colorable import Colorable
 from .runner import get_ledger_output
 from .util import get_account_balance
 
-SORT_DEFAULT = 'total'
+TOTAL_HEADER = 'total'
+SORT_DEFAULT = TOTAL_HEADER
+EMPTY_VALUE = ''
 PAYEE_SUBTOTAL_REGEX = re.compile(r'^.*?\$ (\S+)\s*\$.*$')
 
 
@@ -35,7 +39,22 @@ def get_grid_report(args, ledger_args):
     rows = get_rows(row_headers, columns, period_names, args.sort, args.limit)
     if len(rows) == 2:
         return ''
+
+    if args.csv:
+        return get_csv_report(rows)
+
     return get_flat_report(rows)
+
+
+def get_csv_report(rows):
+    for row in rows:
+        # Move account/payee name to first column
+        row.insert(0, row.pop())
+
+    output = StringIO()
+    writer = csv.writer(output, lineterminator='\n')
+    writer.writerows(rows)
+    return output.getvalue()
 
 
 def get_flat_report(rows):
@@ -66,9 +85,11 @@ def get_flat_report(rows):
 
     dashes = [
         f"{'-' * (FMT_PERIOD - 2):>{FMT_PERIOD}}" for x in rows[COL_TOTAL]
+        if x != EMPTY_VALUE
     ]
     col_totals_f = [
         util.get_colored_amount(t, FMT_PERIOD) for t in rows[COL_TOTAL]
+        if t != EMPTY_VALUE
     ]
     report += f"{Colorable('white', ''.join(dashes))}\n"
     report += f"{''.join(col_totals_f)}\n"
@@ -237,9 +258,9 @@ def get_rows(row_headers, columns, period_names, sort=SORT_DEFAULT, limit=0):
     for row_header in row_headers:
         amounts = [grid[row_header].get(pn, 0) for pn in period_names]
         if has_total_column:
-            rows.append(tuple(amounts + [sum(amounts)] + [row_header]))
+            rows.append(amounts + [sum(amounts)] + [row_header])
         else:
-            rows.append(tuple(amounts + [row_header]))
+            rows.append(amounts + [row_header])
 
     if sort == 'row':
         sort_index = -1
@@ -257,13 +278,15 @@ def get_rows(row_headers, columns, period_names, sort=SORT_DEFAULT, limit=0):
         rows = rows[:limit]
 
     if has_total_column:
-        headers = period_names + (SORT_DEFAULT, )
+        headers = period_names + (TOTAL_HEADER, )
     else:
         headers = period_names
+    headers_list = list(headers) + [EMPTY_VALUE]  # add account/payee header
 
-    totals = tuple(sum(x) for x in list(zip(*rows))[:-1])
+    # add empty value for account/payee footer as well
+    totals = [sum(x) for x in list(zip(*rows))[:-1]] + [EMPTY_VALUE]
 
-    return [headers] + rows + [totals]
+    return [headers_list] + rows + [totals]
 
 
 def get_grid(row_headers, columns):
@@ -371,6 +394,12 @@ def get_args(args):
         default=SORT_DEFAULT,
         help='sort by specified column header, or "row" to sort by account '
              'or payee (default: by total)'
+    )
+    parser.add_argument(
+        '--csv',
+        action='store_true',
+        default=False,
+        help='output as csv'
     )
 
     # workaround for problems with nargs=argparse.REMAINDER

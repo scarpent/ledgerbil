@@ -420,33 +420,33 @@ def test_get_grid():
 
 
 expected_sort_rows_by_total = [
-    (90, 50, 140, 'expenses: widgets'),
-    (100, 10, 110, 'expenses: car: gas'),
-    (0, 20, 20, 'expenses: unicorns'),
-    (-50, 0, -50, 'expenses: car: maintenance'),
-    (140, 80, 220),
+    [90, 50, 140, 'expenses: widgets'],
+    [100, 10, 110, 'expenses: car: gas'],
+    [0, 20, 20, 'expenses: unicorns'],
+    [-50, 0, -50, 'expenses: car: maintenance'],
+    [140, 80, 220, grid.EMPTY_VALUE],
 ]
 
 expected_sort_rows_by_row_header = [
-    (100, 10, 110, 'expenses: car: gas'),
-    (-50, 0, -50, 'expenses: car: maintenance'),
-    (0, 20, 20, 'expenses: unicorns'),
-    (90, 50, 140, 'expenses: widgets'),
-    (140, 80, 220),
+    [100, 10, 110, 'expenses: car: gas'],
+    [-50, 0, -50, 'expenses: car: maintenance'],
+    [0, 20, 20, 'expenses: unicorns'],
+    [90, 50, 140, 'expenses: widgets'],
+    [140, 80, 220, grid.EMPTY_VALUE],
 ]
 
 expected_sort_rows_by_column_header = [
-    (90, 50, 140, 'expenses: widgets'),
-    (0, 20, 20, 'expenses: unicorns'),
-    (100, 10, 110, 'expenses: car: gas'),
-    (-50, 0, -50, 'expenses: car: maintenance'),
-    (140, 80, 220),
+    [90, 50, 140, 'expenses: widgets'],
+    [0, 20, 20, 'expenses: unicorns'],
+    [100, 10, 110, 'expenses: car: gas'],
+    [-50, 0, -50, 'expenses: car: maintenance'],
+    [140, 80, 220, grid.EMPTY_VALUE],
 ]
 
 expected_sort_rows_by_total_with_limit = [
-    (90, 50, 140, 'expenses: widgets'),
-    (100, 10, 110, 'expenses: car: gas'),
-    (190, 60, 250),
+    [90, 50, 140, 'expenses: widgets'],
+    [100, 10, 110, 'expenses: car: gas'],
+    [190, 60, 250, grid.EMPTY_VALUE],
 ]
 
 
@@ -475,7 +475,7 @@ def test_get_rows(mock_get_grid, test_input, expected):
     period_names = ('lemon', 'lime')
     sort, limit = test_input
     actual = grid.get_rows(row_headers, columns, period_names, sort, limit)
-    assert actual == [('lemon', 'lime', grid.SORT_DEFAULT)] + expected
+    assert actual == [['lemon', 'lime', grid.TOTAL_HEADER, '']] + expected
 
 
 @mock.patch(__name__ + '.grid.get_grid')
@@ -489,10 +489,10 @@ def test_get_rows_single_column_sort_total(mock_get_grid):
     period_names = ('mango', )
     actual = grid.get_rows(row_headers, columns, period_names, 'total', 0)
     expected = [
-        ('mango', ),
-        (70, 'expenses: widgets'),
-        (50, 'expenses: unicorns'),
-        (120, ),
+        ['mango', grid.EMPTY_VALUE],
+        [70, 'expenses: widgets'],
+        [50, 'expenses: unicorns'],
+        [120, grid.EMPTY_VALUE],
     ]
     assert actual == expected
 
@@ -508,22 +508,37 @@ def test_get_rows_single_column_sort_row(mock_get_grid):
     period_names = ('mango', )
     actual = grid.get_rows(row_headers, columns, period_names, 'row', 0)
     expected = [
-        ('mango', ),
-        (50, 'expenses: unicorns'),
-        (70, 'expenses: widgets'),
-        (120, ),
+        ['mango', grid.EMPTY_VALUE],
+        [50, 'expenses: unicorns'],
+        [70, 'expenses: widgets'],
+        [120, grid.EMPTY_VALUE],
     ]
     assert actual == expected
 
 
+def test_get_csv_report():
+    rows = [
+        [1, 2, 3, 4, 5],
+        ['a', 'b', '"c"', 'd e f', 'g, h'],
+        ['', 4, '', 6, 'glurg'],
+    ]
+    expected = dedent('''\
+        5,1,2,3,4
+        "g, h",a,b,"""c""",d e f
+        glurg,,4,,6
+        ''')
+    cvs_report = grid.get_csv_report(rows)
+    assert cvs_report == expected
+
+
 def test_get_flat_report():
     rows = [
-        ('lemon', 'lime', grid.SORT_DEFAULT),
-        (2.65, 500.1, 502.75, 'expenses: widgets'),
-        (17.37, 28.19, 45.56, 'expenses: car: gas'),
-        (6.5, 0, 6.5, 'expenses: car: maintenance'),
-        (0, -10123.55, -10123.55, 'expenses: unicorns'),
-        (26.52, -9595.26, -9568.74),
+        ['lemon', 'lime', grid.TOTAL_HEADER, ''],
+        [2.65, 500.1, 502.75, 'expenses: widgets'],
+        [17.37, 28.19, 45.56, 'expenses: car: gas'],
+        [6.5, 0, 6.5, 'expenses: car: maintenance'],
+        [0, -10123.55, -10123.55, 'expenses: unicorns'],
+        [26.52, -9595.26, -9568.74, grid.EMPTY_VALUE],
     ]
     report = grid.get_flat_report(rows)
     helper = OutputFileTester(f'test_grid_flat_report')
@@ -595,6 +610,31 @@ def test_get_grid_report_year(mock_pnames, mock_cols, mock_rows, mock_report):
     )
 
 
+@mock.patch(__name__ + '.grid.get_csv_report')
+@mock.patch(__name__ + '.grid.get_flat_report')
+@mock.patch(__name__ + '.grid.get_rows')
+@mock.patch(__name__ + '.grid.get_columns')
+@mock.patch(__name__ + '.grid.get_period_names')
+def test_get_grid_report_csv(mock_pnames, mock_cols, mock_rows,
+                             mock_flat_report, mock_csv_report):
+    rows = [
+        [1, 2, 3],
+        ['a', 'b', 'c'],
+        [4, '', 6],
+    ]
+    mock_pnames.return_value = ('ra', 'dar')
+    mock_cols.return_value = ('fu', 'bar')
+    mock_rows.return_value = rows
+    mock_csv_report.return_value = 'csv,report\n'
+
+    args, ledger_args = grid.get_args(['--csv'])
+    grid_report_output = grid.get_grid_report(args, ledger_args)
+
+    mock_csv_report.assert_called_once_with(rows)
+    assert grid_report_output == 'csv,report\n'
+    assert not mock_flat_report.called
+
+
 @mock.patch(__name__ + '.grid.get_ledger_output', return_value='')
 def test_get_grid_report_no_period_names(mock_ledger_output):
     # no results from initial ledger query for periods
@@ -635,7 +675,7 @@ def test_main(mock_get_grid_report, mock_print):
 ])
 def test_args_year(test_input, expected):
     args, ledger_args = grid.get_args(test_input)
-    assert args.year == expected
+    assert args.year is expected
     assert ledger_args == []
 
 
@@ -646,7 +686,7 @@ def test_args_year(test_input, expected):
 ])
 def test_args_month(test_input, expected):
     args, ledger_args = grid.get_args(test_input)
-    assert args.month == expected
+    assert args.month is expected
     assert ledger_args == []
 
 
@@ -692,7 +732,7 @@ def test_args_period(test_input, expected):
 ])
 def test_args_payees(test_input, expected):
     args, _ = grid.get_args(test_input)
-    assert args.payees == expected
+    assert args.payees is expected
 
 
 @pytest.mark.parametrize('test_input, expected', [
@@ -701,7 +741,7 @@ def test_args_payees(test_input, expected):
 ])
 def test_args_current(test_input, expected):
     args, _ = grid.get_args(test_input)
-    assert args.current == expected
+    assert args.current is expected
 
 
 @pytest.mark.parametrize('test_input, expected', [
@@ -738,5 +778,14 @@ def test_args_sort(test_input, expected):
     ([], []),
 ])
 def test_ledger_args(test_input, expected):
-    args, ledger_args = grid.get_args(test_input)
+    _, ledger_args = grid.get_args(test_input)
     assert ledger_args == expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (['--csv'], True),
+    ([], False),
+])
+def test_args_csv(test_input, expected):
+    args, _ = grid.get_args(test_input)
+    assert args.csv is expected
