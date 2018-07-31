@@ -1,0 +1,36 @@
+account expenses
+    alias e
+
+2017/11/01 food and stuff
+    e: food: groceries
+    e: home: stuff: in                      $10
+    l: credit card: mega                    $-32.87
+
+2017/11/15 johnny paycheck
+    i: wages: gross pay                     $-2,100
+    i: wages: employer match                $-63
+    e: taxes: federal                       $171.46
+    e: taxes: state                         $126.66
+    e: taxes: social security               $130.2
+    e: taxes: medicare                      $30.45
+    e: healthcare: medical insurance        $231.89
+    a: 401k: cash                           ($126 + $63)
+    a: fsa                                  $41.67
+    a: checking                             $1,241.67
+
+2017/12/05 food and stuff
+    e: food: groceries
+    a: checking out                         $-11.76
+
+2018/01/03 gas n go
+    e: car: gas
+    e: car: maintenance                     $6.5
+    l: credit card: mega                    $-23.87
+
+2018/01/05 food and stuff
+    e: food: groceries
+    l: credit card: mega                    $-57.4
+
+2018/01/08 jurassic fork
+    e: food: dining out
+    l: credit card: mega                    $-42.17
