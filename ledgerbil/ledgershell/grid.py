@@ -12,8 +12,8 @@ from ..colorable import Colorable
 from .runner import get_ledger_output
 from .util import get_account_balance
 
-TOTAL_HEADER = 'total'
-SORT_DEFAULT = TOTAL_HEADER
+TOTAL_HEADER = 'Total'
+SORT_DEFAULT = TOTAL_HEADER.lower()
 EMPTY_VALUE = ''
 PAYEE_SUBTOTAL_REGEX = re.compile(r'^.*?\$\s*(\S+)\s*\$.*$')
 
@@ -40,6 +40,19 @@ def get_grid_report(args, ledger_args):
     if len(rows) == 2:
         return ''
 
+    # Move account/payee name to first column for csv and/or transpose
+    #  - Makes more sense for csv/spreadsheet
+    #  - Positions for move to top in transpose
+    #  - For regular flat report, is also good because date "row headers"
+    #    are a short and consistent length so we won't have a bunch of leading
+    #    whitespace as we do with variable length account and payee names
+    if args.csv or (args.csv and args.transpose):
+        for row in rows:
+            row.insert(0, row.pop())
+
+        if args.transpose:   # todo: support transposing flat reports
+            rows = list(map(list, zip(*rows)))
+
     if args.csv:
         return get_csv_report(rows)
 
@@ -47,9 +60,10 @@ def get_grid_report(args, ledger_args):
 
 
 def get_csv_report(rows):
-    for row in rows:
-        # Move account/payee name to first column
-        row.insert(0, row.pop())
+    if rows[-1][0] == EMPTY_VALUE:
+        rows[-1][0] = TOTAL_HEADER
+    if rows[0][-1] == EMPTY_VALUE:
+        rows[0][-1] = TOTAL_HEADER
 
     output = StringIO()
     writer = csv.writer(output, lineterminator='\n')
@@ -247,7 +261,7 @@ def get_column_payees(period_name, ledger_args):
 def get_rows(row_headers, columns, period_names, sort=SORT_DEFAULT, limit=0):
     if len(period_names) == 1:
         has_total_column = False
-        if sort == SORT_DEFAULT:
+        if sort.lower() == SORT_DEFAULT:
             sort = period_names[0]
     else:
         has_total_column = True
@@ -394,6 +408,12 @@ def get_args(args):
         default=SORT_DEFAULT,
         help='sort by specified column header, or "row" to sort by account '
              'or payee (default: by total)'
+    )
+    parser.add_argument(
+        '-t', '--transpose',
+        action='store_true',
+        default=False,
+        help='transpose columns and rows (currently for csv only)'
     )
     parser.add_argument(
         '--csv',

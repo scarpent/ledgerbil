@@ -457,7 +457,7 @@ def test_get_rows(mock_get_grid, test_input, expected):
         'expenses: unicorns',
         'expenses: widgets'
     }
-    columns = None  # accounted for in mock grid return value
+    columns = None  # only needed by get_grid which is mocked
     period_names = ('lemon', 'lime')
     sort, limit = test_input
     actual = grid.get_rows(row_headers, columns, period_names, sort, limit)
@@ -466,18 +466,21 @@ def test_get_rows(mock_get_grid, test_input, expected):
 
 @mock.patch(__name__ + '.grid.get_grid')
 def test_get_rows_single_column_sort_total(mock_get_grid):
+    # having these sort differently for account name and amount ensures we're
+    # sorting on the mango column rather than the account name
     mock_get_grid.return_value = {
-        'expenses: unicorns': {'mango': 50},
-        'expenses: widgets': {'mango': 70},
+        'expenses: widgets': {'mango': 50},
+        'expenses: unicorns': {'mango': 70},
     }
     row_headers = {'expenses: unicorns', 'expenses: widgets'}
-    columns = None  # accounted for in mock grid return value
+    columns = None  # only needed by get_grid which is mocked
     period_names = ('mango', )
-    actual = grid.get_rows(row_headers, columns, period_names, 'total', 0)
+    # ToTaL tests case-insensitive comparison to SORT_DEFAULT
+    actual = grid.get_rows(row_headers, columns, period_names, 'ToTaL', 0)
     expected = [
         ['mango', grid.EMPTY_VALUE],
-        [70, 'expenses: widgets'],
-        [50, 'expenses: unicorns'],
+        [70, 'expenses: unicorns'],
+        [50, 'expenses: widgets'],
         [120, grid.EMPTY_VALUE],
     ]
     assert actual == expected
@@ -485,12 +488,14 @@ def test_get_rows_single_column_sort_total(mock_get_grid):
 
 @mock.patch(__name__ + '.grid.get_grid')
 def test_get_rows_single_column_sort_row(mock_get_grid):
+    # similar to test_get_rows_single_column_sort_total, these would sort
+    # differently by reversed amount so ensures we're sorting by row
     mock_get_grid.return_value = {
         'expenses: widgets': {'mango': 70},
         'expenses: unicorns': {'mango': 50},
     }
     row_headers = {'expenses: unicorns', 'expenses: widgets'}
-    columns = None  # accounted for in mock grid return value
+    columns = None  # only needed by get_grid which is mocked
     period_names = ('mango', )
     actual = grid.get_rows(row_headers, columns, period_names, 'row', 0)
     expected = [
@@ -504,14 +509,32 @@ def test_get_rows_single_column_sort_row(mock_get_grid):
 
 def test_get_csv_report():
     rows = [
-        [1, 2, 3, 4, 5],
+        [1, 2, 3, 4, ''],
         ['a', 'b', '"c"', 'd e f', 'g, h'],
         ['', 4, '', 6, 'glurg'],
     ]
-    expected = dedent('''\
-        5,1,2,3,4
-        "g, h",a,b,"""c""",d e f
-        glurg,,4,,6
+    expected = dedent(f'''\
+        1,2,3,4,{grid.TOTAL_HEADER}
+        a,b,"""c""",d e f,"g, h"
+        {grid.TOTAL_HEADER},4,,6,glurg
+        ''')
+    cvs_report = grid.get_csv_report(rows)
+    assert cvs_report == expected
+
+
+def test_get_csv_report_non_empty_where_total_goes():
+    # expected that [0][-1] "5" and [-1][0] "x" will always be
+    # empty or already be grid.TOTAL_HEADER, but let's verify
+    # they aren't replaced if populated
+    rows = [
+        [1, 2, 3, 4, 5],
+        ['a', 'b', '"c"', 'd e f', 'g, h'],
+        ['x', 4, '', 6, 'glurg'],
+    ]
+    expected = dedent(f'''\
+        1,2,3,4,5
+        a,b,"""c""",d e f,"g, h"
+        x,4,,6,glurg
         ''')
     cvs_report = grid.get_csv_report(rows)
     assert cvs_report == expected
@@ -616,7 +639,42 @@ def test_get_grid_report_csv(mock_pnames, mock_cols, mock_rows,
     args, ledger_args = grid.get_args(['--csv'])
     grid_report_output = grid.get_grid_report(args, ledger_args)
 
-    mock_csv_report.assert_called_once_with(rows)
+    expected_rows = [
+        [3, 1, 2],
+        ['c', 'a', 'b'],
+        [6, 4, ''],
+    ]
+    mock_csv_report.assert_called_once_with(expected_rows)
+    assert grid_report_output == 'csv,report\n'
+    assert not mock_flat_report.called
+
+
+@mock.patch(__name__ + '.grid.get_csv_report')
+@mock.patch(__name__ + '.grid.get_flat_report')
+@mock.patch(__name__ + '.grid.get_rows')
+@mock.patch(__name__ + '.grid.get_columns')
+@mock.patch(__name__ + '.grid.get_period_names')
+def test_get_grid_report_csv_transposed(mock_pnames, mock_cols, mock_rows,
+                                        mock_flat_report, mock_csv_report):
+    rows = [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9],
+    ]
+    mock_pnames.return_value = ('ra', 'dar')
+    mock_cols.return_value = ('fu', 'bar')
+    mock_rows.return_value = rows
+    mock_csv_report.return_value = 'csv,report\n'
+
+    args, ledger_args = grid.get_args(['--csv', '--transpose'])
+    grid_report_output = grid.get_grid_report(args, ledger_args)
+
+    expected_rows = [
+        [3, 6, 9],
+        [1, 4, 7],
+        [2, 5, 8],
+    ]
+    mock_csv_report.assert_called_once_with(expected_rows)
     assert grid_report_output == 'csv,report\n'
     assert not mock_flat_report.called
 
@@ -775,3 +833,13 @@ def test_ledger_args(test_input, expected):
 def test_args_csv(test_input, expected):
     args, _ = grid.get_args(test_input)
     assert args.csv is expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (['-t'], True),
+    (['--transpose'], True),
+    ([], False),
+])
+def test_args_transpose(test_input, expected):
+    args, _ = grid.get_args(test_input)
+    assert args.transpose is expected

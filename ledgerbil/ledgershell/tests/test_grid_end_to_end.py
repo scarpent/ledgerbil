@@ -2,6 +2,9 @@ from .. import grid, runner
 from ...tests.filetester import FileTester
 from ...tests.helpers import OutputFileTester
 
+# This file actually runs ledger for a bit of integration testing.
+# We'll try to make sure test_grid.py continues to test 100% of grid.py.
+
 
 class MockSettings:
     LEDGER_COMMAND = ('ledger', )
@@ -41,5 +44,13 @@ def test_get_grid_report_csv_report_all():
     args, ledger_args = grid.get_args(['--csv'])
     report = grid.get_grid_report(args, tuple(ledger_args))
     helper = OutputFileTester(f'test_grid_end_to_end_csv_all')
+    helper.save_out_file(report)
+    helper.assert_out_equals_expected()
+
+
+def test_get_grid_report_csv_report_food_transposed():
+    args, ledger_args = grid.get_args(['--csv', '--transpose', 'food'])
+    report = grid.get_grid_report(args, tuple(ledger_args))
+    helper = OutputFileTester(f'test_grid_end_to_end_csv_food_transposed')
     helper.save_out_file(report)
     helper.assert_out_equals_expected()
