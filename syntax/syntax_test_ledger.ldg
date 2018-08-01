@@ -111,12 +111,12 @@
 #^^^ unscoped.indent
 #   ^^ comment.comment
 #     ^^^^^^^ support.class.tag-key
-#            ^^^^^^^^^^^ string.unquoted.tag-value
+#            ^^^^^^^^^^^ constant.character.tag-value-payee
 
 2018/07/25 blah  ; Payee: some person
 #              ^^^^ comment.comment
 #                  ^^^^^^^ support.class.tag-key
-#                         ^^^^^^^^^^^ string.unquoted.tag-value
+#                         ^^^^^^^^^^^ constant.character.tag-value-payee
 
 2018/07/24
 # <- variable.parameter.date
