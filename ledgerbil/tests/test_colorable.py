@@ -100,3 +100,13 @@ def test_equality():
     c = Colorable('red', 'testing')
     assert a == b
     assert a != c
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (('purple', 'hello',),
+        "Colorable('purple', 'hello', fmt='', bright=False)"),
+    (('green', 'dude', '>20', True),
+        "Colorable('green', 'dude', fmt='>20', bright=True)"),
+])
+def test_repr(test_input, expected):
+    assert repr(Colorable(*test_input)) == expected

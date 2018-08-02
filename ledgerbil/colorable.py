@@ -38,6 +38,12 @@ class Colorable:
         self.bright = bright
         self.format_string = fmt
 
+    def __repr__(self):
+        return (
+            f"Colorable('{self.my_color}', '{self.value}', "
+            f"fmt='{self.format_string}', bright={self.bright})"
+        )
+
     def __str__(self):
         ansi_str = '{start}{value:{fmt}}{end}'.format(
             start=self.ansi_sequence(
