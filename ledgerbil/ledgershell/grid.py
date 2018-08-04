@@ -41,7 +41,14 @@ def get_grid_report(args, ledger_args):
     if not row_headers:
         return ''
 
-    rows = get_rows(row_headers, columns, period_names, args.sort, args.limit)
+    rows = get_rows(
+        row_headers,
+        columns,
+        period_names,
+        args.sort,
+        args.limit,
+        args.total_only
+    )
 
     # Move account/payee name to first column for csv and/or transpose
     #  - Makes more sense for csv/spreadsheet
@@ -76,7 +83,8 @@ def get_csv_report(rows):
 def get_flat_report(rows):
     # 2 columns means has a single data column and account/payee column;
     # will have 4 or more columns otherwise, and have a total column;
-    # same deal for total row
+    # same deal for total row; however! note that we sneak in --total-only
+    # as if a regular single column (is also highlighted as a non-total col)
     has_total_column = len(rows[0]) > 3
     has_total_row = len(rows) > 3
 
@@ -341,7 +349,13 @@ def get_column_payees(period_name, ledger_args):
     return column
 
 
-def get_rows(row_headers, columns, period_names, sort=SORT_DEFAULT, limit=0):
+def get_rows(row_headers,
+             columns,
+             period_names,
+             sort=SORT_DEFAULT,
+             limit=0,
+             total_only=False):
+
     ACCOUNT_PAYEE_HEADER = EMPTY_VALUE
     ACCOUNT_PAYEE_COLUMN = -1
     TOTAL_COLUMN = -2
@@ -374,6 +388,12 @@ def get_rows(row_headers, columns, period_names, sort=SORT_DEFAULT, limit=0):
 
     headers = period_names + (TOTAL_HEADER, ACCOUNT_PAYEE_HEADER)
     rows = [list(headers)] + rows
+
+    if total_only:
+        new_rows = []
+        for row in rows:
+            new_rows.append(row[-2:])
+        return new_rows
 
     if len(period_names) == 1:
         for row in rows:
@@ -480,13 +500,18 @@ def get_args(args):
         default=0,
         help='limit the number of rows shown to top N'
     )
-    # todo: total only (in particular wanted for payees)
+    parser.add_argument(
+        '-T', '--total-only',
+        action='store_true',
+        default=False,
+        help='show only the total column (more useful for payees)'
+    )
     parser.add_argument(
         '-s', '--sort',
         type=str,
         default=SORT_DEFAULT,
-        help='sort by specified column header, or "row" to sort by account '
-             'or payee (default: by total)'
+        help='sort by specified column header, or "row" to '
+             'sort by account or payee (default: by total)'
     )
     parser.add_argument(
         '-t', '--transpose',

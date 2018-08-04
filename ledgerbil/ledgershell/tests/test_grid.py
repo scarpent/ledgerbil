@@ -407,6 +407,7 @@ def test_get_grid():
 
 
 expected_sort_rows_by_total = [
+    ['lemon', 'lime', grid.TOTAL_HEADER, grid.EMPTY_VALUE],
     [90, 50, 140, 'expenses: widgets'],
     [100, 10, 110, 'expenses: car: gas'],
     [0, 20, 20, 'expenses: unicorns'],
@@ -415,6 +416,7 @@ expected_sort_rows_by_total = [
 ]
 
 expected_sort_rows_by_row_header = [
+    ['lemon', 'lime', grid.TOTAL_HEADER, grid.EMPTY_VALUE],
     [100, 10, 110, 'expenses: car: gas'],
     [-50, 0, -50, 'expenses: car: maintenance'],
     [0, 20, 20, 'expenses: unicorns'],
@@ -423,6 +425,7 @@ expected_sort_rows_by_row_header = [
 ]
 
 expected_sort_rows_by_column_header = [
+    ['lemon', 'lime', grid.TOTAL_HEADER, grid.EMPTY_VALUE],
     [90, 50, 140, 'expenses: widgets'],
     [0, 20, 20, 'expenses: unicorns'],
     [100, 10, 110, 'expenses: car: gas'],
@@ -431,18 +434,30 @@ expected_sort_rows_by_column_header = [
 ]
 
 expected_sort_rows_by_total_with_limit = [
+    ['lemon', 'lime', grid.TOTAL_HEADER, grid.EMPTY_VALUE],
     [90, 50, 140, 'expenses: widgets'],
     [100, 10, 110, 'expenses: car: gas'],
     [190, 60, 250, grid.TOTAL_HEADER],
 ]
 
 
+expected_rows_total_only = [
+    [grid.TOTAL_HEADER, grid.EMPTY_VALUE],
+    [110, 'expenses: car: gas'],
+    [-50, 'expenses: car: maintenance'],
+    [20, 'expenses: unicorns'],
+    [140, 'expenses: widgets'],
+    [220, grid.TOTAL_HEADER],
+]
+
+
 @pytest.mark.parametrize('test_input, expected', [
-    ((grid.SORT_DEFAULT, 0), expected_sort_rows_by_total),
-    (('unrecognized', 0), expected_sort_rows_by_total),
-    (('row', 0), expected_sort_rows_by_row_header),
-    (('lime', 0), expected_sort_rows_by_column_header),
-    ((grid.SORT_DEFAULT, 2), expected_sort_rows_by_total_with_limit),
+    ((grid.SORT_DEFAULT, 0, False), expected_sort_rows_by_total),
+    (('unrecognized', 0, False), expected_sort_rows_by_total),
+    (('row', 0, False), expected_sort_rows_by_row_header),
+    (('lime', 0, False), expected_sort_rows_by_column_header),
+    ((grid.SORT_DEFAULT, 2, False), expected_sort_rows_by_total_with_limit),
+    (('row', 0, True), expected_rows_total_only),
 ])
 @mock.patch(__name__ + '.grid.get_grid')
 def test_get_rows(mock_get_grid, test_input, expected):
@@ -460,10 +475,16 @@ def test_get_rows(mock_get_grid, test_input, expected):
     }
     columns = None  # only needed by get_grid which is mocked
     period_names = ('lemon', 'lime')
-    sort, limit = test_input
-    actual = grid.get_rows(row_headers, columns, period_names, sort, limit)
-    expected_header = ['lemon', 'lime', grid.TOTAL_HEADER, grid.EMPTY_VALUE]
-    assert actual == [expected_header] + expected
+    sort, limit, total_only = test_input
+    actual = grid.get_rows(
+        row_headers,
+        columns,
+        period_names,
+        sort,
+        limit,
+        total_only
+    )
+    assert actual == expected
 
 
 @mock.patch(__name__ + '.grid.get_grid')
@@ -633,7 +654,7 @@ def test_get_grid_report_month(mock_pnames, mock_cols, mock_rows, mock_report):
         payees=False
     )
     mock_rows.assert_called_once_with(
-        row_headers, columns, period_names, grid.SORT_DEFAULT, 0
+        row_headers, columns, period_names, grid.SORT_DEFAULT, 0, False
     )
     mock_report.assert_called_once_with(rows)
 
@@ -668,7 +689,7 @@ def test_get_grid_report_year(mock_pnames, mock_cols, mock_rows, mock_report):
         payees=True
     )
     mock_rows.assert_called_once_with(
-        row_headers, columns, period_names, 'cloves', 20
+        row_headers, columns, period_names, 'cloves', 20, False
     )
 
 
@@ -977,3 +998,13 @@ def test_args_csv(test_input, expected):
 def test_args_transpose(test_input, expected):
     args, _ = grid.get_args(test_input)
     assert args.transpose is expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (['-T'], True),
+    (['--total-only'], True),
+    ([], False),
+])
+def test_args_total_only(test_input, expected):
+    args, _ = grid.get_args(test_input)
+    assert args.total_only is expected

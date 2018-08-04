@@ -202,3 +202,27 @@ def test_get_grid_report_csv_report_single_row_and_column_transposed():
         2018,57.4
     ''')
     assert report == expected
+
+
+def test_get_grid_report_csv_total_only():
+    args, ledger_args = grid.get_args(['--csv', 'food', '--total-only'])
+    report = grid.get_grid_report(args, tuple(ledger_args))
+    expected = dedent('''\
+        ,Total
+        expenses: food: groceries,92.03
+        expenses: food: dining out,42.17
+        Total,134.2
+    ''')
+    assert report == expected
+
+
+def test_get_grid_report_csv_total_only_transposed():
+    args, ledger_args = grid.get_args(
+        ['--csv', 'food', '--total-only', '--transpose']
+    )
+    report = grid.get_grid_report(args, tuple(ledger_args))
+    expected = dedent('''\
+        ,expenses: food: groceries,expenses: food: dining out,Total
+        Total,92.03,42.17,134.2
+    ''')
+    assert report == expected
