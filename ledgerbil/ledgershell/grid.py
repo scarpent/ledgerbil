@@ -28,7 +28,7 @@ def get_grid_report(args, ledger_args):
     if not period_names:
         return ''
 
-    # row headers: i.e. accounts or payees
+    # Row headers: i.e. accounts or payees
     row_headers, columns = get_columns(
         period_names,
         ledger_args,
@@ -36,35 +36,37 @@ def get_grid_report(args, ledger_args):
         current=current_period_name,
         payees=args.payees
     )
-    rows = get_rows(row_headers, columns, period_names, args.sort, args.limit)
-    if len(rows) == 2:
+    # Many queries with no results will come up empty on period names,
+    # but some, for example queries with "and" in them, may not
+    if not row_headers:
         return ''
+
+    rows = get_rows(row_headers, columns, period_names, args.sort, args.limit)
 
     # Move account/payee name to first column for csv and/or transpose
     #  - Makes more sense for csv/spreadsheet
     #  - Positions for move to top in transpose
-    #  - For regular flat report, is also good because date "row headers"
-    #    are a short and consistent length so we won't have a bunch of leading
-    #    whitespace as we do with variable length account and payee names
-    if args.csv or (args.csv and args.transpose):
+    #  - But we'll move back to right side for transposed flat report to
+    #    avoid a bunch of complications from handling differently there
+    if args.csv or args.transpose:
         for row in rows:
             row.insert(0, row.pop())
 
-        if args.transpose:   # todo: support transposing flat reports
-            rows = list(map(list, zip(*rows)))
+    if args.transpose:
+        rows = list(map(list, zip(*rows)))
 
     if args.csv:
         return get_csv_report(rows)
+
+    if args.transpose:
+        # Move account/payee back to the right side
+        for row in rows:
+            row.append(row.pop(0))
 
     return get_flat_report(rows)
 
 
 def get_csv_report(rows):
-    if rows[-1][0] == EMPTY_VALUE:
-        rows[-1][0] = TOTAL_HEADER
-    if rows[0][-1] == EMPTY_VALUE:
-        rows[0][-1] = TOTAL_HEADER
-
     output = StringIO()
     writer = csv.writer(output, lineterminator='\n')
     writer.writerows(rows)
@@ -72,42 +74,123 @@ def get_csv_report(rows):
 
 
 def get_flat_report(rows):
-    FMT_PERIOD = 14
-    ROW_HEADER = -1
-    ROW_TOTAL = -2
-    DATA_START = 1
-    DATA_END = -1
-    COL_HEADER = 0
-    COL_TOTAL = -1
+    # 2 columns means has a single data column and account/payee column;
+    # will have 4 or more columns otherwise, and have a total column;
+    # same deal for total row
+    has_total_column = len(rows[0]) > 3
+    has_total_row = len(rows) > 3
 
-    headers = [f'{pn:>{FMT_PERIOD}}' for pn in rows[COL_HEADER]]
-    report = f"{Colorable('white', ''.join(headers))}\n"
+    AMOUNT_WIDTH = 14  # width of columns with amounts
+    ACCOUNT_PAYEE_COLUMN = -1  # last column, aka row header
+    TOTAL_COLUMN = -2  # second to last column (*if* we have a total)
+    AMOUNT_COLUMN_START = 0  # inclusive
+    if has_total_column:
+        AMOUNT_COLUMN_END = TOTAL_COLUMN  # exclusive
+    else:
+        AMOUNT_COLUMN_END = ACCOUNT_PAYEE_COLUMN  # exclusive
 
-    for row in rows[DATA_START:DATA_END]:
-        row_header_f = Colorable('blue', row[ROW_HEADER])
+    DATA_ROW_START = 1
+    DATA_ROW_END = -1 if has_total_row else 2  # exclusive
+    HEADER_ROW = 0
+    FOOTER_ROW = -1 if has_total_row else None
+
+    headers = get_flat_report_header(
+        rows[HEADER_ROW][:ACCOUNT_PAYEE_COLUMN],
+        AMOUNT_WIDTH
+    )
+    report = str(Colorable('white', headers))
+
+    for row in rows[DATA_ROW_START:DATA_ROW_END]:
+        row_header_f = Colorable('blue', row[ACCOUNT_PAYEE_COLUMN])
         amounts_f = [util.get_colored_amount(
             amount,
-            colwidth=FMT_PERIOD,
+            colwidth=AMOUNT_WIDTH,
             positive='yellow',
             zero='grey'
-        ) for amount in row[:ROW_TOTAL]]
-        row_total_f = util.get_colored_amount(
-            row[ROW_TOTAL],
-            colwidth=FMT_PERIOD
-        )
+        ) for amount in row[AMOUNT_COLUMN_START:AMOUNT_COLUMN_END]]
+
+        if has_total_column:
+            row_total_f = util.get_colored_amount(
+                row[TOTAL_COLUMN],
+                colwidth=AMOUNT_WIDTH
+            )
+        else:
+            row_total_f = ''
+
         report += f"{''.join(amounts_f)}{row_total_f}  {row_header_f}\n"
 
-    dashes = [
-        f"{'-' * (FMT_PERIOD - 2):>{FMT_PERIOD}}" for x in rows[COL_TOTAL]
-        if x != EMPTY_VALUE
-    ]
-    col_totals_f = [
-        util.get_colored_amount(t, FMT_PERIOD) for t in rows[COL_TOTAL]
-        if t != EMPTY_VALUE
-    ]
+    if not has_total_row:
+        return report
+
+    footers = rows[FOOTER_ROW][:ACCOUNT_PAYEE_COLUMN]
+    dashes = [f"{'-' * (AMOUNT_WIDTH - 2):>{AMOUNT_WIDTH}}" for x in footers]
+    footers_f = [util.get_colored_amount(t, AMOUNT_WIDTH) for t in footers]
     report += f"{Colorable('white', ''.join(dashes))}\n"
-    report += f"{''.join(col_totals_f)}\n"
+    report += f"{''.join(footers_f)}\n"
+
     return report
+
+
+def get_flat_report_header(headers, width=14):
+    header_lists = get_flat_report_header_lists(headers, width)
+    report_header = ''
+    for i in range(len(header_lists[0])):
+        row = [line[i] for line in header_lists]
+        headers_f = [f'{header:>{width}}' for header in row]
+        report_header += f"{''.join(headers_f)}\n"
+
+    return report_header
+
+
+def get_flat_report_header_lists(headers, width=14):
+    """Attempts to break up account and payee names into chunks that
+       will read better when they are used as column headers"""
+
+    TRUNC_CHAR = '~'
+    ACCOUNT_TYPES = [
+        'assets:',
+        'liabilities:',
+        'income:',
+        'expenses:',
+        'equity:'
+    ]
+    HEADER_SPLIT = r'(?<=: )|(?<=:)(?=\S)|(?<= )'
+    padded_width = width - 3 if width >= 14 else width - 1
+
+    header_lists = []
+    for header in headers:
+        the_header = []
+        row_in_progress = []
+
+        parts = re.split(HEADER_SPLIT, header)
+        if parts[0].strip().lower() in ACCOUNT_TYPES:
+            # would like the top level account types to live on their own row
+            first_part = parts.pop(0).strip()
+            if len(first_part) > padded_width:
+                first_part = f'{first_part[:padded_width - 1]}{TRUNC_CHAR}'
+            the_header.append(first_part)
+
+        for part in parts:
+            if len(''.join(row_in_progress + [part.rstrip()])) <= padded_width:
+                row_in_progress.append(part)
+            else:
+                if row_in_progress:
+                    the_header.append(''.join(row_in_progress).strip())
+                if len(part.rstrip()) > padded_width:
+                    part = f'{part[:padded_width - 1]}{TRUNC_CHAR}'
+                row_in_progress = [part]
+
+        the_header.append(''.join(row_in_progress).strip())
+
+        header_lists.append(the_header)
+
+    # pad header row lists so they're all the same length
+    longest_list = max([len(hlist) for hlist in header_lists])
+    for header_list in header_lists:
+        for _ in range(longest_list - len(header_list)):
+            header_list.insert(0, '')
+
+    return header_lists
 
 
 def get_period_names(args, ledger_args, unit='year'):
@@ -259,25 +342,19 @@ def get_column_payees(period_name, ledger_args):
 
 
 def get_rows(row_headers, columns, period_names, sort=SORT_DEFAULT, limit=0):
-    if len(period_names) == 1:
-        has_total_column = False
-        if sort.lower() == SORT_DEFAULT:
-            sort = period_names[0]
-    else:
-        has_total_column = True
+    ACCOUNT_PAYEE_HEADER = EMPTY_VALUE
+    ACCOUNT_PAYEE_COLUMN = -1
+    TOTAL_COLUMN = -2
 
     grid = get_grid(row_headers, columns)
 
     rows = []
     for row_header in row_headers:
         amounts = [grid[row_header].get(pn, 0) for pn in period_names]
-        if has_total_column:
-            rows.append(amounts + [sum(amounts)] + [row_header])
-        else:
-            rows.append(amounts + [row_header])
+        rows.append(amounts + [sum(amounts)] + [row_header])
 
     if sort == 'row':
-        sort_index = -1
+        sort_index = ACCOUNT_PAYEE_COLUMN
         reverse_sort = False
     elif sort in period_names:
         sort_index = period_names.index(sort)
@@ -291,16 +368,18 @@ def get_rows(row_headers, columns, period_names, sort=SORT_DEFAULT, limit=0):
     if limit > 0:
         rows = rows[:limit]
 
-    if has_total_column:
-        headers = period_names + (TOTAL_HEADER, )
-    else:
-        headers = period_names
-    headers_list = list(headers) + [EMPTY_VALUE]  # add account/payee header
+    if len(rows) > 1:
+        totals = [sum(x) for x in list(zip(*rows))[:ACCOUNT_PAYEE_COLUMN]]
+        rows += [totals + [TOTAL_HEADER]]
 
-    # add empty value for account/payee footer as well
-    totals = [sum(x) for x in list(zip(*rows))[:-1]] + [EMPTY_VALUE]
+    headers = period_names + (TOTAL_HEADER, ACCOUNT_PAYEE_HEADER)
+    rows = [list(headers)] + rows
 
-    return [headers_list] + rows + [totals]
+    if len(period_names) == 1:
+        for row in rows:
+            del row[TOTAL_COLUMN]
+
+    return rows
 
 
 def get_grid(row_headers, columns):
@@ -413,7 +492,8 @@ def get_args(args):
         '-t', '--transpose',
         action='store_true',
         default=False,
-        help='transpose columns and rows (currently for csv only)'
+        help='transpose columns and rows (row sorting will '
+             'then apply to columns)'
     )
     parser.add_argument(
         '--csv',

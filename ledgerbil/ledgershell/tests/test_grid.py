@@ -6,6 +6,7 @@ from unittest import mock
 import pytest
 
 from .. import grid
+from ...colorable import Colorable
 from ...tests.helpers import OutputFileTester
 
 
@@ -410,7 +411,7 @@ expected_sort_rows_by_total = [
     [100, 10, 110, 'expenses: car: gas'],
     [0, 20, 20, 'expenses: unicorns'],
     [-50, 0, -50, 'expenses: car: maintenance'],
-    [140, 80, 220, grid.EMPTY_VALUE],
+    [140, 80, 220, grid.TOTAL_HEADER],
 ]
 
 expected_sort_rows_by_row_header = [
@@ -418,7 +419,7 @@ expected_sort_rows_by_row_header = [
     [-50, 0, -50, 'expenses: car: maintenance'],
     [0, 20, 20, 'expenses: unicorns'],
     [90, 50, 140, 'expenses: widgets'],
-    [140, 80, 220, grid.EMPTY_VALUE],
+    [140, 80, 220, grid.TOTAL_HEADER],
 ]
 
 expected_sort_rows_by_column_header = [
@@ -426,13 +427,13 @@ expected_sort_rows_by_column_header = [
     [0, 20, 20, 'expenses: unicorns'],
     [100, 10, 110, 'expenses: car: gas'],
     [-50, 0, -50, 'expenses: car: maintenance'],
-    [140, 80, 220, grid.EMPTY_VALUE],
+    [140, 80, 220, grid.TOTAL_HEADER],
 ]
 
 expected_sort_rows_by_total_with_limit = [
     [90, 50, 140, 'expenses: widgets'],
     [100, 10, 110, 'expenses: car: gas'],
-    [190, 60, 250, grid.EMPTY_VALUE],
+    [190, 60, 250, grid.TOTAL_HEADER],
 ]
 
 
@@ -461,80 +462,79 @@ def test_get_rows(mock_get_grid, test_input, expected):
     period_names = ('lemon', 'lime')
     sort, limit = test_input
     actual = grid.get_rows(row_headers, columns, period_names, sort, limit)
-    assert actual == [['lemon', 'lime', grid.TOTAL_HEADER, '']] + expected
+    expected_header = ['lemon', 'lime', grid.TOTAL_HEADER, grid.EMPTY_VALUE]
+    assert actual == [expected_header] + expected
 
 
 @mock.patch(__name__ + '.grid.get_grid')
-def test_get_rows_single_column_sort_total(mock_get_grid):
-    # having these sort differently for account name and amount ensures we're
-    # sorting on the mango column rather than the account name
+def test_get_rows_single_column(mock_get_grid):
     mock_get_grid.return_value = {
-        'expenses: widgets': {'mango': 50},
-        'expenses: unicorns': {'mango': 70},
+        'expenses: car: gas': {'lemon': 100},
+        'expenses: car: maintenance': {'lemon': 120},
     }
-    row_headers = {'expenses: unicorns', 'expenses: widgets'}
+    row_headers = {
+        'expenses: car: gas',
+        'expenses: car: maintenance',
+    }
     columns = None  # only needed by get_grid which is mocked
-    period_names = ('mango', )
-    # ToTaL tests case-insensitive comparison to SORT_DEFAULT
-    actual = grid.get_rows(row_headers, columns, period_names, 'ToTaL', 0)
+    period_names = ('lemon',)
+    actual = grid.get_rows(row_headers, columns, period_names)
     expected = [
-        ['mango', grid.EMPTY_VALUE],
-        [70, 'expenses: unicorns'],
-        [50, 'expenses: widgets'],
-        [120, grid.EMPTY_VALUE],
+        ['lemon', grid.EMPTY_VALUE],
+        [120, 'expenses: car: maintenance'],
+        [100, 'expenses: car: gas'],
+        [220, grid.TOTAL_HEADER],
     ]
     assert actual == expected
 
 
 @mock.patch(__name__ + '.grid.get_grid')
-def test_get_rows_single_column_sort_row(mock_get_grid):
-    # similar to test_get_rows_single_column_sort_total, these would sort
-    # differently by reversed amount so ensures we're sorting by row
+def test_get_rows_single_row(mock_get_grid):
     mock_get_grid.return_value = {
-        'expenses: widgets': {'mango': 70},
-        'expenses: unicorns': {'mango': 50},
+        'expenses: car: gas': {'lemon': 100, 'lime': 10},
     }
-    row_headers = {'expenses: unicorns', 'expenses: widgets'}
+    row_headers = {
+        'expenses: car: gas',
+    }
     columns = None  # only needed by get_grid which is mocked
-    period_names = ('mango', )
-    actual = grid.get_rows(row_headers, columns, period_names, 'row', 0)
+    period_names = ('lemon', 'lime')
+    actual = grid.get_rows(row_headers, columns, period_names)
     expected = [
-        ['mango', grid.EMPTY_VALUE],
-        [50, 'expenses: unicorns'],
-        [70, 'expenses: widgets'],
-        [120, grid.EMPTY_VALUE],
+        ['lemon', 'lime', grid.TOTAL_HEADER, grid.EMPTY_VALUE],
+        [100, 10, 110, 'expenses: car: gas'],
+    ]
+    assert actual == expected
+
+
+@mock.patch(__name__ + '.grid.get_grid')
+def test_get_rows_single_row_and_column(mock_get_grid):
+    mock_get_grid.return_value = {
+        'expenses: car: gas': {'lemon': 100},
+    }
+    row_headers = {
+        'expenses: car: gas',
+    }
+    columns = None  # only needed by get_grid which is mocked
+    period_names = ('lemon',)
+    actual = grid.get_rows(row_headers, columns, period_names)
+    expected = [
+        ['lemon', grid.EMPTY_VALUE],
+        [100, 'expenses: car: gas'],
     ]
     assert actual == expected
 
 
 def test_get_csv_report():
+    """csv report should turn whatever it's given into csv"""
     rows = [
-        [1, 2, 3, 4, ''],
+        [1, 2, 3, 4, 5],
         ['a', 'b', '"c"', 'd e f', 'g, h'],
         ['', 4, '', 6, 'glurg'],
     ]
     expected = dedent(f'''\
-        1,2,3,4,{grid.TOTAL_HEADER}
-        a,b,"""c""",d e f,"g, h"
-        {grid.TOTAL_HEADER},4,,6,glurg
-        ''')
-    cvs_report = grid.get_csv_report(rows)
-    assert cvs_report == expected
-
-
-def test_get_csv_report_non_empty_where_total_goes():
-    # expected that [0][-1] "5" and [-1][0] "x" will always be
-    # empty or already be grid.TOTAL_HEADER, but let's verify
-    # they aren't replaced if populated
-    rows = [
-        [1, 2, 3, 4, 5],
-        ['a', 'b', '"c"', 'd e f', 'g, h'],
-        ['x', 4, '', 6, 'glurg'],
-    ]
-    expected = dedent(f'''\
         1,2,3,4,5
         a,b,"""c""",d e f,"g, h"
-        x,4,,6,glurg
+        ,4,,6,glurg
         ''')
     cvs_report = grid.get_csv_report(rows)
     assert cvs_report == expected
@@ -553,6 +553,59 @@ def test_get_flat_report():
     helper = OutputFileTester(f'test_grid_flat_report')
     helper.save_out_file(report)
     helper.assert_out_equals_expected()
+
+
+def test_get_flat_report_single_column():
+    """The flat report should handle rows without a total column"""
+    rows = [
+        ['lemon', ''],
+        [2.65, 'expenses: widgets'],
+        [17.37, 'expenses: car: gas'],
+        [6.5, 'expenses: car: maintenance'],
+        [8, 'expenses: unicorns'],
+        [34.52, grid.TOTAL_HEADER],
+    ]
+    report = grid.get_flat_report(rows)
+    expected = (
+        '         lemon\n'
+        '        $ 2.65  expenses: widgets\n'
+        '       $ 17.37  expenses: car: gas\n'
+        '        $ 6.50  expenses: car: maintenance\n'
+        '        $ 8.00  expenses: unicorns\n'
+        '  ------------\n'
+        '       $ 34.52\n'
+    )
+    assert Colorable.get_plain_string(report) == expected
+
+
+def test_get_flat_report_single_row():
+    """The total row and column should be omitted if only one data point"""
+    rows = [
+        ['lemon', 'lime', grid.TOTAL_HEADER, ''],
+        [2.65, 500.1, 502.75, 'expenses: widgets'],
+        [2.65, 500.1, 502.75, grid.EMPTY_VALUE],
+    ]
+    report = grid.get_flat_report(rows)
+    expected = (
+        '         lemon          lime         Total\n'
+        '        $ 2.65      $ 500.10      $ 502.75  expenses: widgets\n'
+    )
+    assert Colorable.get_plain_string(report) == expected
+
+
+def test_get_flat_report_single_row_and_column():
+    """The total row (and dashes) should be omitted if only one data row"""
+    rows = [
+        ['lemon', ''],
+        [2.65, 'expenses: widgets'],
+        [2.65, grid.EMPTY_VALUE],
+    ]
+    report = grid.get_flat_report(rows)
+    expected = (
+        '         lemon\n'
+        '        $ 2.65  expenses: widgets\n'
+    )
+    assert Colorable.get_plain_string(report) == expected
 
 
 @mock.patch(__name__ + '.grid.get_flat_report')
@@ -593,7 +646,7 @@ def test_get_grid_report_year(mock_pnames, mock_cols, mock_rows, mock_report):
     # this test wants to make sure unit was set correctly, along
     # with passing through args depth, payee, and limit appropriately
     period_names, row_headers, columns, flat_report = (
-        ('paprika', 'garglic'), 'fennel', 'tarragon', 'parsley',
+        ('paprika', 'garlic'), 'fennel', 'tarragon', 'parsley',
     )
 
     mock_pnames.return_value = (period_names, 'celery')
@@ -617,6 +670,35 @@ def test_get_grid_report_year(mock_pnames, mock_cols, mock_rows, mock_report):
     mock_rows.assert_called_once_with(
         row_headers, columns, period_names, 'cloves', 20
     )
+
+
+@mock.patch(__name__ + '.grid.get_flat_report')
+@mock.patch(__name__ + '.grid.get_rows')
+@mock.patch(__name__ + '.grid.get_columns')
+@mock.patch(__name__ + '.grid.get_period_names')
+def test_get_grid_report_flat_transposed(mock_pnames, mock_cols,
+                                         mock_rows, mock_report):
+    period_names, row_headers, columns = (
+        ('garlic', 'paprika'), set('fennel'), 'tarragon',
+    )
+    rows = [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9],
+    ]
+    mock_rows.return_value = rows
+    mock_pnames.return_value = (period_names, None)
+    mock_cols.return_value = (row_headers, columns)
+
+    args, ledger_args = grid.get_args(['--transpose'])
+    grid.get_grid_report(args, ledger_args)
+
+    expected_rows = [
+        [6, 9, 3],
+        [4, 7, 1],
+        [5, 8, 2],
+    ]
+    mock_report.assert_called_once_with(expected_rows)
 
 
 @mock.patch(__name__ + '.grid.get_csv_report')
@@ -686,20 +768,72 @@ def test_get_grid_report_no_period_names(mock_ledger_output):
     assert grid.get_grid_report(args, tuple(ledger_args)) == ''
 
 
-@mock.patch(__name__ + '.grid.get_rows')
 @mock.patch(__name__ + '.grid.get_columns')
 @mock.patch(__name__ + '.grid.get_period_names')
-def test_get_grid_report_no_results(mock_pnames, mock_cols, mock_rows):
+def test_get_grid_report_no_results(mock_pnames, mock_cols):
     period_names, row_headers, columns = (
-        ('paprika', 'garglic'), 'fennel', 'tarragon',
+        ('paprika', 'garlic'), set(), 'tarragon',
     )
 
     mock_pnames.return_value = (period_names, 'celery')
     mock_cols.return_value = (row_headers, columns)
-    mock_rows.return_value = [('2016', '2017', '2018', 'total'), ()]
 
     args, ledger_args = grid.get_args([])
     assert grid.get_grid_report(args, ledger_args) == ''
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    ((['2017'], 14), '          2017'),
+    ((['2017'], 20), '                2017'),
+    ((['abc', 'xyz'], 5), '  abc  xyz'),
+    ((['a b c', 'x & z'], 6), ' a b c x & z'),
+    ((['a:b:c:d', 'l:m:n:o:p'], 12), '     a:b:c:d   l:m:n:o:p'),
+    ((['abc: xyz', '123: 456'], 10), '  abc: xyz  123: 456'),
+    ((['a', 'b', 'c'], 3), '  a  b  c'),
+    ((['a', 'b', 'c', 'd', 'ef'], 4), '   a   b   c   d  ef'),
+    ((['Assets: Bob'], 12), '     Assets:\n         Bob'),
+    ((['a:b:c', 'x:y'], 3), ' a:   \n b: x:\n  c  y'),
+])
+def test_get_flat_report_header(test_input, expected):
+    assert grid.get_flat_report_header(*test_input) == f"{expected}\n"
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (([''], 5), [['']]),  # one header with one item
+    ((['', ''], 5), [[''], ['']]),  # two headers with one item each
+    ((['abc'], 5), [['abc']]),
+    ((['abc: xyz'], 10), [['abc: xyz']]),
+    ((['abc:xyz'], 10), [['abc:xyz']]),
+    ((['abc:xyz'], 5), [['abc:', 'xyz']]),
+    ((['abcd:xyz'], 5), [['abc~', 'xyz']]),
+    ((['Assets: Bob'], 20), [['Assets:', 'Bob']]),
+    ((['Assets:Bob'], 20), [['Assets:', 'Bob']]),
+    ((['Assets Bob'], 20), [['Assets Bob']]),
+    ((['LIABILITIES: BOB'], 20), [['LIABILITIES:', 'BOB']]),
+    ((['income: bob'], 20), [['income:', 'bob']]),
+    ((['expenses: bob'], 20), [['expenses:', 'bob']]),
+    ((['equity: bob'], 20), [['equity:', 'bob']]),
+    ((['abc: xyz: 1234: 1234'], 5), [['abc:', 'xyz:', '123~', '1234']]),
+    ((['expenses: abc'], 5), [['exp~', 'abc']]),
+    ((['expenses: fu bar: scoob'], 16), [['expenses:', 'fu bar: scoob']]),
+    ((['expenses: fu: bar scooby'], 16), [['expenses:', 'fu: bar', 'scooby']]),
+    ((['crate & barrel'], 14), [['crate &', 'barrel']]),
+    ((['struncated & white'], 8), [['strunc~', '& white']]),
+    ((['white & struncated'], 8), [['white &', 'strunc~']]),
+    ((['2017', '2018'], 14), [['2017'], ['2018']]),
+    ((['2017', '2018', 'Total'], 14), [['2017'], ['2018'], ['Total']]),
+    ((['2017/01', '2017/02'], 14), [['2017/01'], ['2017/02']]),
+    ((['abc: xyz', 'def: lmn'], 5), [['abc:', 'xyz'], ['def:', 'lmn']]),
+    ((['a', 'a: b'], 3), [['', 'a'], ['a:', 'b']]),
+    (
+        (['a', 'a b', 'a b c'], 2),
+        [['', '', 'a'], ['', 'a', 'b'], ['a', 'b', 'c']]
+    ),
+    ((['investments'], 14), [['investments']]),
+    ((['investmentsx'], 14), [['investment~']]),
+])
+def test_get_flat_report_header_lists(test_input, expected):
+    assert grid.get_flat_report_header_lists(*test_input) == expected
 
 
 @mock.patch(__name__ + '.grid.print')
