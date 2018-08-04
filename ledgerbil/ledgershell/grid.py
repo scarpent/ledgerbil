@@ -162,7 +162,7 @@ def get_flat_report_header_lists(headers, width=14):
         'expenses:',
         'equity:'
     ]
-    HEADER_SPLIT = r'(?<=: )|(?<=:)(?=\S)|(?<= )'
+    HEADER_SPLIT = r'(?<=: )|(?<=:)(?=\S)|(?<=[- ])'
     padded_width = width - 3 if width >= 14 else width - 1
 
     header_lists = []

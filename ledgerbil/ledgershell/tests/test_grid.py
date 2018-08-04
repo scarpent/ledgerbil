@@ -852,6 +852,8 @@ def test_get_flat_report_header(test_input, expected):
     ),
     ((['investments'], 14), [['investments']]),
     ((['investmentsx'], 14), [['investment~']]),
+    ((['hyphenated-name'], 14), [['hyphenated-', 'name']]),
+    ((['non-breaking-hyphen'], 24), [['non-breaking-hyphen']]),
 ])
 def test_get_flat_report_header_lists(test_input, expected):
     assert grid.get_flat_report_header_lists(*test_input) == expected
