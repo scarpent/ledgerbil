@@ -526,6 +526,12 @@ def get_args(args):
         default=False,
         help='output as csv'
     )
+    parser.add_argument(
+        '--no-color',
+        action='store_true',
+        default=False,
+        help='output without color'
+    )
 
     # workaround for problems with nargs=argparse.REMAINDER
     # see: https://bugs.python.org/issue17050
@@ -534,4 +540,7 @@ def get_args(args):
 
 def main(argv=None):
     args, ledger_args = get_args(argv or [])
-    print(get_grid_report(args, tuple(ledger_args)), end='')
+    report = get_grid_report(args, tuple(ledger_args))
+    if args.no_color and not args.csv:
+        report = Colorable.get_plain_string(report)
+    print(report, end='')

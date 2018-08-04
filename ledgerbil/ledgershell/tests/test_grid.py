@@ -863,9 +863,35 @@ def test_get_flat_report_header_lists(test_input, expected):
 @mock.patch(__name__ + '.grid.get_grid_report')
 def test_main(mock_get_grid_report, mock_print):
     mock_get_grid_report.return_value = 'bananas!'
-    args, unknown = grid.get_args(['-y', 'xyz'])
-    grid.main(['-y', 'xyz'])
-    mock_get_grid_report.assert_called_once_with(args, ('xyz', ))
+    test_args = ('-y', 'xyz')
+    args, unknown = grid.get_args(list(test_args))
+    grid.main(list(test_args))
+    mock_get_grid_report.assert_called_once_with(args, (test_args[1], ))
+    mock_print.assert_called_once_with('bananas!', end='')
+
+
+@mock.patch(__name__ + '.grid.print')
+@mock.patch(__name__ + '.grid.get_grid_report')
+def test_main_no_color(mock_get_grid_report, mock_print):
+    mock_get_grid_report.return_value = '\x1b[0;33mbananas!\x1b[0m'
+    test_args = ('--no-color',)
+    args, unknown = grid.get_args(list(test_args))
+    grid.main(list(test_args))
+    mock_get_grid_report.assert_called_once_with(args, tuple())
+    mock_print.assert_called_once_with('bananas!', end='')
+
+
+@mock.patch(__name__ + '.grid.Colorable.get_plain_string')
+@mock.patch(__name__ + '.grid.print')
+@mock.patch(__name__ + '.grid.get_grid_report')
+def test_main_csv_no_color(mock_get_grid_report, mock_print, mock_colorable):
+    # csv is already not colored so no reason to uncolor
+    mock_get_grid_report.return_value = 'bananas!'
+    test_args = ('--no-color', '--csv')
+    args, unknown = grid.get_args(list(test_args))
+    grid.main(list(test_args))
+    assert not mock_colorable.called
+    mock_get_grid_report.assert_called_once_with(args, tuple())
     mock_print.assert_called_once_with('bananas!', end='')
 
 
@@ -1010,3 +1036,12 @@ def test_args_transpose(test_input, expected):
 def test_args_total_only(test_input, expected):
     args, _ = grid.get_args(test_input)
     assert args.total_only is expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (['--no-color'], True),
+    ([], False),
+])
+def test_args_no_color(test_input, expected):
+    args, _ = grid.get_args(test_input)
+    assert args.no_color is expected
