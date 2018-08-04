@@ -213,4 +213,4 @@ def get_args(args):
 
 def main(argv=None):
     args = get_args(argv or [])
-    print(get_investment_report(args))
+    print(get_investment_report(args), end='')

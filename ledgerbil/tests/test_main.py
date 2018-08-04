@@ -52,11 +52,3 @@ def test_main_portfolio(mock_portfolio_main):
     mock_portfolio_main.assert_called_once_with([])
     main.main(['portfolio', '-a', 'argh'])
     mock_portfolio_main.assert_called_with(['-a', 'argh'])
-
-
-@mock.patch('main.prices.main')
-def test_main_prices(mock_prices_main):
-    main.main(['prices'])
-    mock_prices_main.assert_called_once_with([])
-    main.main(['prices', '-f', 'blah'])
-    mock_prices_main.assert_called_with(['-f', 'blah'])

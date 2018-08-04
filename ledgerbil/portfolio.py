@@ -589,7 +589,7 @@ def get_args(args):
     description = dedent('''\
         Portfolio! This is currently independent of ledger data although
         eventually some integration would be swell. Uses a json data file
-        to give you a yearly view of your passive investing portfolio.
+        to give you a simple yearly view of your investing portfolio.
     ''')
     parser = argparse.ArgumentParser(
         prog=program,
@@ -597,7 +597,7 @@ def get_args(args):
         formatter_class=(lambda prog: argparse.RawTextHelpFormatter(
             prog,
             max_help_position=40,
-            width=100
+            width=71
         ))
     )
     parser.add_argument(

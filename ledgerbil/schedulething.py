@@ -96,9 +96,7 @@ class ScheduleThing(LedgerThing):
         # ';; schedule ; monthly ; 12th 21st eom; 3 ; auto'
         #        -->
         # ['', '', 'schedule', 'monthly', '12th 21st eom', '3', 'auto']
-        configitems = [
-            x.strip() for x in line.split(ScheduleThing.SEPARATOR)
-        ]
+        configitems = [x.strip() for x in line.split(ScheduleThing.SEPARATOR)]
 
         if len(configitems) < 4:
             raise LdgSchedulerError(
@@ -124,10 +122,7 @@ class ScheduleThing(LedgerThing):
             '(weekly|monthly|bimonthly|quarterly|biannual|yearly)'
         )
 
-        match = re.match(
-            interval_uom_regex,
-            configitems[interval_uom_idx]
-        )
+        match = re.match(interval_uom_regex, configitems[interval_uom_idx])
         if not match:
             raise LdgSchedulerError(
                 'Invalid schedule thing config:\n{line}\nInterval UOM '

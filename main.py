@@ -2,7 +2,7 @@
 import sys
 
 from ledgerbil import ledgerbil, portfolio
-from ledgerbil.ledgershell import grid, investments, passthrough, prices
+from ledgerbil.ledgershell import grid, investments, passthrough
 
 
 def main(argv=None):
@@ -18,7 +18,6 @@ def main(argv=None):
         'pass': passthrough,
         'port': portfolio,
         'portfolio': portfolio,
-        'prices': prices,
     }
 
     if command not in other:

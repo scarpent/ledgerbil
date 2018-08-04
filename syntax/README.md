@@ -22,4 +22,8 @@ More about Sublime Text syntax definitions:
 `.sublime-syntax` is a newer syntax definition format. Still included
 here are the older tmLanguage files. The `ledger.JSON-tmLanguage` file
 is used to generate the XML `.tmLanguage` file, which likewise would be
-placed in the User dir.
+placed in the `User` dir.
+
+Syntax tests can be used on both newer and older syntax formats, but
+this test file only works with the `.sublime-syntax` file because I
+changed a lot of the regular expressions and scope names.

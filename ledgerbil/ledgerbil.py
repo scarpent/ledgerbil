@@ -84,7 +84,6 @@ def get_args(args):
                 investments (or inv)    nicer view of shares and dollars
                 pass                    passthrough to ledger
                 portfolio (or port)     standalone investment tracker
-                prices                  download mutual fund prices
         ''')
 
     parser = argparse.ArgumentParser(

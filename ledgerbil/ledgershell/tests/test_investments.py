@@ -359,6 +359,7 @@ def test_main(mock_get_lines, mock_print):
     output = investments.Colorable.get_plain_string(mock_print.call_args[0][0])
     expected = '15.0 qwrty         $ 150.00   assets: ira: glass idx'
     assert output.strip() == expected
+    assert mock_print.call_args[1] == {'end': ''}
 
 
 @mock.patch(__name__ + '.investments.get_args')

@@ -1,7 +1,9 @@
 """
 These are for the "ledgershell" commands that use the ledger client.
 The scheduler, reconciler, and sort comands take all their input from
-command line arguments.
+command line arguments. EXCEPT, reconciler does want to use
+RECONCILER_CACHE_FILE now. It will work, but print errors related
+to this.
 """
 import os
 
@@ -37,13 +39,6 @@ class Settings:
 
     INVESTMENT_DEFAULT_ACCOUNTS = '401k or ira or mutual'
     INVESTMENT_DEFAULT_END_DATE = 'tomorrow'
-
-    # Price downloader (for mutual funds)
-    SYMBOLS = [
-        'fusex',    # fidelity 500 index
-        'vbtlx',    # vanguard total bond index
-    ]
-    PRICE_FILE_FORMAT = 'P {date} {symbol:10} ${price}\n'
 
     # When querying ledger with accounts (say, from reconciler),
     # will expand these regex patterns (since ledger doesn't

@@ -8,27 +8,27 @@
     ],
     "years": {
       "2016": {
-        "price": 30.23,
-        "shares": 5000.78,
-        "contributions": 6000.79,
-        "transfers": 120000,
+        "price": 21.23,
+        "shares": 1000.78,
+        "contributions": 1234.67,
+        "transfers": 10000,
         "note": "optional..."
       },
       "2019": {
-        "price": 39.11,
-        "shares": 8321,
-        "contributions": 7800,
+        "price": 34.11,
+        "shares": 1345.67,
+        "contributions": 600,
         "transfers": -5000
       },
       "2017": {
-        "price": 34.19,
-        "shares": 6000.2,
-        "contributions": 7891.2
+        "price": 33.19,
+        "shares": 1300.45,
+        "contributions": 750
       },
       "2020": {
         "price": 29.99,
-        "shares": 8500,
-        "contributions": 2000.1
+        "shares": 1411.56,
+        "contributions": 450
       }
     }
   },
@@ -41,15 +41,15 @@
     ],
     "years": {
       "2016": {
-        "price": 119.76,
-        "shares": 3750,
-        "contributions": 10000
+        "price": 101.76,
+        "shares": 375,
+        "contributions": 7000
       },
       "2015": {
         "price": 110.31,
-        "shares": 3000,
-        "contributions": 10000,
-        "transfers": 300000
+        "shares": 300,
+        "contributions": 1000,
+        "transfers": 29000
       }
     }
   },
