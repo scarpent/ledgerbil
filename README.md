@@ -26,7 +26,7 @@ and look upon:
 
 ![ledger file with syntax highlighting](docs/images/ledger-syntax-highlighting.png "Syntax Highlighting")
 
-Some of Ledgerbil's features:
+Some of ledgerbil's features:
 
   * Automate the entry of recurring transactions via a scheduler.
   * Interactively reconcile accounts.
@@ -58,7 +58,7 @@ It will be best to feed it files that run cleanly through ledger-cli.
 Note to Prospective Users and Contributors
 ------------------------------------------
 
-In many ways, Ledgerbil is highly customized and tuned to my own usage
+In many ways, ledgerbil is highly customized and tuned to my own usage
 of ledger. It will be fine with me if I'm the only one that ever uses
 it.
 
@@ -80,12 +80,15 @@ good, I might not understand it enough to feel comfortable maintaining
 it. Please let me know if there's something you'd like to do so I can
 help you decide if it's worth your time.
 
-The state of documentation for Ledgerbil reflects my doubts on whether
+The state of documentation for ledgerbil reflects my doubts on whether
 it will in fact be useful and used by others. I'd like to have great,
 thorough documentation, but if it's just me, is it worth my time? I
 think you'll find that several things are well-documented and others not
 at all, and I'm sorry about that if you are searching and finding the
 docs lacking.
+
+Post Preamble
+-------------
 
 ***And now!*** Here is the current state of --help, which reflects the
 current state of exciting features:
@@ -204,17 +207,19 @@ an entry on that date (*I think*), but then rotate between the other
 two. The schedule entry will always show the date of the next entry to
 be added.
 
-What will this transaction do when confronted with February? It will use
-the 28th or the 29th. You can also specify `eom` (end of month) which
-will use the last day of the month, or `eom30` which will use the 30th
-for every month except February, in which it will again fall back to the
-28th or the 29th.
+What will this scheduled transaction do when confronted with February?
+It will use the 28th or the 29th. You can also specify `eom` (end of
+month) which will use the last day of the month, or `eom30` which will
+use the 30th for every month except February, in which it will again
+fall back to the 28th or the 29th.
 
 The `days` list can also be space delimited, e.g.
 
     ;; schedule ; monthly ; 15 30
 
-Finally, the `days` list is only used for `monthly` schedules. Perhaps in the future we'll support multiple days of the week for `weekly` schedules.
+Finally, the `days` list is only used for `monthly` schedules. Perhaps
+in the future we'll support multiple days of the week for `weekly`
+schedules.
 
 The `interval` spot can be used to specify some other interval, e.g.:
 
@@ -225,18 +230,21 @@ The `interval` spot can be used to specify some other interval, e.g.:
     l: credit card: mega                    $-18
 ```
 
-You can also use `6` there. Ledgerbil will pick out the first group
-of digits it finds.
+You can also simply use `6` there. Ledgerbil will pick out the first
+group of digits it finds.
 
 The last spot for `notes` isn't parsed by ledgerbil. I sometimes use it
-to note when a scheduled item isn't a recurring payment.
+to note when a scheduled item isn't an automated payment.
 
 ## --reconcile ACCT
 
-Interactively reconcile the account matching ACCT string.
+Interactively reconcile the account matching `ACCT` regex.
 
-Relies on `settings.py` for `RECONCILER_CACHE_FILE` setting. See below
-for more on the settings file.
+Relies on `settings.py` for the `RECONCILER_CACHE_FILE` setting. See
+below for more on the settings file. If you don't create the settings
+file you'll get the error:
+
+    ModuleNotFoundError: No module named 'ledgerbil.settings'
 
 Help is available at the interactive prompt:
 
@@ -249,7 +257,7 @@ account  finish  list  quit    show       unmark
 aliases  help    mark  reload  statement
 ```
 
-As mentioned above, this is targeted for my own usage, although may be
+As mentioned above, this is targeted for my own use, although may be
 suitable for those with similar needs, perhaps requiring a bit of work.
 (I didn't spend time on some scenarios that I would address if,
 miraculously, someone else cared about them. And there are other
@@ -268,7 +276,7 @@ treated as one amount and line item while reconciling. If they have
 different statuses initially, there'll be an error. (When in sync,
 they'll be updated to pending/cleared status together.)
 
-The reconciler will total up all cleared (\*) transactions to get what
+The reconciler will total up all cleared (`*`) transactions to get what
 should be the "last statement balance," but only shows pending and
 uncleared transactions.
 
@@ -329,23 +337,25 @@ exception of pending transactions. All pending transactions are included
 regardless of date because they're needed to make the math work.
 
 You can mark and unmark transactions without the ending balance but you
-can't finish balancing and convert pending transactions to cleared.
+can't finish balancing and convert pending transactions until it's set.
 
 Reconciler doesn't understand asset versus liability accounts so you'll
 want to give a positive amount for assets and negative for liability,
 assuming the normal state of these kinds of accounts.
 
-Statement ending info is saved to `~/.ledgerbil` and restored when the
-reconciler is restarted.
+Statement ending info is saved to `RECONCILER_CACHE_FILE` (from
+`settings.py`) and restored when the reconciler is restarted.
 
 ### mark / unmark
 
-Set transactions as pending (!) or remove the pending mark. You can
-enter multiple lines, "all", or give a single number by itself with no
-command.
+Set transactions as pending (`!`) or remove the pending mark. You can
+enter one or more lines, or "all" for all lines. Giving a single number
+by itself with no command will be interpreted as a mark command.
 
 ```
-> mark 1 2  (or)  1  (or)
+> mark 1 2
+
+(or)
 
 > mark all
 
@@ -354,6 +364,14 @@ command.
 
 ending date: 2016/10/29 ending balance: $70.00 cleared: $100.00
 to zero: $0.00
+
+> unmark 2
+
+1. 2016/10/26    $-10.00 ! lorem
+2. 2016/10/29    $-20.00   ipsum
+
+ending date: 2016/10/29 ending balance: $70.00 cleared: $100.00
+to zero: $ -20.00
 ```
 
 The ledger file is saved after every mark/unmark command.
@@ -362,8 +380,9 @@ Ledger allows a lot of flexibility in file formatting, and in general,
 ledgerbil attempts to preserve all formatting, but in this case, for
 simplicity's sake, ledgerbil uses a four space indent for transaction
 entries, with the `!` or `*` going in the third "space" when present.
-(It wouldn't be *that* hard to make it smarter about this, but I didn't
-want to deal with some edge cases in the initial implementation.) (And
+
+It wouldn't be *that* hard to make it smarter about this, but I didn't
+want to deal with some edge cases in the initial implementation. (And
 note, again, that the reconciler only works with individual account
 entries; never the whole transaction on the top line.)
 
@@ -437,10 +456,15 @@ Intended as a convenience, but which can also be a nuisance, the
 `settings.py` file is meant to have all the information need to run
 ledger so you don't have to pass in everything every time. And, related
 to the ambivalence about documentation mentioned above, There isn't any
-documentation for this file yet. Just
-[`settings.py.example`](/ledgerbil/settings.py.example) which you can
-copy to `settings.py` in the same directory and then modify for your own
-needs.
+documentation for this file yet. Just [`settings.py.example`][settings]
+which you can copy to `settings.py` in the same directory and then
+modify for your own needs.
+
+[settings]: /ledgerbil/settings.py.example
+
+To run the interactive reconciler, you only need
+`RECONCILER_CACHE_FILE`. To use the reconciler's `-R` feature you'll
+need more ledger stuff.
 
 ### grid
 
