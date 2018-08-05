@@ -38,13 +38,43 @@ A grid report:
 
 ![grid report example](docs/images/grid-report.png)
 
+```
+          2017          2018         Total
+       $ 34.63       $ 57.40       $ 92.03  expenses: food: groceries
+        $ 0.00       $ 42.17       $ 42.17  expenses: food: dining out
+       $ 17.73       $ 12.00       $ 29.73  expenses: food: take home
+  ------------  ------------  ------------
+       $ 52.36      $ 111.57      $ 163.93
+```
+
 A grid report with rows and columns transposed:
 
 ![grid report transposed example](docs/images/grid-report-transposed.png)
 
+```
+     expenses:     expenses:     expenses:              
+         food:         food:    food: take              
+     groceries    dining out          home         Total
+       $ 34.63        $ 0.00       $ 17.73       $ 52.36  2017
+       $ 57.40       $ 42.17       $ 12.00      $ 111.57  2018
+  ------------  ------------  ------------  ------------
+       $ 92.03       $ 42.17       $ 29.73      $ 163.93
+```
+
 An investment report:
 
 ![investment example](docs/images/investment-report.png)
+
+```
+                         $ 1,933.02   assets
+                         $ 1,583.02      401k
+      11.643 abcdx         $ 945.76        big co 500 idx
+      22.357 lmnop         $ 448.26        bonds idx
+                           $ 189.00        cash
+        15.0 qwrty         $ 150.00      ira: glass idx
+         5.0 yyzxx         $ 200.00      mutual: total idx
+```
+
 
 I don't use many of ledger's features and options, so your mileage may
 vary for your own data. Please backup before trying, or make sure your
@@ -285,6 +315,17 @@ subtracting the pending `!` and cleared `*` symbols to the white space
 in front of posting lines within a transaction, but see the note below
 about *how* it does this.
 
+Reconciliation also works for commodities like `abcdx` and `lmnop` here:
+
+```
+2017/11/15 zombie investments
+  * a: 401k: big co 500 idx            1.745 abcdx @   $81.23
+    a: 401k: bonds idx                 2.357 lmnop @   $20.05
+    a: 401k: cash             $-189
+```
+
+The quantity will be used rather than a dollar amount in this case.
+
 Let's see the reconciler in action. For an example file:
 
 ```
@@ -409,8 +450,8 @@ to restart the program.
 
 ### finish
 
-If "to zero" is 0, this command will update all pending (!) entries for
-the account to cleared (\*) and save the file.
+If "to zero" is 0, this command will update all pending (`!`) entries for
+the account to cleared (`*`) and save the file.
 
 ```
 > finish
@@ -425,9 +466,7 @@ in the cache and shown when you reconcile this account, which may be
 helpful for catching mistakes you make between visits to the reconciler.
 There is also the `-R` option for ledgerbil which will go through all
 your cached entries and compare to ledger's `--cleared` totals to see if
-things have gotten out of sync. (I'm always fiddling with my ledger
-files and recategorizing thing so use this to make sure balances on
-assets and liabilities still add up.)
+things have gotten out of sync somehow.
 
 ## "ledgershell" (other commands)
 
@@ -569,7 +608,21 @@ things it will produce is a report like this:
 
 ![portfolio report example](docs/images/portfolio-report.png)
 
-It is a currently breathtakingly manual process to add the data to the
+```
+6 years, 4 accounts: 401k: big co 500 idx, 401k: bonds idx, ...
+
+year    contrib   transfers        value   gain %     gain val    all %    3yr %    5yr %  
+2015    $ 1,000    $ 29,000     $ 33,093    20.62      $ 3,093    20.62      
+2016    $ 8,235    $ 10,000     $ 59,407    19.14      $ 8,079    19.88      
+2017      $ 750                 $ 81,322    35.40     $ 21,165    24.84    24.84    
+2018                            $ 81,322     0.00          $ 0    18.11    17.28    
+2019      $ 600    $ -5,000     $ 84,061     9.02      $ 7,139    16.23    13.86    16.23  
+2020      $ 450                 $ 80,493    -4.77     $ -4,018    12.44     1.26    10.87  
+       $ 11,035    $ 34,000                           $ 35,458
+```
+
+
+It is currently a breathtakingly manual process to add data to the
 `portfolio.json` file and  I imagine few people would want to bother
 with it, even if it made any sense.
 
