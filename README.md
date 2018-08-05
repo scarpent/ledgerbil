@@ -659,5 +659,3 @@ optional arguments:
 ### license
 
 GPL v3 or greater
-
-
