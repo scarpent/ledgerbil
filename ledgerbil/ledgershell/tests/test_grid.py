@@ -187,7 +187,7 @@ def test_get_column_accounts_differing_totals(mock_ledger_output, mock_print):
     mock_print.assert_called_once_with(message, file=sys.stderr)
 
 
-@pytest.mark.parametrize('test_input', [-2.5, 2.5251, 2.4749])
+@pytest.mark.parametrize('test_input', [-2.50, 2.44, 2.444, 2.56, 2.556])
 @mock.patch(__name__ + '.grid.sum')
 @mock.patch(__name__ + '.grid.print')
 @mock.patch(__name__ + '.grid.get_ledger_output')
@@ -195,7 +195,7 @@ def test_get_column_accounts_floating_point_diffs_not_ok(mock_ledger_output,
                                                          mock_print,
                                                          mock_sum,
                                                          test_input):
-    """should warn about rounded total difference greater than .02"""
+    """should warn about rounded total difference greater than .05"""
     output = dedent('''\
                       $ 1.25  expenses: car: gas
                       $ 1.25  expenses: car: maintenance
@@ -220,7 +220,7 @@ def test_get_column_accounts_floating_point_diffs_not_ok(mock_ledger_output,
     mock_print.assert_called_once_with(message, file=sys.stderr)
 
 
-@pytest.mark.parametrize('test_input', [2.52, 2.525, 2.5, 2.48, 2.475])
+@pytest.mark.parametrize('test_input', [2.55, 2.554, 2.5, 2.45, 2.449])
 @mock.patch(__name__ + '.grid.sum')
 @mock.patch(__name__ + '.grid.warn_column_total')
 @mock.patch(__name__ + '.grid.get_ledger_output')
@@ -228,7 +228,7 @@ def test_get_column_accounts_floating_point_diffs_ok(mock_ledger_output,
                                                      mock_warn,
                                                      mock_sum,
                                                      test_input):
-    """should not warn about rounded total diff less than or equal to .02"""
+    """should not warn about rounded total diff less than or equal to .05"""
     # within a penny seems close enough
     output = dedent('''\
                       $ 1.25  expenses: car: gas
