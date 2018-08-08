@@ -227,7 +227,7 @@ contexts:
         2: support.class.tag-without-value
         3: comment.comment
       # make payee name in tag be purple as with payee directive
-    - match: "(\\s*;\\s*)(Payee: )(.*)$"
+    - match: "(\\s*;\\s*)([Pp]ayee: )(.*)$"
       captures:
         1: comment.comment
         2: support.class.tag-key

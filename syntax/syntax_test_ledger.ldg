@@ -118,6 +118,12 @@
 #                  ^^^^^^^ support.class.tag-key
 #                         ^^^^^^^^^^^ constant.character.tag-value-payee
 
+    ; payee: lower case payee
+#^^^ unscoped.indent
+#   ^^ comment.comment
+#     ^^^^^^^ support.class.tag-key
+#            ^^^^^^^^^^^^^^^^ constant.character.tag-value-payee
+
 2018/07/24
 # <- variable.parameter.date
 #^^^^^^^^^^ variable.parameter.date
