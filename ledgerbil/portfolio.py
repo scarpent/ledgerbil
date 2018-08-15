@@ -640,7 +640,7 @@ def get_args(args):
     parser.add_argument(
         '-l', '--list',
         action='store_true',
-        help='list account names'
+        help='list account names and labels'
     )
 
     return parser.parse_args(args)
