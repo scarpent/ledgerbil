@@ -17,10 +17,7 @@ that data."
 
 That is, no automated tool within the Ledger program itself. But you can
 create or find tools to help with various data entry and reconciliation
-chores, or to report on your data in ways not supported by ledger. (One
-of my goals with ledgerbil is that it shouldn't modify or reformat your
-journal entries except in limited and expected ways which are called
-out below.)
+chores, or to report on your data in ways not supported by ledger.
 
 At a minimum, all you really need is a text editor for data entry. I'm
 using Sublime Text for my journal, and with the [syntax highlighting
@@ -78,11 +75,14 @@ An investment report:
          5.0 yyzxx         $ 200.00      mutual: total idx
 ```
 
-
 I don't use many of ledger's features and options, so your mileage may
 vary for your own data. Please back up before trying, or make sure your
 changes are committed to the source control system you certainly should
 be using.
+
+One of my goals with ledgerbil is that it shouldn't modify or reformat
+your journal entries except in limited and expected ways which are
+called out below.
 
 Ledgerbil will assume a properly formatted ledger file, although it
 won't necessarily enforce rules or report problems with an input file.
