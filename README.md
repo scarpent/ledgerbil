@@ -495,9 +495,8 @@ Note that where the interactive reconciler only needs
 
 The early ledgerbil features like schedule, sorting, and reconciler
 didn't rely on the ledger command line program at all. They were
-standalone programs that work with your data files.
-
-The reconciler has since acquired a feature for verifying your previous
+standalone commands that work with your data files. The reconciler is
+now an exception, having acquired a feature for verifying your previous
 balances with ledger's cleared totals. (Now that the door has been
 opened, expect more integration in the future between ledgerbil and
 ledger.)
