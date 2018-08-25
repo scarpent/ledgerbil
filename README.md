@@ -17,7 +17,10 @@ that data."
 
 That is, no automated tool within the Ledger program itself. But you can
 create or find tools to help with various data entry and reconciliation
-chores, or to report on your data in ways not supported by ledger.
+chores, or to report on your data in ways not supported by ledger. (One
+of my goals with ledgerbil is that it shouldn't modify or reformat your
+journal entries except in limited and expected ways which are called
+out below.)
 
 At a minimum, all you really need is a text editor for data entry. I'm
 using Sublime Text for my journal, and with the [syntax highlighting
@@ -77,7 +80,7 @@ An investment report:
 
 
 I don't use many of ledger's features and options, so your mileage may
-vary for your own data. Please backup before trying, or make sure your
+vary for your own data. Please back up before trying, or make sure your
 changes are committed to the source control system you certainly should
 be using.
 
@@ -85,12 +88,11 @@ Ledgerbil will assume a properly formatted ledger file, although it
 won't necessarily enforce rules or report problems with an input file.
 It will be best to feed it files that run cleanly through ledger-cli.
 
-Note to Prospective Users and Contributors
-------------------------------------------
+Preamble: A Note to Prospective Users and Contributors
+------------------------------------------------------
 
-In many ways, ledgerbil is highly customized and tuned to my own usage
-of ledger. It will be fine with me if I'm the only one that ever uses
-it.
+In many ways, ledgerbil is tuned to my own usage of ledger. It will be
+fine with me if I'm the only one that ever uses it.
 
 *However,* I heart emoji free software and am be happy to share my work.
 I don't necessarily want to make this thing rigidly conform to my own
@@ -98,17 +100,26 @@ use cases, but the likelihood of that happening grows greater by the
 day.
 
 Please let me know if you try it and run into problems. Many of those
-problems I'll either be unable or unwilling to address. But there are
-many others for which the opposite will be true. Ledger has so many
-features and I use a fairly small subset. I'd like to make Ledgerbil as
-flexible as possible for reading ledger files and doing the things it
-does.
+problems I'll either be unable or unwilling to address, because I'm
+terrible, but there are many others for which the opposite will be true.
+Ledger has so many features and I use a fairly small subset. I'd like to
+make Ledgerbil as flexible as possible for reading files that use a
+larger subset, even if it doesn't know what to do about that subset.
 
 I'm also open to other contributors! But you'll have to suffer my
-mediocre coding skills and practices. If you give me something really
-good, I might not understand it enough to feel comfortable maintaining
-it. Please let me know if there's something you'd like to do so I can
-help you decide if it's worth your time.
+mediocre coding skills and practices. If you submit a PR for something
+really good, I might not understand it enough to feel comfortable
+maintaining it. Or I might be overly picky about how I think ledgerbil
+should work. Please let me know if there's something you'd like to do so
+I can help you decide if it's worth your time. (Obviously you're free to
+do whatever you want with your own copy.)
+
+One thing that bothers me is the horrendous state of naming things and
+that dollars are assumed. My earlier life and financial software
+experience had me thinking in terms of dollars and investment shares and
+that has carried over here. I'd be interested in some day more
+accurately describing things more generically in terms of commodities
+and amounts, but, *phew,* that will be a lot of work.
 
 The state of documentation for ledgerbil reflects my doubts on whether
 it will in fact be useful and used by others. I'd like to have great,
@@ -160,8 +171,8 @@ other commands (run with -h to see command help):
 
 ## --sort
 
-Ledgerbil understands a transaction as something that starts with a date
-in the first position, like so:
+Sort files by transaction date. Ledgerbil understands a transaction as
+something that starts with a date in the first position, like so:
 
 ```
 2013/05/11 abc store
@@ -174,7 +185,8 @@ If there are comment lines or things it doesn't currently understand
 together with the nearest transaction that comes before, so that the
 ordering of things will be maintained accordingly. If these items occur
 before any dated transactions, they will be given a date in 1899 to
-(most likely) keep them before your other transactions.
+(most likely) keep them before your other transactions. (With that date
+being used only for sorting purposes and not written to file.)
 
 Sorting should only change the order of items and not otherwise modify
 transactions, but note that it will "normalize" spacing so that there is
@@ -185,7 +197,7 @@ only one space between entries.
 The schedule file handles recurring transactions and has two levels of
 configuration.
 
-And the top of the file, for example:
+At the top of the file, for example:
 
     ;; scheduler ; enter 40 days
 
@@ -205,7 +217,7 @@ Individual entries use this format on the line below the top line:
 For example with the `interval uom` (unit of measure):
 
 ```
-2018/01/22 lightning electricity
+2018/01/22 lightning electricity         ; todo
     ;; schedule ; monthly
     e: bills: electricity
     a: checking                             $75
@@ -214,10 +226,12 @@ For example with the `interval uom` (unit of measure):
 Will cause entries to be created on the 22nd of every month. The `;;
 schedule` line will be removed for the journal entry. For recurring
 items with varying amounts, I usually include a `; todo` comment on the
-top line to go back and set the actual amount later.
+top line to go back and set the actual amount later, but that's just a
+convention. You can include whatever you want on the non-schedule config
+line. The only thing modified is the date.
 
 Supported units are `monthly` and `weekly`. Weekly transactions will
-recur on the same day of the week as the month in the entry.
+recur on the same day of the week as the date in the entry.
 
 Other supported UOMs: `bimonthly` (every 2 months), `quarterly`,
 `biannual`, `yearly`
@@ -261,7 +275,7 @@ The `interval` spot can be used to specify some other interval, e.g.:
 ```
 
 You can also simply use `6` there. Ledgerbil will pick out the first
-group of digits it finds.
+number it finds.
 
 The last spot for `notes` isn't parsed by ledgerbil. I sometimes use it
 to note when a scheduled item isn't an automated payment.
@@ -276,6 +290,13 @@ file you'll get the error:
 
     ModuleNotFoundError: No module named 'ledgerbil.settings'
 
+Example usage:
+
+    python main.py --file journal.ledger --reconcile 'bank: xyz'
+
+You can specify a regex for `--reconcile`, e.g. `bank..xyz$` would also
+work and prevent a match on your other account `bank: xyzzyx`.
+
 Help is available at the interactive prompt:
 
 ```
@@ -287,19 +308,18 @@ account  finish  list  quit    show       unmark
 aliases  help    mark  reload  statement
 ```
 
-As mentioned above, this is targeted for my own use, although may be
-suitable for those with similar needs, perhaps requiring a bit of work.
-(I didn't spend time on some scenarios that I would address if,
-miraculously, someone else cared about them. And there are other
-scenarios I won't address in any circumstance, given my aims here.)
+As mentioned above, this is targeted for my own use, although it may be
+suitable for those with similar needs. (I didn't spend time on some
+scenarios that I would address if, miraculously, someone else cared
+about them. And there are other scenarios I won't address in any
+circumstance, given my aims here.)
 
 The reconciler will error if more than one matching account is found.
 Aliases aren't resolved so the same account will be seen as different if
 it occurs in aliased and non-aliased form. (I keep my alias definitions
 in a separate account file.) Related to this, the reconciler does *not*
 handle the shortcut of marking entire transactions pending or cleared on
-the top line, since we're only wanting to work with one account at a
-time.
+the top line, since we only want to work with one account at a time.
 
 If multiple entries for the account occur in one transaction, they'll be
 treated as one amount and line item while reconciling. If they have
@@ -347,7 +367,7 @@ Let's see the reconciler in action. For an example file:
 (Note that there is pretty coloring in real life.)
 
 ```
-$ ./ledgerbil.py -f xyz.ldg -r cash
+$ ./main.py -f xyz.ldg -r cash
 
    1. 2016/10/26    $-10.00   lorem
    2. 2016/10/29    $-20.00   ipsum
@@ -460,25 +480,27 @@ last reconciled: 2016/10/29 previous balance: $ 70.00
 ending date: 2016/10/29 ending balance: (not set) cleared: $70.00
 ```
 
-Reconciliation info is cached in a reconcilation file defined in
-settings.py (see below). After `finish`, the previous balance is saved
-in the cache and shown when you reconcile this account, which may be
-helpful for catching mistakes you make between visits to the reconciler.
-There is also the `-R` option for ledgerbil which will go through all
-your cached entries and compare to ledger's `--cleared` totals to see if
-things have gotten out of sync somehow.
+After `finish`, the previous balance is saved in the cache (mentioned
+above and more below!) and shown when you next reconcile this account,
+which may be helpful for catching mistakes you make between visits to
+the reconciler. There is also the `-R` option for ledgerbil which will
+go through all your cached entries and compare to ledger's `--cleared`
+totals to see if things have gotten out of sync somehow.
+
+Note that where the interactive reconciler only needs
+`RECONCILER_CACHE_FILE`, `-R` needs more stuff configured in
+`settings.py` so that ledgerbil can run ledger as an external program.
 
 ## "ledgershell" (other commands)
 
-The initial ledgerbil features like schedule, sorting, and reconciler
-initially didn't rely on the ledger command line program at all. They
-were, and mostly still are standalone programs that work with your data
-files.
+The early ledgerbil features like schedule, sorting, and reconciler
+didn't rely on the ledger command line program at all. They were
+standalone programs that work with your data files.
 
-The exception is the reconciler which now has a feature for verifying
-your previous balances with ledger's cleared totals. (Although now that
-the door has been opened, expect more integration in the future between
-ledgerbil and ledger.)
+The reconciler has since acquired a feature for verifying your previous
+balances with ledger's cleared totals. (Now that the door has been
+opened, expect more integration in the future between ledgerbil and
+ledger.)
 
 The ledgershell programs use ledger to read and report on your data in
 different ways. None of them modify your data (as of 4 August 2018,
@@ -492,7 +514,7 @@ latest.
 ### settings.py
 
 Intended as a convenience, but which can also be a nuisance, the
-`settings.py` file is meant to have all the information need to run
+`settings.py` file is meant to have all the information needed to run
 ledger so you don't have to pass in everything every time. And, related
 to the ambivalence about documentation mentioned above, There isn't any
 documentation for this file yet. Just [`settings.py.example`][settings]
@@ -621,10 +643,9 @@ year    contrib   transfers        value   gain %     gain val    all %    3yr %
        $ 11,035    $ 34,000                           $ 35,458
 ```
 
-
 It is currently a breathtakingly manual process to add data to the
-`portfolio.json` file and  I imagine few people would want to bother
-with it, even if it made any sense.
+`portfolio.json` file and I imagine few people will want to bother with
+it, even if it made any sense.
 
 ```
 usage: ledgerbil/main.py port [-h] [-a REGEX] [-L LABELS] [-c] [-C]
@@ -653,7 +674,7 @@ optional arguments:
                                 5 (year gain)
                                 10 (year gain)
   -H, --history               show account history
-  -l, --list                  list account names
+  -l, --list                  list account names and labels
 ```
 
 ### license
