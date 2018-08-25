@@ -103,7 +103,7 @@ Please let me know if you try it and run into problems. Many of those
 problems I'll either be unable or unwilling to address, because I'm
 terrible, but there are many others for which the opposite will be true.
 Ledger has so many features and I use a fairly small subset. I'd like to
-make Ledgerbil as flexible as possible for reading files that use a
+make ledgerbil as flexible as possible for reading files that use a
 larger subset, even if it doesn't know what to do about that subset.
 
 I'm also open to other contributors! But you'll have to suffer my
