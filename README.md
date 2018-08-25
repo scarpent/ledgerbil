@@ -117,9 +117,9 @@ do whatever you want with your own copy.)
 One thing that bothers me is the horrendous state of naming things and
 that dollars are assumed. My earlier life and financial software
 experience had me thinking in terms of dollars and investment shares and
-that has carried over here. I'd be interested in some day more
-accurately describing things more generically in terms of commodities
-and amounts, but, *phew,* that will be a lot of work.
+that has carried over here. I'd be interested in someday more accurately
+describing things more generically in terms of commodities and amounts,
+but, *phew,* that will be a lot of work.
 
 The state of documentation for ledgerbil reflects my doubts on whether
 it will in fact be useful and used by others. I'd like to have great,
