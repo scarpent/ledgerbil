@@ -60,7 +60,9 @@ contexts:
         2: variable.parameter.name
     - match: "^payee\\s+.*(;|  ).*$"
       scope: invalid
-    - match: "^(payee\\s*)([^;]+)$"
+    - match: "^payee\\S.*$"
+      scope: invalid
+    - match: "^(payee\\s+)([^;]+)$"
       captures:
         1: "support.class.directive"
         2: "constant.character.name"

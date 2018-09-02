@@ -303,12 +303,16 @@ payee something anything
 #^^^^^ support.class.directive
 #     ^^^^^^^^^^^^^^^^^^^ constant.character.name
 
-payee could inlude ; but let's mark invalid
+payee could include ; but let's mark invalid
 # <- invalid
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ invalid
 
 payee abc  xyz
 #^^^^^^^^^^^^^ invalid
+
+payeeinvalid
+# <- invalid
+#^^^^^^^^^^^ invalid
 
     note this is a note
 #^^^^^^^^ keyword.sub-directive
