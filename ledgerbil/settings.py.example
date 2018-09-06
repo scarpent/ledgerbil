@@ -2,8 +2,9 @@
 These are for the "ledgershell" commands that use the ledger client.
 The scheduler, reconciler, and sort comands take all their input from
 command line arguments. EXCEPT, reconciler does want to use
-RECONCILER_CACHE_FILE now. It will work, but print errors related
-to this.
+RECONCILER_CACHE_FILE now, and the --reconciled-status feature needs
+to other things in here as well. This file needs to be present as
+settings.py for tests to run, although its contents are mocked.
 """
 import os
 
