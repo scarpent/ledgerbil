@@ -192,6 +192,10 @@ Sorting should only change the order of items and not otherwise modify
 transactions, but note that it will "normalize" spacing so that there is
 only one space between entries.
 
+Sorting is useful with the scheduler, which will simply add entries to
+the end of the specified journal file. (The schedule file itself is
+always sorted after each run so that things will mostly be in order.)
+
 ## --schedule
 
 The schedule file handles recurring transactions and has two levels of
