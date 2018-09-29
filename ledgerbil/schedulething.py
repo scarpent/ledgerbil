@@ -120,7 +120,7 @@ class ScheduleThing(LedgerThing):
             )
 
         interval_uom_regex = (
-            '(weekly|monthly|bimonthly|quarterly|biannual|yearly)'
+            '(daily|weekly|monthly|bimonthly|quarterly|biannual|yearly)'
         )
 
         match = re.match(interval_uom_regex, configitems[interval_uom_idx])
