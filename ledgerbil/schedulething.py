@@ -22,6 +22,7 @@ class ScheduleThing(LedgerThing):
     LINE_FILE_CONFIG = 0
     LINE_DATE = 0
     LINE_SCHEDULE = 1
+    INTERVAL_DAY = 'daily'
     INTERVAL_WEEK = 'weekly'
     INTERVAL_MONTH = 'monthly'
     EOM = 'eom'
@@ -160,7 +161,8 @@ class ScheduleThing(LedgerThing):
         if intervaluom in uom_translations:
             interval *= uom_translations[intervaluom]
 
-        if intervaluom != ScheduleThing.INTERVAL_WEEK:
+        if intervaluom != ScheduleThing.INTERVAL_DAY \
+                and intervaluom != ScheduleThing.INTERVAL_WEEK:
             intervaluom = ScheduleThing.INTERVAL_MONTH
 
         self.interval = interval
@@ -213,7 +215,9 @@ class ScheduleThing(LedgerThing):
 
     def _get_next_date(self, previousdate):
 
-        if self.interval_uom == ScheduleThing.INTERVAL_WEEK:
+        if self.interval_uom == ScheduleThing.INTERVAL_DAY:
+            return previousdate + relativedelta(days=self.interval)
+        elif self.interval_uom == ScheduleThing.INTERVAL_WEEK:
             return previousdate + relativedelta(weeks=self.interval)
         else:  # INTERVAL_MONTH
             # first see if any scheduled days remaining in same month

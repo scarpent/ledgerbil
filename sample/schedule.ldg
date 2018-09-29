@@ -1,6 +1,6 @@
 ;; scheduler ; enter 1 days
-; entry format: ;; schedule ; interval uom ; days ; interval ; notes
-; required:     ;; schedule ; interval uom
+; entry format -> ;; schedule ; interval uom ; days ; interval ; notes
+; required ->     ;; schedule ; interval uom
 
 2018/01/15 johnny paycheck                                              ; todo
     ;; schedule ; monthly ; 15, eom30
@@ -35,3 +35,7 @@
     e: misc: haircuts
     l: credit card: mega                    $-18
 
+2018/05/17 iron bank
+    ;; schedule ; daily ;; every 30 days
+    e: bank: loan interest
+    a: checking                             $-25
