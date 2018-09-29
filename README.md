@@ -273,7 +273,7 @@ The `interval` spot can be used to specify some other interval, e.g.:
 
 ```
 2018/02/17 chop chop hair                                     
-    ;; schedule ; weekly ; every 6 weeks
+    ;; schedule ; weekly ;; every 6 weeks
     e: misc: haircuts
     l: credit card: mega                    $-18
 ```
