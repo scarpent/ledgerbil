@@ -544,8 +544,8 @@ them, and all arguments not defined here are passed through to ledger.
 
 Don't specify bal, balance, reg, or register!
 
-e.g. ./main.py expenses -p 'last 2 years' will show expenses for last
-two years with separate columns for the years.
+e.g. ./main.py grid expenses -p 'last 2 years' will show expenses for
+last two years with separate columns for the years.
 
 Begin and end dates only determine the range for which periods will be
 reported. They do not limit included entries within a period. For

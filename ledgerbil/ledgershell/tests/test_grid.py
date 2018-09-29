@@ -10,6 +10,14 @@ from ...colorable import Colorable
 from ...tests.helpers import OutputFileTester
 
 
+class MockSettings:
+    NETWORTH_ACCOUNTS = '(^assets ^liabilities)'
+
+
+def setup_function(module):
+    grid.settings = MockSettings()
+
+
 @mock.patch(__name__ + '.grid.get_ledger_output')
 def test_get_period_names_years(mock_ledger_output):
     output = dedent('''\
@@ -651,12 +659,19 @@ def test_get_grid_report_month(mock_pnames, mock_cols, mock_rows, mock_report):
         ledger_args,
         depth=0,
         current=None,
-        payees=False
+        payees=False,
+        networth=False
     )
     mock_rows.assert_called_once_with(
-        row_headers, columns, period_names, grid.SORT_DEFAULT, 0, False
+        row_headers,
+        columns,
+        period_names,
+        grid.SORT_DEFAULT,
+        0,
+        False,
+        no_total=False
     )
-    mock_report.assert_called_once_with(rows)
+    mock_report.assert_called_once_with(rows, networth=False)
 
 
 @mock.patch(__name__ + '.grid.get_flat_report')
@@ -686,10 +701,17 @@ def test_get_grid_report_year(mock_pnames, mock_cols, mock_rows, mock_report):
         ledger_args,
         depth=5,
         current='celery',
-        payees=True
+        payees=True,
+        networth=False
     )
     mock_rows.assert_called_once_with(
-        row_headers, columns, period_names, 'cloves', 20, False
+        row_headers,
+        columns,
+        period_names,
+        'cloves',
+        20,
+        False,
+        no_total=False
     )
 
 
@@ -719,7 +741,7 @@ def test_get_grid_report_flat_transposed(mock_pnames, mock_cols,
         [4, 7, 1],
         [5, 8, 2],
     ]
-    mock_report.assert_called_once_with(expected_rows)
+    mock_report.assert_called_once_with(expected_rows, networth=False)
 
 
 @mock.patch(__name__ + '.grid.get_csv_report')
@@ -960,6 +982,15 @@ def test_args_period(test_input, expected):
 def test_args_payees(test_input, expected):
     args, _ = grid.get_args(test_input)
     assert args.payees is expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (['--net-worth'], True),
+    ([], False),
+])
+def test_args_net_worth(test_input, expected):
+    args, _ = grid.get_args(test_input)
+    assert args.networth is expected
 
 
 @pytest.mark.parametrize('test_input, expected', [
