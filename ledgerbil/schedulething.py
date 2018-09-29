@@ -128,7 +128,7 @@ class ScheduleThing(LedgerThing):
             raise LdgSchedulerError(
                 'Invalid schedule thing config:\n{line}\nInterval UOM '
                 '"{uom}" not recognized. Supported UOMs: '
-                'weekly, monthly, bimonthly, quarterly, biannual, '
+                'daily, weekly, monthly, bimonthly, quarterly, biannual, '
                 'yearly.'.format(
                     line=line,
                     uom=configitems[interval_uom_idx]

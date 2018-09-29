@@ -234,8 +234,9 @@ top line to go back and set the actual amount later, but that's just a
 convention. You can include whatever you want on the non-schedule config
 line. The only thing modified is the date.
 
-Supported units are `monthly` and `weekly`. Weekly transactions will
-recur on the same day of the week as the date in the entry.
+Supported units are `monthly`, `weekly`, and `daily`. Weekly
+transactions will recur on the same day of the week as the date in the
+entry.
 
 Other supported UOMs: `bimonthly` (every 2 months), `quarterly`,
 `biannual`, `yearly`
@@ -280,6 +281,25 @@ The `interval` spot can be used to specify some other interval, e.g.:
 
 You can also simply use `6` there. Ledgerbil will pick out the first
 number it finds.
+
+Daily `interval uom` will simply recur every `interval` number of days,
+e.g.:
+
+```
+2018/06/15 iron bank
+    ;; schedule ; daily ;; every 30 days
+    e: bank: loan interest
+    a: checking                             $-25
+```
+
+Would result in entries:
+
+```
+    2018-06-15 iron bank
+    2018-07-15 iron bank
+    2018-08-14 iron bank
+    2018-09-13 iron bank
+```
 
 The last spot for `notes` isn't parsed by ledgerbil. I sometimes use it
 to note when a scheduled item isn't an automated payment.

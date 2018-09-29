@@ -47,6 +47,15 @@ def run_it(before_date, after_date, schedule, enter_days=7):
     assert actual_data == expected_data
 
 
+def test_daily():
+    run_it(
+        date.today() - relativedelta(days=7),
+        date.today() + relativedelta(days=23),
+        'daily ;; every 5 days',
+        enter_days=20
+    )
+
+
 def test_weekly():
     run_it(
         date.today() - relativedelta(days=7),

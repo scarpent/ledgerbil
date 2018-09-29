@@ -405,10 +405,12 @@ class HandleThingConfig(Redirector):
         ]
         with pytest.raises(LdgSchedulerError) as excinfo:
             ScheduleThing(schedule_lines)
-        expected = ('Invalid schedule thing config:\n'
-                    '    ;; schedule ; lunarly\n'
-                    'Interval UOM "lunarly" not recognized. Supported UOMs: '
-                    'weekly, monthly, bimonthly, quarterly, biannual, yearly.')
+        expected = (
+            'Invalid schedule thing config:\n'
+            '    ;; schedule ; lunarly\n'
+            'Interval UOM "lunarly" not recognized. Supported UOMs: '
+            'daily, weekly, monthly, bimonthly, quarterly, biannual, yearly.'
+        )
         assert str(excinfo.value) == expected
 
     def test_interval_empty(self):
