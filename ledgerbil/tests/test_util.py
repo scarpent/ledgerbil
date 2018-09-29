@@ -28,8 +28,19 @@ def test_get_date_string():
     assert util.get_date_string(date(1999, 12, 3)) == '1999/12/03'
 
 
+def test_get_date_string_with_format():
+    date_string = util.get_date_string(date(1999, 12, 3), the_format='%Y/%m')
+    assert date_string == '1999/12'
+    assert util.get_date_string(date(1999, 12, 3), '%Y') == '1999'
+
+
 def test_get_date():
     assert util.get_date('1999/12/03') == date(1999, 12, 3)
+
+
+def test_get_date_with_format():
+    assert util.get_date('1999', the_format='%Y') == date(1999, 1, 1)
+    assert util.get_date('1999/12', '%Y/%m') == date(1999, 12, 1)
 
 
 @pytest.mark.parametrize('test_input, expected', [
