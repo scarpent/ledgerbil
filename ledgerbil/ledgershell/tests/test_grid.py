@@ -334,6 +334,80 @@ def test_get_columns_payees(mock_get_column_payees):
     ])
 
 
+@mock.patch(__name__ + '.grid.get_ledger_output')
+def test_get_column_networth_year(mock_ledger_output):
+    output = dedent('''\
+                  $ 8,270.61  assets
+                 $ -4,424.04  liabilities
+        --------------------
+                  $ 3,846.57''')
+    mock_ledger_output.return_value = output
+    expected = {'net worth': 3846.57}
+    assert grid.get_column_networth('2007', ('bogus', )) == expected
+    mock_ledger_output.assert_called_once_with(
+        ('balance', '(^assets', '^liabilities)',
+         '--depth', '1', '--end', '2008', 'bogus')
+    )
+
+
+@mock.patch(__name__ + '.grid.get_ledger_output')
+def test_get_column_networth_month(mock_ledger_output):
+    output = dedent('''\
+                  $ 8,270.61  assets
+                 $ -4,424.04  liabilities
+        --------------------
+                  $ 3,846.57''')
+    mock_ledger_output.return_value = output
+    expected = {'net worth': 3846.57}
+    assert grid.get_column_networth('2007/10', tuple()) == expected
+    mock_ledger_output.assert_called_once_with(
+        ('balance', '(^assets', '^liabilities)',
+         '--depth', '1', '--end', '2007/11')
+    )
+
+
+@mock.patch(__name__ + '.grid.get_ledger_output')
+def test_get_column_networth_tomorrow_and_no_result(mock_ledger_output):
+    mock_ledger_output.return_value = ''
+    expected = {'net worth': 0.0}
+    assert grid.get_column_networth('tomorrow', tuple()) == expected
+    mock_ledger_output.assert_called_once_with(
+        ('balance', '(^assets', '^liabilities)',
+         '--depth', '1', '--end', 'tomorrow')
+    )
+
+
+@mock.patch(__name__ + '.grid.get_column_networth')
+def test_get_columns_networth_and_current(mock_get_column_networth):
+    fred_column = {'net worth': 11.23}
+    barney_column = {'net worth': 44.56}
+    mock_get_column_networth.side_effect = [fred_column, barney_column]
+
+    expected_columns = {
+        'fred': fred_column,
+        'barney': barney_column,
+    }
+    expected_row_headers = {'net worth'}
+
+    args, ledger_args = grid.get_args(['--net-worth'])
+    ledger_args = tuple(ledger_args)
+    period_names = ('fred', 'barney')
+
+    row_headers, columns = grid.get_columns(
+        args,
+        ledger_args,
+        period_names,
+        current_period='barney'
+    )
+
+    assert row_headers == expected_row_headers
+    assert columns == expected_columns
+    mock_get_column_networth.assert_has_calls([
+        mock.call('fred', ledger_args),
+        mock.call('tomorrow', ledger_args),
+    ])
+
+
 @mock.patch(__name__ + '.grid.get_column_accounts')
 def test_get_columns(mock_get_column_accounts):
     lemon_column = {
@@ -471,13 +545,26 @@ expected_rows_total_only = [
 ]
 
 
+expected_rows_no_total = [
+    ['lemon', 'lime', grid.EMPTY_VALUE],
+    [100, 10, 'expenses: car: gas'],
+    [-50, 0, 'expenses: car: maintenance'],
+    [0, 20, 'expenses: unicorns'],
+    [90, 50, 'expenses: widgets'],
+    [140, 80, grid.TOTAL_HEADER],
+]
+
+
 @pytest.mark.parametrize('test_input, expected', [
-    ((grid.SORT_DEFAULT, 0, False), expected_sort_rows_by_total),
-    (('unrecognized', 0, False), expected_sort_rows_by_total),
-    (('row', 0, False), expected_sort_rows_by_row_header),
-    (('lime', 0, False), expected_sort_rows_by_column_header),
-    ((grid.SORT_DEFAULT, 2, False), expected_sort_rows_by_total_with_limit),
-    (('row', 0, True), expected_rows_total_only),
+    (tuple(), expected_sort_rows_by_total),
+    (('unrecognized',), expected_sort_rows_by_total),
+    (('row',), expected_sort_rows_by_row_header),
+    (('lime',), expected_sort_rows_by_column_header),
+    ((grid.SORT_DEFAULT, 2), expected_sort_rows_by_total_with_limit),
+    # Note that when setting total_only and no_total both to True,
+    # total_only takes precedence
+    (('row', 0, True, True), expected_rows_total_only),
+    (('row', 0, False, True), expected_rows_no_total),
 ])
 @mock.patch(__name__ + '.grid.get_grid')
 def test_get_rows(mock_get_grid, test_input, expected):
@@ -495,14 +582,12 @@ def test_get_rows(mock_get_grid, test_input, expected):
     }
     columns = None  # only needed by get_grid which is mocked
     period_names = ('lemon', 'lime')
-    sort, limit, total_only = test_input
+
     actual = grid.get_rows(
         row_headers,
         columns,
         period_names,
-        sort,
-        limit,
-        total_only
+        *test_input
     )
     assert actual == expected
 
@@ -596,6 +681,19 @@ def test_get_flat_report():
     helper.assert_out_equals_expected()
 
 
+def test_get_flat_report_networth():
+    rows = [
+        ['lemon', 'lime', ''],
+        [200.11, 300.44, 'net worth'],
+    ]
+    report = grid.get_flat_report(rows, networth=True)
+    expected = (
+        '         lemon          lime\n'
+        '      $ 200.11      $ 300.44  net worth\n'
+    )
+    assert Colorable.get_plain_string(report) == expected
+
+
 def test_get_flat_report_single_column():
     """The flat report should handle rows without a total column"""
     rows = [
@@ -624,7 +722,6 @@ def test_get_flat_report_single_row():
     rows = [
         ['lemon', 'lime', grid.TOTAL_HEADER, ''],
         [2.65, 500.1, 502.75, 'expenses: widgets'],
-        [2.65, 500.1, 502.75, grid.EMPTY_VALUE],
     ]
     report = grid.get_flat_report(rows)
     expected = (
@@ -639,7 +736,6 @@ def test_get_flat_report_single_row_and_column():
     rows = [
         ['lemon', ''],
         [2.65, 'expenses: widgets'],
-        [2.65, grid.EMPTY_VALUE],
     ]
     report = grid.get_flat_report(rows)
     expected = (

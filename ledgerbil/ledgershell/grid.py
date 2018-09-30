@@ -92,8 +92,8 @@ def get_flat_report(rows, networth=False):
     # will have 4 or more columns otherwise, and have a total column;
     # same deal for total row; however! note that we sneak in --total-only
     # as if a regular single column (is also highlighted as a non-total col)
-    has_total_column = len(rows[0]) > 3
-    has_total_row = len(rows) > 3
+    has_total_column = len(rows[0]) > 3 and not networth
+    has_total_row = len(rows) > 3 and not networth
 
     AMOUNT_WIDTH = 14  # width of columns with amounts
     ACCOUNT_PAYEE_COLUMN = -1  # last column, aka row header
@@ -105,16 +105,9 @@ def get_flat_report(rows, networth=False):
         AMOUNT_COLUMN_END = ACCOUNT_PAYEE_COLUMN  # exclusive
 
     DATA_ROW_START = 1
-    DATA_ROW_END = -1 if has_total_row else 2  # exclusive
+    DATA_ROW_END = -1 if has_total_row else len(rows)  # exclusive
     HEADER_ROW = 0
     FOOTER_ROW = -1 if has_total_row else None
-
-    if networth:
-        has_total_column = False
-        has_total_row = False
-        AMOUNT_COLUMN_END = ACCOUNT_PAYEE_COLUMN
-        DATA_ROW_END = len(rows)
-        FOOTER_ROW = None
 
     headers = get_flat_report_header(
         rows[HEADER_ROW][:ACCOUNT_PAYEE_COLUMN],
@@ -254,7 +247,6 @@ def get_period_names(args, ledger_args, unit='year'):
 
 
 def get_columns(args, ledger_args, period_names, current_period=None):
-
     row_headers = set()
     columns = {}
     ending = tuple()
@@ -353,6 +345,7 @@ def get_column_payees(period_name, ledger_args):
         if not payee:
             payee = line
         else:
+            # todo: this might want to live in ledgershell util.py
             match = re.match(PAYEE_SUBTOTAL_REGEX, line)
             assert match, f'Payee subtotal regex did not match: {line}'
             assert payee not in column, f'Payee already in column: {payee}'
@@ -374,16 +367,19 @@ def get_column_networth(period_name, ledger_args):
             date_format = '%Y/%m'
             networth_relativedelta = relativedelta(months=1)
 
-        # Let's report networth for the end of the current period,
+        # Let's report net worth for the end of the current period,
         # which means we want to use the next period as the ending
-        # since --end is the "exclusive" end
+        # since `--end` is the "exclusive" end
         period_date = get_date(period_name, date_format)
         next_period_date = period_date + networth_relativedelta
         ending = next_period_date.strftime(date_format)
 
     accounts = tuple(parse_args(settings.NETWORTH_ACCOUNTS))
     lines = get_ledger_output(
-        ('bal',) + accounts + ('--depth', '1', '--end', ending) + ledger_args
+        ('balance',)
+        + accounts
+        + ('--depth', '1', '--end', ending)
+        + ledger_args
     ).split('\n')
 
     amount = lines[-1].strip() or '0'

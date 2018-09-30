@@ -1,5 +1,9 @@
 account expenses
     alias e
+account assets
+    alias a
+account liabilities
+    alias l
 
 2017/11/01 food and stuff
     e: food: groceries
