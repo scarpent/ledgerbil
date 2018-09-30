@@ -1,5 +1,4 @@
 python-dateutil==2.7.3
-requests==2.18.4
 
 # test
 pytest==3.6.2
