@@ -19,6 +19,11 @@ That is, no automated tool within the Ledger program itself. But you can
 create or find tools to help with various data entry and reconciliation
 chores, or to report on your data in ways not supported by ledger.
 
+There's a whole galaxy of tools for working with ledger or ledger-like
+programs and their data, which you can learn about at:
+
+https://plaintextaccounting.org/
+
 At a minimum, all you really need is a text editor for data entry. I'm
 using Sublime Text for my journal, and with the [syntax highlighting
 files included in this repo](/syntax), I find it pleasant to work with
@@ -26,12 +31,15 @@ and look upon:
 
 ![ledger file with syntax highlighting](docs/images/ledger-syntax-highlighting.png "Syntax Highlighting")
 
+Why yet another tool? Why ledgerbil? I had my own ideas for features,
+and it's fun to have a project to work on.
+
 Some of ledgerbil's features:
 
   * Automate the entry of recurring transactions via a scheduler.
   * Interactively reconcile accounts.
   * Sort a file by transaction date.
-  * Display balances by year or month in a grid format.
+  * Display balances or net worth by year or month in a grid format.
   * Diplay investments with dollar and share amounts side by side.
 
 A grid report:
