@@ -10,6 +10,14 @@ from ...colorable import Colorable
 from ...tests.helpers import OutputFileTester
 
 
+class MockSettings:
+    NETWORTH_ACCOUNTS = '(^assets ^liabilities)'
+
+
+def setup_function(module):
+    grid.settings = MockSettings()
+
+
 @mock.patch(__name__ + '.grid.get_ledger_output')
 def test_get_period_names_years(mock_ledger_output):
     output = dedent('''\
@@ -312,16 +320,91 @@ def test_get_columns_payees(mock_get_column_payees):
     }
     expected_payees = {'zig', 'zag', 'blitz', 'krieg'}
 
-    payees, columns = grid.get_columns(
-        ('bratwurst', 'knockwurst'),
-        ('?', '!'),
-        payees=True
-    )
+    args, ledger_args = grid.get_args(['--payees', 'fu', 'bar'])
+    ledger_args = tuple(ledger_args)
+    period_names = ('bratwurst', 'knockwurst')
+
+    payees, columns = grid.get_columns(args, ledger_args, period_names)
+
     assert payees == expected_payees
     assert columns == expected_columns
     mock_get_column_payees.assert_has_calls([
-        mock.call('bratwurst', ('?', '!')),
-        mock.call('knockwurst', ('?', '!')),
+        mock.call('bratwurst', ledger_args),
+        mock.call('knockwurst', ledger_args),
+    ])
+
+
+@mock.patch(__name__ + '.grid.get_ledger_output')
+def test_get_column_networth_year(mock_ledger_output):
+    output = dedent('''\
+                  $ 8,270.61  assets
+                 $ -4,424.04  liabilities
+        --------------------
+                  $ 3,846.57''')
+    mock_ledger_output.return_value = output
+    expected = {'net worth': 3846.57}
+    assert grid.get_column_networth('2007', ('bogus', )) == expected
+    mock_ledger_output.assert_called_once_with(
+        ('balance', '(^assets', '^liabilities)',
+         '--depth', '1', '--end', '2008', 'bogus')
+    )
+
+
+@mock.patch(__name__ + '.grid.get_ledger_output')
+def test_get_column_networth_month(mock_ledger_output):
+    output = dedent('''\
+                  $ 8,270.61  assets
+                 $ -4,424.04  liabilities
+        --------------------
+                  $ 3,846.57''')
+    mock_ledger_output.return_value = output
+    expected = {'net worth': 3846.57}
+    assert grid.get_column_networth('2007/10', tuple()) == expected
+    mock_ledger_output.assert_called_once_with(
+        ('balance', '(^assets', '^liabilities)',
+         '--depth', '1', '--end', '2007/11')
+    )
+
+
+@mock.patch(__name__ + '.grid.get_ledger_output')
+def test_get_column_networth_tomorrow_and_no_result(mock_ledger_output):
+    mock_ledger_output.return_value = ''
+    expected = {'net worth': 0.0}
+    assert grid.get_column_networth('tomorrow', tuple()) == expected
+    mock_ledger_output.assert_called_once_with(
+        ('balance', '(^assets', '^liabilities)',
+         '--depth', '1', '--end', 'tomorrow')
+    )
+
+
+@mock.patch(__name__ + '.grid.get_column_networth')
+def test_get_columns_networth_and_current(mock_get_column_networth):
+    fred_column = {'net worth': 11.23}
+    barney_column = {'net worth': 44.56}
+    mock_get_column_networth.side_effect = [fred_column, barney_column]
+
+    expected_columns = {
+        'fred': fred_column,
+        'barney': barney_column,
+    }
+    expected_row_headers = {'net worth'}
+
+    args, ledger_args = grid.get_args(['--net-worth'])
+    ledger_args = tuple(ledger_args)
+    period_names = ('fred', 'barney')
+
+    row_headers, columns = grid.get_columns(
+        args,
+        ledger_args,
+        period_names,
+        current_period='barney'
+    )
+
+    assert row_headers == expected_row_headers
+    assert columns == expected_columns
+    mock_get_column_networth.assert_has_calls([
+        mock.call('fred', ledger_args),
+        mock.call('tomorrow', ledger_args),
     ])
 
 
@@ -347,12 +430,17 @@ def test_get_columns(mock_get_column_accounts):
         'expenses: widgets',
     }
 
-    accounts, columns = grid.get_columns(('lemon', 'lime'), tuple('salt!'))
+    args, ledger_args = grid.get_args(['salt!'])
+    ledger_args = tuple(ledger_args)
+    period_names = ('lemon', 'lime')
+
+    accounts, columns = grid.get_columns(args, ledger_args, period_names)
+
     assert accounts == expected_accounts
     assert columns == expected_columns
     mock_get_column_accounts.assert_has_calls([
-        mock.call('lemon', tuple('salt!'), 0),
-        mock.call('lime', tuple('salt!'), 0),
+        mock.call('lemon', ledger_args, 0),
+        mock.call('lime', ledger_args, 0),
     ])
 
 
@@ -365,16 +453,22 @@ def test_get_columns_with_current(mock_get_column_accounts):
     expected_columns = {'lemon': lemon_column, 'lime': lime_column}
     expected_accounts = {'expenses: unicorns', 'expenses: widgets'}
 
+    args, ledger_args = grid.get_args(['salt!'])
+    ledger_args = tuple(ledger_args)
+    period_names = ('lemon', 'lime')
+
     accounts, columns = grid.get_columns(
-        ('lemon', 'lime'),
-        ('salt!', ),
-        current='lime'
+        args,
+        ledger_args,
+        period_names,
+        current_period='lime'
     )
+
     assert accounts == expected_accounts
     assert columns == expected_columns
     mock_get_column_accounts.assert_has_calls([
-        mock.call('lemon', ('salt!', ), 0),
-        mock.call('lime', ('salt!', '--end', 'tomorrow'), 0),
+        mock.call('lemon', ledger_args, 0),
+        mock.call('lime', ledger_args + ('--end', 'tomorrow'), 0),
     ])
 
 
@@ -451,13 +545,26 @@ expected_rows_total_only = [
 ]
 
 
+expected_rows_no_total = [
+    ['lemon', 'lime', grid.EMPTY_VALUE],
+    [100, 10, 'expenses: car: gas'],
+    [-50, 0, 'expenses: car: maintenance'],
+    [0, 20, 'expenses: unicorns'],
+    [90, 50, 'expenses: widgets'],
+    [140, 80, grid.TOTAL_HEADER],
+]
+
+
 @pytest.mark.parametrize('test_input, expected', [
-    ((grid.SORT_DEFAULT, 0, False), expected_sort_rows_by_total),
-    (('unrecognized', 0, False), expected_sort_rows_by_total),
-    (('row', 0, False), expected_sort_rows_by_row_header),
-    (('lime', 0, False), expected_sort_rows_by_column_header),
-    ((grid.SORT_DEFAULT, 2, False), expected_sort_rows_by_total_with_limit),
-    (('row', 0, True), expected_rows_total_only),
+    (tuple(), expected_sort_rows_by_total),
+    (('unrecognized',), expected_sort_rows_by_total),
+    (('row',), expected_sort_rows_by_row_header),
+    (('lime',), expected_sort_rows_by_column_header),
+    ((grid.SORT_DEFAULT, 2), expected_sort_rows_by_total_with_limit),
+    # Note that when setting total_only and no_total both to True,
+    # total_only takes precedence
+    (('row', 0, True, True), expected_rows_total_only),
+    (('row', 0, False, True), expected_rows_no_total),
 ])
 @mock.patch(__name__ + '.grid.get_grid')
 def test_get_rows(mock_get_grid, test_input, expected):
@@ -475,14 +582,12 @@ def test_get_rows(mock_get_grid, test_input, expected):
     }
     columns = None  # only needed by get_grid which is mocked
     period_names = ('lemon', 'lime')
-    sort, limit, total_only = test_input
+
     actual = grid.get_rows(
         row_headers,
         columns,
         period_names,
-        sort,
-        limit,
-        total_only
+        *test_input
     )
     assert actual == expected
 
@@ -576,6 +681,19 @@ def test_get_flat_report():
     helper.assert_out_equals_expected()
 
 
+def test_get_flat_report_networth():
+    rows = [
+        ['lemon', 'lime', ''],
+        [200.11, 300.44, 'net worth'],
+    ]
+    report = grid.get_flat_report(rows, networth=True)
+    expected = (
+        '         lemon          lime\n'
+        '      $ 200.11      $ 300.44  net worth\n'
+    )
+    assert Colorable.get_plain_string(report) == expected
+
+
 def test_get_flat_report_single_column():
     """The flat report should handle rows without a total column"""
     rows = [
@@ -604,7 +722,6 @@ def test_get_flat_report_single_row():
     rows = [
         ['lemon', 'lime', grid.TOTAL_HEADER, ''],
         [2.65, 500.1, 502.75, 'expenses: widgets'],
-        [2.65, 500.1, 502.75, grid.EMPTY_VALUE],
     ]
     report = grid.get_flat_report(rows)
     expected = (
@@ -619,7 +736,6 @@ def test_get_flat_report_single_row_and_column():
     rows = [
         ['lemon', ''],
         [2.65, 'expenses: widgets'],
-        [2.65, grid.EMPTY_VALUE],
     ]
     report = grid.get_flat_report(rows)
     expected = (
@@ -644,19 +760,20 @@ def test_get_grid_report_month(mock_pnames, mock_cols, mock_rows, mock_report):
     mock_report.return_value = flat_report
 
     args, ledger_args = grid.get_args(['--month', 'nutmeg'])
+    ledger_args = tuple(ledger_args)
     assert grid.get_grid_report(args, ledger_args) == flat_report
     mock_pnames.assert_called_once_with(args, ledger_args, 'month')
-    mock_cols.assert_called_once_with(
-        period_names,
-        ledger_args,
-        depth=0,
-        current=None,
-        payees=False
-    )
+    mock_cols.assert_called_once_with(args, ledger_args, period_names, None)
     mock_rows.assert_called_once_with(
-        row_headers, columns, period_names, grid.SORT_DEFAULT, 0, False
+        row_headers,
+        columns,
+        period_names,
+        grid.SORT_DEFAULT,
+        0,
+        False,
+        no_total=False
     )
-    mock_report.assert_called_once_with(rows)
+    mock_report.assert_called_once_with(rows, networth=False)
 
 
 @mock.patch(__name__ + '.grid.get_flat_report')
@@ -670,26 +787,27 @@ def test_get_grid_report_year(mock_pnames, mock_cols, mock_rows, mock_report):
         ('paprika', 'garlic'), 'fennel', 'tarragon', 'parsley',
     )
 
-    mock_pnames.return_value = (period_names, 'celery')
+    mock_pnames.return_value = (period_names, 'basil')
     mock_cols.return_value = (row_headers, columns)
     mock_report.return_value = flat_report
 
     # -y defaults to True so could also be a test without -y and -m
     args, ledger_args = grid.get_args([
         '--year', 'nutmeg', '--depth', '5', '--limit', '20',
-        '--payee', '--sort', 'cloves'
+        '--payees', '--sort', 'cloves'
     ])
+    ledger_args = tuple(ledger_args)
     assert grid.get_grid_report(args, ledger_args) == flat_report
     mock_pnames.assert_called_once_with(args, ledger_args, 'year')
-    mock_cols.assert_called_once_with(
-        period_names,
-        ledger_args,
-        depth=5,
-        current='celery',
-        payees=True
-    )
+    mock_cols.assert_called_once_with(args, ledger_args, period_names, 'basil')
     mock_rows.assert_called_once_with(
-        row_headers, columns, period_names, 'cloves', 20, False
+        row_headers,
+        columns,
+        period_names,
+        'cloves',
+        20,
+        False,
+        no_total=False
     )
 
 
@@ -719,7 +837,7 @@ def test_get_grid_report_flat_transposed(mock_pnames, mock_cols,
         [4, 7, 1],
         [5, 8, 2],
     ]
-    mock_report.assert_called_once_with(expected_rows)
+    mock_report.assert_called_once_with(expected_rows, networth=False)
 
 
 @mock.patch(__name__ + '.grid.get_csv_report')
@@ -792,6 +910,8 @@ def test_get_grid_report_no_period_names(mock_ledger_output):
 @mock.patch(__name__ + '.grid.get_columns')
 @mock.patch(__name__ + '.grid.get_period_names')
 def test_get_grid_report_no_results(mock_pnames, mock_cols):
+    """Queries that return period names but not row headers should
+       return no results"""
     period_names, row_headers, columns = (
         ('paprika', 'garlic'), set(), 'tarragon',
     )
@@ -960,6 +1080,15 @@ def test_args_period(test_input, expected):
 def test_args_payees(test_input, expected):
     args, _ = grid.get_args(test_input)
     assert args.payees is expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (['--net-worth'], True),
+    ([], False),
+])
+def test_args_net_worth(test_input, expected):
+    args, _ = grid.get_args(test_input)
+    assert args.networth is expected
 
 
 @pytest.mark.parametrize('test_input, expected', [

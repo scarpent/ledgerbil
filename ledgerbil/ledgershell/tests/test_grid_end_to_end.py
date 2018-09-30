@@ -226,3 +226,38 @@ def test_get_grid_report_csv_total_only_transposed():
         Total,92.03,42.17,134.2
     ''')
     assert report == expected
+
+
+def test_get_grid_report_networth_flat_report():
+    args, ledger_args = grid.get_args(['--net-worth'])
+    report = grid.get_grid_report(args, tuple(ledger_args))
+    expected = (
+        '          2017          2018\n'
+        '    $ 1,427.71    $ 1,304.27  net worth\n'
+    )
+    assert Colorable.get_plain_string(report) == expected
+
+
+def test_get_grid_report_networth_flat_report_transposed():
+    args, ledger_args = grid.get_args(['--net-worth', '--transpose'])
+    report = grid.get_grid_report(args, tuple(ledger_args))
+    expected = (
+        '     net worth\n'
+        '    $ 1,427.71  2017\n'
+        '    $ 1,304.27  2018\n'
+    )
+    assert Colorable.get_plain_string(report) == expected
+
+
+def test_get_grid_report_networth_csv():
+    args, ledger_args = grid.get_args(['--net-worth', '--csv'])
+    report = grid.get_grid_report(args, tuple(ledger_args))
+    expected = (
+        ',2017,2018\n'
+        '    $ 1,427.71    $ 1,304.27  net worth\n'
+    )
+    expected = dedent('''\
+        ,2017,2018
+        net worth,1427.71,1304.27
+    ''')
+    assert Colorable.get_plain_string(report) == expected

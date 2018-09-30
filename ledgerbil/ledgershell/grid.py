@@ -7,20 +7,27 @@ from datetime import date
 from io import StringIO
 from textwrap import dedent
 
+from dateutil.relativedelta import relativedelta
+
 from .. import util
 from ..colorable import Colorable
+from ..settings import Settings
+from ..util import get_date, get_float, parse_args
 from .runner import get_ledger_output
 from .util import get_account_balance
 
 TOTAL_HEADER = 'Total'
 SORT_DEFAULT = TOTAL_HEADER.lower()
 EMPTY_VALUE = ''
+# todo: move this to ledgershell/util.py?
 PAYEE_SUBTOTAL_REGEX = re.compile(r'^.*?\$\s*(\S+)\s*\$.*$')
+
+settings = Settings()
 
 
 def get_grid_report(args, ledger_args):
     unit = 'month' if args.month else 'year'
-    period_names, current_period_name = get_period_names(
+    period_names, current_period = get_period_names(
         args,
         ledger_args,
         unit
@@ -28,16 +35,15 @@ def get_grid_report(args, ledger_args):
     if not period_names:
         return ''
 
-    # Row headers: i.e. accounts or payees
+    # Row headers: i.e. accounts, payees, net worth (things with amounts)
     row_headers, columns = get_columns(
-        period_names,
+        args,
         ledger_args,
-        depth=args.depth,
-        current=current_period_name,
-        payees=args.payees
+        period_names,
+        current_period
     )
-    # Many queries with no results will come up empty on period names,
-    # but some, for example queries with "and" in them, may not
+    # Many queries with no results will come up empty on period names and
+    # return above, but some, for example queries with "and" in them, may not
     if not row_headers:
         return ''
 
@@ -47,7 +53,8 @@ def get_grid_report(args, ledger_args):
         period_names,
         args.sort,
         args.limit,
-        args.total_only
+        args.total_only,
+        no_total=args.networth
     )
 
     # Move account/payee name to first column for csv and/or transpose
@@ -70,7 +77,7 @@ def get_grid_report(args, ledger_args):
         for row in rows:
             row.append(row.pop(0))
 
-    return get_flat_report(rows)
+    return get_flat_report(rows, networth=args.networth)
 
 
 def get_csv_report(rows):
@@ -80,13 +87,13 @@ def get_csv_report(rows):
     return output.getvalue()
 
 
-def get_flat_report(rows):
+def get_flat_report(rows, networth=False):
     # 2 columns means has a single data column and account/payee column;
     # will have 4 or more columns otherwise, and have a total column;
     # same deal for total row; however! note that we sneak in --total-only
     # as if a regular single column (is also highlighted as a non-total col)
-    has_total_column = len(rows[0]) > 3
-    has_total_row = len(rows) > 3
+    has_total_column = len(rows[0]) > 3 and not networth
+    has_total_row = len(rows) > 3 and not networth
 
     AMOUNT_WIDTH = 14  # width of columns with amounts
     ACCOUNT_PAYEE_COLUMN = -1  # last column, aka row header
@@ -98,7 +105,7 @@ def get_flat_report(rows):
         AMOUNT_COLUMN_END = ACCOUNT_PAYEE_COLUMN  # exclusive
 
     DATA_ROW_START = 1
-    DATA_ROW_END = -1 if has_total_row else 2  # exclusive
+    DATA_ROW_END = -1 if has_total_row else len(rows)  # exclusive
     HEADER_ROW = 0
     FOOTER_ROW = -1 if has_total_row else None
 
@@ -228,36 +235,35 @@ def get_period_names(args, ledger_args, unit='year'):
         {x[:period_len] for x in lines if x[:period_len].strip() != ''}
     )
 
-    current_period_name = None
+    current_period = None
     if args.current:
-        current_period_date = date.today().strftime(date_format)
-        if current_period_date in names:
-            current_period_name = current_period_date
+        current_period_date_str = date.today().strftime(date_format)
+        if current_period_date_str in names:
+            current_period = current_period_date_str
             # remove future periods
-            names = names[:names.index(current_period_date) + 1]
+            names = names[:names.index(current_period_date_str) + 1]
 
-    return tuple(names), current_period_name
+    return tuple(names), current_period
 
 
-def get_columns(period_names,
-                ledger_args,
-                depth=0,
-                current=None,
-                payees=False):
-
+def get_columns(args, ledger_args, period_names, current_period=None):
     row_headers = set()
     columns = {}
     ending = tuple()
     for period_name in period_names:
-        if current and current == period_name:
+        if current_period and current_period == period_name:
             ending = ('--end', 'tomorrow')
-        if payees:
+
+        if args.payees:
             column = get_column_payees(period_name, ledger_args + ending)
+        elif args.networth:
+            networth_period = 'tomorrow' if ending else period_name
+            column = get_column_networth(networth_period, ledger_args)
         else:
             column = get_column_accounts(
                 period_name,
                 ledger_args + ending,
-                depth
+                args.depth
             )
 
         row_headers.update(column.keys())
@@ -339,6 +345,7 @@ def get_column_payees(period_name, ledger_args):
         if not payee:
             payee = line
         else:
+            # todo: this might want to live in ledgershell util.py
             match = re.match(PAYEE_SUBTOTAL_REGEX, line)
             assert match, f'Payee subtotal regex did not match: {line}'
             assert payee not in column, f'Payee already in column: {payee}'
@@ -349,12 +356,44 @@ def get_column_payees(period_name, ledger_args):
     return column
 
 
+def get_column_networth(period_name, ledger_args):
+    if period_name == 'tomorrow':
+        ending = period_name
+    else:
+        if len(period_name) == 4:  # year
+            date_format = '%Y'
+            networth_relativedelta = relativedelta(years=1)
+        else:  # month
+            date_format = '%Y/%m'
+            networth_relativedelta = relativedelta(months=1)
+
+        # Let's report net worth for the end of the current period,
+        # which means we want to use the next period as the ending
+        # since `--end` is the "exclusive" end
+        period_date = get_date(period_name, date_format)
+        next_period_date = period_date + networth_relativedelta
+        ending = next_period_date.strftime(date_format)
+
+    accounts = tuple(parse_args(settings.NETWORTH_ACCOUNTS))
+    lines = get_ledger_output(
+        ('balance',)
+        + accounts
+        + ('--depth', '1', '--end', ending)
+        + ledger_args
+    ).split('\n')
+
+    amount = lines[-1].strip() or '0'
+    column = {'net worth': get_float(amount)}
+    return column
+
+
 def get_rows(row_headers,
              columns,
              period_names,
              sort=SORT_DEFAULT,
              limit=0,
-             total_only=False):
+             total_only=False,
+             no_total=False):
 
     ACCOUNT_PAYEE_HEADER = EMPTY_VALUE
     ACCOUNT_PAYEE_COLUMN = -1
@@ -395,7 +434,7 @@ def get_rows(row_headers,
             new_rows.append(row[-2:])
         return new_rows
 
-    if len(period_names) == 1:
+    if no_total or len(period_names) == 1:
         for row in rows:
             del row[TOTAL_COLUMN]
 
@@ -420,8 +459,8 @@ def get_args(args):
 
         Don't specify bal, balance, reg, or register!
 
-        e.g. ./main.py expenses -p 'last 2 years' will show expenses for last
-        two years with separate columns for the years.
+        e.g. ./main.py grid expenses -p 'last 2 years' will show expenses for
+        last two years with separate columns for the years.
 
         Begin and end dates only determine the range for which periods will be
         reported. They do not limit included entries within a period. For
@@ -492,6 +531,13 @@ def get_args(args):
         action='store_true',
         default=False,
         help='show expenses by payee'
+    )
+    parser.add_argument(
+        '--net-worth',
+        dest='networth',
+        action='store_true',
+        default=False,
+        help='show net worth at end of periods'
     )
     parser.add_argument(
         '--limit',

@@ -564,8 +564,8 @@ them, and all arguments not defined here are passed through to ledger.
 
 Don't specify bal, balance, reg, or register!
 
-e.g. ./main.py expenses -p 'last 2 years' will show expenses for last
-two years with separate columns for the years.
+e.g. ./main.py grid expenses -p 'last 2 years' will show expenses for
+last two years with separate columns for the years.
 
 Begin and end dates only determine the range for which periods will be
 reported. They do not limit included entries within a period. For
@@ -591,6 +591,7 @@ optional arguments:
   --depth N                   limit the depth of account tree for
                               account reports
   --payees                    show expenses by payee
+  --net-worth                 show net worth at end of periods
   --limit N                   limit the number of rows shown to top N
   -T, --total-only            show only the total column (more useful
                               for payees)

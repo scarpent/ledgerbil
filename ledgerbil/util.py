@@ -33,12 +33,12 @@ def _eval(node):
         raise TypeError(node)
 
 
-def get_date_string(the_date):
-    return the_date.strftime(DATE_FORMAT)
+def get_date_string(the_date, the_format=DATE_FORMAT):
+    return the_date.strftime(the_format)
 
 
-def get_date(date_string):
-    return datetime.strptime(date_string, DATE_FORMAT).date()
+def get_date(date_string, the_format=DATE_FORMAT):
+    return datetime.strptime(date_string, the_format).date()
 
 
 def is_valid_date(date_string):

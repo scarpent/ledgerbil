@@ -1,10 +1,10 @@
 import argparse
 import re
-import shlex
 from textwrap import dedent
 
 from ..colorable import Colorable
 from ..settings import Settings
+from ..util import parse_args
 from .runner import get_ledger_command, get_ledger_output
 from .util import AccountBalance, get_account_balance
 
@@ -21,7 +21,7 @@ def get_investment_command_options(
         options += ['--exchange', '.']  # override --market
     options += ['--end', end_date]
 
-    return tuple(['bal'] + shlex.split(accounts) + options)
+    return tuple(['bal'] + parse_args(accounts) + options)
 
 
 def warn_negative_dollars(amount, account):
