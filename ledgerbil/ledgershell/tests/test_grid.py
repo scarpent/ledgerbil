@@ -320,16 +320,17 @@ def test_get_columns_payees(mock_get_column_payees):
     }
     expected_payees = {'zig', 'zag', 'blitz', 'krieg'}
 
-    payees, columns = grid.get_columns(
-        ('bratwurst', 'knockwurst'),
-        ('?', '!'),
-        payees=True
-    )
+    args, ledger_args = grid.get_args(['--payees', 'fu', 'bar'])
+    ledger_args = tuple(ledger_args)
+    period_names = ('bratwurst', 'knockwurst')
+
+    payees, columns = grid.get_columns(args, ledger_args, period_names)
+
     assert payees == expected_payees
     assert columns == expected_columns
     mock_get_column_payees.assert_has_calls([
-        mock.call('bratwurst', ('?', '!')),
-        mock.call('knockwurst', ('?', '!')),
+        mock.call('bratwurst', ledger_args),
+        mock.call('knockwurst', ledger_args),
     ])
 
 
@@ -355,12 +356,17 @@ def test_get_columns(mock_get_column_accounts):
         'expenses: widgets',
     }
 
-    accounts, columns = grid.get_columns(('lemon', 'lime'), tuple('salt!'))
+    args, ledger_args = grid.get_args(['salt!'])
+    ledger_args = tuple(ledger_args)
+    period_names = ('lemon', 'lime')
+
+    accounts, columns = grid.get_columns(args, ledger_args, period_names)
+
     assert accounts == expected_accounts
     assert columns == expected_columns
     mock_get_column_accounts.assert_has_calls([
-        mock.call('lemon', tuple('salt!'), 0),
-        mock.call('lime', tuple('salt!'), 0),
+        mock.call('lemon', ledger_args, 0),
+        mock.call('lime', ledger_args, 0),
     ])
 
 
@@ -373,16 +379,22 @@ def test_get_columns_with_current(mock_get_column_accounts):
     expected_columns = {'lemon': lemon_column, 'lime': lime_column}
     expected_accounts = {'expenses: unicorns', 'expenses: widgets'}
 
+    args, ledger_args = grid.get_args(['salt!'])
+    ledger_args = tuple(ledger_args)
+    period_names = ('lemon', 'lime')
+
     accounts, columns = grid.get_columns(
-        ('lemon', 'lime'),
-        ('salt!', ),
-        current='lime'
+        args,
+        ledger_args,
+        period_names,
+        current_period='lime'
     )
+
     assert accounts == expected_accounts
     assert columns == expected_columns
     mock_get_column_accounts.assert_has_calls([
-        mock.call('lemon', ('salt!', ), 0),
-        mock.call('lime', ('salt!', '--end', 'tomorrow'), 0),
+        mock.call('lemon', ledger_args, 0),
+        mock.call('lime', ledger_args + ('--end', 'tomorrow'), 0),
     ])
 
 
@@ -652,16 +664,10 @@ def test_get_grid_report_month(mock_pnames, mock_cols, mock_rows, mock_report):
     mock_report.return_value = flat_report
 
     args, ledger_args = grid.get_args(['--month', 'nutmeg'])
+    ledger_args = tuple(ledger_args)
     assert grid.get_grid_report(args, ledger_args) == flat_report
     mock_pnames.assert_called_once_with(args, ledger_args, 'month')
-    mock_cols.assert_called_once_with(
-        period_names,
-        ledger_args,
-        depth=0,
-        current=None,
-        payees=False,
-        networth=False
-    )
+    mock_cols.assert_called_once_with(args, ledger_args, period_names, None)
     mock_rows.assert_called_once_with(
         row_headers,
         columns,
@@ -685,25 +691,19 @@ def test_get_grid_report_year(mock_pnames, mock_cols, mock_rows, mock_report):
         ('paprika', 'garlic'), 'fennel', 'tarragon', 'parsley',
     )
 
-    mock_pnames.return_value = (period_names, 'celery')
+    mock_pnames.return_value = (period_names, 'basil')
     mock_cols.return_value = (row_headers, columns)
     mock_report.return_value = flat_report
 
     # -y defaults to True so could also be a test without -y and -m
     args, ledger_args = grid.get_args([
         '--year', 'nutmeg', '--depth', '5', '--limit', '20',
-        '--payee', '--sort', 'cloves'
+        '--payees', '--sort', 'cloves'
     ])
+    ledger_args = tuple(ledger_args)
     assert grid.get_grid_report(args, ledger_args) == flat_report
     mock_pnames.assert_called_once_with(args, ledger_args, 'year')
-    mock_cols.assert_called_once_with(
-        period_names,
-        ledger_args,
-        depth=5,
-        current='celery',
-        payees=True,
-        networth=False
-    )
+    mock_cols.assert_called_once_with(args, ledger_args, period_names, 'basil')
     mock_rows.assert_called_once_with(
         row_headers,
         columns,

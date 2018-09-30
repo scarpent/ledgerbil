@@ -27,7 +27,7 @@ settings = Settings()
 
 def get_grid_report(args, ledger_args):
     unit = 'month' if args.month else 'year'
-    period_names, current_period_name = get_period_names(
+    period_names, current_period = get_period_names(
         args,
         ledger_args,
         unit
@@ -37,12 +37,10 @@ def get_grid_report(args, ledger_args):
 
     # Row headers: i.e. accounts, payees, net worth (things with amounts)
     row_headers, columns = get_columns(
-        period_names,
+        args,
         ledger_args,
-        depth=args.depth,
-        current=current_period_name,
-        payees=args.payees,
-        networth=args.networth
+        period_names,
+        current_period
     )
     # Many queries with no results will come up empty on period names and
     # return above, but some, for example queries with "and" in them, may not
@@ -244,41 +242,36 @@ def get_period_names(args, ledger_args, unit='year'):
         {x[:period_len] for x in lines if x[:period_len].strip() != ''}
     )
 
-    current_period_name = None
+    current_period = None
     if args.current:
         current_period_date_str = date.today().strftime(date_format)
         if current_period_date_str in names:
-            current_period_name = current_period_date_str
+            current_period = current_period_date_str
             # remove future periods
             names = names[:names.index(current_period_date_str) + 1]
 
-    return tuple(names), current_period_name
+    return tuple(names), current_period
 
 
-def get_columns(period_names,
-                ledger_args,
-                depth=0,
-                current=None,
-                payees=False,
-                networth=False):
+def get_columns(args, ledger_args, period_names, current_period=None):
 
     row_headers = set()
     columns = {}
     ending = tuple()
     for period_name in period_names:
-        if current and current == period_name:
+        if current_period and current_period == period_name:
             ending = ('--end', 'tomorrow')
 
-        if payees:
+        if args.payees:
             column = get_column_payees(period_name, ledger_args + ending)
-        elif networth:
+        elif args.networth:
             networth_period = 'tomorrow' if ending else period_name
             column = get_column_networth(networth_period, ledger_args)
         else:
             column = get_column_accounts(
                 period_name,
                 ledger_args + ending,
-                depth
+                args.depth
             )
 
         row_headers.update(column.keys())
