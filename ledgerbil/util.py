@@ -8,8 +8,9 @@ from functools import reduce
 
 from .colorable import Colorable
 from .ledgerbilexceptions import LdgReconcilerError
+from .settings_getter import get_setting
 
-DATE_FORMAT = '%Y/%m/%d'
+DATE_FORMAT = get_setting('DATE_FORMAT')
 
 # supported operators
 operators = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
