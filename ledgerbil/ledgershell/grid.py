@@ -537,7 +537,7 @@ def get_args(args):
         dest='networth',
         action='store_true',
         default=False,
-        help='show net worth (default uses ^assets and ^liabilities)'
+        help='show net worth at end of periods'
     )
     parser.add_argument(
         '--limit',
