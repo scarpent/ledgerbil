@@ -814,6 +814,8 @@ def test_get_grid_report_no_period_names(mock_ledger_output):
 @mock.patch(__name__ + '.grid.get_columns')
 @mock.patch(__name__ + '.grid.get_period_names')
 def test_get_grid_report_no_results(mock_pnames, mock_cols):
+    """Queries that return period names but not row headers should
+       return no results"""
     period_names, row_headers, columns = (
         ('paprika', 'garlic'), set(), 'tarragon',
     )

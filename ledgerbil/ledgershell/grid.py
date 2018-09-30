@@ -35,7 +35,7 @@ def get_grid_report(args, ledger_args):
     if not period_names:
         return ''
 
-    # Row headers: i.e. accounts, payees, net worth
+    # Row headers: i.e. accounts, payees, net worth (things with amounts)
     row_headers, columns = get_columns(
         period_names,
         ledger_args,
@@ -44,8 +44,8 @@ def get_grid_report(args, ledger_args):
         payees=args.payees,
         networth=args.networth
     )
-    # Many queries with no results will come up empty on period names,
-    # but some, for example queries with "and" in them, may not
+    # Many queries with no results will come up empty on period names and
+    # return above, but some, for example queries with "and" in them, may not
     if not row_headers:
         return ''
 
@@ -381,6 +381,9 @@ def get_column_networth(period_name, ledger_args):
             date_format = '%Y/%m'
             networth_relativedelta = relativedelta(months=1)
 
+        # Let's report networth for the end of the current period,
+        # which means we want to use the next period as the ending
+        # since --end is the "exclusive" end
         period_date = get_date(period_name, date_format)
         next_period_date = period_date + networth_relativedelta
         ending = next_period_date.strftime(date_format)
