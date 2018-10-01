@@ -22,6 +22,7 @@ def teardown_function():
 @pytest.mark.parametrize('test_input, expected', [
     ('DATE_FORMAT', '%Y/%m/%d'),
     ('DATE_FORMAT_MONTH', '%Y/%m'),
+    ('DATE_FORMAT_YEAR', '%Y'),
     ('NETWORTH_ACCOUNTS', '(^assets ^liabilities)'),
 ])
 def test_empty_or_missing_settings_defaults(test_input, expected):

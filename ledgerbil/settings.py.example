@@ -51,7 +51,7 @@ class Settings:
 
     # Date format used by your ledger journal files. This is needed for
     # sorting and the scheduler to work properly. (Only '%Y/%m/%d' and
-    # '%Y-%m-%d' are currently supported.)
+    # '%Y-%m-%d' are currently supported due to ledgerthing DATE_REGEX.)
     DATE_FORMAT = '%Y/%m/%d'
 
     # Only used for output purposes, for example, in grid column headers.

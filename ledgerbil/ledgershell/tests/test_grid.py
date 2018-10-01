@@ -13,6 +13,12 @@ from ...tests.helpers import OutputFileTester
 
 class MockSettings:
     NETWORTH_ACCOUNTS = '(^fu ^bar)'
+    DATE_FORMAT_MONTH = settings_getter.defaults['DATE_FORMAT_MONTH']
+
+
+class MockSettingsAltDateFormat:
+    NETWORTH_ACCOUNTS = '(^bar ^fu)'
+    DATE_FORMAT_MONTH = '%Y-%m'
 
 
 class MockSettingsEmpty:
@@ -21,14 +27,10 @@ class MockSettingsEmpty:
 
 def setup_function():
     settings_getter.settings = MockSettings()
-    # cheat since don't know how/if we can override
-    # module level call to get_setting()
-    grid.DATE_FORMAT_MONTH = settings_getter.defaults['DATE_FORMAT_MONTH']
 
 
 def teardown_function():
     settings_getter.settings = settings.Settings()
-    grid.DATE_FORMAT_MONTH = settings_getter.get_setting('DATE_FORMAT_MONTH')
 
 
 @mock.patch(__name__ + '.grid.get_ledger_output')
@@ -71,9 +73,9 @@ def test_get_period_names_months(mock_ledger_output):
     )
 
 
-@mock.patch(__name__ + '.grid.DATE_FORMAT_MONTH', '%Y-%m')
 @mock.patch(__name__ + '.grid.get_ledger_output')
 def test_get_period_names_months_different_format(mock_ledger_output):
+    settings_getter.settings = MockSettingsAltDateFormat()
     output = dedent('''\
         2017-11 - 2017-11       <Total>                  0         0
         2017-12 - 2017-12       <Total>                  0         0
@@ -402,9 +404,9 @@ def test_get_column_networth_month(mock_ledger_output):
     )
 
 
-@mock.patch(__name__ + '.grid.DATE_FORMAT_MONTH', '%Y-%m')
 @mock.patch(__name__ + '.grid.get_ledger_output')
 def test_get_column_networth_month_different_date_format(mock_ledger_output):
+    settings_getter.settings = MockSettingsAltDateFormat()
     output = dedent('''\
                   $ 8,270.61  assets
                  $ -4,424.04  liabilities
@@ -414,7 +416,7 @@ def test_get_column_networth_month_different_date_format(mock_ledger_output):
     expected = {'net worth': 3846.57}
     assert grid.get_column_networth('2007-10', tuple()) == expected
     mock_ledger_output.assert_called_once_with(
-        ('balance', '(^fu', '^bar)',
+        ('balance', '(^bar', '^fu)',
          '--depth', '1', '--end', '2007-11')
     )
 

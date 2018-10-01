@@ -1,5 +1,4 @@
 from textwrap import dedent
-from unittest import mock
 
 from .. import grid, runner
 from ... import settings, settings_getter
@@ -16,18 +15,21 @@ class MockSettings:
     LEDGER_DIR = FileTester.testdir
     LEDGER_FILES = ['grid-end-to-end.ldg']
     NETWORTH_ACCOUNTS = settings_getter.defaults['NETWORTH_ACCOUNTS']
+    DATE_FORMAT_MONTH = settings_getter.defaults['DATE_FORMAT_MONTH']
+
+
+class MockSettingsAltDateFormat(MockSettings):
+    DATE_FORMAT_MONTH = '%Y-%m'
 
 
 def setup_module():
     runner.settings = MockSettings()
     settings_getter.settings = MockSettings()
-    grid.DATE_FORMAT_MONTH = settings_getter.defaults['DATE_FORMAT_MONTH']
 
 
 def teardown_module():
     runner.settings = settings.Settings()
     settings_getter.settings = settings.Settings()
-    grid.DATE_FORMAT_MONTH = settings_getter.get_setting('DATE_FORMAT_MONTH')
 
 
 def test_get_grid_report_flat_report_expenses():
@@ -260,8 +262,8 @@ def test_get_grid_report_networth_flat_report_transposed():
     assert Colorable.get_plain_string(report) == expected
 
 
-@mock.patch(__name__ + '.grid.DATE_FORMAT_MONTH', '%Y-%m')
 def test_get_grid_report_networth_flat_report_different_date_format():
+    settings_getter.settings = MockSettingsAltDateFormat()
     args, ledger_args = grid.get_args(
         ['--net-worth', '--month', '--transpose', '--period', '2017']
     )

@@ -21,8 +21,6 @@ SORT_DEFAULT = TOTAL_HEADER.lower()
 EMPTY_VALUE = ''
 # todo: move this to ledgershell/util.py?
 PAYEE_SUBTOTAL_REGEX = re.compile(r'^.*?\$\s*(\S+)\s*\$.*$')
-DATE_FORMAT_YEAR = '%Y'
-DATE_FORMAT_MONTH = get_setting('DATE_FORMAT_MONTH')
 
 
 def get_grid_report(args, ledger_args):
@@ -217,11 +215,11 @@ def get_period_names(args, ledger_args, unit='year'):
     period = ('--period', args.period) if args.period else tuple()
 
     if unit == 'year':
-        date_format = DATE_FORMAT_YEAR
+        date_format = get_setting('DATE_FORMAT_YEAR')
         period_options = ('--yearly', '--date-format', date_format)
         period_len = 4
     else:
-        date_format = DATE_FORMAT_MONTH
+        date_format = get_setting('DATE_FORMAT_MONTH')
         period_options = ('--monthly', '--date-format', date_format)
         period_len = 7
 
@@ -361,10 +359,10 @@ def get_column_networth(period_name, ledger_args):
         ending = period_name
     else:
         if len(period_name) == 4:  # year
-            date_format = DATE_FORMAT_YEAR
+            date_format = get_setting('DATE_FORMAT_YEAR')
             networth_relativedelta = relativedelta(years=1)
         else:  # month
-            date_format = DATE_FORMAT_MONTH
+            date_format = get_setting('DATE_FORMAT_MONTH')
             networth_relativedelta = relativedelta(months=1)
 
         # Let's report net worth for the end of the current period,

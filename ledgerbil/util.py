@@ -10,10 +10,6 @@ from .colorable import Colorable
 from .ledgerbilexceptions import LdgReconcilerError
 from .settings_getter import get_setting
 
-# There is a DATE_REGEX in ledgerthing.py that limits us to two
-# viable options for this format. (See also: settings.py.example)
-DATE_FORMAT = get_setting('DATE_FORMAT')
-
 # supported operators
 operators = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
              ast.Div: op.truediv, ast.Pow: op.pow, ast.BitXor: op.xor,
@@ -38,16 +34,13 @@ def _eval(node):
 
 def get_date_string(the_date, the_format=None):
     if not the_format:
-        # Setting the_format here and not in the kwarg assignment is
-        # a concession to unit testing needs (was unable to override
-        # when in kwarg)
-        the_format = DATE_FORMAT
+        the_format = get_setting('DATE_FORMAT')
     return the_date.strftime(the_format)
 
 
 def get_date(date_string, the_format=None):
     if not the_format:
-        the_format = DATE_FORMAT
+        the_format = get_setting('DATE_FORMAT')
     return datetime.strptime(date_string, the_format).date()
 
 
