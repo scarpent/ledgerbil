@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 from .. import settings, settings_getter
@@ -19,11 +21,18 @@ def teardown_function():
     settings_getter.settings = settings.Settings()
 
 
+expected_reconciler_cache_file = os.path.join(
+    os.path.expanduser('~'),
+    '.ledgerbil_reconciler_cache'
+)
+
+
 @pytest.mark.parametrize('test_input, expected', [
     ('DATE_FORMAT', '%Y/%m/%d'),
     ('DATE_FORMAT_MONTH', '%Y/%m'),
     ('DATE_FORMAT_YEAR', '%Y'),
     ('NETWORTH_ACCOUNTS', '(^assets ^liabilities)'),
+    ('RECONCILER_CACHE_FILE', expected_reconciler_cache_file),
 ])
 def test_empty_or_missing_settings_defaults(test_input, expected):
     settings_getter.settings = MockSettingsEmpty()

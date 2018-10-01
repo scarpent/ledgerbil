@@ -4,17 +4,16 @@ for your system. This is mostly for the "ledgershell" commands that use
 the ledger client.
 
 The scheduler and sort commands, and most of the reconciler can run
-without this file, and some of the options will fall back to defaults
-in settings_getter.py.
+without this file. Some configuration will fall back to defaults in
+settings_getter.py.
 
-The reconciler wants to use RECONCILER_CACHE_FILE, but will soon have a
-default, something like ~/.ledgerbil_reconciler_cache, perhaps. The
---reconciled-status feature will need ledger config since it runs ledger
-to compare cached reconciliation amounts with --cleared amounts.
+Re: "most of the reconciler", RECONCILER_CACHE_FILE will be
+~/.ledgerbil_reconciler_cache if not in here, so that only the
+--reconciled-status feature needs ledger config.
 
 This file needs to be present as settings.py for tests to run. Its
 contents are mocked as much as possible, but since not all cases
-are handled, we'll rely on the example version for a definitive
+are handled, we'll rely on this example version for a definitive
 test run.
 """
 import os
