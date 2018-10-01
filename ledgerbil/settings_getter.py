@@ -11,8 +11,8 @@ defaults = {
 }
 
 
-def get_setting(setting):
+def get_setting(setting, default=None):
     if settings and hasattr(settings, setting):
         return getattr(settings, setting)
 
-    return defaults.get(setting, None)
+    return defaults.get(setting, default)

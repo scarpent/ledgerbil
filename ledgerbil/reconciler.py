@@ -11,9 +11,7 @@ from .colorable import Colorable
 from .ledgerbilexceptions import LdgReconcilerError
 from .ledgershell.runner import get_ledger_output
 from .ledgershell.util import get_account_balance_generic
-from .settings import Settings
-
-settings = Settings()
+from .settings_getter import get_setting
 
 
 def run_reconciler(ledgerfiles):
@@ -535,7 +533,8 @@ class Reconciler(cmd.Cmd, object):
             cache[key]['ending_balance'] = self.ending_balance
 
         try:
-            with open(settings.RECONCILER_CACHE_FILE, 'w') as the_file:
+            cache_file = get_setting('RECONCILER_CACHE_FILE')
+            with open(cache_file, 'w') as the_file:
                 the_file.write(json.dumps(cache, indent=4, sort_keys=True))
         except (IOError, ValueError) as e:
             print(f'Error writing reconciler cache: {e}', file=sys.stderr)
@@ -556,9 +555,10 @@ class Reconciler(cmd.Cmd, object):
 
 
 def get_reconciler_cache():
-    if os.path.exists(settings.RECONCILER_CACHE_FILE):
+    cache_file = get_setting('RECONCILER_CACHE_FILE')
+    if os.path.exists(cache_file):
         try:
-            with open(settings.RECONCILER_CACHE_FILE, 'r') as the_file:
+            with open(cache_file, 'r') as the_file:
                 return json.loads(the_file.read())
         except (IOError, ValueError) as e:
             print(f'Error getting reconciler cache: {e}', file=sys.stderr)
@@ -616,11 +616,10 @@ def get_accounts_reconciled_data():
 
 
 def get_expanded_account_name(account):
-    if not hasattr(settings, 'ACCOUNT_ALIASES'):
-        return account
+    aliases = get_setting('ACCOUNT_ALIASES', {})
 
     expanded_account = account
-    for alias_regex, replacement in settings.ACCOUNT_ALIASES.items():
+    for alias_regex, replacement in aliases.items():
         expanded_account = re.sub(
             alias_regex,
             replacement,

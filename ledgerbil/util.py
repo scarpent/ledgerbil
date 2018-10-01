@@ -10,6 +10,8 @@ from .colorable import Colorable
 from .ledgerbilexceptions import LdgReconcilerError
 from .settings_getter import get_setting
 
+# There is a DATE_REGEX in ledgerthing.py that limits us to two
+# viable options for this format. (See also: settings.py.example)
 DATE_FORMAT = get_setting('DATE_FORMAT')
 
 # supported operators
