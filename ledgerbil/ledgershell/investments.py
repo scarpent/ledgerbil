@@ -3,18 +3,18 @@ import re
 from textwrap import dedent
 
 from ..colorable import Colorable
-from ..settings import Settings
+from ..settings_getter import get_setting
 from ..util import parse_args
 from .runner import get_ledger_command, get_ledger_output
 from .util import AccountBalance, get_account_balance
 
-settings = Settings()
 
+def get_investment_command_options(shares=False, accounts=None, end_date=None):
 
-def get_investment_command_options(
-        shares=False,
-        accounts=settings.INVESTMENT_DEFAULT_ACCOUNTS,
-        end_date=settings.INVESTMENT_DEFAULT_END_DATE):
+    if not accounts:
+        accounts = get_setting('INVESTMENT_DEFAULT_ACCOUNTS')
+    if not end_date:
+        end_date = get_setting('INVESTMENT_DEFAULT_END_DATE')
 
     options = ['--no-total']
     if shares:
@@ -187,20 +187,20 @@ def get_args(args):
             width=71
         ))
     )
+    default_accounts = get_setting('INVESTMENT_DEFAULT_ACCOUNTS')
     parser.add_argument(
         '-a', '--accounts',
         type=str,
-        default=settings.INVESTMENT_DEFAULT_ACCOUNTS,
-        help='balances for specified accounts (default: {})'.format(
-            settings.INVESTMENT_DEFAULT_ACCOUNTS
-        )
+        default=default_accounts,
+        help=f'balances for specified accounts (default: {default_accounts})'
     )
+    default_end_date = get_setting('INVESTMENT_DEFAULT_END_DATE')
     parser.add_argument(
         '-e', '--end',
         type=str,
         metavar='DATE',
-        default=settings.INVESTMENT_DEFAULT_END_DATE,
-        help=f'end date (default: {settings.INVESTMENT_DEFAULT_END_DATE})'
+        default=default_end_date,
+        help=f'end date (default: {default_end_date})'
     )
     parser.add_argument(
         '-c', '--command',
