@@ -6,16 +6,29 @@ from unittest import mock
 import pytest
 
 from .. import grid
+from ... import settings, settings_getter
 from ...colorable import Colorable
 from ...tests.helpers import OutputFileTester
 
 
 class MockSettings:
-    NETWORTH_ACCOUNTS = '(^assets ^liabilities)'
+    NETWORTH_ACCOUNTS = '(^fu ^bar)'
 
 
-def setup_function(module):
-    grid.settings = MockSettings()
+class MockSettingsEmpty:
+    pass
+
+
+def setup_function():
+    settings_getter.settings = MockSettings()
+    # cheat since don't know how/if we can override
+    # module level call to get_setting()
+    grid.DATE_FORMAT_MONTH = settings_getter.defaults['DATE_FORMAT_MONTH']
+
+
+def teardown_function():
+    settings_getter.settings = settings.Settings()
+    grid.DATE_FORMAT_MONTH = settings_getter.get_setting('DATE_FORMAT_MONTH')
 
 
 @mock.patch(__name__ + '.grid.get_ledger_output')
@@ -54,6 +67,29 @@ def test_get_period_names_months(mock_ledger_output):
     mock_ledger_output.assert_called_once_with(
         ('register', '--begin', 'banana', '--end', 'eggplant',
          '--period', 'pear', '--monthly', '--date-format', '%Y/%m',
+         '--collapse', '--empty', 'lettuce')
+    )
+
+
+@mock.patch(__name__ + '.grid.DATE_FORMAT_MONTH', '%Y-%m')
+@mock.patch(__name__ + '.grid.get_ledger_output')
+def test_get_period_names_months_different_format(mock_ledger_output):
+    output = dedent('''\
+        2017-11 - 2017-11       <Total>                  0         0
+        2017-12 - 2017-12       <Total>                  0         0
+
+        2018-01 - 2018-01       <Total>                  0         0''')
+    mock_ledger_output.return_value = output
+    args, ledger_args = grid.get_args([
+        '--begin', 'banana', '--end', 'eggplant',
+        '--period', 'pear', 'lettuce'
+    ])
+    expected = (('2017-11', '2017-12', '2018-01'), None)
+    actual = grid.get_period_names(args, tuple(ledger_args), 'month')
+    assert actual == expected
+    mock_ledger_output.assert_called_once_with(
+        ('register', '--begin', 'banana', '--end', 'eggplant',
+         '--period', 'pear', '--monthly', '--date-format', '%Y-%m',
          '--collapse', '--empty', 'lettuce')
     )
 
@@ -345,13 +381,49 @@ def test_get_column_networth_year(mock_ledger_output):
     expected = {'net worth': 3846.57}
     assert grid.get_column_networth('2007', ('bogus', )) == expected
     mock_ledger_output.assert_called_once_with(
-        ('balance', '(^assets', '^liabilities)',
+        ('balance', '(^fu', '^bar)',
          '--depth', '1', '--end', '2008', 'bogus')
     )
 
 
 @mock.patch(__name__ + '.grid.get_ledger_output')
 def test_get_column_networth_month(mock_ledger_output):
+    output = dedent('''\
+                  $ 8,270.61  assets
+                 $ -4,424.04  liabilities
+        --------------------
+                  $ 3,846.57''')
+    mock_ledger_output.return_value = output
+    expected = {'net worth': 3846.57}
+    assert grid.get_column_networth('2007/10', tuple()) == expected
+    mock_ledger_output.assert_called_once_with(
+        ('balance', '(^fu', '^bar)',
+         '--depth', '1', '--end', '2007/11')
+    )
+
+
+@mock.patch(__name__ + '.grid.DATE_FORMAT_MONTH', '%Y-%m')
+@mock.patch(__name__ + '.grid.get_ledger_output')
+def test_get_column_networth_month_different_date_format(mock_ledger_output):
+    output = dedent('''\
+                  $ 8,270.61  assets
+                 $ -4,424.04  liabilities
+        --------------------
+                  $ 3,846.57''')
+    mock_ledger_output.return_value = output
+    expected = {'net worth': 3846.57}
+    assert grid.get_column_networth('2007-10', tuple()) == expected
+    mock_ledger_output.assert_called_once_with(
+        ('balance', '(^fu', '^bar)',
+         '--depth', '1', '--end', '2007-11')
+    )
+
+
+@mock.patch(__name__ + '.grid.get_ledger_output')
+def test_get_column_networth_default_networth_accounts(mock_ledger_output):
+    """get_column_networth should use a default for NETWORTH_ACCOUNTS
+       if the setting is not present"""
+    settings_getter.settings = MockSettingsEmpty()
     output = dedent('''\
                   $ 8,270.61  assets
                  $ -4,424.04  liabilities
@@ -372,7 +444,7 @@ def test_get_column_networth_tomorrow_and_no_result(mock_ledger_output):
     expected = {'net worth': 0.0}
     assert grid.get_column_networth('tomorrow', tuple()) == expected
     mock_ledger_output.assert_called_once_with(
-        ('balance', '(^assets', '^liabilities)',
+        ('balance', '(^fu', '^bar)',
          '--depth', '1', '--end', 'tomorrow')
     )
 

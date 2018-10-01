@@ -1,4 +1,6 @@
-from .. import settings_getter
+import pytest
+
+from .. import settings, settings_getter
 
 
 class MockSettingsEmpty:
@@ -6,19 +8,24 @@ class MockSettingsEmpty:
 
 
 class MockSettings:
-    DATE_FORMAT = '%Y/%m/%d'
+    DATE_FORMAT = '%Y-%m-%d'
 
 
-def test_empty_settings_date_format():
+def teardown_function():
+    settings_getter.settings = settings.Settings()
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    ('DATE_FORMAT', '%Y/%m/%d'),
+    ('DATE_FORMAT_MONTH', '%Y/%m'),
+    ('NETWORTH_ACCOUNTS', '(^assets ^liabilities)'),
+    ('FUBAR_NO_DEFAULT', None),
+])
+def test_empty_or_missing_settings_defaults(test_input, expected):
     settings_getter.settings = MockSettingsEmpty()
-    assert settings_getter.get_setting('DATE_FORMAT') == '%Y/%m/%d'
+    assert settings_getter.get_setting(test_input) == expected
 
 
 def test_settings_date_format():
     settings_getter.settings = MockSettings()
-    assert settings_getter.get_setting('DATE_FORMAT') == '%Y/%m/%d'
-
-
-def test_settings_setting_not_there_and_no_default():
-    settings_getter.settings = MockSettings()
-    assert settings_getter.get_setting('FUBAR') is None
+    assert settings_getter.get_setting('DATE_FORMAT') == '%Y-%m-%d'

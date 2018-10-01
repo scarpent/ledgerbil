@@ -34,11 +34,18 @@ def _eval(node):
         raise TypeError(node)
 
 
-def get_date_string(the_date, the_format=DATE_FORMAT):
+def get_date_string(the_date, the_format=None):
+    if not the_format:
+        # Setting the_format here and not in the kwarg assignment is
+        # a concession to unit testing needs (was unable to override
+        # when in kwarg)
+        the_format = DATE_FORMAT
     return the_date.strftime(the_format)
 
 
-def get_date(date_string, the_format=DATE_FORMAT):
+def get_date(date_string, the_format=None):
+    if not the_format:
+        the_format = DATE_FORMAT
     return datetime.strptime(date_string, the_format).date()
 
 

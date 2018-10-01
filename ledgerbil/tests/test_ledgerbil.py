@@ -55,6 +55,17 @@ class Sorting(TestCase):
         self.assertEqual(expected, actual)
 
 
+@mock.patch(__name__ + '.util.DATE_FORMAT', '%Y-%m-%d')
+def test_main_sort_wrong_date_format():
+    """main should fail to sort file if date format is different"""
+    expected = FT.read_file(FT.alpha_unsortedfile)
+    tempfile = FT.copy_to_temp_file(FT.alpha_unsortedfile)
+    ledgerbil.main(['--file', tempfile, '--sort'])
+    actual = FT.read_file(tempfile)
+    os.remove(tempfile)
+    assert actual == expected
+
+
 @mock.patch(__name__ + '.ledgerbil.LedgerFile.write_file')
 @mock.patch(__name__ + '.ledgerbil.LedgerFile.sort')
 @mock.patch(__name__ + '.ledgerbil.LedgerFile.__init__')

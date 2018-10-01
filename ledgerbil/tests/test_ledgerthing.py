@@ -1,8 +1,9 @@
 from datetime import date
-from unittest import TestCase
+from unittest import TestCase, mock
 
 import pytest
 
+from .. import ledgerthing  # noqa (used in mock patch)
 from ..ledgerbilexceptions import LdgReconcilerError
 from ..ledgerthing import (
     REC_CLEARED, REC_PENDING, REC_UNCLEARED, UNSPECIFIED_PAYEE, LedgerPosting,
@@ -82,6 +83,15 @@ def test_transaction_top_line_parsing(test_input, expected):
         thing.rec_top_line_status
     )
     assert actual == expected
+
+
+@mock.patch(__name__ + '.ledgerthing.util.DATE_FORMAT', '%Y-%m-%d')
+def test_transaction_top_line_with_different_date_format():
+    thing = LedgerThing(['2016-10-20 some1'])
+    assert thing.thing_date == date(2016, 10, 20)
+    assert thing.transaction_code == ''
+    assert thing.payee == 'some1'
+    assert thing.rec_top_line_status is False
 
 
 @pytest.mark.parametrize('test_input', [

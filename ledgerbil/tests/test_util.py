@@ -4,7 +4,15 @@ from unittest import mock
 
 import pytest
 
-from .. import util
+from .. import settings_getter, util
+
+
+def setup_function():
+    util.DATE_FORMAT = settings_getter.defaults['DATE_FORMAT']
+
+
+def teardown_function():
+    util.DATE_FORMAT = settings_getter.get_setting('DATE_FORMAT')
 
 
 @pytest.mark.parametrize('test_input, expected', [
@@ -28,6 +36,11 @@ def test_get_date_string():
     assert util.get_date_string(date(1999, 12, 3)) == '1999/12/03'
 
 
+@mock.patch(__name__ + '.util.DATE_FORMAT', '%Y-%m-%d')
+def test_get_date_string_different_default_format():
+    assert util.get_date_string(date(1999, 12, 3)) == '1999-12-03'
+
+
 def test_get_date_string_with_format():
     date_string = util.get_date_string(date(1999, 12, 3), the_format='%Y/%m')
     assert date_string == '1999/12'
@@ -36,6 +49,11 @@ def test_get_date_string_with_format():
 
 def test_get_date():
     assert util.get_date('1999/12/03') == date(1999, 12, 3)
+
+
+@mock.patch(__name__ + '.util.DATE_FORMAT', '%Y-%m-%d')
+def test_get_date_with_different_default_format():
+    assert util.get_date('1999-12-03') == date(1999, 12, 3)
 
 
 def test_get_date_with_format():

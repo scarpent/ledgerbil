@@ -5,7 +5,9 @@ except ModuleNotFoundError:  # pragma: no cover
     settings = None
 
 defaults = {
-    'DATE_FORMAT': '%Y/%m/%d'
+    'DATE_FORMAT': '%Y/%m/%d',
+    'DATE_FORMAT_MONTH': '%Y/%m',
+    'NETWORTH_ACCOUNTS': '(^assets ^liabilities)',
 }
 
 
