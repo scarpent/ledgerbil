@@ -9,13 +9,7 @@ from .runner import get_ledger_command, get_ledger_output
 from .util import AccountBalance, get_account_balance
 
 
-def get_investment_command_options(shares=False, accounts=None, end_date=None):
-
-    if not accounts:
-        accounts = get_setting('INVESTMENT_DEFAULT_ACCOUNTS')
-    if not end_date:
-        end_date = get_setting('INVESTMENT_DEFAULT_END_DATE')
-
+def get_investment_command_options(accounts, end_date, shares=False):
     options = ['--no-total']
     if shares:
         options += ['--exchange', '.']  # override --market
@@ -37,7 +31,7 @@ def warn_negative_dollars(amount, account):
 
 
 def get_lines(args, shares=False):
-    options = get_investment_command_options(shares, args.accounts, args.end)
+    options = get_investment_command_options(args.accounts, args.end, shares)
     output = get_ledger_output(options)
 
     if args.command:

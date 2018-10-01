@@ -7,9 +7,6 @@ import pytest
 from .. import investments, runner
 from ... import settings, settings_getter
 
-# todo: Tests where accounts and end_date specified in args.
-#       Currently seems defaults always used in tests.
-
 
 class MockSettings:
     LEDGER_DIR = 'lmn'
@@ -52,7 +49,10 @@ def test_get_investment_command_options_defaults():
         + ('--no-total', )
         + ('--end', MockSettings.INVESTMENT_DEFAULT_END_DATE)
     )
-    actual = investments.get_investment_command_options()
+    actual = investments.get_investment_command_options(
+        MockSettings.INVESTMENT_DEFAULT_ACCOUNTS,
+        MockSettings.INVESTMENT_DEFAULT_END_DATE
+    )
     assert actual == expected
 
 
@@ -63,7 +63,11 @@ def test_get_investment_command_options_shares():
         + ('--no-total', '--exchange', '.')
         + ('--end', MockSettings.INVESTMENT_DEFAULT_END_DATE)
     )
-    actual = investments.get_investment_command_options(shares=True)
+    actual = investments.get_investment_command_options(
+        MockSettings.INVESTMENT_DEFAULT_ACCOUNTS,
+        MockSettings.INVESTMENT_DEFAULT_END_DATE,
+        shares=True
+    )
     assert actual == expected
 
 
@@ -80,8 +84,9 @@ def test_get_investment_command_options_account_with_spaces():
         MockSettings.INVESTMENT_DEFAULT_END_DATE,
     )
     actual = investments.get_investment_command_options(
+        """no_space "with space" 'also with spaces'""",
+        MockSettings.INVESTMENT_DEFAULT_END_DATE,
         shares=True,
-        accounts="""no_space "with space" 'also with spaces'"""
     )
     assert actual == expected
 
@@ -98,6 +103,19 @@ def test_get_lines_default_args(mock_get_ledger_output, mock_print):
         + tuple(shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS))
         + ('--no-total', )
         + ('--end', MockSettings.INVESTMENT_DEFAULT_END_DATE)
+    )
+    assert not mock_print.called
+
+
+@mock.patch(__name__ + '.investments.print')
+@mock.patch(__name__ + '.investments.get_ledger_output')
+def test_get_lines_with_args(mock_get_ledger_output, mock_print):
+    args = investments.get_args(['--accounts', 'fu bar', '--end', 'ing'])
+    mock_get_ledger_output.return_value = '1\n2\n3'
+    lines = investments.get_lines(args)
+    assert lines == ['1', '2', '3']
+    mock_get_ledger_output.assert_called_once_with(
+        ('bal', 'fu', 'bar', '--no-total', '--end', 'ing')
     )
     assert not mock_print.called
 
