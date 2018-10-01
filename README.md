@@ -527,16 +527,16 @@ Note that where the interactive reconciler only needs
 
 The early ledgerbil features like schedule, sorting, and reconciler
 didn't rely on the ledger command line program at all. They were
-standalone commands that work with your data files. The reconciler is
-now an exception, having acquired a feature for verifying your previous
-balances with ledger's cleared totals. (Now that the door has been
-opened, expect more integration in the future between ledgerbil and
-ledger.)
+standalone commands that worked with your data files directly. The
+reconciler is now an exception, having acquired a feature for verifying
+your previous balances with ledger's cleared totals. (Now that the door
+has been opened, expect more integration in the future between ledgerbil
+and ledger.)
 
 The ledgershell programs use ledger to read and report on your data in
-different ways. None of them modify your data (as of 4 August 2018,
-anyway). (Oh. `portfolio` doesn't use ledger, but somehow still finds
-itself in the ledgershell grouping.)
+different ways. None of them modify your data as of October 2018.
+(`portfolio` is listed with "other commands", but isn't a ledgershell
+program.)
 
 There is no documentation other than the code and `--help`, which is
 included below and often changing so don't count on this readme for the

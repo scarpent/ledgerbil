@@ -4,7 +4,7 @@ from unittest import mock
 
 import pytest
 
-from .. import investments, runner
+from .. import investments
 from ... import settings, settings_getter
 
 
@@ -27,7 +27,6 @@ class MockSettingsAltDefaults(MockSettings):
 
 def setup_function():
     settings_getter.settings = MockSettings()
-    runner.settings = MockSettings()
 
 
 def teardown_function():

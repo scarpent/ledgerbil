@@ -1,6 +1,6 @@
 from textwrap import dedent
 
-from .. import grid, runner
+from .. import grid
 from ... import settings, settings_getter
 from ...colorable import Colorable
 from ...tests.filetester import FileTester
@@ -23,12 +23,10 @@ class MockSettingsAltDateFormat(MockSettings):
 
 
 def setup_module():
-    runner.settings = MockSettings()
     settings_getter.settings = MockSettings()
 
 
 def teardown_module():
-    runner.settings = settings.Settings()
     settings_getter.settings = settings.Settings()
 
 

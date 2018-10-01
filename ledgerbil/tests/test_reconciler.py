@@ -10,7 +10,6 @@ from dateutil.relativedelta import relativedelta
 from .. import reconciler, settings, settings_getter, util
 from ..ledgerbilexceptions import LdgReconcilerError
 from ..ledgerfile import LedgerFile
-from ..ledgershell import runner
 from ..reconciler import Reconciler, run_reconciler
 from .filetester import FileTester
 from .helpers import OutputFileTesterStdout, Redirector
@@ -66,7 +65,6 @@ class MockSettings:
 def setup_function():
     # Notice that this is used in class set ups as well...
     settings_getter.settings = MockSettings()
-    runner.settings = MockSettings()
 
 
 def teardown_function():

@@ -2,16 +2,14 @@ import os
 import subprocess
 import sys
 
-from ..settings import Settings
-
-settings = Settings()
+from ..settings_getter import get_setting
 
 
 def get_ledger_command(args=None):
     files = []
-    for f in settings.LEDGER_FILES:
-        files += ['-f', os.path.join(settings.LEDGER_DIR, f)]
-    return settings.LEDGER_COMMAND + tuple(files) + (args or tuple())
+    for f in get_setting('LEDGER_FILES'):
+        files += ['-f', os.path.join(get_setting('LEDGER_DIR'), f)]
+    return get_setting('LEDGER_COMMAND') + tuple(files) + (args or tuple())
 
 
 def get_ledger_output(args=None):
