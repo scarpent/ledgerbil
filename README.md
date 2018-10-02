@@ -15,7 +15,7 @@ or modifies your data. Your entries are kept in a text file that you
 maintain, and you can rest assured, no automated tool will ever change
 that data."
 
-That is, no automated tool within the Ledger program itself. But you can
+That is, no automated tool within the ledger program itself. But you can
 create or find tools to help with various data entry and reconciliation
 chores, or to report on your data in ways not supported by ledger.
 
@@ -40,7 +40,7 @@ Some of ledgerbil's features:
   * Interactively reconcile accounts.
   * Sort a file by transaction date.
   * Display balances or net worth by year or month in a grid format.
-  * Diplay investments with dollar and share amounts side by side.
+  * Display investments with dollar and share amounts side by side.
 
 A grid report:
 
@@ -60,8 +60,8 @@ A grid report with rows and columns transposed:
 ![grid report transposed example](docs/images/grid-report-transposed.png)
 
 ```
-     expenses:     expenses:     expenses:              
-         food:         food:    food: take              
+     expenses:     expenses:     expenses:
+         food:         food:    food: take
      groceries    dining out          home         Total
        $ 34.63        $ 0.00       $ 17.73       $ 52.36  2017
        $ 57.40       $ 42.17       $ 12.00      $ 111.57  2018
@@ -226,7 +226,7 @@ Individual entries use this format on the line below the top line:
 
     ;; schedule ; interval uom ; days ; interval ; notes
 
-For example with the `interval uom` (unit of measure):
+For example, the monthly `interval uom` (unit of measure):
 
 ```
 2018/01/22 lightning electricity         ; todo
@@ -235,12 +235,13 @@ For example with the `interval uom` (unit of measure):
     a: checking                             $75
 ```
 
-Will cause entries to be created on the 22nd of every month. The `;;
-schedule` line will be removed for the journal entry. For recurring
-items with varying amounts, I usually include a `; todo` comment on the
-top line to go back and set the actual amount later, but that's just a
-convention. You can include whatever you want on the non-schedule config
-line. The only thing modified is the date.
+Will cause entries to be created on the 22nd of every month, starting in
+January 2018. The `;; schedule` line will be removed for the journal
+entry. For recurring items with varying amounts, I usually include a `;
+todo` comment on the top line as a reminder to go back and set the
+actual amount later, but that's just a convention. You can include
+whatever you want on the non-schedule config line. The only thing
+modified is the date.
 
 Supported units are `monthly`, `weekly`, and `daily`. Weekly
 transactions will recur on the same day of the week as the date in the
@@ -252,17 +253,17 @@ Other supported UOMs: `bimonthly` (every 2 months), `quarterly`,
 The `days` spot can be used to specify more than one day in a month, e.g.:
 
 ```
-2018/01/12 johnny paycheck                           
+2018/01/12 johnny paycheck
     ;; schedule ; monthly ; 15, 30
     i: wages: gross pay                   $500
     [...]
 ```
 
 Will cause entries to be created on the 15th and 30th of every month. If
-you start with an entry like above with 2018/01/12, it will also create
-an entry on that date (*I think*), but then rotate between the other
-two. The schedule entry will always show the date of the next entry to
-be added.
+you start with an entry as above with 2018/01/12, it will also create an
+entry on that date (*I think*), but then rotate between the other two.
+The schedule entry will always show the date of the next entry to be
+added.
 
 What will this scheduled transaction do when confronted with February?
 It will use the 28th or the 29th. You can also specify `eom` (end of
@@ -281,7 +282,7 @@ schedules.
 The `interval` spot can be used to specify some other interval, e.g.:
 
 ```
-2018/02/17 chop chop hair                                     
+2018/02/17 chop chop hair
     ;; schedule ; weekly ;; every 6 weeks
     e: misc: haircuts
     l: credit card: mega                    $-18
@@ -311,6 +312,11 @@ Would result in entries:
 
 The last spot for `notes` isn't parsed by ledgerbil. I sometimes use it
 to note when a scheduled item isn't an automated payment.
+
+```
+2018/02/17 chop chop hair
+    ;; schedule ; weekly ;; every 6 weeks ; or whenevs
+```
 
 ## --reconcile ACCT
 
@@ -403,6 +409,12 @@ ending date: 2016/10/29 ending balance: (not set) cleared: $100.00
 >
 ```
 
+The 10/21 cash entry is counted for the cleared amount, but not shown.
+
+Regular expressions are allowed for the `-r/--reconcile` argument. Let's
+say you have another account, `a: cash: jar`. You can specify `-r cash$`
+to limit the match.
+
 ### statement
 
 Will prompt you for the statement ending date and ending balance.
@@ -424,7 +436,8 @@ exception of pending transactions. All pending transactions are included
 regardless of date because they're needed to make the math work.
 
 You can mark and unmark transactions without the ending balance but you
-can't finish balancing and convert pending transactions until it's set.
+can't finish balancing and convert pending transactions to cleared until
+it's set.
 
 Reconciler doesn't understand asset versus liability accounts so you'll
 want to give a positive amount for assets and negative for liability,
@@ -511,6 +524,10 @@ After `finish`, the previous balance is saved in the cache (mentioned
 above and more below!) and shown when you next reconcile this account,
 which may be helpful for catching mistakes you make between visits to
 the reconciler.
+
+### aliases
+
+Shows available shortcuts, for example, `m` for `mark`.
 
 ### --reconciled-status, -R
 
@@ -654,13 +671,13 @@ things it will produce is a report like this:
 ```
 6 years, 4 accounts: 401k: big co 500 idx, 401k: bonds idx, ...
 
-year    contrib   transfers        value   gain %     gain val    all %    3yr %    5yr %  
-2015    $ 1,000    $ 29,000     $ 33,093    20.62      $ 3,093    20.62      
-2016    $ 8,235    $ 10,000     $ 59,407    19.14      $ 8,079    19.88      
-2017      $ 750                 $ 81,322    35.40     $ 21,165    24.84    24.84    
-2018                            $ 81,322     0.00          $ 0    18.11    17.28    
-2019      $ 600    $ -5,000     $ 84,061     9.02      $ 7,139    16.23    13.86    16.23  
-2020      $ 450                 $ 80,493    -4.77     $ -4,018    12.44     1.26    10.87  
+year    contrib   transfers        value   gain %     gain val    all %    3yr %    5yr %
+2015    $ 1,000    $ 29,000     $ 33,093    20.62      $ 3,093    20.62
+2016    $ 8,235    $ 10,000     $ 59,407    19.14      $ 8,079    19.88
+2017      $ 750                 $ 81,322    35.40     $ 21,165    24.84    24.84
+2018                            $ 81,322     0.00          $ 0    18.11    17.28
+2019      $ 600    $ -5,000     $ 84,061     9.02      $ 7,139    16.23    13.86    16.23
+2020      $ 450                 $ 80,493    -4.77     $ -4,018    12.44     1.26    10.87
        $ 11,035    $ 34,000                           $ 35,458
 ```
 
