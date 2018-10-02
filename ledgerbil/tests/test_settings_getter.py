@@ -21,6 +21,13 @@ def teardown_function():
     settings_getter.settings = settings.Settings()
 
 
+expected_account_aliases = {
+    r'^a:': 'assets:',
+    r'^e:': 'expenses:',
+    r'^i:': 'income:',
+    r'^l:': 'liabilities:',
+}
+
 expected_reconciler_cache_file = os.path.join(
     os.path.expanduser('~'),
     '.ledgerbil_reconciler_cache'
@@ -28,9 +35,12 @@ expected_reconciler_cache_file = os.path.join(
 
 
 @pytest.mark.parametrize('test_input, expected', [
+    ('ACCOUNT_ALIASES', expected_account_aliases),
     ('DATE_FORMAT', '%Y/%m/%d'),
     ('DATE_FORMAT_MONTH', '%Y/%m'),
     ('DATE_FORMAT_YEAR', '%Y'),
+    ('INVESTMENT_DEFAULT_ACCOUNTS', '401k or ira or mutual'),
+    ('INVESTMENT_DEFAULT_END_DATE', 'tomorrow'),
     ('NETWORTH_ACCOUNTS', '(^assets ^liabilities)'),
     ('RECONCILER_CACHE_FILE', expected_reconciler_cache_file),
 ])
