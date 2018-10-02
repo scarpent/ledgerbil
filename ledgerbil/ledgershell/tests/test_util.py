@@ -27,3 +27,12 @@ def test_get_account_balance_generic(test_input, expected):
 ])
 def test_get_account_balance_x(test_input, expected):
     assert util.get_account_balance(*test_input) == expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    ('17-Feb-09 - 17-May-30   <Total>   $ 90.00   $ 90.00', 90.0),
+    ('fubar', None),
+    ('', None),
+])
+def test_get_payee_subtotal(test_input, expected):
+    assert util.get_payee_subtotal(test_input) == expected

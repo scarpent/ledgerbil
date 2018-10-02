@@ -14,13 +14,11 @@ from ..colorable import Colorable
 from ..settings_getter import get_setting
 from ..util import get_date, get_float, parse_args
 from .runner import get_ledger_output
-from .util import get_account_balance
+from .util import get_account_balance, get_payee_subtotal
 
 TOTAL_HEADER = 'Total'
 SORT_DEFAULT = TOTAL_HEADER.lower()
 EMPTY_VALUE = ''
-# todo: move this to ledgershell/util.py?
-PAYEE_SUBTOTAL_REGEX = re.compile(r'^.*?\$\s*(\S+)\s*\$.*$')
 
 
 def get_grid_report(args, ledger_args):
@@ -330,7 +328,6 @@ def warn_column_total(period_name, column_total=0, ledgers_total=0):
 
 
 def get_column_payees(period_name, ledger_args):
-    DOLLARS = 0
     lines = get_ledger_output(
         ('register', 'expenses', '--group-by', '(payee)', '--collapse',
          '--subtotal', '--depth', '1', '--period', period_name) + ledger_args
@@ -343,11 +340,10 @@ def get_column_payees(period_name, ledger_args):
         if not payee:
             payee = line
         else:
-            # todo: this might want to live in ledgershell util.py
-            match = re.match(PAYEE_SUBTOTAL_REGEX, line)
-            assert match, f'Payee subtotal regex did not match: {line}'
+            amount = get_payee_subtotal(line)
+            assert amount is not None, \
+                f'Did not find expected payee subtotal: {line}'
             assert payee not in column, f'Payee already in column: {payee}'
-            amount = util.get_float(match.groups()[DOLLARS])
             column[payee] = amount
             payee = None
 
