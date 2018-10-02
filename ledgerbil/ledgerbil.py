@@ -22,9 +22,7 @@ def run_ledgerbil(args):
         return handle_error('error: -f/--file is required')
 
     try:
-        ledgerfiles = [
-            LedgerFile(f, args.reconcile) for f in args.file
-        ]
+        ledgerfiles = [LedgerFile(f, args.reconcile) for f in args.file]
     except LdgReconcilerError as e:
         return handle_error(str(e))
 
