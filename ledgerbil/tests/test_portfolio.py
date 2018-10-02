@@ -3,7 +3,7 @@ from unittest import mock
 
 import pytest
 
-from .. import portfolio
+from .. import portfolio, settings, settings_getter
 from ..colorable import Colorable
 from ..ledgerbilexceptions import LdgPortfolioError
 from .helpers import OutputFileTester
@@ -13,8 +13,12 @@ class MockSettings:
     PORTFOLIO_FILE = 'abcd'
 
 
-def setup_function(module):
-    portfolio.settings = MockSettings()
+def setup_function():
+    settings_getter.settings = MockSettings()
+
+
+def teardown_function():
+    settings_getter.settings = settings.Settings()
 
 
 BIG_CO = 0

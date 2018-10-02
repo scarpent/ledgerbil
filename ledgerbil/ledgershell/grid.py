@@ -11,7 +11,7 @@ from dateutil.relativedelta import relativedelta
 
 from .. import util
 from ..colorable import Colorable
-from ..settings import Settings
+from ..settings_getter import get_setting
 from ..util import get_date, get_float, parse_args
 from .runner import get_ledger_output
 from .util import get_account_balance
@@ -21,8 +21,6 @@ SORT_DEFAULT = TOTAL_HEADER.lower()
 EMPTY_VALUE = ''
 # todo: move this to ledgershell/util.py?
 PAYEE_SUBTOTAL_REGEX = re.compile(r'^.*?\$\s*(\S+)\s*\$.*$')
-
-settings = Settings()
 
 
 def get_grid_report(args, ledger_args):
@@ -217,11 +215,11 @@ def get_period_names(args, ledger_args, unit='year'):
     period = ('--period', args.period) if args.period else tuple()
 
     if unit == 'year':
-        date_format = '%Y'
+        date_format = get_setting('DATE_FORMAT_YEAR')
         period_options = ('--yearly', '--date-format', date_format)
         period_len = 4
     else:
-        date_format = '%Y/%m'
+        date_format = get_setting('DATE_FORMAT_MONTH')
         period_options = ('--monthly', '--date-format', date_format)
         period_len = 7
 
@@ -361,10 +359,10 @@ def get_column_networth(period_name, ledger_args):
         ending = period_name
     else:
         if len(period_name) == 4:  # year
-            date_format = '%Y'
+            date_format = get_setting('DATE_FORMAT_YEAR')
             networth_relativedelta = relativedelta(years=1)
         else:  # month
-            date_format = '%Y/%m'
+            date_format = get_setting('DATE_FORMAT_MONTH')
             networth_relativedelta = relativedelta(months=1)
 
         # Let's report net worth for the end of the current period,
@@ -374,7 +372,7 @@ def get_column_networth(period_name, ledger_args):
         next_period_date = period_date + networth_relativedelta
         ending = next_period_date.strftime(date_format)
 
-    accounts = tuple(parse_args(settings.NETWORTH_ACCOUNTS))
+    accounts = tuple(parse_args(get_setting('NETWORTH_ACCOUNTS')))
     lines = get_ledger_output(
         ('balance',)
         + accounts

@@ -316,12 +316,6 @@ to note when a scheduled item isn't an automated payment.
 
 Interactively reconcile the account matching `ACCT` regex.
 
-Relies on `settings.py` for the `RECONCILER_CACHE_FILE` setting. See
-below for more on the settings file. If you don't create the settings
-file you'll get the error:
-
-    ModuleNotFoundError: No module named 'ledgerbil.settings'
-
 Example usage:
 
     python main.py --file journal.ledger --reconcile 'bank: xyz'
@@ -437,7 +431,8 @@ want to give a positive amount for assets and negative for liability,
 assuming the normal state of these kinds of accounts.
 
 Statement ending info is saved to `RECONCILER_CACHE_FILE` (from
-`settings.py`) and restored when the reconciler is restarted.
+`settings.py`, or using the default `~/.ledgerbil_reconciler_cache`) and
+restored when the reconciler is restarted.
 
 ### mark / unmark
 
@@ -515,31 +510,29 @@ ending date: 2016/10/29 ending balance: (not set) cleared: $70.00
 After `finish`, the previous balance is saved in the cache (mentioned
 above and more below!) and shown when you next reconcile this account,
 which may be helpful for catching mistakes you make between visits to
-the reconciler. There is also the `-R` option for ledgerbil which will
+the reconciler.
+
+### --reconciled-status, -R
+
+There is also the `--reconciled-status` option for ledgerbil which will
 go through all your cached entries and compare to ledger's `--cleared`
 totals to see if things have gotten out of sync somehow.
 
-Note that where the interactive reconciler only needs
-`RECONCILER_CACHE_FILE`, `-R` needs more stuff configured in
-`settings.py` so that ledgerbil can run ledger as an external program.
+Note that where the interactive reconciler only uses
+`RECONCILER_CACHE_FILE`, `--reconciled-status` needs more stuff
+configured in `settings.py` so that ledgerbil can run ledger as an
+external program.
 
 ## "ledgershell" (other commands)
 
-The early ledgerbil features like schedule, sorting, and reconciler
-didn't rely on the ledger command line program at all. They were
-standalone commands that work with your data files. The reconciler is
-now an exception, having acquired a feature for verifying your previous
-balances with ledger's cleared totals. (Now that the door has been
-opened, expect more integration in the future between ledgerbil and
-ledger.)
-
 The ledgershell programs use ledger to read and report on your data in
-different ways. None of them modify your data (as of 4 August 2018,
-anyway). (Oh. `portfolio` doesn't use ledger, but somehow still finds
-itself in the ledgershell grouping.)
+different ways. None of them modify your data as of October 2018.
+
+(`portfolio` is listed with "other commands", but isn't a ledgershell
+program, and currently has nothing to do with ledger or ledger data.)
 
 There is no documentation other than the code and `--help`, which is
-included below and often changing so don't count on this readme for the
+included below and often changing, so don't count on this readme for the
 latest.
 
 ### settings.py
@@ -549,14 +542,10 @@ Intended as a convenience, but which can also be a nuisance, the
 ledger so you don't have to pass in everything every time. And, related
 to the ambivalence about documentation mentioned above, There isn't any
 documentation for this file yet. Just [`settings.py.example`][settings]
-which you can copy to `settings.py` in the same directory and then
+which you should copy to `settings.py` in the same directory and then
 modify for your own needs.
 
 [settings]: /ledgerbil/settings.py.example
-
-To run the interactive reconciler, you only need
-`RECONCILER_CACHE_FILE`. To use the reconciler's `-R` feature you'll
-need more ledger stuff.
 
 ### grid
 

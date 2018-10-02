@@ -4,7 +4,8 @@ from unittest import mock
 
 import pytest
 
-from .. import investments, runner
+from .. import investments
+from ... import settings, settings_getter
 
 
 class MockSettings:
@@ -19,9 +20,17 @@ class MockSettings:
     INVESTMENT_DEFAULT_END_DATE = 'xyz'
 
 
-def setup_function(module):
-    investments.settings = MockSettings()
-    runner.settings = MockSettings()
+class MockSettingsAltDefaults(MockSettings):
+    INVESTMENT_DEFAULT_ACCOUNTS = 'fu or bar'
+    INVESTMENT_DEFAULT_END_DATE = 'blarg'
+
+
+def setup_function():
+    settings_getter.settings = MockSettings()
+
+
+def teardown_function():
+    settings_getter.settings = settings.Settings()
 
 
 @mock.patch(__name__ + '.investments.print')
@@ -39,11 +48,9 @@ def test_get_investment_command_options_defaults():
         + ('--no-total', )
         + ('--end', MockSettings.INVESTMENT_DEFAULT_END_DATE)
     )
-    # It would be nice to test with actual defaults but they appear
-    # to be set at import time so we'll do this
     actual = investments.get_investment_command_options(
-        accounts=MockSettings.INVESTMENT_DEFAULT_ACCOUNTS,
-        end_date=MockSettings.INVESTMENT_DEFAULT_END_DATE
+        MockSettings.INVESTMENT_DEFAULT_ACCOUNTS,
+        MockSettings.INVESTMENT_DEFAULT_END_DATE
     )
     assert actual == expected
 
@@ -56,9 +63,9 @@ def test_get_investment_command_options_shares():
         + ('--end', MockSettings.INVESTMENT_DEFAULT_END_DATE)
     )
     actual = investments.get_investment_command_options(
-        shares=True,
-        accounts=MockSettings.INVESTMENT_DEFAULT_ACCOUNTS,
-        end_date=MockSettings.INVESTMENT_DEFAULT_END_DATE
+        MockSettings.INVESTMENT_DEFAULT_ACCOUNTS,
+        MockSettings.INVESTMENT_DEFAULT_END_DATE,
+        shares=True
     )
     assert actual == expected
 
@@ -76,9 +83,9 @@ def test_get_investment_command_options_account_with_spaces():
         MockSettings.INVESTMENT_DEFAULT_END_DATE,
     )
     actual = investments.get_investment_command_options(
+        """no_space "with space" 'also with spaces'""",
+        MockSettings.INVESTMENT_DEFAULT_END_DATE,
         shares=True,
-        accounts="""no_space "with space" 'also with spaces'""",
-        end_date=MockSettings.INVESTMENT_DEFAULT_END_DATE
     )
     assert actual == expected
 
@@ -101,16 +108,31 @@ def test_get_lines_default_args(mock_get_ledger_output, mock_print):
 
 @mock.patch(__name__ + '.investments.print')
 @mock.patch(__name__ + '.investments.get_ledger_output')
-def test_get_lines_shares(mock_get_ledger_output, mock_print):
+def test_get_lines_with_args(mock_get_ledger_output, mock_print):
+    args = investments.get_args(['--accounts', 'fu bar', '--end', 'ing'])
+    mock_get_ledger_output.return_value = '1\n2\n3'
+    lines = investments.get_lines(args)
+    assert lines == ['1', '2', '3']
+    mock_get_ledger_output.assert_called_once_with(
+        ('bal', 'fu', 'bar', '--no-total', '--end', 'ing')
+    )
+    assert not mock_print.called
+
+
+@mock.patch(__name__ + '.investments.print')
+@mock.patch(__name__ + '.investments.get_ledger_output')
+def test_get_lines_shares_and_alt_defaults(mock_get_ledger_output, mock_print):
+    settings_getter.settings = MockSettingsAltDefaults()
     args = investments.get_args([])
     mock_get_ledger_output.return_value = '1\n2\n3'
     lines = investments.get_lines(args, shares=True)
     assert lines == ['1', '2', '3']
+    accounts = MockSettingsAltDefaults.INVESTMENT_DEFAULT_ACCOUNTS
     mock_get_ledger_output.assert_called_once_with(
         ('bal', )
-        + tuple(shlex.split(MockSettings.INVESTMENT_DEFAULT_ACCOUNTS))
+        + tuple(shlex.split(accounts))
         + ('--no-total', '--exchange', '.')
-        + ('--end', MockSettings.INVESTMENT_DEFAULT_END_DATE)
+        + ('--end', MockSettingsAltDefaults.INVESTMENT_DEFAULT_END_DATE)
     )
     assert not mock_print.called
 

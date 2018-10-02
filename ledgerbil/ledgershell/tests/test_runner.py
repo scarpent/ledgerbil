@@ -4,15 +4,24 @@ from unittest import mock
 import pytest
 
 from .. import runner
+from ... import settings, settings_getter
 
 
-class TestSettings:
+class MockSettings:
     LEDGER_COMMAND = ('ledger', )
     LEDGER_DIR = 'xyz'
     LEDGER_FILES = [
         'blarg.ldg',
         'glurg.ldg',
     ]
+
+
+def setup_function():
+    settings_getter.settings = MockSettings()
+
+
+def teardown_function():
+    settings_getter.settings = settings.Settings()
 
 
 class MockProcess:
@@ -28,18 +37,16 @@ class MockProcess:
 
 
 def test_get_ledger_command():
-    runner.settings = TestSettings()
-    file1 = os.path.join(TestSettings.LEDGER_DIR, 'blarg.ldg')
-    file2 = os.path.join(TestSettings.LEDGER_DIR, 'glurg.ldg')
+    file1 = os.path.join(MockSettings.LEDGER_DIR, 'blarg.ldg')
+    file2 = os.path.join(MockSettings.LEDGER_DIR, 'glurg.ldg')
     expected = ('ledger', '-f', file1, '-f', file2)
     actual = runner.get_ledger_command()
     assert actual == expected
 
 
 def test_get_ledger_command_with_options():
-    runner.settings = TestSettings()
-    file1 = os.path.join(TestSettings.LEDGER_DIR, 'blarg.ldg')
-    file2 = os.path.join(TestSettings.LEDGER_DIR, 'glurg.ldg')
+    file1 = os.path.join(MockSettings.LEDGER_DIR, 'blarg.ldg')
+    file2 = os.path.join(MockSettings.LEDGER_DIR, 'glurg.ldg')
     expected = ('ledger', '-f', file1, '-f', file2, 'booga booga')
     actual = runner.get_ledger_command(('booga booga', ))
     assert actual == expected
@@ -53,7 +60,6 @@ def test_mock_process_object():
 
 @mock.patch(__name__ + '.runner.subprocess.Popen')
 def test_get_ledger_output(mock_popen):
-    runner.settings = TestSettings()
     mock_popen.return_value = MockProcess(output=b'blargle')
     output = runner.get_ledger_output()
     assert output == 'blargle'
@@ -61,7 +67,6 @@ def test_get_ledger_output(mock_popen):
 
 @mock.patch(__name__ + '.runner.subprocess.Popen')
 def test_get_ledger_output_with_options(mock_popen):
-    runner.settings = TestSettings()
     mock_popen.return_value = MockProcess(output=b'blargle')
     output = runner.get_ledger_output(('--arghh', 'hooey'))
     assert output == 'blargle'
@@ -70,7 +75,6 @@ def test_get_ledger_output_with_options(mock_popen):
 @mock.patch(__name__ + '.runner.print')
 @mock.patch(__name__ + '.runner.subprocess.Popen')
 def test_get_ledger_output_error(mock_popen, mock_print):
-    runner.settings = TestSettings()
     mock_popen.return_value = MockProcess(error='kaboom!')
     with pytest.raises(SystemExit):
         runner.get_ledger_output()
@@ -79,7 +83,6 @@ def test_get_ledger_output_error(mock_popen, mock_print):
 
 @mock.patch(__name__ + '.runner.subprocess.Popen')
 def test_get_ledger_output_stripping(mock_popen):
-    runner.settings = TestSettings()
     mock_popen.return_value = MockProcess(output=b'   fubar   ')
     output = runner.get_ledger_output(('--arghh', 'hooey'))
     assert output == '   fubar'

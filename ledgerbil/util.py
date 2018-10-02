@@ -8,8 +8,7 @@ from functools import reduce
 
 from .colorable import Colorable
 from .ledgerbilexceptions import LdgReconcilerError
-
-DATE_FORMAT = '%Y/%m/%d'
+from .settings_getter import get_setting
 
 # supported operators
 operators = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
@@ -33,11 +32,15 @@ def _eval(node):
         raise TypeError(node)
 
 
-def get_date_string(the_date, the_format=DATE_FORMAT):
+def get_date_string(the_date, the_format=None):
+    if not the_format:
+        the_format = get_setting('DATE_FORMAT')
     return the_date.strftime(the_format)
 
 
-def get_date(date_string, the_format=DATE_FORMAT):
+def get_date(date_string, the_format=None):
+    if not the_format:
+        the_format = get_setting('DATE_FORMAT')
     return datetime.strptime(date_string, the_format).date()
 
 

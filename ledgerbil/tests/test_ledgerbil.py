@@ -6,11 +6,13 @@ from unittest import TestCase, mock
 import pytest
 from dateutil.relativedelta import relativedelta
 
-# reconciler and scheduler used in patches
-from .. import ledgerbil, reconciler, scheduler, util  # noqa
 from .filetester import FileTester as FT
 from .helpers import Redirector
 from .test_schedulefile import schedule_testdata
+
+from .. import (  # noqa (reconciler and scheduler used in patches) isort:skip
+    ledgerbil, reconciler, scheduler, settings, settings_getter, util
+)
 
 
 class MainBasicInput(TestCase):
@@ -53,6 +55,21 @@ class Sorting(TestCase):
         actual = FT.read_file(tempfile)
         os.remove(tempfile)
         self.assertEqual(expected, actual)
+
+
+def test_main_sort_different_date_format():
+    """main should fail to sort file if date format is different
+       than in ledger entries"""
+    class MockSettings:
+        DATE_FORMAT = '%Y-%m-%d'
+    settings_getter.settings = MockSettings()
+    expected = FT.read_file(FT.alpha_unsortedfile)
+    tempfile = FT.copy_to_temp_file(FT.alpha_unsortedfile)
+    ledgerbil.main(['--file', tempfile, '--sort'])
+    actual = FT.read_file(tempfile)
+    os.remove(tempfile)
+    assert actual == expected
+    settings_getter.settings = settings.Settings()
 
 
 @mock.patch(__name__ + '.ledgerbil.LedgerFile.write_file')

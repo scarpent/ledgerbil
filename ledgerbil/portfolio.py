@@ -9,9 +9,7 @@ from textwrap import dedent
 from . import util
 from .colorable import Colorable
 from .ledgerbilexceptions import LdgPortfolioError
-from .settings import Settings
-
-settings = Settings()
+from .settings_getter import get_setting
 
 Year = namedtuple(
     'Year',
@@ -580,7 +578,7 @@ def get_comparison_report_line(comparison_item, percent, labels):
 
 
 def get_portfolio_data():
-    with open(settings.PORTFOLIO_FILE, 'r') as portfile:
+    with open(get_setting('PORTFOLIO_FILE'), 'r') as portfile:
         return json.loads(portfile.read())
 
 

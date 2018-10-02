@@ -94,9 +94,7 @@ class LedgerFile:
             else:
                 current_date = thing.thing_date
 
-        self.get_things().sort(
-            key=attrgetter('thing_date', 'thing_number')
-        )
+        self.get_things().sort(key=attrgetter('thing_date', 'thing_number'))
 
     def print_file(self):
         for thing in self.get_things():

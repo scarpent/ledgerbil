@@ -7,10 +7,9 @@ from unittest import TestCase, mock
 import pytest
 from dateutil.relativedelta import relativedelta
 
-from .. import reconciler, util
+from .. import reconciler, settings, settings_getter, util
 from ..ledgerbilexceptions import LdgReconcilerError
 from ..ledgerfile import LedgerFile
-from ..ledgershell import runner
 from ..reconciler import Reconciler, run_reconciler
 from .filetester import FileTester
 from .helpers import OutputFileTesterStdout, Redirector
@@ -53,9 +52,7 @@ testdata = dedent(f'''\
 
 
 class MockSettings:
-
     RECONCILER_CACHE_FILE = FileTester.CACHE_FILE_TEST
-
     ACCOUNT_ALIASES = {
         r'^sna:': 'snafu:',
         r'^fu:': 'fubar:',
@@ -65,13 +62,13 @@ class MockSettings:
         FileTester.delete_test_cache_file()
 
 
-def setup_function(module):
-    reconciler.settings = MockSettings()
-    runner.settings = MockSettings()
+def setup_function():
+    # Notice that this is used in class set ups as well...
+    settings_getter.settings = MockSettings()
 
 
-def teardown_function(module):
-    FileTester.delete_test_cache_file()
+def teardown_function():
+    settings_getter.settings = settings.Settings()
 
 
 def assert_equal_floats(float1, float2, decimals=2):
@@ -147,11 +144,11 @@ class OutputTests(Redirector):
 
     def setUp(self):
         super().setUp()
-        reconciler.settings = MockSettings()
+        settings_getter.settings = MockSettings()
 
     def tearDown(self):
         super().setUp()
-        FileTester.delete_test_cache_file()
+        settings_getter.settings = settings.Settings()
 
     def test_mark_and_unmark_errors(self):
 
@@ -681,12 +678,12 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
                 return cls(2016, 10, 27)
 
         reconciler.date = FixedDate
-        reconciler.settings = MockSettings()
+        settings_getter.settings = MockSettings()
 
     def tearDown(self):
         super().tearDown()
         reconciler.date = date
-        FileTester.delete_test_cache_file()
+        settings_getter.settings = settings.Settings()
 
     teststmt = dedent('''\
         2016/10/26 one
@@ -930,10 +927,16 @@ testcache = dedent('''\
 
 
 def test_get_key_and_cache_no_cache():
-    assert not os.path.exists(reconciler.settings.RECONCILER_CACHE_FILE)
+    assert not os.path.exists(
+        settings_getter.get_setting('RECONCILER_CACHE_FILE')
+    )
+
     with FileTester.temp_input(testcache) as tempfilename:
         recon = Reconciler([LedgerFile(tempfilename, 'cash')])
-    assert not os.path.exists(reconciler.settings.RECONCILER_CACHE_FILE)
+
+    assert not os.path.exists(
+        settings_getter.get_setting('RECONCILER_CACHE_FILE')
+    )
 
     key, cache = recon.get_key_and_cache()
     assert key == 'a: cash'
@@ -994,11 +997,11 @@ class CacheTests(MockInput, Redirector):
 
     def setUp(self):
         super().setUp()
-        reconciler.settings = MockSettings()
+        settings_getter.settings = MockSettings()
 
     def tearDown(self):
         super().setUp()
-        FileTester.delete_test_cache_file()
+        settings_getter.settings = settings.Settings()
 
     testcache = dedent('''\
         2016/10/26 one
@@ -1017,7 +1020,9 @@ class CacheTests(MockInput, Redirector):
         # saving cache with ending balance "None" causes cache "ending_"
         # entries to be removed; first let's make sure it works w/o
         # existing entry
-        assert not os.path.exists(reconciler.settings.RECONCILER_CACHE_FILE)
+        assert not os.path.exists(
+            settings_getter.get_setting('RECONCILER_CACHE_FILE')
+        )
         assert recon.ending_balance is None
         recon.save_statement_info_to_cache()
         key, cache = recon.get_key_and_cache()
@@ -1091,11 +1096,11 @@ class ReloadTests(TestCase):
 
     def setUp(self):
         super().setUp()
-        reconciler.settings = MockSettings()
+        settings_getter.settings = MockSettings()
 
     def tearDown(self):
         super().setUp()
-        FileTester.delete_test_cache_file()
+        settings_getter.settings = settings.Settings()
 
     testdata = dedent('''\
         2016/10/26 one
@@ -1186,7 +1191,7 @@ def test_get_expanded_account_name(test_input, expected):
 def test_get_expanded_account_name_aliases_not_defined():
     class MockSettingsNoAliases():
         pass
-    reconciler.settings = MockSettingsNoAliases()
+    settings_getter.settings = MockSettingsNoAliases()
     assert reconciler.get_expanded_account_name('abc: def') == 'abc: def'
 
 

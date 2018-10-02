@@ -1,11 +1,12 @@
 from textwrap import dedent
 
-from .. import grid, runner
+from .. import grid
+from ... import settings, settings_getter
 from ...colorable import Colorable
 from ...tests.filetester import FileTester
 from ...tests.helpers import OutputFileTester
 
-# This file actually runs ledger for a bit of integration testing.
+# These tests actually run ledger for a bit of integration testing.
 # We'll try to make sure test_grid.py continues to test 100% of grid.py.
 
 
@@ -13,10 +14,20 @@ class MockSettings:
     LEDGER_COMMAND = ('ledger', )
     LEDGER_DIR = FileTester.testdir
     LEDGER_FILES = ['grid-end-to-end.ldg']
+    NETWORTH_ACCOUNTS = settings_getter.defaults['NETWORTH_ACCOUNTS']
+    DATE_FORMAT_MONTH = settings_getter.defaults['DATE_FORMAT_MONTH']
 
 
-def setup_function(module):
-    runner.settings = MockSettings()
+class MockSettingsAltDateFormat(MockSettings):
+    DATE_FORMAT_MONTH = '%Y-%m'
+
+
+def setup_module():
+    settings_getter.settings = MockSettings()
+
+
+def teardown_module():
+    settings_getter.settings = settings.Settings()
 
 
 def test_get_grid_report_flat_report_expenses():
@@ -245,6 +256,20 @@ def test_get_grid_report_networth_flat_report_transposed():
         '     net worth\n'
         '    $ 1,427.71  2017\n'
         '    $ 1,304.27  2018\n'
+    )
+    assert Colorable.get_plain_string(report) == expected
+
+
+def test_get_grid_report_networth_flat_report_different_date_format():
+    settings_getter.settings = MockSettingsAltDateFormat()
+    args, ledger_args = grid.get_args(
+        ['--net-worth', '--month', '--transpose', '--period', '2017']
+    )
+    report = grid.get_grid_report(args, tuple(ledger_args))
+    expected = (
+        '     net worth\n'
+        '    $ 1,439.47  2017-11\n'
+        '    $ 1,427.71  2017-12\n'
     )
     assert Colorable.get_plain_string(report) == expected
 
