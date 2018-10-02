@@ -8,53 +8,48 @@ from .scheduler import print_next_scheduled_date, run_scheduler
 from .util import handle_error
 
 
-class Ledgerbil:
+def run_ledgerbil(args):
 
-    def __init__(self, args):
-        self.args = args
-        self.ledgerfiles = None
+    if args.next_scheduled_date:
+        if not args.schedule:
+            return handle_error('error: -s/--schedule is required')
+        return print_next_scheduled_date(args.schedule)
 
-    def run(self):
+    if args.reconciled_status:
+        return reconciled_status()
 
-        if self.args.next_scheduled_date:
-            if not self.args.schedule:
-                return handle_error('error: -s/--schedule is required')
-            return print_next_scheduled_date(self.args.schedule)
+    if not args.file:
+        return handle_error('error: -f/--file is required')
 
-        if self.args.reconciled_status:
-            return reconciled_status()
+    try:
+        ledgerfiles = [
+            LedgerFile(f, args.reconcile) for f in args.file
+        ]
+    except LdgReconcilerError as e:
+        return handle_error(str(e))
 
-        if not self.args.file:
-            return handle_error('error: -f/--file is required')
+    if args.reconcile:
+        if not matching_account_found(ledgerfiles, args.reconcile):
+            return
+        return run_reconciler(ledgerfiles)
 
-        try:
-            self.ledgerfiles = [
-                LedgerFile(f, self.args.reconcile) for f in self.args.file
-            ]
-        except LdgReconcilerError as e:
-            return handle_error(str(e))
+    if args.schedule:
+        error = run_scheduler(ledgerfiles[0], args.schedule)
+        if error:
+            return error
 
-        if self.args.reconcile:
-            if self.no_matching_account_found():
-                return
-            return run_reconciler(self.ledgerfiles)
+    if args.sort:
+        for ledgerfile in ledgerfiles:
+            ledgerfile.sort()
+            ledgerfile.write_file()
 
-        if self.args.schedule:
-            error = run_scheduler(self.ledgerfiles[0], self.args.schedule)
-            if error:
-                return error
 
-        if self.args.sort:
-            for ledgerfile in self.ledgerfiles:
-                ledgerfile.sort()
-                ledgerfile.write_file()
-
-    def no_matching_account_found(self):
-        if not any(lf.rec_account_matched for lf in self.ledgerfiles):
-            print(f'No matching account found for "{self.args.reconcile}"')
-            return True
-        else:
-            return False
+def matching_account_found(ledgerfiles, reconcile_account):
+    if any(lf.rec_account_matched for lf in ledgerfiles):
+        return True
+    else:
+        print(f'No matching account found for "{reconcile_account}"')
+        return False
 
 
 def get_args(args):
@@ -144,6 +139,4 @@ def get_args(args):
 
 def main(argv=None):
     args = get_args(argv or [])
-    ledgerbil = Ledgerbil(args)
-
-    return ledgerbil.run()
+    return run_ledgerbil(args)

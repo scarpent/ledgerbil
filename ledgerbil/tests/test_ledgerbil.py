@@ -291,14 +291,14 @@ class ReconcilerTests(Redirector):
 
 @mock.patch(__name__ + '.ledgerbil.LedgerFile.sort')
 @mock.patch(__name__ + '.ledgerbil.run_scheduler')
-@mock.patch(__name__ + '.ledgerbil.Ledgerbil.no_matching_account_found')
+@mock.patch(__name__ + '.ledgerbil.matching_account_found')
 @mock.patch(__name__ + '.ledgerbil.run_reconciler')
 def test_reconciler_takes_precedence_over_scheduler_and_sort(mock_reconciler,
-                                                             mock_no_match,
+                                                             mock_match,
                                                              mock_scheduler,
                                                              mock_sort):
     mock_scheduler.return_value = None
-    mock_no_match.return_value = False
+    mock_match.return_value = True
     with FT.temp_input('; schedule file') as schedule_filename:
         with FT.temp_input('; ledger file') as ledger_filename:
             ledgerbil.main([
