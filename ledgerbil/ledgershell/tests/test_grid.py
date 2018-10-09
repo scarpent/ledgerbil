@@ -451,6 +451,17 @@ def test_get_column_networth_tomorrow_and_no_result(mock_ledger_output):
     )
 
 
+@mock.patch(__name__ + '.grid.get_ledger_output')
+def test_get_column_networth_only_assets(mock_ledger_output):
+    mock_ledger_output.return_value = '          $ 1,472.34  assets'
+    expected = {'net worth': 1472.34}
+    assert grid.get_column_networth('2023', tuple()) == expected
+    mock_ledger_output.assert_called_once_with(
+        ('balance', '(^fu', '^bar)',
+         '--depth', '1', '--end', '2024')
+    )
+
+
 @mock.patch(__name__ + '.grid.get_column_networth')
 def test_get_columns_networth_and_current(mock_get_column_networth):
     fred_column = {'net worth': 11.23}

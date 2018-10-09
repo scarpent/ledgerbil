@@ -12,9 +12,11 @@ from dateutil.relativedelta import relativedelta
 from .. import util
 from ..colorable import Colorable
 from ..settings_getter import get_setting
-from ..util import get_date, get_float, parse_args
+from ..util import get_date, parse_args
 from .runner import get_ledger_output
-from .util import get_account_balance, get_payee_subtotal
+from .util import (
+    get_account_balance, get_first_dollar_amount_float, get_payee_subtotal
+)
 
 TOTAL_HEADER = 'Total'
 SORT_DEFAULT = TOTAL_HEADER.lower()
@@ -376,8 +378,13 @@ def get_column_networth(period_name, ledger_args):
         + ledger_args
     ).split('\n')
 
-    amount = lines[-1].strip() or '0'
-    column = {'net worth': get_float(amount)}
+    amount = lines[-1].strip()
+    if amount:
+        networth = get_first_dollar_amount_float(amount)
+    else:
+        networth = 0
+
+    column = {'net worth': networth}
     return column
 
 

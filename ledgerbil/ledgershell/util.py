@@ -3,8 +3,10 @@ from collections import namedtuple
 
 from ..util import get_float
 
-DOLLARS_REGEX = re.compile(r'^\s*(?:(\$\s*-?[\d,.]+|0(?=  )))(.*)$')
-SHARES_REGEX = re.compile(r'\s*(-?[\d,.]+) ([a-zA-Z]+)(.*)$')
+AMOUNT = r'-?[\d,.]+'
+DOLLARS_REGEX = re.compile(rf"^\s*(?:(\$\s*{AMOUNT}|0(?=  )))(.*)$")
+SHARES_REGEX = re.compile(rf"\s*({AMOUNT}) ([a-zA-Z]+)(.*)$")
+FIRST_DOLLAR_AMOUNT_REGEX = re.compile(rf"^.*?\$\s*({AMOUNT}).*$")
 
 # example match: '17-Feb-09 - 17-May-30   <Total>   $ 90.00   $ 90.00'
 PAYEE_SUBTOTAL_REGEX = re.compile(r'^.*?\$\s*(\S+)\s*\$.*$')
@@ -43,6 +45,14 @@ def get_account_balance_generic(line):
 def get_payee_subtotal(line):
     DOLLARS = 0
     match = re.match(PAYEE_SUBTOTAL_REGEX, line)
+    if match:
+        return get_float(match.groups()[DOLLARS])
+    return None
+
+
+def get_first_dollar_amount_float(line):
+    DOLLARS = 0
+    match = re.match(FIRST_DOLLAR_AMOUNT_REGEX, line)
     if match:
         return get_float(match.groups()[DOLLARS])
     return None

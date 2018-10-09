@@ -36,3 +36,19 @@ def test_get_account_balance_x(test_input, expected):
 ])
 def test_get_payee_subtotal(test_input, expected):
     assert util.get_payee_subtotal(test_input) == expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    ('$1.23', 1.23),
+    ('$-1.23', -1.23),
+    ('$ 1.23', 1.23),
+    ('$ -1.23', -1.23),
+    ('              $1.23', 1.23),
+    ('abc           $-1.23', -1.23),
+    ('              $1.23 fubar', 1.23),
+    ('              $1.23 $4.56 fubar', 1.23),
+    ('              $1.23 fubar $4.56', 1.23),
+    ('123', None),
+])
+def test_get_first_dollar_amount_float(test_input, expected):
+    assert util.get_first_dollar_amount_float(test_input) == expected
