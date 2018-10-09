@@ -68,7 +68,7 @@ def get_grid_report(args, ledger_args):
         rows = list(map(list, zip(*rows)))
 
     if args.csv:
-        return get_csv_report(rows)
+        return get_csv_report(rows, tabs=args.tab)
 
     if args.transpose:
         # Move account/payee back to the right side
@@ -78,9 +78,10 @@ def get_grid_report(args, ledger_args):
     return get_flat_report(rows, networth=args.networth)
 
 
-def get_csv_report(rows):
+def get_csv_report(rows, tabs=False):
+    delimiter = '\t' if tabs else ','
     output = StringIO()
-    writer = csv.writer(output, lineterminator='\n')
+    writer = csv.writer(output, delimiter=delimiter, lineterminator='\n')
     writer.writerows(rows)
     return output.getvalue()
 
@@ -574,6 +575,12 @@ def get_args(args):
         help='output as csv'
     )
     parser.add_argument(
+        '--tab',
+        action='store_true',
+        default=False,
+        help='output as tsv (tab-delimited)'
+    )
+    parser.add_argument(
         '--no-color',
         action='store_true',
         default=False,
@@ -582,12 +589,18 @@ def get_args(args):
 
     # workaround for problems with nargs=argparse.REMAINDER
     # see: https://bugs.python.org/issue17050
-    return parser.parse_known_args(args)
+    args, ledger_args = parser.parse_known_args(args)
+    if args.tab and not args.csv:
+        args.csv = True
+    return args, ledger_args
 
 
 def main(argv=None):
     args, ledger_args = get_args(argv or [])
+
     report = get_grid_report(args, tuple(ledger_args))
+
     if args.no_color and not args.csv:
         report = Colorable.get_plain_string(report)
+
     print(report, end='')

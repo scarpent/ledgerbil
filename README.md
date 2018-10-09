@@ -615,6 +615,7 @@ optional arguments:
   -t, --transpose             transpose columns and rows (row sorting
                               will then apply to columns)
   --csv                       output as csv
+  --tab                       output as tsv (tab-delimited)
   --no-color                  output without color
 ```
 

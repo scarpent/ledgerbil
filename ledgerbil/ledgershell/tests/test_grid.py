@@ -736,7 +736,8 @@ def test_get_rows_single_row_and_column(mock_get_grid):
 
 
 def test_get_csv_report():
-    """csv report should turn whatever it's given into csv"""
+    """csv report should turn whatever it's given into csv it tabs
+       not specified"""
     rows = [
         [1, 2, 3, 4, 5],
         ['a', 'b', '"c"', 'd e f', 'g, h'],
@@ -747,8 +748,25 @@ def test_get_csv_report():
         a,b,"""c""",d e f,"g, h"
         ,4,,6,glurg
         ''')
-    cvs_report = grid.get_csv_report(rows)
-    assert cvs_report == expected
+    csv_report = grid.get_csv_report(rows)
+    assert csv_report == expected
+
+
+def test_get_csv_report_with_tabs():
+    """csv report should turn whatever it's given into tsv if tabs
+       are specified"""
+    rows = [
+        [1, 2, 3, 4, 5],
+        ['a', 'b', '"c"', 'd e f', 'g\th'],
+        ['', 4, '', 6, 'glurg'],
+    ]
+    expected = dedent(f'''\
+        1\t2\t3\t4\t5
+        a\tb\t"""c"""\td e f\t"g\th"
+        \t4\t\t6\tglurg
+        ''')
+    csv_report = grid.get_csv_report(rows, tabs=True)
+    assert csv_report == expected
 
 
 def test_get_flat_report():
@@ -950,7 +968,7 @@ def test_get_grid_report_csv(mock_pnames, mock_cols, mock_rows,
         ['c', 'a', 'b'],
         [6, 4, ''],
     ]
-    mock_csv_report.assert_called_once_with(expected_rows)
+    mock_csv_report.assert_called_once_with(expected_rows, tabs=False)
     assert grid_report_output == 'csv,report\n'
     assert not mock_flat_report.called
 
@@ -980,7 +998,68 @@ def test_get_grid_report_csv_transposed(mock_pnames, mock_cols, mock_rows,
         [1, 4, 7],
         [2, 5, 8],
     ]
-    mock_csv_report.assert_called_once_with(expected_rows)
+    mock_csv_report.assert_called_once_with(expected_rows, tabs=False)
+    assert grid_report_output == 'csv,report\n'
+    assert not mock_flat_report.called
+
+
+@mock.patch(__name__ + '.grid.get_csv_report')
+@mock.patch(__name__ + '.grid.get_flat_report')
+@mock.patch(__name__ + '.grid.get_rows')
+@mock.patch(__name__ + '.grid.get_columns')
+@mock.patch(__name__ + '.grid.get_period_names')
+def test_get_grid_report_tab(mock_pnames, mock_cols, mock_rows,
+                             mock_flat_report, mock_csv_report):
+    rows = [
+        [1, 2, 3],
+        ['a', 'b', 'c'],
+        [4, '', 6],
+    ]
+    mock_pnames.return_value = ('ra', 'dar')
+    mock_cols.return_value = ('fu', 'bar')
+    mock_rows.return_value = rows
+    mock_csv_report.return_value = 'csv,report\n'
+
+    args, ledger_args = grid.get_args(['--csv', '--tab'])
+    grid_report_output = grid.get_grid_report(args, ledger_args)
+
+    expected_rows = [
+        [3, 1, 2],
+        ['c', 'a', 'b'],
+        [6, 4, ''],
+    ]
+    mock_csv_report.assert_called_once_with(expected_rows, tabs=True)
+    assert grid_report_output == 'csv,report\n'
+    assert not mock_flat_report.called
+
+
+@mock.patch(__name__ + '.grid.get_csv_report')
+@mock.patch(__name__ + '.grid.get_flat_report')
+@mock.patch(__name__ + '.grid.get_rows')
+@mock.patch(__name__ + '.grid.get_columns')
+@mock.patch(__name__ + '.grid.get_period_names')
+def test_get_grid_report_tab_without_csv(mock_pnames, mock_cols, mock_rows,
+                                         mock_flat_report, mock_csv_report):
+    rows = [
+        [1, 2, 3],
+        ['a', 'b', 'c'],
+        [4, '', 6],
+    ]
+    mock_pnames.return_value = ('ra', 'dar')
+    mock_cols.return_value = ('fu', 'bar')
+    mock_rows.return_value = rows
+    mock_csv_report.return_value = 'csv,report\n'
+
+    args, ledger_args = grid.get_args(['--tab'])
+    assert args.csv  # csv is made true
+    grid_report_output = grid.get_grid_report(args, ledger_args)
+
+    expected_rows = [
+        [3, 1, 2],
+        ['c', 'a', 'b'],
+        [6, 4, ''],
+    ]
+    mock_csv_report.assert_called_once_with(expected_rows, tabs=True)
     assert grid_report_output == 'csv,report\n'
     assert not mock_flat_report.called
 
@@ -1230,6 +1309,15 @@ def test_ledger_args(test_input, expected):
 def test_args_csv(test_input, expected):
     args, _ = grid.get_args(test_input)
     assert args.csv is expected
+
+
+@pytest.mark.parametrize('test_input, expected', [
+    (['--tab'], True),
+    ([], False),
+])
+def test_args_tab(test_input, expected):
+    args, _ = grid.get_args(test_input)
+    assert args.tab is expected
 
 
 @pytest.mark.parametrize('test_input, expected', [
