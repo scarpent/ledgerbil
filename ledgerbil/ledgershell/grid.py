@@ -592,13 +592,13 @@ def get_args(args):
     args, ledger_args = parser.parse_known_args(args)
     if args.tab and not args.csv:
         args.csv = True
-    return args, ledger_args
+    return args, tuple(ledger_args)
 
 
 def main(argv=None):
     args, ledger_args = get_args(argv or [])
 
-    report = get_grid_report(args, tuple(ledger_args))
+    report = get_grid_report(args, ledger_args)
 
     if args.no_color and not args.csv:
         report = Colorable.get_plain_string(report)

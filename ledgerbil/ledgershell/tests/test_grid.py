@@ -43,7 +43,7 @@ def test_get_period_names_years(mock_ledger_output):
     timestuff = '--begin banana --end eggplant --period pear'
     args, ledger_args = grid.get_args(f'{timestuff} lettuce'.split())
     expected = (('2017', '2018'), None)
-    actual = grid.get_period_names(args, tuple(ledger_args))
+    actual = grid.get_period_names(args, ledger_args)
     assert actual == expected
     mock_ledger_output.assert_called_once_with(tuple(
         f'register {timestuff} --yearly --date-format %Y '
@@ -64,7 +64,7 @@ def test_get_period_names_months(mock_ledger_output):
         '--period', 'pear', 'lettuce'
     ])
     expected = (('2017/11', '2017/12', '2018/01'), None)
-    actual = grid.get_period_names(args, tuple(ledger_args), 'month')
+    actual = grid.get_period_names(args, ledger_args, 'month')
     assert actual == expected
     mock_ledger_output.assert_called_once_with(
         ('register', '--begin', 'banana', '--end', 'eggplant',
@@ -87,7 +87,7 @@ def test_get_period_names_months_different_format(mock_ledger_output):
         '--period', 'pear', 'lettuce'
     ])
     expected = (('2017-11', '2017-12', '2018-01'), None)
-    actual = grid.get_period_names(args, tuple(ledger_args), 'month')
+    actual = grid.get_period_names(args, ledger_args, 'month')
     assert actual == expected
     mock_ledger_output.assert_called_once_with(
         ('register', '--begin', 'banana', '--end', 'eggplant',
@@ -112,7 +112,7 @@ def test_get_period_names_months_with_current(mock_ledger_output, mock_date):
         '--period', 'pear', 'lettuce', '--current'
     ])
     expected = (('2017/11', '2017/12'), '2017/12')
-    actual = grid.get_period_names(args, tuple(ledger_args), 'month')
+    actual = grid.get_period_names(args, ledger_args, 'month')
     assert actual == expected
     mock_ledger_output.assert_called_once_with(
         ('register', '--begin', 'banana', '--end', 'eggplant',
@@ -137,7 +137,7 @@ def test_get_period_names_months_with_current_not_found(mock_ledger_output,
         '--period', 'pear', 'lettuce', '--current'
     ])
     expected = (('2017/11', '2017/12', '2018/01'), None)
-    actual = grid.get_period_names(args, tuple(ledger_args), 'month')
+    actual = grid.get_period_names(args, ledger_args, 'month')
     assert actual == expected
     mock_ledger_output.assert_called_once_with(
         ('register', '--begin', 'banana', '--end', 'eggplant',
@@ -359,7 +359,6 @@ def test_get_columns_payees(mock_get_column_payees):
     expected_payees = {'zig', 'zag', 'blitz', 'krieg'}
 
     args, ledger_args = grid.get_args(['--payees', 'fu', 'bar'])
-    ledger_args = tuple(ledger_args)
     period_names = ('bratwurst', 'knockwurst')
 
     payees, columns = grid.get_columns(args, ledger_args, period_names)
@@ -475,7 +474,6 @@ def test_get_columns_networth_and_current(mock_get_column_networth):
     expected_row_headers = {'net worth'}
 
     args, ledger_args = grid.get_args(['--net-worth'])
-    ledger_args = tuple(ledger_args)
     period_names = ('fred', 'barney')
 
     row_headers, columns = grid.get_columns(
@@ -516,7 +514,6 @@ def test_get_columns(mock_get_column_accounts):
     }
 
     args, ledger_args = grid.get_args(['salt!'])
-    ledger_args = tuple(ledger_args)
     period_names = ('lemon', 'lime')
 
     accounts, columns = grid.get_columns(args, ledger_args, period_names)
@@ -539,7 +536,6 @@ def test_get_columns_with_current(mock_get_column_accounts):
     expected_accounts = {'expenses: unicorns', 'expenses: widgets'}
 
     args, ledger_args = grid.get_args(['salt!'])
-    ledger_args = tuple(ledger_args)
     period_names = ('lemon', 'lime')
 
     accounts, columns = grid.get_columns(
@@ -863,7 +859,6 @@ def test_get_grid_report_month(mock_pnames, mock_cols, mock_rows, mock_report):
     mock_report.return_value = flat_report
 
     args, ledger_args = grid.get_args(['--month', 'nutmeg'])
-    ledger_args = tuple(ledger_args)
     assert grid.get_grid_report(args, ledger_args) == flat_report
     mock_pnames.assert_called_once_with(args, ledger_args, 'month')
     mock_cols.assert_called_once_with(args, ledger_args, period_names, None)
@@ -899,7 +894,6 @@ def test_get_grid_report_year(mock_pnames, mock_cols, mock_rows, mock_report):
         '--year', 'nutmeg', '--depth', '5', '--limit', '20',
         '--payees', '--sort', 'cloves'
     ])
-    ledger_args = tuple(ledger_args)
     assert grid.get_grid_report(args, ledger_args) == flat_report
     mock_pnames.assert_called_once_with(args, ledger_args, 'year')
     mock_cols.assert_called_once_with(args, ledger_args, period_names, 'basil')
@@ -1068,7 +1062,7 @@ def test_get_grid_report_tab_without_csv(mock_pnames, mock_cols, mock_rows,
 def test_get_grid_report_no_period_names(mock_ledger_output):
     # no results from initial ledger query for periods
     args, ledger_args = grid.get_args([])
-    assert grid.get_grid_report(args, tuple(ledger_args)) == ''
+    assert grid.get_grid_report(args, ledger_args) == ''
 
 
 @mock.patch(__name__ + '.grid.get_columns')
@@ -1187,7 +1181,7 @@ def test_main_csv_no_color(mock_get_grid_report, mock_print, mock_colorable):
 def test_args_year(test_input, expected):
     args, ledger_args = grid.get_args(test_input)
     assert args.year is expected
-    assert ledger_args == []
+    assert ledger_args == tuple()
 
 
 @pytest.mark.parametrize('test_input, expected', [
@@ -1198,7 +1192,7 @@ def test_args_year(test_input, expected):
 def test_args_month(test_input, expected):
     args, ledger_args = grid.get_args(test_input)
     assert args.month is expected
-    assert ledger_args == []
+    assert ledger_args == tuple()
 
 
 def test_args_year_and_month_are_mutually_exclusive():
@@ -1293,9 +1287,9 @@ def test_args_sort(test_input, expected):
 
 
 @pytest.mark.parametrize('test_input, expected', [
-    (['-m', 'a', 'b', '-c'], ['a', 'b', '-c']),
-    (['a', 'b', '-c'], ['a', 'b', '-c']),
-    ([], []),
+    (['-m', 'a', 'b', '-c'], ('a', 'b', '-c')),
+    (['a', 'b', '-c'], ('a', 'b', '-c')),
+    ([], tuple()),
 ])
 def test_ledger_args(test_input, expected):
     _, ledger_args = grid.get_args(test_input)
