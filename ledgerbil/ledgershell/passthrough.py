@@ -24,7 +24,8 @@ def get_args(args):
         action='store_true',
         help='print ledger command used'
     )
-    return parser.parse_known_args(args)
+    args, ledger_args = parser.parse_known_args(args)
+    return args, tuple(ledger_args)
 
 
 def main(argv=None):
@@ -33,6 +34,6 @@ def main(argv=None):
         return 0
 
     if args.command:
-        print(' '.join(get_ledger_command(tuple(ledger_args))))
+        print(' '.join(get_ledger_command(ledger_args)))
 
-    print(get_ledger_output(tuple(ledger_args)))
+    print(get_ledger_output(ledger_args))
