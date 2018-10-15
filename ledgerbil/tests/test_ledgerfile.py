@@ -1,4 +1,5 @@
 from os import chmod, remove
+from textwrap import dedent
 from unittest import TestCase
 
 import pytest
@@ -67,29 +68,30 @@ class ThingCounting(TestCase):
 
     def test_count_initial_non_transaction(self):
         """counts initial non-transaction (probably a comment)"""
-        testdata = '''; blah
-; blah blah blah
-2013/05/06 payee name
-    expenses: misc
-    liabilities: credit card  $-50
-'''
+        testdata = dedent('''\
+            ; blah
+            ; blah blah blah
+            2013/05/06 payee name
+                expenses: misc
+                liabilities: credit card  $-50
+        ''')
         tempfile = FileTester.create_temp_file(testdata)
         ledgerfile = LedgerFile(tempfile)
         remove(tempfile)
         self.assertEqual(2, ledgerfile.thing_counter)
 
     def test_count_initial_transaction(self):
-        """counts initial transaction"""
-        testdata = '''2013/05/06 payee name
-    expenses: misc
-    liabilities: credit card  $-50
-; blah blah blah
-2013/05/06 payee name
-    expenses: misc
-    liabilities: credit card  $-50
-2013/02/30 invalid date (bonus test for thing date checking coverage)
-    (will be lumped with previous; note is invalid ledger file...)
-'''
+        testdata = dedent('''\
+            2013/05/06 payee name
+                expenses: misc
+                liabilities: credit card  $-50
+            ; blah blah blah
+            2013/05/06 payee name
+                expenses: misc
+                liabilities: credit card  $-50
+            2013/02/30 invalid date (bonus test for thing date checking cov)
+                (will be lumped with previous; note is invalid ledger file...)
+            ''')
         tempfile = FileTester.create_temp_file(testdata)
         ledgerfile = LedgerFile(tempfile)
         remove(tempfile)
@@ -97,12 +99,13 @@ class ThingCounting(TestCase):
 
     def test_assigned_thing_numbers(self):
         """thing numbers added in sequence starting at one"""
-        testdata = '''; blah
-; blah blah blah
-2013/05/06 payee name
-    expenses: misc
-    liabilities: credit card  $-50
-'''
+        testdata = dedent('''\
+            ; blah
+            ; blah blah blah
+            2013/05/06 payee name
+                expenses: misc
+                liabilities: credit card  $-50
+        ''')
         tempfile = FileTester.create_temp_file(testdata)
         ledgerfile = LedgerFile(tempfile)
         remove(tempfile)
@@ -137,13 +140,14 @@ class ThingDating(TestCase):
 
     def test_later_non_transaction_date(self):
         """later non-transaction things inherit preceding thing date"""
-        testdata = '''2013/05/06 payee name
-    expenses: misc
-    liabilities: credit card  $-1
-2013/05/07 payee name
-    expenses: misc
-    liabilities: credit card  $-2
-'''
+        testdata = dedent('''\
+            2013/05/06 payee name
+                expenses: misc
+                liabilities: credit card  $-1
+            2013/05/07 payee name
+                expenses: misc
+                liabilities: credit card  $-2
+            ''')
         tempfile = FileTester.create_temp_file(testdata)
         ledgerfile = LedgerFile(tempfile)
         ledgerfile._add_thing_from_lines(
