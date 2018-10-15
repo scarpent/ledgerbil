@@ -17,7 +17,7 @@ def reset_schedule_thing():
     ScheduleThing.entry_boundary_date = None
 
 
-def setup_function(module):
+def setup_function():
     reset_schedule_thing()
 
 
