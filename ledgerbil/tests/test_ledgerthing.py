@@ -355,7 +355,7 @@ class ReconcilerParsing(Redirector):
         # appears to be valid in ledger but not really a transaction
         self.verify_reconcile_vars(['2016/10/23 blah'])
         # this one doesn't do that much but does exercise "no lines"
-        # check at top of _parse_transaction_lines, which shouldn't
+        # check at top of parse_transaction_lines, which shouldn't
         # happen with valid data
         self.verify_reconcile_vars(['2016/10/23 blah'], 'checking')
 

@@ -31,15 +31,13 @@ class LedgerFile:
                 line = line.rstrip()
                 if LedgerThing.is_new_thing(line):
                     self.add_thing_from_lines(
-                        self.remove_trailing_blank_lines(current_lines)
+                        remove_trailing_blank_lines(current_lines)
                     )
                     current_lines = []
 
                 current_lines.append(line)
 
-        self.add_thing_from_lines(
-            self.remove_trailing_blank_lines(current_lines)
-        )
+        self.add_thing_from_lines(remove_trailing_blank_lines(current_lines))
 
     def is_writable(self):
         # This will catch read-only files as well as bad filenames
@@ -49,16 +47,6 @@ class LedgerFile:
         except IOError as e:
             print(f'error: {e}', file=sys.stderr)
             return False
-
-    @staticmethod
-    def remove_trailing_blank_lines(lines):
-        for line in reversed(lines):
-            if line == '':
-                lines.pop()
-            else:
-                break
-
-        return lines
 
     def add_thing_from_lines(self, lines):
         if lines:
@@ -109,3 +97,13 @@ class LedgerFile:
         with open(self.filename, 'w') as the_file:
             for thing in self.get_things():
                 the_file.write('\n'.join(thing.get_lines()) + '\n\n')
+
+
+def remove_trailing_blank_lines(lines):
+    for line in reversed(lines):
+        if line == '':
+            lines.pop()
+        else:
+            break
+
+    return lines

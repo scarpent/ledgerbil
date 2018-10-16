@@ -86,10 +86,10 @@ class LedgerThing:
 
         if self.is_transaction_start(lines[0]):
             self.is_transaction = True
-            self._parse_top_line(lines[0])
+            self.parse_top_line(lines[0])
 
         if self.is_transaction and self.rec_account:
-            self._parse_transaction_lines(lines[1:])
+            self.parse_transaction_lines(lines[1:])
 
     def __repr__(self):
         return (f'{self.__class__.__name__}({self.get_lines()!r}, '
@@ -98,7 +98,7 @@ class LedgerThing:
     def __str__(self):
         return '\n'.join(self.get_lines())
 
-    def _parse_top_line(self, line):
+    def parse_top_line(self, line):
         m = re.match(TOP_LINE_REGEX, line)
 
         the_date, status, code, payee = m.groups()
@@ -117,7 +117,7 @@ class LedgerThing:
         else:
             self.payee = payee.strip()
 
-    def _parse_transaction_lines(self, lines):
+    def parse_transaction_lines(self, lines):
         if not self.rec_account or not lines:
             # We only care about transaction lines if reconciling
             return

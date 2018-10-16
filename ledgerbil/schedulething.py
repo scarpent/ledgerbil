@@ -39,14 +39,14 @@ class ScheduleThing(LedgerThing):
         super().__init__(lines)
 
         if ScheduleThing.do_file_config:
-            self._handle_file_config(
+            self.handle_file_config(
                 lines[ScheduleThing.LINE_FILE_CONFIG]
             )
             self.first_thing = True
             ScheduleThing.do_file_config = False
             return
 
-        self._handle_thing_config(lines[ScheduleThing.LINE_SCHEDULE])
+        self.handle_thing_config(lines[ScheduleThing.LINE_SCHEDULE])
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.get_lines()!r})'
@@ -55,7 +55,7 @@ class ScheduleThing(LedgerThing):
     # ;; scheduler ; enter N days
     # enter is optional
     @staticmethod
-    def _handle_file_config(line):
+    def handle_file_config(line):
 
         config_regex = r'''(?x)               # verbose mode
             ^                                 # line start
@@ -87,7 +87,7 @@ class ScheduleThing(LedgerThing):
             date.today() + relativedelta(days=ScheduleThing.enter_days)
         )
 
-    def _handle_thing_config(self, line):
+    def handle_thing_config(self, line):
 
         cfg_label_idx = 0
         interval_uom_idx = 1
@@ -188,19 +188,19 @@ class ScheduleThing(LedgerThing):
         if self.thing_date > ScheduleThing.entry_boundary_date:
             return entries
 
-        entries.append(self._get_entry_thing())
+        entries.append(self.get_entry_thing())
 
         while True:
-            self.thing_date = self._get_next_date(self.thing_date)
+            self.thing_date = self.get_next_date(self.thing_date)
 
             if self.thing_date > ScheduleThing.entry_boundary_date:
                 break
 
-            entries.append(self._get_entry_thing())
+            entries.append(self.get_entry_thing())
 
         return entries
 
-    def _get_entry_thing(self):
+    def get_entry_thing(self):
         """
         @rtype: LedgerThing
         """
@@ -213,7 +213,7 @@ class ScheduleThing(LedgerThing):
         )
         return LedgerThing(entry_lines)
 
-    def _get_next_date(self, previousdate):
+    def get_next_date(self, previousdate):
 
         if self.interval_uom == ScheduleThing.INTERVAL_DAY:
             return previousdate + relativedelta(days=self.interval)
@@ -222,13 +222,13 @@ class ScheduleThing(LedgerThing):
         else:  # INTERVAL_MONTH
             # first see if any scheduled days remaining in same month
             for scheduleday in self.days:
-                scheduleday = self._get_month_day(
+                scheduleday = self.get_month_day(
                     scheduleday,
                     previousdate
                 )
                 # compare with greater so we don't keep matching same
                 if scheduleday > previousdate.day:
-                    return self._get_safe_date(
+                    return self.get_safe_date(
                         previousdate,
                         scheduleday
                     )
@@ -239,14 +239,14 @@ class ScheduleThing(LedgerThing):
                 months=self.interval
             )
 
-            return self._get_safe_date(
+            return self.get_safe_date(
                 nextdate,
-                self._get_month_day(self.days[0], nextdate)
+                self.get_month_day(self.days[0], nextdate)
             )
 
     # handle situations like 8/31 -> 9/31 (back up to 9/30)
     @staticmethod
-    def _get_safe_date(thedate, theday):
+    def get_safe_date(thedate, theday):
         try:
             return date(thedate.year, thedate.month, theday)
         except ValueError:
@@ -260,7 +260,7 @@ class ScheduleThing(LedgerThing):
             )
 
     # knows how to handle "eom"
-    def _get_month_day(self, scheduleday, currentdate):
+    def get_month_day(self, scheduleday, currentdate):
 
         last_day_of_month = monthrange(
             currentdate.year,
@@ -283,5 +283,5 @@ class ScheduleThing(LedgerThing):
             return last_day_of_month  # february
 
     @staticmethod
-    def _get_week_day():
+    def get_week_day():
         return -1
