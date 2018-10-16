@@ -1,9 +1,11 @@
-from os import chmod, remove
+import sys
+from os import remove
 from textwrap import dedent
-from unittest import TestCase
+from unittest import TestCase, mock
 
 import pytest
 
+from .. import ledgerfile  # noqa (is used in patch)
 from ..ledgerbilexceptions import LdgReconcilerError
 from ..ledgerfile import LedgerFile
 from ..ledgerthing import LedgerThing
@@ -11,35 +13,15 @@ from .filetester import FileTester
 from .helpers import Redirector
 
 
-class FileStuff(Redirector):
-
-    def test_bad_filename(self):
-        """should fail with 'No such file or directory'"""
-        expected = "error: [Errno 2] No such file or directory:"
-        try:
-            LedgerFile('bad.filename')
-        except SystemExit:
-            pass
-        self.redirecterr.seek(0)
-        actual = self.redirecterr.read()
-        self.assertTrue(expected in actual)
-
-    # todo:
-    #       may have to revisit someday if some files are
-    #       reference only and not opened for writing
-    def test_read_only_file(self):
-        """should fail with 'Permission denied'"""
-        expected = "error: [Errno 13] Permission denied:"
-        chmod(FileTester.readonlyfile, 0o0444)
-        try:
-            # file is opened for reading and writing, causing an error
-            # immediately upon open if it is read only
-            LedgerFile(FileTester.readonlyfile)
-        except SystemExit:
-            pass
-        self.redirecterr.seek(0)
-        actual = self.redirecterr.read()
-        self.assertTrue(expected in actual)
+@mock.patch(__name__ + '.ledgerfile.open')
+@mock.patch(__name__ + '.ledgerfile.print')
+def test_file_problem(mock_print, mock_open):
+    mock_open.side_effect = IOError('fubar')
+    with pytest.raises(SystemExit) as excinfo:
+        LedgerFile('blarg')
+    assert str(excinfo.value) == '-1'
+    mock_print.assert_called_once_with('error: fubar', file=sys.stderr)
+    mock_open.assert_called_once_with('blarg', 'r+')
 
 
 class FileParsingOnInit(Redirector):
@@ -47,18 +29,18 @@ class FileParsingOnInit(Redirector):
     def test_parsed_file_unchanged_via_print(self):
         """file output after parsing should be identical to input"""
         expected = FileTester.read_file(FileTester.testfile)
-        ledgerfile = LedgerFile(FileTester.testfile)
-        ledgerfile.print_file()
+        lfile = LedgerFile(FileTester.testfile)
+        lfile.print_file()
         self.redirect.seek(0)
         self.assertEqual(expected, self.redirect.read())
-        self.assertIsNone(ledgerfile.rec_account_matched)
+        self.assertIsNone(lfile.rec_account_matched)
 
     def test_parsed_file_unchanged_via_write(self):
         """file output after parsing should be identical to input"""
         expected = FileTester.read_file(FileTester.testfile)
         tempfile = FileTester.copy_to_temp_file(FileTester.testfile)
-        ledgerfile = LedgerFile(tempfile)
-        ledgerfile.write_file()
+        lfile = LedgerFile(tempfile)
+        lfile.write_file()
         actual = FileTester.read_file(tempfile)
         remove(tempfile)
         self.assertEqual(expected, actual)
@@ -76,9 +58,9 @@ class ThingCounting(TestCase):
                 liabilities: credit card  $-50
         ''')
         tempfile = FileTester.create_temp_file(testdata)
-        ledgerfile = LedgerFile(tempfile)
+        lfile = LedgerFile(tempfile)
         remove(tempfile)
-        self.assertEqual(2, ledgerfile.thing_counter)
+        self.assertEqual(2, lfile.thing_counter)
 
     def test_count_initial_transaction(self):
         testdata = dedent('''\
@@ -93,9 +75,9 @@ class ThingCounting(TestCase):
                 (will be lumped with previous; note is invalid ledger file...)
             ''')
         tempfile = FileTester.create_temp_file(testdata)
-        ledgerfile = LedgerFile(tempfile)
+        lfile = LedgerFile(tempfile)
         remove(tempfile)
-        self.assertEqual(2, ledgerfile.thing_counter)
+        self.assertEqual(2, lfile.thing_counter)
 
     def test_assigned_thing_numbers(self):
         """thing numbers added in sequence starting at one"""
@@ -107,7 +89,7 @@ class ThingCounting(TestCase):
                 liabilities: credit card  $-50
         ''')
         tempfile = FileTester.create_temp_file(testdata)
-        ledgerfile = LedgerFile(tempfile)
+        lfile = LedgerFile(tempfile)
         remove(tempfile)
 
         thing = LedgerThing([
@@ -115,10 +97,10 @@ class ThingCounting(TestCase):
             '    assets: soul',
             '    liabilities: credit card  $666',
         ])
-        ledgerfile.add_thing(thing)
+        lfile.add_thing(thing)
         expected = '012'
         actual = ''
-        for thing in ledgerfile.get_things():
+        for thing in lfile.get_things():
             actual += str(thing.thing_number)
 
         self.assertEqual(actual, expected)
@@ -129,13 +111,13 @@ class ThingDating(TestCase):
     def test_initial_non_transaction_date(self):
         """1st thing in file is a non-transaction, has default date"""
         tempfile = FileTester.create_temp_file('blah\nblah blah blah')
-        ledgerfile = LedgerFile(tempfile)
+        lfile = LedgerFile(tempfile)
         # non-transaction dates are only populated with sort
-        ledgerfile.sort()
+        lfile.sort()
         remove(tempfile)
         self.assertEqual(
             LedgerFile.STARTING_DATE,
-            ledgerfile.get_things()[0].thing_date
+            lfile.get_things()[0].thing_date
         )
 
     def test_later_non_transaction_date(self):
@@ -149,16 +131,16 @@ class ThingDating(TestCase):
                 liabilities: credit card  $-2
             ''')
         tempfile = FileTester.create_temp_file(testdata)
-        ledgerfile = LedgerFile(tempfile)
-        ledgerfile._add_thing_from_lines(
+        lfile = LedgerFile(tempfile)
+        lfile.add_thing_from_lines(
             ['; blah blah blah', '; and so on...']
         )
         # non-transaction dates are only populated with sort
-        ledgerfile.sort()
+        lfile.sort()
         remove(tempfile)
         self.assertEqual(
-            ledgerfile.get_things()[1].thing_date,
-            ledgerfile.get_things()[2].thing_date
+            lfile.get_things()[1].thing_date,
+            lfile.get_things()[2].thing_date
         )
 
 
@@ -168,9 +150,9 @@ class Sorting(TestCase):
         """file output after sorting is identical to sorted input"""
         expected = FileTester.read_file(FileTester.sortedfile)
         tempfile = FileTester.copy_to_temp_file(FileTester.sortedfile)
-        ledgerfile = LedgerFile(tempfile)
-        ledgerfile.sort()
-        ledgerfile.write_file()
+        lfile = LedgerFile(tempfile)
+        lfile.sort()
+        lfile.write_file()
         actual = FileTester.read_file(tempfile)
         remove(tempfile)
         self.assertEqual(expected, actual)
@@ -181,9 +163,9 @@ class Sorting(TestCase):
         tempfile = FileTester.copy_to_temp_file(
             FileTester.alpha_unsortedfile
         )
-        ledgerfile = LedgerFile(tempfile)
-        ledgerfile.sort()
-        ledgerfile.write_file()
+        lfile = LedgerFile(tempfile)
+        lfile.sort()
+        lfile.write_file()
         actual = FileTester.read_file(tempfile)
         remove(tempfile)
         self.assertEqual(expected, actual)

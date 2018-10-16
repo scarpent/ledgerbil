@@ -19,36 +19,39 @@ class LedgerFile:
         self.thing_counter = 0
         self.things = []
         self.rec_account_matched = None  # full account name
-        self._read_file()
+        self.read_file()
 
-    def _read_file(self):
-        self._test_writable()
+    def read_file(self):
+        if not self.is_writable():
+            sys.exit(-1)
+
         current_lines = []
         with open(self.filename, 'r') as the_file:
             for line in the_file:
                 line = line.rstrip()
                 if LedgerThing.is_new_thing(line):
-                    self._add_thing_from_lines(
-                        self._remove_trailing_blank_lines(current_lines)
+                    self.add_thing_from_lines(
+                        self.remove_trailing_blank_lines(current_lines)
                     )
                     current_lines = []
 
                 current_lines.append(line)
 
-        self._add_thing_from_lines(
-            self._remove_trailing_blank_lines(current_lines)
+        self.add_thing_from_lines(
+            self.remove_trailing_blank_lines(current_lines)
         )
 
-    def _test_writable(self):
+    def is_writable(self):
+        # This will catch read-only files as well as bad filenames
         try:
             with open(self.filename, 'r+'):
-                pass
+                return True
         except IOError as e:
-            sys.stderr.write('error: %s\n' % e)
-            sys.exit(-1)
+            print(f'error: {e}', file=sys.stderr)
+            return False
 
     @staticmethod
-    def _remove_trailing_blank_lines(lines):
+    def remove_trailing_blank_lines(lines):
         for line in reversed(lines):
             if line == '':
                 lines.pop()
@@ -57,7 +60,7 @@ class LedgerFile:
 
         return lines
 
-    def _add_thing_from_lines(self, lines):
+    def add_thing_from_lines(self, lines):
         if lines:
             thing = LedgerThing(lines, self.rec_account)
             self.add_thing(thing)

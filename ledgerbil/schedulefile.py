@@ -10,7 +10,7 @@ class ScheduleFile(LedgerFile):
         ScheduleThing.entry_boundary_date = None
         super().__init__(filename, reconcile_account=None)
 
-    def _add_thing_from_lines(self, lines):
+    def add_thing_from_lines(self, lines):
         if lines:
             thing = ScheduleThing(lines)
             self.add_thing(thing)

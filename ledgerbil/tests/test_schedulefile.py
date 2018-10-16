@@ -42,5 +42,5 @@ def test_add_thing_with_no_lines():
         schedulefile = ScheduleFile(tempfilename)
 
     assert len(schedulefile.things) == 1
-    schedulefile._add_thing_from_lines([])
+    schedulefile.add_thing_from_lines([])
     assert len(schedulefile.things) == 1
