@@ -349,7 +349,7 @@ class ReconcilerParsing(Redirector):
         self.verify_reconcile_vars(['; some comment'])
         self.verify_reconcile_vars(['; some comment'], None)
         # reconciling
-        self.verify_reconcile_vars(['; some comment'], 'checking', )
+        self.verify_reconcile_vars(['; some comment'], 'checking')
 
     def test_one_line_transaction(self):
         # appears to be valid in ledger but not really a transaction

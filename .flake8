@@ -3,7 +3,11 @@ max-line-length = 79
 
 ignore =
     # line break before binary operator
-    W503
+    W503,
+    # missing trailing comma
+    C812,
+    # C813: missing trailing comma in Python 3
+    C813,
 
 exclude =
     .git,

@@ -140,7 +140,7 @@ class ScheduleThing(LedgerThing):
         # schedule must have minimum two items; now let's make sure
         # optional fields are referenceable
 
-        for x in range(len(configitems), 4):
+        for _ in range(len(configitems), 4):
             configitems.append('')
 
         if not configitems[days_idx].strip():

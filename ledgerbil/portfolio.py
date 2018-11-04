@@ -138,7 +138,7 @@ def get_list(accounts):
 
 
 def validate_json_year_keys(year):
-    if not all([k in VALID_YEAR_KEYS for k in year.keys()]):
+    if not all(k in VALID_YEAR_KEYS for k in year.keys()):
         raise LdgPortfolioError(f'Invalid key in {year.keys()}')
 
 
@@ -540,7 +540,7 @@ def get_comparison_summary(years, col1):
     return Summary(
         col1,
         years[-1].value,
-        sum([year.gain_value for year in years]),
+        sum(year.gain_value for year in years),
         len(years),
         get_gain(gains, len(gains)),
         get_gain(gains, 1),

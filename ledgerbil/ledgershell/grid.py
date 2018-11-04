@@ -199,7 +199,7 @@ def get_flat_report_header_lists(headers, width=14):
         header_lists.append(the_header)
 
     # pad header row lists so they're all the same length
-    longest_list = max([len(hlist) for hlist in header_lists])
+    longest_list = max(len(hlist) for hlist in header_lists)
     for header_list in header_lists:
         for _ in range(longest_list - len(header_list)):
             header_list.insert(0, '')
@@ -211,9 +211,9 @@ def get_period_names(args, ledger_args, unit='year'):
     # --collapse behavior seems suspicous, but with --empty
     # appears to work for our purposes here
     # groups.google.com/forum/?fromgroups=#!topic/ledger-cli/HAKAMYiaL7w
-    begin = ('--begin', args.begin) if args.begin else tuple()
-    end = ('--end', args.end) if args.end else tuple()
-    period = ('--period', args.period) if args.period else tuple()
+    begin = ('--begin', args.begin) if args.begin else ()
+    end = ('--end', args.end) if args.end else ()
+    period = ('--period', args.period) if args.period else ()
 
     if unit == 'year':
         date_format = get_setting('DATE_FORMAT_YEAR')
@@ -248,7 +248,7 @@ def get_period_names(args, ledger_args, unit='year'):
 def get_columns(args, ledger_args, period_names, current_period=None):
     row_headers = set()
     columns = {}
-    ending = tuple()
+    ending = ()
     for period_name in period_names:
         if current_period and current_period == period_name:
             ending = ('--end', 'tomorrow')

@@ -160,7 +160,7 @@ def test_get_column_accounts(mock_ledger_output):
         'expenses: car: maintenance': 6.50,
         'expenses: widgets': 1001.78,
     }
-    assert grid.get_column_accounts('2018', tuple()) == expected
+    assert grid.get_column_accounts('2018', ()) == expected
     mock_ledger_output.assert_called_once_with(
         ('balance', '--flat', '--period', '2018')
     )
@@ -180,7 +180,7 @@ def test_get_column_accounts_depth_one(mock_ledger_output):
         'apple': 30,
         'grape': 120,
     }
-    assert grid.get_column_accounts('2018', tuple(), depth=1) == expected
+    assert grid.get_column_accounts('2018', (), depth=1) == expected
     mock_ledger_output.assert_called_once_with(
         ('balance', '--flat', '--period', '2018')
     )
@@ -201,7 +201,7 @@ def test_get_column_accounts_depth_two(mock_ledger_output):
         'grape:kiwi': 40,
         'grape:fig': 80,
     }
-    assert grid.get_column_accounts('2018', tuple(), depth=2) == expected
+    assert grid.get_column_accounts('2018', (), depth=2) == expected
     mock_ledger_output.assert_called_once_with(
         ('balance', '--flat', '--period', '2018')
     )
@@ -220,7 +220,7 @@ def test_get_column_accounts_differing_totals(mock_ledger_output, mock_print):
         'expenses: parent': 49.998,
         'expenses: parent: child': 29.999,
     }
-    assert grid.get_column_accounts('2018', tuple()) == expected
+    assert grid.get_column_accounts('2018', ()) == expected
     mock_ledger_output.assert_called_once_with(
         ('balance', '--flat', '--period', '2018')
     )
@@ -253,7 +253,7 @@ def test_get_column_accounts_floating_point_diffs_not_ok(mock_ledger_output,
         'expenses: car: maintenance': 1.25,
     }
     mock_sum.return_value = test_input
-    assert grid.get_column_accounts('2018', tuple()) == expected
+    assert grid.get_column_accounts('2018', ()) == expected
     mock_ledger_output.assert_called_once_with(
         ('balance', '--flat', '--period', '2018')
     )
@@ -287,7 +287,7 @@ def test_get_column_accounts_floating_point_diffs_ok(mock_ledger_output,
         'expenses: car: maintenance': 1.25,
     }
     mock_sum.return_value = test_input
-    assert grid.get_column_accounts('2018', tuple()) == expected
+    assert grid.get_column_accounts('2018', ()) == expected
     mock_ledger_output.assert_called_once_with(
         ('balance', '--flat', '--period', '2018')
     )
@@ -302,7 +302,7 @@ def test_get_column_accounts_no_total(mock_ledger_output):
     expected = {
         'expenses: car: gas': 17.37,
     }
-    assert grid.get_column_accounts('2018', tuple()) == expected
+    assert grid.get_column_accounts('2018', ()) == expected
     mock_ledger_output.assert_called_once_with(
         ('balance', '--flat', '--period', '2018')
     )
@@ -312,7 +312,7 @@ def test_get_column_accounts_no_total(mock_ledger_output):
 def test_get_column_accounts_no_values(mock_ledger_output):
     output = ''
     mock_ledger_output.return_value = output
-    assert grid.get_column_accounts('2018', tuple()) == {}
+    assert grid.get_column_accounts('2018', ()) == {}
     mock_ledger_output.assert_called_once_with(
         ('balance', '--flat', '--period', '2018')
     )
@@ -396,7 +396,7 @@ def test_get_column_networth_month(mock_ledger_output):
                   $ 3,846.57''')
     mock_ledger_output.return_value = output
     expected = {'net worth': 3846.57}
-    assert grid.get_column_networth('2007/10', tuple()) == expected
+    assert grid.get_column_networth('2007/10', ()) == expected
     mock_ledger_output.assert_called_once_with(
         ('balance', '(^fu', '^bar)',
          '--depth', '1', '--end', '2007/11')
@@ -413,7 +413,7 @@ def test_get_column_networth_month_different_date_format(mock_ledger_output):
                   $ 3,846.57''')
     mock_ledger_output.return_value = output
     expected = {'net worth': 3846.57}
-    assert grid.get_column_networth('2007-10', tuple()) == expected
+    assert grid.get_column_networth('2007-10', ()) == expected
     mock_ledger_output.assert_called_once_with(
         ('balance', '(^bar', '^fu)',
          '--depth', '1', '--end', '2007-11')
@@ -432,7 +432,7 @@ def test_get_column_networth_default_networth_accounts(mock_ledger_output):
                   $ 3,846.57''')
     mock_ledger_output.return_value = output
     expected = {'net worth': 3846.57}
-    assert grid.get_column_networth('2007/10', tuple()) == expected
+    assert grid.get_column_networth('2007/10', ()) == expected
     mock_ledger_output.assert_called_once_with(
         ('balance', '(^assets', '^liabilities)',
          '--depth', '1', '--end', '2007/11')
@@ -443,7 +443,7 @@ def test_get_column_networth_default_networth_accounts(mock_ledger_output):
 def test_get_column_networth_tomorrow_and_no_result(mock_ledger_output):
     mock_ledger_output.return_value = ''
     expected = {'net worth': 0.0}
-    assert grid.get_column_networth('tomorrow', tuple()) == expected
+    assert grid.get_column_networth('tomorrow', ()) == expected
     mock_ledger_output.assert_called_once_with(
         ('balance', '(^fu', '^bar)',
          '--depth', '1', '--end', 'tomorrow')
@@ -454,7 +454,7 @@ def test_get_column_networth_tomorrow_and_no_result(mock_ledger_output):
 def test_get_column_networth_only_assets(mock_ledger_output):
     mock_ledger_output.return_value = '          $ 1,472.34  assets'
     expected = {'net worth': 1472.34}
-    assert grid.get_column_networth('2023', tuple()) == expected
+    assert grid.get_column_networth('2023', ()) == expected
     mock_ledger_output.assert_called_once_with(
         ('balance', '(^fu', '^bar)',
          '--depth', '1', '--end', '2024')
@@ -637,7 +637,7 @@ expected_rows_no_total = [
 
 
 @pytest.mark.parametrize('test_input, expected', [
-    (tuple(), expected_sort_rows_by_total),
+    ((), expected_sort_rows_by_total),
     (('unrecognized',), expected_sort_rows_by_total),
     (('row',), expected_sort_rows_by_row_header),
     (('lime',), expected_sort_rows_by_column_header),
@@ -668,7 +668,7 @@ def test_get_rows(mock_get_grid, test_input, expected):
         row_headers,
         columns,
         period_names,
-        *test_input
+        *test_input,
     )
     assert actual == expected
 
@@ -1155,7 +1155,7 @@ def test_main_no_color(mock_get_grid_report, mock_print):
     test_args = ('--no-color',)
     args, unknown = grid.get_args(list(test_args))
     grid.main(list(test_args))
-    mock_get_grid_report.assert_called_once_with(args, tuple())
+    mock_get_grid_report.assert_called_once_with(args, ())
     mock_print.assert_called_once_with('bananas!', end='')
 
 
@@ -1169,7 +1169,7 @@ def test_main_csv_no_color(mock_get_grid_report, mock_print, mock_colorable):
     args, unknown = grid.get_args(list(test_args))
     grid.main(list(test_args))
     assert not mock_colorable.called
-    mock_get_grid_report.assert_called_once_with(args, tuple())
+    mock_get_grid_report.assert_called_once_with(args, ())
     mock_print.assert_called_once_with('bananas!', end='')
 
 
@@ -1181,7 +1181,7 @@ def test_main_csv_no_color(mock_get_grid_report, mock_print, mock_colorable):
 def test_args_year(test_input, expected):
     args, ledger_args = grid.get_args(test_input)
     assert args.year is expected
-    assert ledger_args == tuple()
+    assert ledger_args == ()
 
 
 @pytest.mark.parametrize('test_input, expected', [
@@ -1192,7 +1192,7 @@ def test_args_year(test_input, expected):
 def test_args_month(test_input, expected):
     args, ledger_args = grid.get_args(test_input)
     assert args.month is expected
-    assert ledger_args == tuple()
+    assert ledger_args == ()
 
 
 def test_args_year_and_month_are_mutually_exclusive():
@@ -1289,7 +1289,7 @@ def test_args_sort(test_input, expected):
 @pytest.mark.parametrize('test_input, expected', [
     (['-m', 'a', 'b', '-c'], ('a', 'b', '-c')),
     (['a', 'b', '-c'], ('a', 'b', '-c')),
-    ([], tuple()),
+    ([], ()),
 ])
 def test_ledger_args(test_input, expected):
     _, ledger_args = grid.get_args(test_input)

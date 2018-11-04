@@ -12,14 +12,14 @@ def test_len():
 def test_ansi_sequence_color_codes():
     """Color codes should equal expected start codes"""
     c = Colorable('white', None)
-    for key, value in Colorable.COLORS.items():
+    for _, value in Colorable.COLORS.items():
         assert c.ansi_sequence(value) == f'\033[0;{value}m'
 
 
 def test_ansi_sequence_bright_colors():
     """Bright color codes should equal expected start codes"""
     c = Colorable('white', None)
-    for key, value in Colorable.COLORS.items():
+    for _, value in Colorable.COLORS.items():
         assert c.ansi_sequence(value, bright=True) == '\033[0;{}m'.format(
             value + c.BRIGHT_OFFSET
         )
@@ -103,7 +103,7 @@ def test_equality():
 
 
 @pytest.mark.parametrize('test_input, expected', [
-    (('purple', 'hello',),
+    (('purple', 'hello'),
         "Colorable('purple', 'hello', fmt='', bright=False)"),
     (('green', 'dude', '>20', True),
         "Colorable('green', 'dude', fmt='>20', bright=True)"),
