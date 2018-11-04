@@ -7,8 +7,8 @@ import pytest
 from .. import ledgerthing, settings, settings_getter  # noqa
 from ..ledgerbilexceptions import LdgReconcilerError
 from ..ledgerthing import (
-    REC_CLEARED, REC_PENDING, REC_UNCLEARED, UNSPECIFIED_PAYEE, LedgerPosting,
-    LedgerThing, get_ledger_posting
+    REC_CLEARED, REC_PENDING, REC_UNCLEARED, UNSPECIFIED_PAYEE,
+    LedgerPosting, LedgerThing, get_ledger_posting
 )
 from .helpers import Redirector
 
