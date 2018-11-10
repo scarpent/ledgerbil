@@ -1,6 +1,5 @@
 import os
 import subprocess
-import sys
 
 from ..settings_getter import get_setting
 
@@ -15,9 +14,5 @@ def get_ledger_command(args=None):
 def get_ledger_output(args=None):
     cmd = get_ledger_command(args)
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-    output, error = process.communicate()
-    if error:   # todo: return output, _ and don't bother with error - if
-                # an error, we'll see it since we didn't send to pipe...
-        print(error)
-        sys.exit(1)
+    output, _ = process.communicate()
     return output.decode('unicode_escape').rstrip()

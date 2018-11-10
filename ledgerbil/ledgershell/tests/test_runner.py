@@ -53,6 +53,10 @@ def test_get_ledger_command_with_options():
 
 
 def test_mock_process_object():
+    process = MockProcess(output=b'fu')
+    assert process.output == b'fu'
+    assert process.error is None
+
     with pytest.raises(TypeError) as excinfo:
         MockProcess(output='a string')
     assert str(excinfo.value) == 'output must be type bytes'
@@ -70,15 +74,6 @@ def test_get_ledger_output_with_options(mock_popen):
     mock_popen.return_value = MockProcess(output=b'blargle')
     output = runner.get_ledger_output(('--arghh', 'hooey'))
     assert output == 'blargle'
-
-
-@mock.patch(__name__ + '.runner.print')
-@mock.patch(__name__ + '.runner.subprocess.Popen')
-def test_get_ledger_output_error(mock_popen, mock_print):
-    mock_popen.return_value = MockProcess(error='kaboom!')
-    with pytest.raises(SystemExit):
-        runner.get_ledger_output()
-    mock_print.assert_called_once_with('kaboom!')
 
 
 @mock.patch(__name__ + '.runner.subprocess.Popen')
