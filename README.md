@@ -606,7 +606,7 @@ optional arguments:
                               account reports
   --payees                    show expenses by payee
   --net-worth                 show net worth at end of periods
-  --limit N                   limit the number of rows shown to top N
+  --limit-rows N              limit the number of rows shown to top N
   -T, --total-only            show only the total column (more useful
                               for payees)
   -s SORT, --sort SORT        sort by specified column header, or "row"

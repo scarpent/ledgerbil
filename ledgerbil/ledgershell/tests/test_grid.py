@@ -891,7 +891,7 @@ def test_get_grid_report_year(mock_pnames, mock_cols, mock_rows, mock_report):
 
     # -y defaults to True so could also be a test without -y and -m
     args, ledger_args = grid.get_args([
-        '--year', 'nutmeg', '--depth', '5', '--limit', '20',
+        '--year', 'nutmeg', '--depth', '5', '--limit-rows', '20',
         '--payees', '--sort', 'cloves'
     ])
     assert grid.get_grid_report(args, ledger_args) == flat_report
@@ -1268,12 +1268,12 @@ def test_args_depth(test_input, expected):
 
 
 @pytest.mark.parametrize('test_input, expected', [
-    (['--limit', '30'], 30),
+    (['--limit-rows', '30'], 30),
     ([], 0),
 ])
-def test_args_limit(test_input, expected):
+def test_args_limit_rows(test_input, expected):
     args, _ = grid.get_args(test_input)
-    assert args.limit == expected
+    assert args.limit_rows == expected
 
 
 @pytest.mark.parametrize('test_input, expected', [

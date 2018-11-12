@@ -50,7 +50,7 @@ def get_grid_report(args, ledger_args):
         columns,
         period_names,
         args.sort,
-        args.limit,
+        args.limit_rows,
         args.total_only,
         no_total=args.networth
     )
@@ -393,7 +393,7 @@ def get_rows(row_headers,
              columns,
              period_names,
              sort=SORT_DEFAULT,
-             limit=0,
+             limit_rows=0,
              total_only=False,
              no_total=False):
 
@@ -420,8 +420,8 @@ def get_rows(row_headers,
         reverse_sort = True
 
     rows = sorted(rows, key=lambda x: x[sort_index], reverse=reverse_sort)
-    if limit > 0:
-        rows = rows[:limit]
+    if limit_rows > 0:
+        rows = rows[:limit_rows]
 
     if len(rows) > 1:
         totals = [sum(x) for x in list(zip(*rows))[:ACCOUNT_PAYEE_COLUMN]]
@@ -480,6 +480,7 @@ def get_args(args):
     parser = argparse.ArgumentParser(
         prog=program,
         description=description,
+        allow_abbrev=False,
         formatter_class=(lambda prog: argparse.RawDescriptionHelpFormatter(
             prog,
             max_help_position=40,
@@ -542,7 +543,7 @@ def get_args(args):
         help='show net worth at end of periods'
     )
     parser.add_argument(
-        '--limit',
+        '--limit-rows',
         type=int,
         metavar='N',
         default=0,
