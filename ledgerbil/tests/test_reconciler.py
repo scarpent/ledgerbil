@@ -1127,7 +1127,7 @@ class ReloadTests(TestCase):
             recon = Reconciler([LedgerFile(tempfilename, 'cash')])
             self.assertEqual(-20, recon.total_cleared)
 
-            with open(tempfilename, 'w') as the_file:
+            with open(tempfilename, 'w', encoding='utf-8') as the_file:
                 the_file.write(self.testdata_modified)
 
             self.assertEqual(-20, recon.total_cleared)

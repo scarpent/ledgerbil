@@ -45,7 +45,9 @@ class OutputFileTester(OutputFileTesterBase):
         self.testfile = testfile
 
     def save_out_file(self, data):
-        with open(self.get_out_filename(self.testfile), 'w') as afile:
+        with open(
+            self.get_out_filename(self.testfile), 'w', encoding='utf-8'
+        ) as afile:
             afile.write(self.remove_color(data))
 
     def assert_out_equals_expected(self):
@@ -68,11 +70,11 @@ class OutputFileTesterStdout(TestCase, OutputFileTesterBase):
         self.testfile = testfile
         self.expected = self.get_expected_filename(testfile)
         self.actual = self.get_out_filename(testfile)
-        sys.stdout = open(self.actual, 'w')
+        sys.stdout = open(self.actual, 'w', encoding='utf-8')
 
     def conclude_test(self):
         sys.stdout.close()
-        with open(self.actual, 'r+') as f:
+        with open(self.actual, 'r+', encoding='utf-8') as f:
             data = self.remove_color(f.read())
             f.seek(0)
             f.write(data)

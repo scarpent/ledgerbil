@@ -578,7 +578,9 @@ def get_comparison_report_line(comparison_item, percent, labels):
 
 
 def get_portfolio_data():
-    with open(get_setting('PORTFOLIO_FILE'), 'r') as portfile:
+    with open(
+        get_setting('PORTFOLIO_FILE'), 'r', encoding='utf-8'
+    ) as portfile:
         return json.loads(portfile.read())
 
 

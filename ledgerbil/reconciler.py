@@ -534,7 +534,7 @@ class Reconciler(cmd.Cmd, object):
 
         try:
             cache_file = get_setting('RECONCILER_CACHE_FILE')
-            with open(cache_file, 'w') as the_file:
+            with open(cache_file, 'w', encoding='utf-8') as the_file:
                 the_file.write(json.dumps(cache, indent=4, sort_keys=True))
         except (IOError, ValueError) as e:
             print(f'Error writing reconciler cache: {e}', file=sys.stderr)
@@ -558,7 +558,7 @@ def get_reconciler_cache():
     cache_file = get_setting('RECONCILER_CACHE_FILE')
     if os.path.exists(cache_file):
         try:
-            with open(cache_file, 'r') as the_file:
+            with open(cache_file, 'r', encoding='utf-8') as the_file:
                 return json.loads(the_file.read())
         except (IOError, ValueError) as e:
             print(f'Error getting reconciler cache: {e}', file=sys.stderr)

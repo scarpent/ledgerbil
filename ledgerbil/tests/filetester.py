@@ -37,7 +37,7 @@ class FileTester:
             FileTester.testdir,
             f'temp_{inspect.stack()[1][3]}'
         )
-        with open(temp_file, 'w') as f:
+        with open(temp_file, 'w', encoding='utf-8') as f:
             f.write(testdata)
         return temp_file
 
@@ -52,13 +52,13 @@ class FileTester:
 
     @staticmethod
     def read_file(filename):
-        with open(filename, 'r') as f:
+        with open(filename, 'r', encoding='utf-8') as f:
             return f.read()
 
     @staticmethod
     def write_to_temp_file(filename, testdata):
         temp_file = f'{filename}_temp'
-        with open(temp_file, 'w') as f:
+        with open(temp_file, 'w', encoding='utf-8') as f:
             f.write(testdata)
         return temp_file
 

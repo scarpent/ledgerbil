@@ -375,7 +375,7 @@ def test_get_portfolio_data():
         data = portfolio.get_portfolio_data()
 
     assert data == expected
-    m.assert_called_once_with('abcd', 'r')
+    m.assert_called_once_with('abcd', 'r', encoding='utf-8')
 
 
 def test_get_account_history():

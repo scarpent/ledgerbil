@@ -26,7 +26,7 @@ class LedgerFile:
             sys.exit(-1)
 
         current_lines = []
-        with open(self.filename, 'r') as the_file:
+        with open(self.filename, 'r', encoding='utf-8') as the_file:
             for line in the_file:
                 line = line.rstrip()
                 if LedgerThing.is_new_thing(line):
@@ -94,7 +94,7 @@ class LedgerFile:
             print()
 
     def write_file(self):
-        with open(self.filename, 'w') as the_file:
+        with open(self.filename, 'w', encoding='utf-8') as the_file:
             for thing in self.get_things():
                 the_file.write('\n'.join(thing.get_lines()) + '\n\n')
 
