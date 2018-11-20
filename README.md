@@ -240,8 +240,8 @@ January 2018. The `;; schedule` line will be removed for the journal
 entry. For recurring items with varying amounts, I usually include a `;
 todo` comment on the top line as a reminder to go back and set the
 actual amount later, but that's just a convention. You can include
-whatever you want on the non-schedule config line. The only thing
-modified is the date.
+whatever you want on the non-schedule lines. The only thing modified is 
+the date.
 
 Supported units are `monthly`, `weekly`, and `daily`. Weekly
 transactions will recur on the same day of the week as the date in the
@@ -265,11 +265,11 @@ entry on that date (*I think*), but then rotate between the other two.
 The schedule entry will always show the date of the next entry to be
 added.
 
-What will this scheduled transaction do when confronted with February?
-It will use the 28th or the 29th. You can also specify `eom` (end of
-month) which will use the last day of the month, or `eom30` which will
-use the 30th for every month except February, in which it will again
-fall back to the 28th or the 29th.
+What will this scheduled transaction do for the 30th, when confronted
+with February? It will use the 28th or the 29th. You can also specify
+`eom` (end of month) which will use the last day of the month, or
+`eom30` which will use the 30th for every month except February, in
+which it will again fall back to the 28th or the 29th.
 
 The `days` list can also be space delimited, e.g.
 
@@ -543,21 +543,21 @@ external program.
 ## "ledgershell" (other commands)
 
 The ledgershell programs use ledger to read and report on your data in
-different ways. None of them modify your data as of October 2018.
+different ways. None of them modify your data as of November 2018.
 
 (`portfolio` is listed with "other commands", but isn't a ledgershell
 program, and currently has nothing to do with ledger or ledger data.)
 
-There is no documentation other than the code and `--help`, which is
-included below and often changing, so don't count on this readme for the
-latest.
+There is little documentation other than the code and `--help`, which is
+included below but often changing, so please don't count on this readme 
+for the latest.
 
 ### settings.py
 
 Intended as a convenience, but which can also be a nuisance, the
 `settings.py` file is meant to have all the information needed to run
 ledger so you don't have to pass in everything every time. And, related
-to the ambivalence about documentation mentioned above, There isn't any
+to the ambivalence about documentation mentioned above, there isn't any
 documentation for this file yet. Just [`settings.py.example`][settings]
 which you should copy to `settings.py` in the same directory and then
 modify for your own needs.
@@ -637,8 +637,9 @@ optional arguments:
 
 ### pass (passthrough to ledger)
 
-I have three different `settings.py` files I use for different data
-sets, and find this useful for running ledger with each of them.
+I have a different `settings.py` file that I use for development, and 
+find this useful for running ledger against the sample files included
+in this repo.
 
 ```
 usage: ledgerbil/main.py pass [-h] [--command]
