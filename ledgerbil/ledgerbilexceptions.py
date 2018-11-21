@@ -1,6 +1,5 @@
 class LdgException(Exception):
-    def __init__(self, value):
-        self.value = value
+    pass
 
 
 class LdgSchedulerError(LdgException):
