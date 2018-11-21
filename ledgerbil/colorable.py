@@ -43,16 +43,11 @@ class Colorable:
         )
 
     def __str__(self):
-        ansi_str = '{start}{value:{fmt}}{end}'.format(
-            start=self.ansi_sequence(
-                self.COLORS[self.my_color],
-                bright=self.bright
-            ),
-            value=self.value,
-            fmt=self.format_string,
-            end=self.END_CODE
+        start = self.ansi_sequence(
+            self.COLORS[self.my_color],
+            bright=self.bright
         )
-
+        ansi_str = f'{start}{self.value:{self.format_string}}{self.END_CODE}'
         return ansi_str
 
     def __len__(self):

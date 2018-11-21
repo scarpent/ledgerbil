@@ -19,14 +19,12 @@ def get_investment_command_options(accounts, end_date, shares=False):
 
 
 def warn_negative_dollars(amount, account):
+    warning = Colorable('red', 'WARNING:')
+    amount = Colorable('red', amount)
     print(
-        '{warning} Negative dollar amount {amount} for "{account}". '
+        f'{warning} Negative dollar amount {amount} for "{account.strip()}". '
         'This may be a data entry mistake, or because we are '
-        'looking at a date range.\n'.format(
-            warning=Colorable('red', 'WARNING:'),
-            amount=Colorable('red', amount),
-            account=account.strip()
-        )
+        'looking at a date range.\n'
     )
 
 

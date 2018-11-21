@@ -92,14 +92,13 @@ class Reconciler(cmd.Cmd, object):
 
     def do_aliases(self, arg):
         """Print aliases"""
-        for alias in sorted(
-                list(self.aliases.keys()),
-                key=lambda x: x.lower()
-        ):
-            print('{alias:5}{command}'.format(
-                alias=alias,
-                command=self.aliases[alias].__name__[3:]
-            ))
+        sorted_aliases = sorted(
+            list(self.aliases.keys()),
+            key=lambda x: x.lower()
+        )
+        for alias in sorted_aliases:
+            command = self.aliases[alias].__name__[3:]
+            print(f'{alias:6}{command}')
 
     def do_quit(self, arg):
         """Exit the program"""
@@ -233,18 +232,15 @@ class Reconciler(cmd.Cmd, object):
             self.is_shares = is_shareses.pop()
         else:
             raise LdgReconcilerError(
-                'Unhandled shares with non-shares: "{}"'.format(
-                    self.get_rec_account_matched()
-                )
+                'Unhandled shares with non-shares: '
+                f'"{self.get_rec_account_matched()}"'
             )
 
     def assert_only_one_symbol(self, symbols):
         if self.is_shares and len(set(symbols)) != 1:
             raise LdgReconcilerError(
-                'Unhandled multiple symbols: "{}": {}'.format(
-                    self.get_rec_account_matched(),
-                    sorted(list(symbols))
-                )
+                'Unhandled multiple symbols: '
+                f'"{self.get_rec_account_matched()}": {sorted(list(symbols))}'
             )
 
     def mark_or_unmark(self, args, mark=True):
@@ -364,9 +360,8 @@ class Reconciler(cmd.Cmd, object):
         )
 
         if self.ending_balance is not None:
-            print('to zero: {}'.format(
-                self.get_colored_amount(self.get_zero_candidate())
-            ))
+            to_zero = self.get_colored_amount(self.get_zero_candidate())
+            print(f'to zero: {to_zero}')
 
         print()
 

@@ -112,11 +112,9 @@ class ScheduleThing(LedgerThing):
         if configitems[cfg_label_idx].lower() != \
                 ScheduleThing.THING_CONFIG_LABEL:
             raise LdgSchedulerError(
-                'Invalid schedule thing config:\n{line}\n"{label}" '
-                'label not found in expected place.'.format(
-                    line=line,
-                    label=ScheduleThing.THING_CONFIG_LABEL
-                )
+                f'Invalid schedule thing config:\n{line}\n'
+                f'"{ScheduleThing.THING_CONFIG_LABEL}" '
+                'label not found in expected place.'
             )
 
         interval_uom_regex = (
@@ -125,14 +123,11 @@ class ScheduleThing(LedgerThing):
 
         match = re.match(interval_uom_regex, configitems[interval_uom_idx])
         if not match:
+            uom = configitems[interval_uom_idx]
             raise LdgSchedulerError(
-                'Invalid schedule thing config:\n{line}\nInterval UOM '
-                '"{uom}" not recognized. Supported UOMs: '
-                'daily, weekly, monthly, bimonthly, quarterly, biannual, '
-                'yearly.'.format(
-                    line=line,
-                    uom=configitems[interval_uom_idx]
-                )
+                f'Invalid schedule thing config:\n{line}\nInterval UOM '
+                f'"{uom}" not recognized. Supported UOMs: daily, '
+                'weekly, monthly, bimonthly, quarterly, biannual, yearly.'
             )
 
         intervaluom = match.group(1).lower()

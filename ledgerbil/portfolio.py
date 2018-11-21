@@ -126,15 +126,13 @@ def get_list(accounts):
         lines += f'{name}    {labels}\n'
 
     count = f"{len(accounts)} account{'' if len(accounts) == 1 else 's'}"
-
     all_labels = sorted(set(
         itertools.chain.from_iterable([a['labels'] for a in accounts])
     ))
-    return '{}\n{}\n{}'.format(
-        lines,
-        Colorable('cyan', count),
-        Colorable('cyan', ' '.join(all_labels))
-    )
+
+    colored_count = Colorable('cyan', count)
+    colored_labels = Colorable('cyan', ' '.join(all_labels))
+    return f'{lines}\n{colored_count}\n{colored_labels}'
 
 
 def validate_json_year_keys(year):
@@ -154,11 +152,12 @@ def get_performance_report_header(accounts, num_years):
 def get_performance_report(accounts, included_years):
     totals = get_yearly_combined_accounts(accounts, included_years)
     years = get_yearly_with_gains(totals)
-    return '{header}\n\n{col_headers}\n{report}'.format(
-        header=get_performance_report_header(accounts, len(years)),
-        col_headers=get_performance_report_column_headers(len(years)),
-        report=get_performance_report_years(years)
-    )
+
+    header = get_performance_report_header(accounts, len(years))
+    col_headers = get_performance_report_column_headers(len(years))
+    report = get_performance_report_years(years)
+
+    return f'{header}\n\n{col_headers}\n{report}'
 
 
 def get_annualized_total_return(gains, num_years):
@@ -526,13 +525,11 @@ def get_comparison_report(accounts,
         )
         report += f'{col1_f}  {total_value_f}  {percent_total_f}'
 
-    return '{col_headers}\n{report}'.format(
-        col_headers=get_comparison_report_column_headers(
-            max(num_years),
-            labels if not accounts_only else ''
-        ),
-        report=report
+    col_headers = get_comparison_report_column_headers(
+        max(num_years),
+        labels if not accounts_only else ''
     )
+    return f'{col_headers}\n{report}'
 
 
 def get_comparison_summary(years, col1):

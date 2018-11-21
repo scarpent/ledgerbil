@@ -776,7 +776,8 @@ def test_mixed_shares_and_non_shares_raises_exception():
     ]
     with pytest.raises(LdgReconcilerError) as excinfo:
         LedgerThing(lines, reconcile_account='xyz')
-    expected = 'Unhandled shares with non-shares:\n{}'.format('\n'.join(lines))
+    formatted_lines = '\n'.join(lines)
+    expected = f'Unhandled shares with non-shares:\n{formatted_lines}'
     assert str(excinfo.value) == expected
 
 
@@ -789,7 +790,8 @@ def test_mixed_shares_and_non_shares_raises_exception_too():
     ]
     with pytest.raises(LdgReconcilerError) as excinfo:
         LedgerThing(lines, reconcile_account='xyz')
-    expected = 'Unhandled shares with non-shares:\n{}'.format('\n'.join(lines))
+    formatted_lines = '\n'.join(lines)
+    expected = f'Unhandled shares with non-shares:\n{formatted_lines}'
     assert str(excinfo.value) == expected
 
 

@@ -213,10 +213,8 @@ class LedgerThing:
                 assert m
                 # going to use a standard 4 space indent; alternatively
                 # could try to be smart about preserving what is there
-                lines_out.append('  {status} {remainder}'.format(
-                    status=current_status,
-                    remainder=m.groups()[0]
-                ))
+                remainder = m.groups()[0]
+                lines_out.append(f'  {current_status} {remainder}')
             else:
                 lines_out.append(line)
 
@@ -247,11 +245,10 @@ class LedgerThing:
 
     def assert_only_one_symbol(self, symbols):
         if len(set(symbols)) > 1:
+            sorted_list = sorted(list(set(symbols)))
+            formatted_lines = '\n'.join(self.lines)
             raise LdgReconcilerError(
-                'Unhandled multiple symbols: {}\n{}'.format(
-                    sorted(list(set(symbols))),
-                    '\n'.join(self.lines)
-                )
+                f'Unhandled multiple symbols: {sorted_list}\n{formatted_lines}'
             )
 
     def assert_only_shares_if_shares(self, shareses):
@@ -269,10 +266,9 @@ class LedgerThing:
         https://www.ledger-cli.org/3.0/doc/ledger3.html#Eliding-amounts
         """
         if self.rec_is_shares and None in shareses:
+            formatted_lines = '\n'.join(self.lines)
             raise LdgReconcilerError(
-                'Unhandled shares with non-shares:\n{}'.format(
-                    '\n'.join(self.lines)
-                )
+                f'Unhandled shares with non-shares:\n{formatted_lines}'
             )
 
     def assert_not_top_line_status(self):

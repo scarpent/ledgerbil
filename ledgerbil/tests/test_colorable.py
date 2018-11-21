@@ -20,9 +20,8 @@ def test_ansi_sequence_bright_colors():
     """Bright color codes should equal expected start codes"""
     c = Colorable('white', None)
     for _, value in Colorable.COLORS.items():
-        assert c.ansi_sequence(value, bright=True) == '\033[0;{}m'.format(
-            value + c.BRIGHT_OFFSET
-        )
+        expected = f'\033[0;{value + c.BRIGHT_OFFSET}m'
+        assert c.ansi_sequence(value, bright=True) == expected
 
 
 def test_color():
