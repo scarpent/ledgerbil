@@ -26,9 +26,7 @@ class Colorable:
 
     def __init__(self, color, value, fmt='', bright=False):
 
-        try:
-            self.COLORS[color]
-        except KeyError:
+        if color not in self.COLORS.keys():
             raise UnsupportedColorError(
                 f"I don't know what to do with this color: {color}"
             )
@@ -65,10 +63,8 @@ class Colorable:
 
     def ansi_sequence(self, code, bright=False):
         offset = 60 if bright else 0
-        return '{start}[0;{color}m'.format(
-            start=self.START_CODE,
-            color=code + offset
-        )
+        color = code + offset
+        return f'{self.START_CODE}[0;{color}m'
 
     def plain(self):
         return self.value
