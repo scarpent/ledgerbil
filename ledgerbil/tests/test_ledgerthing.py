@@ -4,7 +4,7 @@ from unittest import TestCase
 import pytest
 
 # (ledgerthing noqa'ed: is used in patch but reported as unused)
-from .. import ledgerthing, settings, settings_getter  # noqa
+from .. import ledgerthing, settings, settings_getter  # noqa: F401
 from ..ledgerbilexceptions import LdgReconcilerError
 from ..ledgerthing import (
     REC_CLEARED, REC_PENDING, REC_UNCLEARED, UNSPECIFIED_PAYEE,

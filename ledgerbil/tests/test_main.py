@@ -4,7 +4,7 @@ from unittest import mock
 
 sys.path.insert(0, os.path.realpath(os.path.dirname(__file__) + "/../.."))
 
-import main  # isort:skip # noqa: has to follow sys path hack
+import main  # isort:skip # noqa: E402 has to follow sys path hack
 
 
 @mock.patch('main.ledgerbil.main')

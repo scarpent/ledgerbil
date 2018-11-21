@@ -10,7 +10,7 @@ from .filetester import FileTester as FT
 from .helpers import Redirector
 from .test_schedulefile import schedule_testdata
 
-from .. import (  # noqa (reconciler and scheduler used in patches) isort:skip
+from .. import (  # noqa: F401 (stuff used in patches) isort:skip
     ledgerbil, reconciler, scheduler, settings, settings_getter, util
 )
 

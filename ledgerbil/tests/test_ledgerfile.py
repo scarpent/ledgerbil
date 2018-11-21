@@ -5,7 +5,7 @@ from unittest import TestCase, mock
 
 import pytest
 
-from .. import ledgerfile  # noqa (is used in patch)
+from .. import ledgerfile  # noqa: F401 (is used in patch)
 from ..ledgerbilexceptions import LdgReconcilerError
 from ..ledgerfile import LedgerFile
 from ..ledgerthing import LedgerThing
