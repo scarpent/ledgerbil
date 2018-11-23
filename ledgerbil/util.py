@@ -54,10 +54,8 @@ def is_valid_date(date_string):
 
 def is_integer(value):
     try:
-        if value[0] in ('-', '+'):
-            return value[1:].isdigit()
-        return value.isdigit()
-    except (TypeError, IndexError):
+        return re.sub(r'^[-+]', '', value).isdigit()
+    except TypeError:
         return False
 
 

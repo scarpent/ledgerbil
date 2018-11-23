@@ -78,6 +78,8 @@ def test_is_valid_date(test_input, expected):
     assert util.is_valid_date(test_input) == expected
 
 
+# Not sure why I didn't originally handle spaces around - or +
+# but will leave those unhandled until a reason to change...
 @pytest.mark.parametrize('test_input, expected', [
     ('4', True),
     ('-4', True),
@@ -86,8 +88,8 @@ def test_is_valid_date(test_input, expected):
     ('-4.5', False),
     ('+4.5', False),
     ('gooogly moogly', False),
-    (None, False),
     ('', False),
+    (None, False),  # TypeError
 ])
 def test_is_integer(test_input, expected):
     assert util.is_integer(test_input) == expected
