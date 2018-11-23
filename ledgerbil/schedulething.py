@@ -61,7 +61,7 @@ class ScheduleThing(LedgerThing):
             ^                                 # line start
             \s*;;\s*scheduler\s*              # required
             (?:                               # non-capturing
-                ;\s*enter\s+(\d+)\s+days?\s*  # days ahead to enter tran
+              ;\s*enter\s+(\d+)\s+days?\s*    # days ahead to enter transaction
             )?                                # optional
             (?:\s*;.*)?                       # optional end semi-colon
             $                                 # line end
@@ -247,7 +247,7 @@ class ScheduleThing(LedgerThing):
         except ValueError:
             # day is out of range for month, so we'll get the last day
             # of month (may be unlikely now that we check lastDayOfMonth
-            # in _getMonthDay)
+            # in get_month_day)
             return date(
                 thedate.year,
                 thedate.month,
@@ -257,10 +257,7 @@ class ScheduleThing(LedgerThing):
     # knows how to handle "eom"
     def get_month_day(self, scheduleday, currentdate):
 
-        last_day_of_month = monthrange(
-            currentdate.year,
-            currentdate.month
-        )[1]
+        last_day_of_month = monthrange(currentdate.year, currentdate.month)[1]
 
         if str(scheduleday).isdigit():
             if int(scheduleday) > last_day_of_month:
