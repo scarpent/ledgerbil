@@ -92,8 +92,8 @@ class LedgerThing:
             self.parse_transaction_lines(lines[1:])
 
     def __repr__(self):
-        return (f'{self.__class__.__name__}({self.get_lines()!r}, '
-                f'reconcile_account={self.rec_account!r})')
+        return (f'{self.__class__.__name__}({self.get_lines()}, '
+                f'reconcile_account={self.rec_account})')
 
     def __str__(self):
         return '\n'.join(self.get_lines())
