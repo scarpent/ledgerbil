@@ -196,9 +196,6 @@ class ScheduleThing(LedgerThing):
         return entries
 
     def get_entry_thing(self):
-        """
-        @rtype: LedgerThing
-        """
         entry_lines = copy(self.lines)
         del entry_lines[ScheduleThing.LINE_SCHEDULE]
         entry_lines[ScheduleThing.LINE_DATE] = re.sub(
