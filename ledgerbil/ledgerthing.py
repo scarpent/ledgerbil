@@ -65,7 +65,6 @@ def get_ledger_posting(line):
 class LedgerThing:
 
     def __init__(self, lines, reconcile_account=None):
-
         self.thing_number = 0
         self.thing_date = None
         self.payee = None

@@ -1,5 +1,4 @@
 """objects in schedule file: recurring transactions"""
-
 import re
 from calendar import monthrange
 from copy import copy
@@ -12,9 +11,6 @@ from .ledgerthing import DATE_REGEX, LedgerThing
 
 
 class ScheduleThing(LedgerThing):
-
-    # These three are also initialized in ScheduleFile init, mostly
-    # to ensure tests run with expected initial state
     do_file_config = True
     enter_days = 0
     entry_boundary_date = None
