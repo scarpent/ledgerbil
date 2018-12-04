@@ -23,7 +23,7 @@ def run_reconciler(ledgerfiles):
     reconciler.cmdloop()
 
 
-class Reconciler(cmd.Cmd, object):
+class Reconciler(cmd.Cmd):
 
     UNKNOWN_SYNTAX = '*** Unknown syntax: '
     NO_HELP = '*** No help on '
