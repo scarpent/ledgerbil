@@ -573,7 +573,7 @@ def reconciled_status():
     accounts = get_accounts_reconciled_data()
 
     query_accounts = []
-    for expanded_account_name in accounts.keys():
+    for expanded_account_name in accounts:
         query_accounts.append(f'^{expanded_account_name}$')
 
     query = (

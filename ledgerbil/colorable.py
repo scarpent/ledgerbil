@@ -26,7 +26,7 @@ class Colorable:
 
     def __init__(self, color, value, fmt='', bright=False):
 
-        if color not in self.COLORS.keys():
+        if color not in self.COLORS:
             raise UnsupportedColorError(
                 f"I don't know what to do with this color: {color}"
             )
