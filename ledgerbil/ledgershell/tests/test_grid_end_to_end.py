@@ -118,7 +118,7 @@ def test_get_grid_report_flat_report_single_row_and_column():
 
 
 def test_get_grid_report_flat_report_payees():
-    args, ledger_args = grid.get_args(['--payees'])
+    args, ledger_args = grid.get_args(['--payees', 'expenses'])
     report = grid.get_grid_report(args, ledger_args)
     helper = OutputFileTester(f'test_grid_end_to_end_flat_payees')
     helper.save_out_file(report)

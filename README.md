@@ -569,8 +569,9 @@ modify for your own needs.
 ```
 usage: ledgerbil/main.py grid [-h] [-y | -m] [-b DATE] [-e DATE]
                               [-p PERIOD] [--current] [--depth N]
-                              [--payees] [--limit N] [-T] [-s SORT]
-                              [-t] [--csv] [--no-color]
+                              [--payees] [--net-worth] [--limit-rows N]
+                              [-T] [-s SORT] [-t] [--csv] [--tab]
+                              [--no-color]
 
 Show ledger balance report in tabular form with years or months as the
 columns. Begin, end, and period params are handled as ledger interprets
@@ -589,10 +590,11 @@ all of 2018 to be included.
 Currently supports ledger --flat reports. (Although you don't specify
 --flat.)
 
-Payee reports will also pass through ledger arguments. Currently they
-assume "expenses" and if you want to further constrain that, you need
-to do something like "and @^a" to get only payees starting with the
-letter "a."
+Payee reports will also pass through ledger arguments. It is best to
+specify an account to constrain the query, e.g. expenses. If not given
+any accounts, ledger gives odd results for the query used by ledgerbil:
+
+register --group-by '(payee)' --collapse --subtotal --depth 1
 
 optional arguments:
   -h, --help                  show this help message and exit
@@ -604,11 +606,12 @@ optional arguments:
   --current                   exclude future transactions
   --depth N                   limit the depth of account tree for
                               account reports
-  --payees                    show expenses by payee
+  --payees                    show results by payee (results may be
+                              nonsensical if you do not specify
+                              accounts, e.g. expenses)
   --net-worth                 show net worth at end of periods
   --limit-rows N              limit the number of rows shown to top N
-  -T, --total-only            show only the total column (more useful
-                              for payees)
+  -T, --total-only            show only the total column
   -s SORT, --sort SORT        sort by specified column header, or "row"
                               to sort by account or payee (default: by
                               total)

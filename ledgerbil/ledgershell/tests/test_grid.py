@@ -339,10 +339,10 @@ def test_get_column_payees(mock_ledger_output):
         'johnny paycheck': 1381.32,
         'jurassic fork': 42.17
     }
-    assert grid.get_column_payees('blah', ('bogus', )) == expected
+    assert grid.get_column_payees('blah', ('expenses', )) == expected
     mock_ledger_output.assert_called_once_with(
-        ('register', 'expenses', '--group-by', '(payee)', '--collapse',
-         '--subtotal', '--depth', '1', '--period', 'blah', 'bogus')
+        ('register', '--group-by', '(payee)', '--collapse',
+         '--subtotal', '--depth', '1', '--period', 'blah', 'expenses')
     )
 
 

@@ -332,7 +332,7 @@ def warn_column_total(period_name, column_total=0, ledgers_total=0):
 
 def get_column_payees(period_name, ledger_args):
     lines = get_ledger_output(
-        ('register', 'expenses', '--group-by', '(payee)', '--collapse',
+        ('register', '--group-by', '(payee)', '--collapse',
          '--subtotal', '--depth', '1', '--period', period_name) + ledger_args
     ).split('\n')
     column = {}
@@ -472,10 +472,11 @@ def get_args(args):
         Currently supports ledger --flat reports. (Although you don't specify
         --flat.)
 
-        Payee reports will also pass through ledger arguments. Currently they
-        assume "expenses" and if you want to further constrain that, you need
-        to do something like "and @^a" to get only payees starting with the
-        letter "a."
+        Payee reports will also pass through ledger arguments. It is best to
+        specify an account to constrain the query, e.g. expenses. If not given
+        any accounts, ledger gives odd results for the query used by ledgerbil:
+
+        register --group-by '(payee)' --collapse --subtotal --depth 1
     ''')
     parser = argparse.ArgumentParser(
         prog=program,
@@ -533,7 +534,8 @@ def get_args(args):
         '--payees',
         action='store_true',
         default=False,
-        help='show expenses by payee'
+        help='show results by payee (results may be nonsensical '
+             'if you do not specify accounts, e.g. expenses)'
     )
     parser.add_argument(
         '--net-worth',
@@ -553,7 +555,7 @@ def get_args(args):
         '-T', '--total-only',
         action='store_true',
         default=False,
-        help='show only the total column (more useful for payees)'
+        help='show only the total column'
     )
     parser.add_argument(
         '-s', '--sort',
