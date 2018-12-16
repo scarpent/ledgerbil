@@ -362,7 +362,7 @@ The reconciler will total up all cleared (`*`) transactions to get what
 should be the "last statement balance," but only shows pending and
 uncleared transactions.
 
-The only changes reconciler should make to your data is adding or
+The only changes the reconciler should make to your data is adding or
 subtracting the pending `!` and cleared `*` symbols to the white space
 in front of posting lines within a transaction, but see the note below
 about *how* it does this.
@@ -412,8 +412,8 @@ ending date: 2016/10/29 ending balance: (not set) cleared: $100.00
 The 10/21 cash entry is counted for the cleared amount, but not shown.
 
 Regular expressions are allowed for the `-r/--reconcile` argument. Let's
-say you have another account, `a: cash: jar`. You can specify `-r cash$`
-to limit the match.
+say you have another account, `a: cash jar`. You can specify `-r cash$`
+to limit the match. 
 
 ### statement
 
