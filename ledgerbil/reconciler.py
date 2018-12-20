@@ -470,9 +470,7 @@ class Reconciler(cmd.Cmd):
         self.populate_open_transactions()
 
     def get_zero_candidate(self):
-        return (
-            self.ending_balance - (self.total_cleared + self.total_pending)
-        )
+        return self.ending_balance - (self.total_cleared + self.total_pending)
 
     @staticmethod
     def get_response(prompt='', old_value=''):
