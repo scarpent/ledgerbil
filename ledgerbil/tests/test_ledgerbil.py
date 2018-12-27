@@ -5,7 +5,7 @@ from unittest import mock
 import pytest
 from dateutil.relativedelta import relativedelta
 
-from .filetester import FileTester as FT
+from . import filetester as FT
 from .helpers import Redirector
 from .test_schedulefile import schedule_testdata
 

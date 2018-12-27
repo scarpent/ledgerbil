@@ -5,11 +5,11 @@ from unittest import mock
 
 import pytest
 
+from . import filetester as FT
 from .. import ledgerfile  # noqa: F401 (is used in patch)
 from ..ledgerbilexceptions import LdgReconcilerError
 from ..ledgerfile import LedgerFile
 from ..ledgerthing import LedgerThing
-from .filetester import FileTester
 from .helpers import Redirector
 
 
@@ -28,8 +28,8 @@ class FileParsingOnInit(Redirector):
 
     def test_parsed_file_unchanged_via_print(self):
         """file output after parsing should be identical to input"""
-        expected = FileTester.read_file(FileTester.testfile)
-        lfile = LedgerFile(FileTester.testfile)
+        expected = FT.read_file(FT.testfile)
+        lfile = LedgerFile(FT.testfile)
         lfile.print_file()
         self.redirect.seek(0)
         assert self.redirect.read() == expected
@@ -38,11 +38,11 @@ class FileParsingOnInit(Redirector):
 
 def test_parsed_file_unchanged_via_write():
     """file output after parsing should be identical to input"""
-    expected = FileTester.read_file(FileTester.testfile)
-    with FileTester.temp_file(expected) as templedgerfile:
+    expected = FT.read_file(FT.testfile)
+    with FT.temp_file(expected) as templedgerfile:
         lfile = LedgerFile(templedgerfile)
         lfile.write_file()
-        actual = FileTester.read_file(templedgerfile)
+        actual = FT.read_file(templedgerfile)
     assert expected == actual
 
 
@@ -55,7 +55,7 @@ def test_count_initial_non_transaction():
             expenses: misc
             liabilities: credit card  $-50
     ''')
-    with FileTester.temp_file(testdata) as templedgerfile:
+    with FT.temp_file(testdata) as templedgerfile:
         lfile = LedgerFile(templedgerfile)
 
     assert lfile.thing_counter == 2
@@ -73,7 +73,7 @@ def test_count_initial_transaction():
         2013/02/30 invalid date (bonus test for thing date checking cov)
             (will be lumped with previous; note is invalid ledger file...)
         ''')
-    with FileTester.temp_file(testdata) as templedgerfile:
+    with FT.temp_file(testdata) as templedgerfile:
         lfile = LedgerFile(templedgerfile)
 
     assert lfile.thing_counter == 2
@@ -88,7 +88,7 @@ def test_assigned_thing_numbers():
             expenses: misc
             liabilities: credit card  $-50
     ''')
-    with FileTester.temp_file(testdata) as templedgerfile:
+    with FT.temp_file(testdata) as templedgerfile:
         lfile = LedgerFile(templedgerfile)
 
     thing = LedgerThing([
@@ -107,7 +107,7 @@ def test_assigned_thing_numbers():
 
 def test_initial_non_transaction_date():
     """1st thing in file is a non-transaction, has default date"""
-    with FileTester.temp_file('blah\nblah blah blah') as templedgerfile:
+    with FT.temp_file('blah\nblah blah blah') as templedgerfile:
         lfile = LedgerFile(templedgerfile)
 
     # non-transaction dates are only populated with sort
@@ -125,7 +125,7 @@ def test_later_non_transaction_date():
             expenses: misc
             liabilities: credit card  $-2
         ''')
-    with FileTester.temp_file(testdata) as templedgerfile:
+    with FT.temp_file(testdata) as templedgerfile:
         lfile = LedgerFile(templedgerfile)
 
     lfile.add_thing_from_lines(['; blah blah blah', '; and so on...'])
@@ -138,24 +138,24 @@ def test_later_non_transaction_date():
 
 def test_already_sorted_file_unchanged():
     """file output after sorting is identical to sorted input"""
-    expected = FileTester.read_file(FileTester.sortedfile)
-    with FileTester.temp_file(expected) as templedgerfile:
+    expected = FT.read_file(FT.sortedfile)
+    with FT.temp_file(expected) as templedgerfile:
         lfile = LedgerFile(templedgerfile)
         lfile.sort()
         lfile.write_file()
-        actual = FileTester.read_file(templedgerfile)
+        actual = FT.read_file(templedgerfile)
 
     assert actual == expected
 
 
 def test_sorting():
-    expected = FileTester.read_file(FileTester.alpha_sortedfile)
-    unsorted = FileTester.read_file(FileTester.alpha_unsortedfile)
-    with FileTester.temp_file(unsorted) as templedgerfile:
+    expected = FT.read_file(FT.alpha_sortedfile)
+    unsorted = FT.read_file(FT.alpha_unsortedfile)
+    with FT.temp_file(unsorted) as templedgerfile:
         lfile = LedgerFile(templedgerfile)
         lfile.sort()
         lfile.write_file()
-        actual = FileTester.read_file(templedgerfile)
+        actual = FT.read_file(templedgerfile)
 
     assert actual == expected
 
@@ -163,7 +163,7 @@ def test_sorting():
 def test_reconciler_multiple_matches_across_transactions():
     # individual checking transactions ok, but multiple across file
     with pytest.raises(LdgReconcilerError) as excinfo:
-        LedgerFile(FileTester.test_rec_multiple_match, 'checking')
+        LedgerFile(FT.test_rec_multiple_match, 'checking')
     expected = ('More than one matching account:\n'
                 '    a: checking down\n    a: checking up')
     assert str(excinfo.value) == expected
@@ -172,7 +172,7 @@ def test_reconciler_multiple_matches_across_transactions():
 def test_reconciler_multiple_matches_within_transaction():
     # multiple matches within a single transaction
     with pytest.raises(LdgReconcilerError) as excinfo:
-        LedgerFile(FileTester.test_rec_multiple_match, 'cash')
+        LedgerFile(FT.test_rec_multiple_match, 'cash')
     expected = ('More than one matching account:\n'
                 '    a: cash in\n    a: cash out')
     assert str(excinfo.value) == expected

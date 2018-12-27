@@ -13,17 +13,16 @@ import sys
 from io import StringIO
 from unittest import TestCase
 
+from . import filetester as FT
 from ..colorable import Colorable
 
 
 class OutputFileTesterBase:
-    path = os.path.dirname(__file__)
-    TEST_FILES_DIR = os.path.join(path, 'files')
     OUT_SUFFIX = '.out'
     EXPECTED_SUFFIX = f'{OUT_SUFFIX}_expected'
 
     def get_filename(self, testfile, suffix):
-        testfile = os.path.join(self.TEST_FILES_DIR, testfile)
+        testfile = os.path.join(FT.testdir, testfile)
         return f'{testfile}{suffix}'
 
     def get_expected_filename(self, testfile):
@@ -65,7 +64,7 @@ class OutputFileTesterStdout(TestCase, OutputFileTesterBase):
         sys.stdout = self.savestdout
 
     def init_test(self, testfile):
-        testfile = os.path.join(self.TEST_FILES_DIR, testfile)
+        testfile = os.path.join(FT.testdir, testfile)
         self.testfile = testfile
         self.expected = self.get_expected_filename(testfile)
         self.actual = self.get_out_filename(testfile)

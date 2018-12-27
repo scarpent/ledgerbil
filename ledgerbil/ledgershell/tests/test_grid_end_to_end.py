@@ -3,7 +3,7 @@ from textwrap import dedent
 from .. import grid
 from ... import settings, settings_getter
 from ...colorable import Colorable
-from ...tests.filetester import FileTester
+from ...tests import filetester as FT
 from ...tests.helpers import OutputFileTester
 
 # These tests actually run ledger for a bit of integration testing.
@@ -12,7 +12,7 @@ from ...tests.helpers import OutputFileTester
 
 class MockSettings:
     LEDGER_COMMAND = ('ledger', )
-    LEDGER_DIR = FileTester.testdir
+    LEDGER_DIR = FT.testdir
     LEDGER_FILES = ['grid-end-to-end.ldg']
     NETWORTH_ACCOUNTS = settings_getter.defaults['NETWORTH_ACCOUNTS']
     DATE_FORMAT_MONTH = settings_getter.defaults['DATE_FORMAT_MONTH']

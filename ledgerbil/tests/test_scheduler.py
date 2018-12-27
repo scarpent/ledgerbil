@@ -4,9 +4,9 @@ from unittest import mock
 
 from dateutil.relativedelta import relativedelta
 
+from . import filetester as FT
 from .. import scheduler, util
 from ..ledgerfile import LedgerFile
-from .filetester import FileTester
 from .test_schedulefile import schedule_testdata
 
 
@@ -27,8 +27,8 @@ def run_it(before_date, after_date, schedule, enter_days=7):
         schedule,
         enter_days
     )
-    with FileTester.temp_file(schedulefiledata) as temp_schedule_filename:
-        with FileTester.temp_file('') as temp_ledger_filename:
+    with FT.temp_file(schedulefiledata) as temp_schedule_filename:
+        with FT.temp_file('') as temp_ledger_filename:
 
             ledgerfile = LedgerFile(temp_ledger_filename)
             return_value = scheduler.run_scheduler(
@@ -37,7 +37,7 @@ def run_it(before_date, after_date, schedule, enter_days=7):
             )
             assert not return_value
 
-            actual_data = FileTester.read_file(temp_schedule_filename)
+            actual_data = FT.read_file(temp_schedule_filename)
             expected_data = get_schedule_file(
                 util.get_date_string(after_date),
                 schedule,
@@ -100,11 +100,11 @@ def test_biannual():
 
 
 def test_run_enter_days_less_than_one():
-    schedulefiledata = FileTester.read_file(
-        FileTester.test_enter_lessthan1
+    schedulefiledata = FT.read_file(
+        FT.test_enter_lessthan1
     )
-    with FileTester.temp_file(schedulefiledata) as temp_schedule_filename:
-        with FileTester.temp_file('') as temp_ledger_file:
+    with FT.temp_file(schedulefiledata) as temp_schedule_filename:
+        with FT.temp_file('') as temp_ledger_file:
 
             ledgerfile = LedgerFile(temp_ledger_file)
             return_value = scheduler.run_scheduler(
@@ -113,7 +113,7 @@ def test_run_enter_days_less_than_one():
             )
             assert not return_value
 
-            actual_data = FileTester.read_file(temp_schedule_filename)
+            actual_data = FT.read_file(temp_schedule_filename)
             expected_data = schedulefiledata
 
     assert actual_data == expected_data
@@ -122,7 +122,7 @@ def test_run_enter_days_less_than_one():
 @mock.patch(__name__ + '.scheduler.handle_error')
 def test_scheduler_error(mock_error):
     schedulefiledata = ';; scheduler enter 321 days'
-    with FileTester.temp_file(schedulefiledata) as temp_schedule_filename:
+    with FT.temp_file(schedulefiledata) as temp_schedule_filename:
         ledgerfile = None  # is going to error before we use ledgerfile
         scheduler.run_scheduler(
             ledgerfile,
@@ -138,7 +138,7 @@ def test_scheduler_error(mock_error):
 
 @mock.patch(__name__ + '.scheduler.print')
 def test_next_scheduled_date(mock_print):
-    with FileTester.temp_file(schedule_testdata) as tempfile:
+    with FT.temp_file(schedule_testdata) as tempfile:
         return_value = scheduler.print_next_scheduled_date(tempfile)
     assert return_value is None
     mock_print.assert_called_once_with('2007/07/07')
@@ -146,7 +146,7 @@ def test_next_scheduled_date(mock_print):
 
 @mock.patch(__name__ + '.scheduler.print')
 def test_next_scheduled_date_no_next(mock_print):
-    with FileTester.temp_file(';; scheduler ; enter 45 days') as tempfile:
+    with FT.temp_file(';; scheduler ; enter 45 days') as tempfile:
         return_value = scheduler.print_next_scheduled_date(tempfile)
     assert return_value is None
     mock_print.assert_called_once_with('')
@@ -155,7 +155,7 @@ def test_next_scheduled_date_no_next(mock_print):
 @mock.patch(__name__ + '.scheduler.handle_error')
 def test_next_scheduled_date_scheduler_exception(mock_error):
     schedulefile_data = ';; scheduler enter 567 days'
-    with FileTester.temp_file(schedulefile_data) as temp_schedule_filename:
+    with FT.temp_file(schedulefile_data) as temp_schedule_filename:
         scheduler.print_next_scheduled_date(
             temp_schedule_filename
         )
