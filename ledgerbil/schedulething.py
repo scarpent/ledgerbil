@@ -173,21 +173,10 @@ class ScheduleThing(LedgerThing):
         self.days.sort()
 
     def get_scheduled_entries(self):
-
         entries = []
-
-        if self.thing_date > ScheduleThing.entry_boundary_date:
-            return entries
-
-        entries.append(self.get_entry_thing())
-
-        while True:
-            self.thing_date = self.get_next_date(self.thing_date)
-
-            if self.thing_date > ScheduleThing.entry_boundary_date:
-                break
-
+        while self.thing_date <= ScheduleThing.entry_boundary_date:
             entries.append(self.get_entry_thing())
+            self.thing_date = self.get_next_date(self.thing_date)
 
         return entries
 
