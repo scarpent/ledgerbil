@@ -1,7 +1,6 @@
 """objects in schedule file: recurring transactions"""
 import re
 from calendar import monthrange
-from copy import copy
 from datetime import date
 
 from dateutil.relativedelta import relativedelta
@@ -181,7 +180,7 @@ class ScheduleThing(LedgerThing):
         return entries
 
     def get_entry_thing(self):
-        entry_lines = copy(self.lines)
+        entry_lines = list(self.lines)
         del entry_lines[ScheduleThing.LINE_SCHEDULE]
         entry_lines[ScheduleThing.LINE_DATE] = re.sub(
             DATE_REGEX,

@@ -69,7 +69,7 @@ class LedgerThing:
         self.thing_date = None
         self.payee = None
         self.transaction_code = ''  # e.g. check number
-        self.lines = lines[:]
+        self.lines = list(lines)
         self.is_transaction = False
 
         # reconciliation
@@ -192,7 +192,7 @@ class LedgerThing:
 
     def get_lines(self):
         if not self.is_transaction:
-            return self.lines[:]
+            return list(self.lines)
 
         lines_out = [re.sub(DATE_REGEX, self.get_date_string(), self.lines[0])]
 
@@ -217,7 +217,7 @@ class LedgerThing:
             else:
                 lines_out.append(line)
 
-        return lines_out[:]
+        return list(lines_out)
 
     @staticmethod
     def is_new_thing(line):
