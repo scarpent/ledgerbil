@@ -449,7 +449,7 @@ class ReconcilerParsing(Redirector):
         )
 
     def test_one_space_does_not_end_account(self):
-        with self.assertRaises(LdgReconcilerError) as e:
+        with pytest.raises(LdgReconcilerError) as excinfo:
             LedgerThing(
                 [
                     '2016/10/23 blah',
@@ -460,7 +460,7 @@ class ReconcilerParsing(Redirector):
             )
         expected = ('More than one matching account:\n'
                     '    a: checking up\n    a: checking up $20')
-        assert str(e.exception) == expected
+        assert str(excinfo.value) == expected
 
     def test_comma_in_amount(self):
         self.verify_reconcile_vars(
@@ -556,7 +556,7 @@ class ReconcilerParsing(Redirector):
         )
 
     def test_multiple_statuses_raises_exception(self):
-        with self.assertRaises(LdgReconcilerError) as e:
+        with pytest.raises(LdgReconcilerError) as excinfo:
             LedgerThing(
                 [
                     '2016/10/23 blah',
@@ -567,10 +567,10 @@ class ReconcilerParsing(Redirector):
                 'checking'
             )
         expected = 'Unhandled multiple statuses: 2016/10/23 blah'
-        assert str(e.exception) == expected
+        assert str(excinfo.value) == expected
         assert self.redirect.getvalue().rstrip() == ''
         self.reset_redirect()
-        with self.assertRaises(LdgReconcilerError) as e:
+        with pytest.raises(LdgReconcilerError) as excinfo:
             LedgerThing(
                 [
                     '2016/10/23 blah',
@@ -581,10 +581,10 @@ class ReconcilerParsing(Redirector):
                 'checking'
             )
         expected = 'Unhandled multiple statuses: 2016/10/23 blah'
-        assert str(e.exception) == expected
+        assert str(excinfo.value) == expected
 
     def test_multiple_matches_raises_exception(self):
-        with self.assertRaises(LdgReconcilerError) as e:
+        with pytest.raises(LdgReconcilerError) as excinfo:
             LedgerThing(
                 [
                     '2016/10/23 blah',
@@ -597,9 +597,9 @@ class ReconcilerParsing(Redirector):
             )
         expected = ('More than one matching account:\n'
                     '    a: checking down\n    a: checking up')
-        assert str(e.exception) == expected
+        assert str(excinfo.value) == expected
         self.reset_redirect()
-        with self.assertRaises(LdgReconcilerError) as e:
+        with pytest.raises(LdgReconcilerError) as excinfo:
             LedgerThing(
                 [
                     '2016/10/23 blah',
@@ -609,10 +609,10 @@ class ReconcilerParsing(Redirector):
                 ],
                 'checking'
             )
-        assert str(e.exception) == expected
+        assert str(excinfo.value) == expected
 
     def test_multiple_matches_and_statuses_raises_exception(self):
-        with self.assertRaises(LdgReconcilerError) as e:
+        with pytest.raises(LdgReconcilerError) as excinfo:
             LedgerThing(
                 [
                     '2016/10/23 blah',
@@ -625,7 +625,7 @@ class ReconcilerParsing(Redirector):
             )
         expected = ('More than one matching account:\n'
                     '    a: checking down\n    a: checking up')
-        assert str(e.exception) == expected
+        assert str(excinfo.value) == expected
 
     def test_regex_for_account_match(self):
         thing = LedgerThing(

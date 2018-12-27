@@ -84,10 +84,8 @@ class SimpleOutputTests(Redirector):
         self.reset_redirect()
         bad_command = 'cthulu'
         interpreter.onecmd(bad_command)
-        self.assertEqual(
-            Reconciler.UNKNOWN_SYNTAX + bad_command,
-            self.redirect.getvalue().rstrip()
-        )
+        expected = f'{Reconciler.UNKNOWN_SYNTAX}{bad_command}\n'
+        assert self.redirect.getvalue() == expected
 
     def test_not_syntax_error(self):
         """ crudely verify basic commands """
@@ -110,11 +108,10 @@ class SimpleOutputTests(Redirector):
             for c in commands:
                 self.reset_redirect()
                 interpreter.onecmd(c)
-                self.assertFalse(
-                    self.redirect.getvalue().startswith(
-                        Reconciler.UNKNOWN_SYNTAX
-                    )
+                actual = self.redirect.getvalue().startswith(
+                    Reconciler.UNKNOWN_SYNTAX
                 )
+                assert actual is False
 
     def test_simple_help_check(self):
         commands = [
@@ -135,9 +132,8 @@ class SimpleOutputTests(Redirector):
         for c in commands:
             self.reset_redirect()
             interpreter.onecmd(c)
-            self.assertFalse(
-                self.redirect.getvalue().startswith(Reconciler.NO_HELP)
-            )
+            actual = self.redirect.getvalue().startswith(Reconciler.NO_HELP)
+            assert actual is False
 
 
 class OutputTests(Redirector):
@@ -162,32 +158,22 @@ class OutputTests(Redirector):
 
         for command in [recon.do_mark, recon.do_unmark]:
             command('')
-            self.assertEqual(
-                '*** Transaction number(s) required',
-                self.redirect.getvalue().rstrip()
-            )
+            expected = '*** Transaction number(s) required\n'
+            assert self.redirect.getvalue() == expected
             self.reset_redirect()
             command('ahchew')
-            self.assertEqual(
-                'Transaction not found: ahchew',
-                self.redirect.getvalue().rstrip()
-            )
+            expected = 'Transaction not found: ahchew\n'
+            assert self.redirect.getvalue() == expected
             self.reset_redirect()
 
         recon.do_list('')
         self.reset_redirect()
 
         recon.do_mark('2')
-        self.assertEqual(
-            'Already marked pending: 2',
-            self.redirect.getvalue().rstrip()
-        )
+        assert self.redirect.getvalue() == 'Already marked pending: 2\n'
         self.reset_redirect()
         recon.do_unmark('1')
-        self.assertEqual(
-            "Not marked; can't unmark: 1",
-            self.redirect.getvalue().rstrip()
-        )
+        assert self.redirect.getvalue() == "Not marked; can't unmark: 1\n"
 
     def test_finish_balancing_errors(self):
 
@@ -196,20 +182,16 @@ class OutputTests(Redirector):
 
             self.reset_redirect()
             recon.finish_balancing()
-            self.assertEqual(
-                '*** Ending balance must be set in order to finish',
-                self.redirect.getvalue().rstrip()
-            )
+            expected = '*** Ending balance must be set in order to finish\n'
+            assert self.redirect.getvalue() == expected
 
             self.reset_redirect()
             recon.ending_balance = -1234.56
             recon.finish_balancing()
-            self.assertEqual(
-                '"To zero" must be zero in order to finish',
-                self.redirect.getvalue().rstrip()
-            )
+            expected = '"To zero" must be zero in order to finish\n'
+            assert self.redirect.getvalue() == expected
             # confirms it didn't revert to None as on success
-            self.assertEqual(-1234.56, recon.ending_balance)
+            assert recon.ending_balance == -1234.56, recon.ending_balance
 
     def test_show_transaction_errors(self):
 
@@ -218,16 +200,12 @@ class OutputTests(Redirector):
 
         self.reset_redirect()
         recon.show_transaction('')
-        self.assertEqual(
-            '*** Transaction number(s) required',
-            self.redirect.getvalue().rstrip()
-        )
+        expected = '*** Transaction number(s) required\n'
+        assert self.redirect.getvalue() == expected
         self.reset_redirect()
         recon.show_transaction('blah')
-        self.assertEqual(
-            'Transaction not found: blah',
-            self.redirect.getvalue().rstrip()
-        )
+        expected = 'Transaction not found: blah\n'
+        assert self.redirect.getvalue() == expected
 
     def test_show_one_transaction(self):
         expected = dedent('''\
@@ -767,18 +745,18 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         recon.do_statement('')
         self.responses = ['cAnCeL']
         recon.do_statement('')
-        self.assertIsNone(recon.ending_balance)
+        assert recon.ending_balance is None
         print('<<< test: restart >>>')
 
         with FT.temp_file(self.teststmt) as tempfilename:
             recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
-        self.assertIsNone(recon.ending_balance)
+        assert recon.ending_balance is None
         self.responses = ['2016/10/28', '40']
         recon.do_statement('')
         self.responses = ['2016/10/28', 'cancel']
         recon.do_statement('')
-        self.assertIsNone(recon.ending_balance)
+        assert recon.ending_balance is None
 
     def test_cancel_statement_no_previous_ending(self):
         self.init_test('test_cancel_statement_stuff_no_previous')
@@ -902,21 +880,17 @@ class ResponseTests(MockInput, Redirector):
     def test_get_response_with_none(self):
         """None should be preserved for no response"""
         self.responses = ['']
-        self.assertIsNone(Reconciler.get_response('prompt', None))
+        assert Reconciler.get_response('prompt', None) is None
         self.responses = ['']
-        self.assertEqual('', Reconciler.get_response('prompt', ''))
+        assert Reconciler.get_response('prompt', '') == ''
 
     def test_get_response(self):
         self.responses = ['']
-        self.assertEqual(
-            'preserve old value',
-            Reconciler.get_response('prompt', 'preserve old value')
-        )
+        actual = Reconciler.get_response('prompt', 'preserve old value')
+        assert actual == 'preserve old value'
         self.responses = ['new value']
-        self.assertEqual(
-            'new value',
-            Reconciler.get_response('prompt', 'old value')
-        )
+        actual = Reconciler.get_response('prompt', 'old value')
+        assert actual == 'new value'
 
 
 testcache = dedent('''\
@@ -1025,26 +999,26 @@ class CacheTests(MockInput, Redirector):
         )
         assert recon.ending_balance is None
         recon.save_statement_info_to_cache()
-        key, cache = recon.get_key_and_cache()
+        _, cache = recon.get_key_and_cache()
         assert cache == {}
 
         # add entry
         recon.ending_balance = 100
         recon.ending_date = date(2020, 10, 20)
         recon.save_statement_info_to_cache()
-        key, cache = recon.get_key_and_cache()
-        self.assertEqual(
-            {'a: cash': {
+        _, cache = recon.get_key_and_cache()
+        expected = {
+            'a: cash': {
                 'ending_balance': 100,
                 'ending_date': '2020/10/20'
-            }},
-            cache
-        )
+            }
+        }
+        assert cache == expected
 
         # remove entry
         recon.ending_balance = None
         recon.save_statement_info_to_cache()
-        key, cache = recon.get_key_and_cache()
+        _, cache = recon.get_key_and_cache()
         assert cache == {'a: cash': {}}
 
         # multiple entries
@@ -1058,22 +1032,23 @@ class CacheTests(MockInput, Redirector):
         recon.ending_balance = 222
         recon.ending_date = date(2222, 2, 22)
         recon.save_statement_info_to_cache()
-        key, cache = recon.get_key_and_cache()
-        self.assertEqual(
-            {'a: credit': {
+        _, cache = recon.get_key_and_cache()
+        expected = {
+            'a: credit': {
                 'ending_balance': 222,
                 'ending_date': '2222/02/22'
-            }, 'a: cash': {
+            },
+            'a: cash': {
                 'ending_balance': 111,
                 'ending_date': '2111/11/11'
-            }},
-            cache
-        )
+            }
+        }
+        assert cache == expected
 
         # remove credit
         recon.ending_balance = None
         recon.save_statement_info_to_cache()
-        key, cache = recon.get_key_and_cache()
+        _, cache = recon.get_key_and_cache()
         expected = {
             'a: cash': {
                 'ending_balance': 111,
@@ -1088,8 +1063,8 @@ class CacheTests(MockInput, Redirector):
             recon = Reconciler([LedgerFile(tempfilename, 'cash')])
 
         # get_statement_info_from_cache will have been called in init
-        self.assertEqual(111, recon.ending_balance)
-        self.assertEqual(date(2111, 11, 11), recon.ending_date)
+        assert recon.ending_balance == 111
+        assert recon.ending_date == date(2111, 11, 11)
 
 
 class ReloadTests(TestCase):
@@ -1125,14 +1100,14 @@ class ReloadTests(TestCase):
     def test_reload(self):
         with FT.temp_file(self.testdata) as tempfilename:
             recon = Reconciler([LedgerFile(tempfilename, 'cash')])
-            self.assertEqual(-20, recon.total_cleared)
+            assert recon.total_cleared == -20
 
             with open(tempfilename, 'w', encoding='utf-8') as the_file:
                 the_file.write(self.testdata_modified)
 
-            self.assertEqual(-20, recon.total_cleared)
+            assert recon.total_cleared == -20
             recon.do_reload('')
-            self.assertEqual(-55, recon.total_cleared)
+            assert recon.total_cleared == -55
 
 
 @mock.patch(__name__ + '.reconciler.Reconciler.cmdloop')

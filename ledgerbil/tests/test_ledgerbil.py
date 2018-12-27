@@ -79,18 +79,14 @@ def test_sorting_multiple_files(mock_init, mock_sort, mock_write_file):
 class MainErrors(Redirector):
 
     def test_main_next_scheduled_date(self):
-        ledgerbil.main(['-n'])
-        self.assertEqual(
-            'error: -s/--schedule is required',
-            self.redirecterr.getvalue().strip()
-        )
+        ledgerbil.main(['--next-scheduled-date'])
+        expected = 'error: -s/--schedule is required'
+        assert self.redirecterr.getvalue().strip() == expected
 
     def test_main_file_required(self):
         ledgerbil.main([])
-        self.assertEqual(
-            'error: -f/--file is required',
-            self.redirecterr.getvalue().strip()
-        )
+        expected = 'error: -f/--file is required'
+        assert self.redirecterr.getvalue().strip() == expected
 
 
 def get_schedule_file(the_date, schedule, enter_days=7):
@@ -148,7 +144,7 @@ class Scheduler(Redirector):
     def test_next_scheduled_date(self, mock_ledgerfile):
         with FT.temp_file(schedule_testdata) as tempfile:
             ledgerbil.main(['-n', '-s', tempfile])
-        assert self.redirect.getvalue().rstrip() == '2007/07/07'
+        assert self.redirect.getvalue() == '2007/07/07\n'
         assert not mock_ledgerfile.called
 
 
@@ -212,42 +208,41 @@ class ReconcilerTests(Redirector):
             '--file', FT.test_rec_multiple_match,
             '--reconcile', 'checking'
         ])
-        self.assertEqual(
-            'More than one matching account:\n'
-            '    a: checking down\n'
-            '    a: checking up',
-            self.redirecterr.getvalue().rstrip()
-        )
+        expected = dedent('''\
+            More than one matching account:
+                a: checking down
+                a: checking up
+            ''')
+        assert self.redirecterr.getvalue() == expected
+
         # in same transaction
         self.reset_err_redirect()
         ledgerbil.main([
             '--file', FT.test_rec_multiple_match,
             '--reconcile', 'cash'
         ])
-        self.assertEqual(
-            'More than one matching account:\n'
-            '    a: cash in\n'
-            '    a: cash out',
-            self.redirecterr.getvalue().rstrip()
-        )
+        expected = dedent('''\
+            More than one matching account:
+                a: cash in
+                a: cash out
+            ''')
+        assert self.redirecterr.getvalue() == expected
 
     def test_multiple_statuses(self):
         ledgerbil.main([
             '--file', FT.test_rec_multiple_match,
             '--reconcile', 'mattress'
         ])
-        self.assertEqual(
-            'Unhandled multiple statuses: 2016/10/08 zillion',
-            self.redirecterr.getvalue().rstrip()
-        )
+        expected = 'Unhandled multiple statuses: 2016/10/08 zillion\n'
+        assert self.redirecterr.getvalue() == expected
 
     def test_no_matching_account(self):
         result = ledgerbil.main([
             '--file', FT.test_reconcile,
             '--reconcile', 'schenectady schmectady'
         ])
-        expected = 'No matching account found for "schenectady schmectady"'
-        assert self.redirect.getvalue().rstrip() == expected
+        expected = 'No matching account found for "schenectady schmectady"\n'
+        assert self.redirect.getvalue() == expected
         assert result is None
 
     def test_no_matching_account_in_multiple(self):
@@ -256,8 +251,8 @@ class ReconcilerTests(Redirector):
             '--file', FT.test_reconcile,
             '--reconcile', 'schenectady schmectady'
         ])
-        expected = 'No matching account found for "schenectady schmectady"'
-        assert self.redirect.getvalue().rstrip() == expected
+        expected = 'No matching account found for "schenectady schmectady"\n'
+        assert self.redirect.getvalue() == expected
         assert result is None
 
 
