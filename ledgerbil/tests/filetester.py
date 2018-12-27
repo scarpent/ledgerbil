@@ -1,9 +1,6 @@
-# inspect.stack()[1][3] gives name of calling function
-import inspect
 import os
 import tempfile
 from contextlib import contextmanager
-from shutil import copyfile
 
 
 class FileTester:
@@ -30,25 +27,6 @@ class FileTester:
     test_reconcile = os.path.join(testdir, 'reconcile.ledger')
 
     CACHE_FILE_TEST = os.path.join(testdir, '.ledgerbil_cache_test')
-
-    @staticmethod
-    def create_temp_file(testdata):
-        temp_file = os.path.join(
-            FileTester.testdir,
-            f'temp_{inspect.stack()[1][3]}'
-        )
-        with open(temp_file, 'w', encoding='utf-8') as f:
-            f.write(testdata)
-        return temp_file
-
-    @staticmethod
-    def copy_to_temp_file(filename):
-        temp_file = os.path.join(
-            FileTester.testdir,
-            f'temp_{inspect.stack()[1][3]}'
-        )
-        copyfile(filename, temp_file)
-        return temp_file
 
     @staticmethod
     def read_file(filename):

@@ -1,7 +1,6 @@
-import os
 from datetime import date
 from textwrap import dedent
-from unittest import TestCase, mock
+from unittest import mock
 
 import pytest
 from dateutil.relativedelta import relativedelta
@@ -15,46 +14,32 @@ from .. import (  # noqa: F401 (stuff used in patches) isort:skip
 )
 
 
-class MainBasicInput(TestCase):
-
-    def test_main_no_options_on_sorted_file(self):
-        """main should parse and write sorted file unchanged"""
-        expected = FT.read_file(FT.alpha_sortedfile)
-        tempfile = FT.copy_to_temp_file(FT.alpha_sortedfile)
-        ledgerbil.main(['--file', tempfile])
-        actual = FT.read_file(tempfile)
-        os.remove(tempfile)
-        self.assertEqual(expected, actual)
-
-    def test_main_no_options_on_unsorted_file(self):
-        """main should parse and write unsorted file unchanged"""
-        expected = FT.read_file(FT.alpha_unsortedfile)
-        tempfile = FT.copy_to_temp_file(FT.alpha_unsortedfile)
-        ledgerbil.main(['--file', tempfile])
-        actual = FT.read_file(tempfile)
-        os.remove(tempfile)
-        self.assertEqual(expected, actual)
+@pytest.mark.parametrize('test_input', [
+    FT.alpha_sortedfile,
+    FT.alpha_unsortedfile,
+])
+def test_main_no_options(test_input):
+    """main should parse and write sorted and unsorted files unchanged"""
+    expected = FT.read_file(test_input)
+    with FT.temp_file(expected) as templedgerfile:
+        ledgerbil.main(['--file', templedgerfile])
+        actual = FT.read_file(templedgerfile)
+    assert actual == expected
 
 
-class Sorting(TestCase):
+@pytest.mark.parametrize('test_input', [
+    FT.alpha_sortedfile,
+    FT.alpha_unsortedfile,
+])
+def test_main_sort(test_input):
+    """main should write sorted file"""
+    testdata = FT.read_file(test_input)
+    with FT.temp_file(testdata) as templedgerfile:
+        ledgerbil.main(['--file', templedgerfile, '--sort'])
+        actual = FT.read_file(templedgerfile)
 
-    def test_main_sort_on_sorted_file(self):
-        """main should parse and write sorted file unchanged"""
-        expected = FT.read_file(FT.alpha_sortedfile)
-        tempfile = FT.copy_to_temp_file(FT.alpha_sortedfile)
-        ledgerbil.main(['--file', tempfile, '--sort'])
-        actual = FT.read_file(tempfile)
-        os.remove(tempfile)
-        self.assertEqual(expected, actual)
-
-    def test_main_sorted_no_options(self):
-        """main should parse unsorted file and write sorted file"""
-        expected = FT.read_file(FT.alpha_sortedfile)
-        tempfile = FT.copy_to_temp_file(FT.alpha_unsortedfile)
-        ledgerbil.main(['--file', tempfile, '--sort'])
-        actual = FT.read_file(tempfile)
-        os.remove(tempfile)
-        self.assertEqual(expected, actual)
+    expected = FT.read_file(FT.alpha_sortedfile)
+    assert actual == expected
 
 
 def test_main_sort_different_date_format():
@@ -64,10 +49,10 @@ def test_main_sort_different_date_format():
         DATE_FORMAT = '%Y-%m-%d'
     settings_getter.settings = MockSettings()
     expected = FT.read_file(FT.alpha_unsortedfile)
-    tempfile = FT.copy_to_temp_file(FT.alpha_unsortedfile)
-    ledgerbil.main(['--file', tempfile, '--sort'])
-    actual = FT.read_file(tempfile)
-    os.remove(tempfile)
+    with FT.temp_file(expected) as templedgerfile:
+        ledgerbil.main(['--file', templedgerfile, '--sort'])
+        actual = FT.read_file(templedgerfile)
+
     assert actual == expected
     settings_getter.settings = settings.Settings()
 
