@@ -57,10 +57,12 @@ def test_daily():
 
 
 def test_weekly():
+    # this test also verifies items on the boundary date will be added
     run_it(
         date.today() - relativedelta(days=7),
         date.today() + relativedelta(days=21),
-        'weekly ;; every 2 weeks'
+        'weekly ;; every 2 weeks',
+        enter_days=7
     )
 
 
