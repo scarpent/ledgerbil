@@ -77,8 +77,8 @@ def test_main_sort_different_date_format():
 @mock.patch(__name__ + '.ledgerbil.LedgerFile.__init__')
 def test_sorting_multiple_files(mock_init, mock_sort, mock_write_file):
     mock_init.return_value = None
-    with FT.temp_input('; no data 1') as file1:
-        with FT.temp_input('; no data 2') as file2:
+    with FT.temp_file('; no data 1') as file1:
+        with FT.temp_file('; no data 2') as file2:
             ledgerbil.main(['--file', file1, '--file', file2, '--sort'])
 
     assert mock_init.call_args_list == [
@@ -136,8 +136,8 @@ def test_scheduler():
         util.get_date_string(testdate),
         schedule
     )
-    with FT.temp_input(schedulefiledata) as tempschedulefile:
-        with FT.temp_input('') as templedgerfile:
+    with FT.temp_file(schedulefiledata) as tempschedulefile:
+        with FT.temp_file('') as templedgerfile:
             ledgerbil.main([
                 '--file', templedgerfile,
                 '--schedule', tempschedulefile,
@@ -161,7 +161,7 @@ class Scheduler(Redirector):
 
     @mock.patch(__name__ + '.ledgerbil.LedgerFile')
     def test_next_scheduled_date(self, mock_ledgerfile):
-        with FT.temp_input(schedule_testdata) as tempfile:
+        with FT.temp_file(schedule_testdata) as tempfile:
             ledgerbil.main(['-n', '-s', tempfile])
         assert self.redirect.getvalue().rstrip() == '2007/07/07'
         assert not mock_ledgerfile.called
@@ -171,9 +171,9 @@ class Scheduler(Redirector):
 def test_scheduler_multiple_files(mock_scheduler):
     """The first ledger file should be used by the scheduler
        if more than one is passed in"""
-    with FT.temp_input('; schedule file') as schedule_filename:
-        with FT.temp_input('; ledger file') as ledger_filename:
-            with FT.temp_input('; ledger file 2') as ledger2_filename:
+    with FT.temp_file('; schedule file') as schedule_filename:
+        with FT.temp_file('; ledger file') as ledger_filename:
+            with FT.temp_file('; ledger file 2') as ledger2_filename:
                 ledgerbil.main([
                     '--file', ledger_filename,
                     '--file', ledger2_filename,
@@ -189,8 +189,8 @@ def test_scheduler_multiple_files(mock_scheduler):
 @mock.patch(__name__ + '.ledgerbil.run_scheduler')
 def test_scheduler_and_sort_can_be_called_together(mock_scheduler, mock_sort):
     mock_scheduler.return_value = None
-    with FT.temp_input('; schedule file') as schedule_filename:
-        with FT.temp_input('; ledger file') as ledger_filename:
+    with FT.temp_file('; schedule file') as schedule_filename:
+        with FT.temp_file('; ledger file') as ledger_filename:
             ledgerbil.main([
                 '--file', ledger_filename,
                 '--schedule', schedule_filename,
@@ -207,8 +207,8 @@ def test_scheduler_runs_before_sort(mock_scheduler, mock_sort):
     # By not setting a return_value for mock_scheduler, the return
     # value will be a mock which will appear as an error in the code
     # and cause a return before the sort is reached
-    with FT.temp_input('; schedule file') as schedule_filename:
-        with FT.temp_input('; ledger file') as ledger_filename:
+    with FT.temp_file('; schedule file') as schedule_filename:
+        with FT.temp_file('; ledger file') as ledger_filename:
             ledgerbil.main([
                 '--file', ledger_filename,
                 '--schedule', schedule_filename,
@@ -286,8 +286,8 @@ def test_reconciler_takes_precedence_over_scheduler_and_sort(mock_reconciler,
                                                              mock_sort):
     mock_scheduler.return_value = None
     mock_match.return_value = True
-    with FT.temp_input('; schedule file') as schedule_filename:
-        with FT.temp_input('; ledger file') as ledger_filename:
+    with FT.temp_file('; schedule file') as schedule_filename:
+        with FT.temp_file('; ledger file') as ledger_filename:
             ledgerbil.main([
                 '--file', ledger_filename,
                 '--schedule', schedule_filename,
@@ -307,7 +307,7 @@ def test_run_reconciler_called(mock_run_reconciler):
             a: 401k: bonds idx            12.357 qwrty @   $20.05
             i: investment: adjustment
     ''')
-    with FT.temp_input(ledgerfile_data) as tempfilename:
+    with FT.temp_file(ledgerfile_data) as tempfilename:
         ledgerbil.main(['--file', tempfilename, '--reconcile', 'bonds'])
     mock_run_reconciler.assert_called_once()
 
@@ -334,7 +334,7 @@ def test_reconciler_exception(mock_handle_error):
             a: 401k: bonds idx
             i: investment: adjustment     $100,000
     ''')
-    with FT.temp_input(ledgerfile_data) as tempfilename:
+    with FT.temp_file(ledgerfile_data) as tempfilename:
         ledgerbil.main([
             '--file', tempfilename,
             '--reconcile', 'bonds'
@@ -353,7 +353,7 @@ def test_reconciler_exception_return_value():
             a: 401k: bonds idx
             i: investment: adjustment     $100,000
     ''')
-    with FT.temp_input(ledgerfile_data) as tempfilename:
+    with FT.temp_file(ledgerfile_data) as tempfilename:
         return_value = ledgerbil.main([
             '--file', tempfilename,
             '--reconcile', 'bonds'
@@ -377,7 +377,7 @@ def test_main_investments_with_argv_none_retun_value():
 @mock.patch(__name__ + '.scheduler.handle_error')
 def test_next_scheduled_date_scheduler_exception(mock_handle_error):
     schedulefile_data = ';; scheduler enter 567 days'
-    with FT.temp_input(schedulefile_data) as tempfilename:
+    with FT.temp_file(schedulefile_data) as tempfilename:
         ledgerbil.main(['--schedule', tempfilename, '-n'])
     expected = dedent('''\
             Invalid schedule file config:
@@ -389,13 +389,13 @@ def test_next_scheduled_date_scheduler_exception(mock_handle_error):
 
 def test_next_scheduled_date_scheduler_exception_return_value():
     schedulefile_data = ';; scheduler enter 567 days'
-    with FT.temp_input(schedulefile_data) as tempfilename:
+    with FT.temp_file(schedulefile_data) as tempfilename:
         assert ledgerbil.main(['--schedule', tempfilename, '-n']) == -1
 
 
 @mock.patch(__name__ + '.scheduler.handle_error')
 def test_scheduler_exception(mock_handle_error):
-    with FT.temp_input(';; scheduler enter 321 days') as tempfilename:
+    with FT.temp_file(';; scheduler enter 321 days') as tempfilename:
         ledgerbil.main(
             ['--schedule', tempfilename, '-f', FT.testfile]
         )
@@ -408,7 +408,7 @@ def test_scheduler_exception(mock_handle_error):
 
 
 def test_scheduler_exception_return_value():
-    with FT.temp_input(';; scheduler enter 321 days') as tempfilename:
+    with FT.temp_file(';; scheduler enter 321 days') as tempfilename:
         return_value = ledgerbil.main(
             ['--schedule', tempfilename, '-f', FT.testfile]
         )

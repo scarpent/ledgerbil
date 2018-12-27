@@ -57,7 +57,7 @@ class FileTester:
 
     @staticmethod
     @contextmanager
-    def temp_input(data):
+    def temp_file(data):
         with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp:
             temp.write(data)
         yield temp.name

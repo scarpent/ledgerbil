@@ -24,21 +24,21 @@ schedule_testdata = dedent('''\
 
 
 def test_next_scheduled_transaction():
-    with FileTester.temp_input(schedule_testdata) as tempfilename:
+    with FileTester.temp_file(schedule_testdata) as tempfilename:
         schedulefile = ScheduleFile(tempfilename)
     assert schedulefile.next_scheduled_date() == '2007/07/07'
 
 
 def test_next_scheduled_transaction_no_next():
     scheduler_data = ';; scheduler ; enter 45 days'
-    with FileTester.temp_input(scheduler_data) as tempfilename:
+    with FileTester.temp_file(scheduler_data) as tempfilename:
         schedulefile = ScheduleFile(tempfilename)
     assert schedulefile.next_scheduled_date() == ''
 
 
 def test_add_thing_with_no_lines():
     scheduler_data = ';; scheduler ; enter 45 days'
-    with FileTester.temp_input(scheduler_data) as tempfilename:
+    with FileTester.temp_file(scheduler_data) as tempfilename:
         schedulefile = ScheduleFile(tempfilename)
 
     assert len(schedulefile.things) == 1
