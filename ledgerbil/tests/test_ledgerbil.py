@@ -108,69 +108,56 @@ class MainErrors(Redirector):
         )
 
 
+def get_schedule_file(the_date, schedule, enter_days=7):
+    return (
+        f';; scheduler ; enter {enter_days} days\n'
+        '\n'
+        f'{the_date} bananas unlimited\n'
+        f'    ;; schedule ; {schedule}\n'
+        '    e: misc\n'
+        '    l: credit card                     $-50\n\n'
+    )
+
+
+def get_ledger_file(the_date):
+    return (
+        f'{the_date} bananas unlimited\n'
+        '    e: misc\n'
+        '    l: credit card                     $-50\n\n'
+    )
+
+
+def test_scheduler():
+    lastmonth = date.today() - relativedelta(months=1)
+    testdate = date(lastmonth.year, lastmonth.month, 15)
+    schedule = 'monthly ;; every 2 months'
+
+    schedulefiledata = get_schedule_file(
+        util.get_date_string(testdate),
+        schedule
+    )
+    with FT.temp_input(schedulefiledata) as tempschedulefile:
+        with FT.temp_input('') as templedgerfile:
+            ledgerbil.main([
+                '--file', templedgerfile,
+                '--schedule', tempschedulefile,
+            ])
+
+            schedulefile_actual = FT.read_file(tempschedulefile)
+            schedulefile_expected = get_schedule_file(
+                util.get_date_string(testdate + relativedelta(months=2)),
+                schedule
+            )
+            assert schedulefile_actual == schedulefile_expected
+
+            ledgerfile_actual = FT.read_file(templedgerfile)
+            ledgerfile_expected = get_ledger_file(
+                util.get_date_string(testdate)
+            )
+            assert ledgerfile_actual == ledgerfile_expected
+
+
 class Scheduler(Redirector):
-
-    @staticmethod
-    def get_schedule_file(the_date, schedule, enter_days=7):
-        return (
-            f';; scheduler ; enter {enter_days} days\n'
-            '\n'
-            f'{the_date} bananas unlimited\n'
-            f'    ;; schedule ; {schedule}\n'
-            '    e: misc\n'
-            '    l: credit card                     $-50\n\n'
-        )
-
-    @staticmethod
-    def get_ledger_file(the_date):
-        return (
-            f'{the_date} bananas unlimited\n'
-            '    e: misc\n'
-            '    l: credit card                     $-50\n\n'
-        )
-
-    def test_scheduler(self):
-        lastmonth = date.today() - relativedelta(months=1)
-        testdate = date(lastmonth.year, lastmonth.month, 15)
-        schedule = 'monthly ;; every 2 months'
-
-        schedulefiledata = self.get_schedule_file(
-            util.get_date_string(testdate),
-            schedule
-        )
-        tempschedulefile = FT.write_to_temp_file(
-            FT.testdir + 'test_scheduler_schedule_file',
-            schedulefiledata
-        )
-
-        templedgerfile = FT.write_to_temp_file(
-            FT.testdir + 'test_scheduler_ledger_file',
-            ''
-        )
-
-        ledgerbil.main([
-            '--file', templedgerfile,
-            '--schedule', tempschedulefile,
-        ])
-
-        schedulefile_actual = FT.read_file(tempschedulefile)
-        schedulefile_expected = self.get_schedule_file(
-            util.get_date_string(
-                testdate + relativedelta(months=2)
-            ),
-            schedule
-        )
-
-        ledgerfile_actual = FT.read_file(templedgerfile)
-        ledgerfile_expected = self.get_ledger_file(
-            util.get_date_string(testdate)
-        )
-
-        os.remove(tempschedulefile)
-        os.remove(templedgerfile)
-
-        self.assertEqual(schedulefile_expected, schedulefile_actual)
-        self.assertEqual(ledgerfile_expected, ledgerfile_actual)
 
     @mock.patch(__name__ + '.ledgerbil.LedgerFile')
     def test_next_scheduled_date(self, mock_ledgerfile):

@@ -56,13 +56,6 @@ class FileTester:
             return f.read()
 
     @staticmethod
-    def write_to_temp_file(filename, testdata):
-        temp_file = f'{filename}_temp'
-        with open(temp_file, 'w', encoding='utf-8') as f:
-            f.write(testdata)
-        return temp_file
-
-    @staticmethod
     @contextmanager
     def temp_input(data):
         with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp:
