@@ -30,14 +30,12 @@ class LedgerFile:
             for line in the_file:
                 line = line.rstrip()
                 if LedgerThing.is_new_thing(line):
-                    self.add_thing_from_lines(
-                        remove_trailing_blank_lines(current_lines)
-                    )
+                    self.add_thing_from_lines(current_lines)
                     current_lines = []
 
                 current_lines.append(line)
 
-        self.add_thing_from_lines(remove_trailing_blank_lines(current_lines))
+        self.add_thing_from_lines(current_lines)
 
     def is_writable(self):
         # This will catch read-only files as well as bad filenames
@@ -49,6 +47,7 @@ class LedgerFile:
             return False
 
     def add_thing_from_lines(self, lines):
+        lines = remove_trailing_blank_lines(lines)
         if lines:
             thing = LedgerThing(lines, self.rec_account)
             self.add_thing(thing)

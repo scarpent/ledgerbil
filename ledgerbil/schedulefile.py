@@ -1,4 +1,4 @@
-from .ledgerfile import LedgerFile
+from .ledgerfile import LedgerFile, remove_trailing_blank_lines
 from .schedulething import ScheduleThing
 
 
@@ -11,6 +11,7 @@ class ScheduleFile(LedgerFile):
         super().__init__(filename, reconcile_account=None)
 
     def add_thing_from_lines(self, lines):
+        lines = remove_trailing_blank_lines(lines)
         if lines:
             thing = ScheduleThing(lines)
             self.add_thing(thing)
