@@ -52,8 +52,7 @@ class LedgerFile:
             self.add_thing(thing)
 
     def add_thing(self, thing):
-        things = [thing]
-        self.add_things(things)
+        self.add_things([thing])
 
     def add_things(self, things):
         for thing in things:
