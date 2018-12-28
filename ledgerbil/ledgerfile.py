@@ -7,8 +7,8 @@ from .util import assert_only_one_matching_account
 
 
 class LedgerFile:
-
     STARTING_DATE = date(1899, 1, 1)
+    thing_counter = -1
 
     def __init__(self, filename, reconcile_account=None):
         self.filename = filename
@@ -16,7 +16,6 @@ class LedgerFile:
         self.reset()
 
     def reset(self):
-        self.thing_counter = 0
         self.things = []
         self.rec_account_matched = None  # full account name
         self.read_file()
@@ -67,34 +66,34 @@ class LedgerFile:
                         thing.rec_account_matched,
                     })
 
-            thing.thing_number = self.thing_counter
-            self.get_things().append(thing)
-            # increment after for a zero-based array
-            self.thing_counter += 1
+            thing.thing_number = LedgerFile.next_thing_number()
+            self.things.append(thing)
 
-    def get_things(self):
-        return self.things
+    @staticmethod
+    def next_thing_number():
+        LedgerFile.thing_counter += 1
+        return LedgerFile.thing_counter
 
     def sort(self):
         current_date = self.STARTING_DATE
 
-        for thing in self.get_things():
+        for thing in self.things:
             if thing.thing_date is None:
                 thing.thing_date = current_date
             else:
                 current_date = thing.thing_date
 
-        self.get_things().sort(key=attrgetter('thing_date', 'thing_number'))
+        self.things.sort(key=attrgetter('thing_date', 'thing_number'))
 
     def print_file(self):
-        for thing in self.get_things():
+        for thing in self.things:
             for line in thing.get_lines():
                 print(line)
             print()
 
     def write_file(self):
         with open(self.filename, 'w', encoding='utf-8') as the_file:
-            for thing in self.get_things():
+            for thing in self.things:
                 the_file.write('\n'.join(thing.get_lines()) + '\n\n')
 
 

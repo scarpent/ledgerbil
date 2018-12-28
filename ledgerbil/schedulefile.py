@@ -18,7 +18,7 @@ class ScheduleFile(LedgerFile):
 
     def next_scheduled_date(self):
         self.sort()
-        for thing in self.get_things():
+        for thing in self.things:
             if thing.is_transaction:
                 return thing.get_date_string()
 

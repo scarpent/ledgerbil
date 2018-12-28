@@ -205,7 +205,7 @@ class Reconciler(cmd.Cmd):
         symbols = set()
 
         for ledgerfile in self.ledgerfiles:
-            for thing in ledgerfile.get_things():
+            for thing in ledgerfile.things:
                 if thing.rec_account_matched:
                     is_shareses.add(thing.rec_is_shares)
                     symbols.add(thing.rec_symbol)

@@ -65,7 +65,7 @@ def get_ledger_posting(line):
 class LedgerThing:
 
     def __init__(self, lines, reconcile_account=None):
-        self.thing_number = 0
+        self.thing_number = None
         self.thing_date = None
         self.payee = None
         self.transaction_code = ''  # e.g. check number
@@ -223,10 +223,7 @@ class LedgerThing:
     def is_new_thing(line):
         # currently, is_new_thing == is_transaction_start, but this
         # could change in future
-        if LedgerThing.is_transaction_start(line):
-            return True
-        else:
-            return False
+        return LedgerThing.is_transaction_start(line)
 
     @staticmethod
     def is_transaction_start(line):

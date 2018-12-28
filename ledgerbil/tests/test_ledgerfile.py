@@ -47,7 +47,9 @@ def test_parsed_file_unchanged_via_write():
 
 
 def test_count_initial_non_transaction():
-    """counts initial non-transaction (probably a comment)"""
+    """counts initial non-transaction (probably a comment)
+       first two comment lines are thing_number 0, rest are #1
+       thing_counter will then be at #1"""
     testdata = dedent('''\
         ; blah
         ; blah blah blah
@@ -58,7 +60,7 @@ def test_count_initial_non_transaction():
     with FT.temp_file(testdata) as templedgerfile:
         lfile = LedgerFile(templedgerfile)
 
-    assert lfile.thing_counter == 2
+    assert len(lfile.things) == 2
 
 
 def test_count_initial_transaction():
@@ -66,7 +68,7 @@ def test_count_initial_transaction():
         2013/05/06 payee name
             expenses: misc
             liabilities: credit card  $-50
-        ; blah blah blah
+        ; blah blah blah this is lumped with previous as thing_number 0
         2013/05/06 payee name
             expenses: misc
             liabilities: credit card  $-50
@@ -76,7 +78,7 @@ def test_count_initial_transaction():
     with FT.temp_file(testdata) as templedgerfile:
         lfile = LedgerFile(templedgerfile)
 
-    assert lfile.thing_counter == 2
+    assert len(lfile.things) == 2
 
 
 def test_assigned_thing_numbers():
@@ -97,12 +99,7 @@ def test_assigned_thing_numbers():
         '    liabilities: credit card  $666',
     ])
     lfile.add_thing(thing)
-    expected = '012'
-    actual = ''
-    for thing in lfile.get_things():
-        actual += str(thing.thing_number)
-
-    assert expected == actual
+    assert len(lfile.things) == 3
 
 
 def test_initial_non_transaction_date():
@@ -112,7 +109,7 @@ def test_initial_non_transaction_date():
 
     # non-transaction dates are only populated with sort
     lfile.sort()
-    assert lfile.get_things()[0].thing_date == LedgerFile.STARTING_DATE
+    assert lfile.things[0].thing_date == LedgerFile.STARTING_DATE
 
 
 def test_later_non_transaction_date():
@@ -131,9 +128,9 @@ def test_later_non_transaction_date():
     lfile.add_thing_from_lines(['; blah blah blah', '; and so on...'])
     # non-transaction dates are only populated with sort
     lfile.sort()
-    assert lfile.get_things()[0].thing_date == datetime.date(2013, 5, 6)
-    assert lfile.get_things()[1].thing_date == datetime.date(2013, 5, 7)
-    assert lfile.get_things()[2].thing_date == datetime.date(2013, 5, 7)
+    assert lfile.things[0].thing_date == datetime.date(2013, 5, 6)
+    assert lfile.things[1].thing_date == datetime.date(2013, 5, 7)
+    assert lfile.things[2].thing_date == datetime.date(2013, 5, 7)
 
 
 def test_already_sorted_file_unchanged():
@@ -158,6 +155,26 @@ def test_sorting():
         actual = FT.read_file(templedgerfile)
 
     assert actual == expected
+
+
+def test_sorting_by_date_and_thing_number():
+    with FT.temp_file('') as templedgerfile:
+        lfile = LedgerFile(templedgerfile)
+    lfile.add_thing_from_lines(['2018/12/28 apple'])
+    lfile.things[-1].thing_number = 5
+    lfile.add_thing_from_lines(['2018/12/28 banana'])
+    lfile.things[-1].thing_number = 4
+    lfile.add_thing_from_lines(['2017/12/27 carrot'])
+    lfile.things[-1].thing_number = 3
+    lfile.add_thing_from_lines(['2017/12/27 dill'])
+    lfile.things[-1].thing_number = 1
+    lfile.add_thing_from_lines(['2017/12/27 eggplant'])
+    lfile.things[-1].thing_number = 2
+    lfile.sort()
+
+    expected_payees = ['dill', 'eggplant', 'carrot', 'banana', 'apple']
+    for thing, expected in zip(lfile.things, expected_payees):
+        assert thing.payee == expected
 
 
 def test_reconciler_multiple_matches_across_transactions():
