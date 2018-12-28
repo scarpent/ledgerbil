@@ -14,7 +14,7 @@ class ScheduleFile(LedgerFile):
         lines = remove_trailing_blank_lines(lines)
         if lines:
             thing = ScheduleThing(lines)
-            self.add_thing(thing)
+            self.add_things([thing])
 
     def next_scheduled_date(self):
         self.sort()

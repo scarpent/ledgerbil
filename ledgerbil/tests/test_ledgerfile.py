@@ -98,7 +98,7 @@ def test_assigned_thing_numbers():
         '    assets: soul',
         '    liabilities: credit card  $666',
     ])
-    lfile.add_thing(thing)
+    lfile.add_things([thing])
     assert len(lfile.things) == 3
 
 

@@ -49,10 +49,7 @@ class LedgerFile:
         lines = remove_trailing_blank_lines(lines)
         if lines:
             thing = LedgerThing(lines, self.rec_account)
-            self.add_thing(thing)
-
-    def add_thing(self, thing):
-        self.add_things([thing])
+            self.add_things([thing])
 
     def add_things(self, things):
         for thing in things:
