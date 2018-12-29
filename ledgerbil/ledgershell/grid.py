@@ -3,6 +3,7 @@ import csv
 import re
 import sys
 from collections import defaultdict
+from concurrent import futures
 from datetime import date
 from io import StringIO
 from textwrap import dedent
@@ -246,29 +247,43 @@ def get_period_names(args, ledger_args, unit='year'):
 
 
 def get_columns(args, ledger_args, period_names, current_period=None):
-    row_headers = set()
-    columns = {}
-    ending = ()
-    for period_name in period_names:
-        if current_period and current_period == period_name:
-            ending = ('--end', 'tomorrow')
 
-        if args.payees:
-            column = get_column_payees(period_name, ledger_args + ending)
-        elif args.networth:
-            networth_period = 'tomorrow' if ending else period_name
-            column = get_column_networth(networth_period, ledger_args)
-        else:
-            column = get_column_accounts(
-                period_name,
-                ledger_args + ending,
-                args.depth
+    with futures.ThreadPoolExecutor(max_workers=50) as executor:
+        to_do = []
+        ending = ()
+        for period_name in period_names:
+            if current_period and current_period == period_name:
+                ending = ('--end', 'tomorrow')
+
+            future = executor.submit(
+                get_column, args, ledger_args, period_name, ending
             )
+            to_do.append(future)
 
-        row_headers.update(column.keys())
-        columns[period_name] = column
+        row_headers = set()
+        columns = {}
+        for future in futures.as_completed(to_do):
+            period_name, column = future.result()
+            row_headers.update(column.keys())
+            columns[period_name] = column
 
     return row_headers, columns
+
+
+def get_column(args, ledger_args, period_name, ending):
+    if args.payees:
+        column = get_column_payees(period_name, ledger_args + ending)
+    elif args.networth:
+        networth_period = 'tomorrow' if ending else period_name
+        column = get_column_networth(networth_period, ledger_args)
+    else:
+        column = get_column_accounts(
+            period_name,
+            ledger_args + ending,
+            args.depth
+        )
+
+    return period_name, column
 
 
 def get_column_accounts(period_name, ledger_args, depth=0):
