@@ -12,12 +12,12 @@ class LedgerFile:
 
     def __init__(self, filename, reconcile_account=None):
         self.filename = filename
-        self.rec_account = reconcile_account  # could be partial
+        self.rec_account = reconcile_account  # Could be partial or regex
         self.reset()
 
     def reset(self):
         self.things = []
-        self.rec_account_matched = None  # full account name
+        self.rec_account_matched = None  # Full account name
         self.read_file()
 
     def read_file(self):
@@ -28,6 +28,7 @@ class LedgerFile:
         with open(self.filename, 'r', encoding='utf-8') as the_file:
             for line in the_file:
                 line = line.rstrip()
+
                 if LedgerThing.is_new_thing(line):
                     self.add_thing_from_lines(current_lines)
                     current_lines = []
@@ -37,7 +38,7 @@ class LedgerFile:
         self.add_thing_from_lines(current_lines)
 
     def is_writable(self):
-        # This will catch read-only files as well as bad filenames
+        # Catch read-only files as well as bad filenames
         try:
             with open(self.filename, 'r+'):
                 return True
@@ -53,6 +54,9 @@ class LedgerFile:
 
     def add_things(self, things):
         for thing in things:
+            thing.thing_number = LedgerFile.next_thing_number()
+            self.things.append(thing)
+
             if self.rec_account and thing.rec_account_matched:
                 if not self.rec_account_matched:
                     self.rec_account_matched = thing.rec_account_matched
@@ -61,9 +65,6 @@ class LedgerFile:
                         self.rec_account_matched,
                         thing.rec_account_matched,
                     })
-
-            thing.thing_number = LedgerFile.next_thing_number()
-            self.things.append(thing)
 
     @staticmethod
     def next_thing_number():
