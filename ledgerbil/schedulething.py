@@ -226,8 +226,8 @@ class ScheduleThing(LedgerThing):
         try:
             return date(thedate.year, thedate.month, theday)
         except ValueError:
-            # day is out of range for month, so we'll get the last day
-            # of month (may be unlikely now that we check lastDayOfMonth
+            # day is out of range for month, so we'll get the last day of
+            # month (may be unlikely now that we check last_day_of_month
             # in get_month_day)
             return date(
                 thedate.year,
