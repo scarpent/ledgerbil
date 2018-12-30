@@ -321,14 +321,14 @@ def get_column_accounts(period_name, ledger_args, depth=0):
 
 
 def validate_column_total(period_name, column_total=0, ledgers_total=0):
-    # Ledger has an unfortunate way of reporting things when funds are
-    # applied to both parent and child account. It appears to double count
-    # them in line items but not in the total.
+    # Ledger has an unfortunate way of reporting things with --flat, when
+    # funds are applied to both parent and child account. It appears to
+    # double count them in line items but not in the total.
 
-    # In the column total, which is "our" total and what will be shown in the
-    # report, we will get the wrong sum. Let's warn when this happens.
-    # (Which means ledgerbil's stance is that you really shouldn't set
-    # up your accounts this way.)
+    # In the column total, which is "our" total and what will be shown in
+    # the report, we will get the wrong sum. Let's warn when this happens.
+    # (Which means ledgerbil's stance is that you really shouldn't use
+    # your accounts this way.)
 
     # We'll not concern ourselves over small floating point differences
     if round(abs(column_total - ledgers_total), 2) > .05:
