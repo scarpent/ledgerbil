@@ -1282,16 +1282,9 @@ def test_reconciled_status(mock_get_accounts,
 
     reconciler.reconciled_status()
 
-    mock_ledger_output.assert_called_once_with((
-        'balance',
-        '--cleared',
-        '--no-total',
-        '--flat',
-        '--exchange',
-        '.',
-        '^fu: bar$',
-        '^abc: def$'
-    ))
+    mock_ledger_output.assert_called_once_with(
+        ('balance', '--cleared', '--no-total', '--flat', '--exchange', '.')
+    )
 
     accounts['fu: bar'].ledger_balance = 1.234
     accounts['abc: def'].ledger_balance = -98.76
@@ -1317,30 +1310,3 @@ def test_reconciled_status_no_previously_reconciled(
         'No previously reconciled accounts found'
     )
     assert not mock_get_ledger_output.called
-
-
-@mock.patch(__name__ + '.reconciler.reconciled_status_report')
-@mock.patch(__name__ + '.reconciler.get_ledger_output')
-@mock.patch(__name__ + '.reconciler.print')
-@mock.patch(__name__ + '.reconciler.get_accounts_reconciled_data')
-def test_reconciled_status_no_cleared_balance_for_previously_reconciled(
-    mock_get_accounts_reconciled_data,
-    mock_print,
-    mock_get_ledger_output,
-    mock_status_report,
-):
-    accounts = {
-        'fu: bar': reconciler.ReconData('f: bar', '1997/01/01', 10.0, 10.0),
-    }
-    mock_get_accounts_reconciled_data.return_value = accounts
-    mock_get_ledger_output.return_value = ''
-
-    reconciler.reconciled_status()
-
-    mock_print.assert_called_once_with(
-        "Didn't get cleared balances from ledger for accounts that had "
-        "previously reconciled entries: {'fu: bar': ReconData("
-        "account='f: bar', previous_date='1997/01/01', "
-        "previous_balance=10.0, ledger_balance=10.0)}"
-    )
-    assert not mock_status_report.called

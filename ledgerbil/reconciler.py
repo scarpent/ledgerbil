@@ -573,7 +573,7 @@ def reconciled_status():
     accounts_all = get_accounts_reconciled_data()
 
     accounts = {
-        key: recon for key, recon in accounts_all.items()
+        account: recon for account, recon in accounts_all.items()
         if recon.previous_date != NO_PREVIOUS_DATE
     }
 
@@ -581,37 +581,17 @@ def reconciled_status():
         print('No previously reconciled accounts found')
         return
 
-    # todo: use / / account matching, e.g.
-    # ledger -f percent.ledger print '/(^unwise%$$|something else)/'
-    query_accounts = []
-    for expanded_account_name in accounts:
-        query_accounts.append(f'^{expanded_account_name}$')
+    query = ('balance', '--cleared', '--no-total', '--flat', '--exchange', '.')
+    balance_lines = get_ledger_output(query).split('\n')
 
-    query = (
-        'balance',
-        '--cleared',
-        '--no-total',
-        '--flat',
-        '--exchange',
-        '.'
-    )
-
-    balance_lines = get_ledger_output(
-        query + tuple(query_accounts)
-    ).split('\n')
-
-    # This shouldn't happen unless some funny business with files that we're
-    # likely not responsible for, but we'll still give some indication of the
-    # problem. That is: we have previous balances but no --cleared data at
-    # all? How would that happen?
-    if balance_lines == ['']:
-        print("Didn't get cleared balances from ledger for accounts that "
-              f"had previously reconciled entries: {accounts}")
-        return
-
+    ledger_accounts = {}
     for balance_line in balance_lines:
         ledger = get_account_balance_generic(balance_line)
-        accounts[ledger.account].ledger_balance = ledger.amount
+        ledger_accounts[ledger.account] = ledger.amount
+
+    for account in accounts:
+        if account in ledger_accounts:
+            accounts[account].ledger_balance = ledger_accounts[account]
 
     reconciled_status_report(accounts)
 
