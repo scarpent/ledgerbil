@@ -1272,8 +1272,8 @@ def test_reconciled_status(mock_get_accounts,
                            mock_status_report,
                            mock_ledger_output):
     # 'x: y' account with a 0 previous balance tests where ledger won't return
-    # a balance line for it so that we need to check if an AccountBalance
-    # namedtuple object was returned from get_account_balance_generic()
+    # a balance line for it so that we need to check if the account is in the
+    # ledger_balances dictionary.
     accounts = {
         'fu: bar': reconciler.ReconData('f: bar', '1997/01/01', 10.0, 0),
         'abc: def': reconciler.ReconData('a: def', '2007/07/07', 15.0, 0),
