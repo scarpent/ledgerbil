@@ -1271,9 +1271,13 @@ def test_get_accounts_reconciled_data(mock_get_cache):
 def test_reconciled_status(mock_get_accounts,
                            mock_status_report,
                            mock_ledger_output):
+    # 'x: y' account with a 0 previous balance tests where ledger won't return
+    # a balance line for it so that we need to check if an AccountBalance
+    # namedtuple object was returned from get_account_balance_generic()
     accounts = {
-        'fu: bar': reconciler.ReconData('f: bar', '1997/01/01', 10.0, 10.0),
-        'abc: def': reconciler.ReconData('a: def', '2007/07/07', 15.0, 10.0),
+        'fu: bar': reconciler.ReconData('f: bar', '1997/01/01', 10.0, 0),
+        'abc: def': reconciler.ReconData('a: def', '2007/07/07', 15.0, 0),
+        'x: y': reconciler.ReconData('x: y', '2012/09/09', 0.0, 0),
     }
     mock_get_accounts.return_value = accounts
     mock_ledger_output.return_value = dedent('''\
@@ -1310,3 +1314,26 @@ def test_reconciled_status_no_previously_reconciled(
         'No previously reconciled accounts found'
     )
     assert not mock_get_ledger_output.called
+
+
+@mock.patch(__name__ + '.reconciler.reconciled_status_report')
+@mock.patch(__name__ + '.reconciler.get_ledger_output')
+@mock.patch(__name__ + '.reconciler.get_accounts_reconciled_data')
+def test_reconciled_status_no_cleared_balance_for_previously_reconciled(
+    mock_get_accounts_reconciled_data,
+    mock_get_ledger_output,
+    mock_status_report,
+):
+    # This test covers the exceedingly unlikely event that we have a previous
+    # balance in reconciler cache, but no --cleared balances. We don't want to
+    # blow up accessing a None. We'll still accurately report a problem with
+    # the balance in the report.
+    accounts = {
+        'fu: bar': reconciler.ReconData('f: bar', '1997/01/01', 10.0, 0.0),
+    }
+    mock_get_accounts_reconciled_data.return_value = accounts
+    mock_get_ledger_output.return_value = ''
+
+    reconciler.reconciled_status()
+
+    mock_status_report.assert_called_once_with(accounts)

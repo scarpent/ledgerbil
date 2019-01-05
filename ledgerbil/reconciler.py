@@ -584,14 +584,20 @@ def reconciled_status():
     query = ('balance', '--cleared', '--no-total', '--flat', '--exchange', '.')
     balance_lines = get_ledger_output(query).split('\n')
 
-    ledger_accounts = {}
+    ledger_balances = {}
     for balance_line in balance_lines:
-        ledger = get_account_balance_generic(balance_line)
-        ledger_accounts[ledger.account] = ledger.amount
+        account_balance = get_account_balance_generic(balance_line)
+        # The only way we won't have a ledger object is if there are no
+        # --cleared balances in our ledger data, so that we received an
+        # empty response from ledger which turned into [''] in the split
+        # above. This seems highly unlikely, but we'll still handle it
+        # here, and the report will still accurately point out discrepancies.
+        if account_balance:
+            ledger_balances[account_balance.account] = account_balance.amount
 
     for account in accounts:
-        if account in ledger_accounts:
-            accounts[account].ledger_balance = ledger_accounts[account]
+        if account in ledger_balances:
+            accounts[account].ledger_balance = ledger_balances[account]
 
     reconciled_status_report(accounts)
 
