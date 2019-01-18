@@ -587,9 +587,9 @@ def reconciled_status():
     ledger_balances = {}
     for balance_line in balance_lines:
         account_balance = get_account_balance_generic(balance_line)
-        # The only way we won't have a ledger object is if there are no
-        # --cleared balances in our ledger data, so that we received an
-        # empty response from ledger which turned into [''] in the split
+        # The only way we won't have an AccountBalance object is if there
+        # are no --cleared balances in our ledger data, so that we received
+        # an empty response from ledger which turned into [''] in the split
         # above. This seems highly unlikely, but we'll still handle it
         # here, and the report will still accurately point out discrepancies.
         if account_balance:
