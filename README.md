@@ -3,6 +3,14 @@ ledgerbil
 
 A small rodent-like program for working with ledger-cli journals.
 
+Some of ledgerbil's features:
+
+  * Automate the entry of recurring transactions via a scheduler.
+  * Interactively reconcile accounts.
+  * Sort a file by transaction date.
+  * Display balances or net worth by year or month in a grid format.
+  * Display investments with dollar and share amounts side by side.
+
 Hi. I'm a personal finance enthusiast. Keeping my records organized and
 analyzable is a soothing and reassuring activity for me. I used
 Microsoft Money from 1995 to 2007, KMyMoney from 2008 to 2012, and
@@ -32,15 +40,9 @@ and look upon:
 ![ledger file with syntax highlighting](docs/images/ledger-syntax-highlighting.png "Syntax Highlighting")
 
 Why yet another tool? Why ledgerbil? I had my own ideas for features,
-and it's fun to have a project to work on.
-
-Some of ledgerbil's features:
-
-  * Automate the entry of recurring transactions via a scheduler.
-  * Interactively reconcile accounts.
-  * Sort a file by transaction date.
-  * Display balances or net worth by year or month in a grid format.
-  * Display investments with dollar and share amounts side by side.
+and it's fun to have a project to work on. Let's look at a few examples 
+of reporting options before moving on to a rambling preamble and then
+a deeper dive...
 
 A grid report:
 
@@ -102,10 +104,10 @@ Preamble: A Note to Prospective Users and Contributors
 In many ways, ledgerbil is tuned to my own usage of ledger. It will be
 fine with me if I'm the only one that ever uses it.
 
-*However,* I heart emoji free software and am be happy to share my work.
-I don't necessarily want to make this thing rigidly conform to my own
-use cases, but the likelihood of that happening grows greater by the
-day.
+*However,* I heart emoji free software and am be happy to share my work
+and would be thrilled if others find ledgerbil useful. I don't
+necessarily want to make this thing rigidly conform to my own use cases,
+but the likelihood of that happening grows greater by the day.
 
 Please let me know if you try it and run into problems. Many of those
 problems I'll either be unable or unwilling to address, because I'm
@@ -175,7 +177,6 @@ other commands (run with -h to see command help):
         pass                    passthrough to ledger
         portfolio (or port)     standalone investment tracker
 ```
-
 
 ## --sort
 
@@ -543,7 +544,7 @@ external program.
 ## "ledgershell" (other commands)
 
 The ledgershell programs use ledger to read and report on your data in
-different ways. None of them modify your data as of November 2018.
+different ways. None of them modify your data.
 
 (`portfolio` is listed with "other commands", but isn't a ledgershell
 program, and currently has nothing to do with ledger or ledger data.)
@@ -554,13 +555,13 @@ for the latest.
 
 ### settings.py
 
-Intended as a convenience, but which can also be a nuisance, the
-`settings.py` file is meant to have all the information needed to run
-ledger so you don't have to pass in everything every time. And, related
-to the ambivalence about documentation mentioned above, there isn't any
-documentation for this file yet. Just [`settings.py.example`][settings]
-which you should copy to `settings.py` in the same directory and then
-modify for your own needs.
+Intended as a convenience, the `settings.py` file is meant to have all
+the information needed to run ledger so you don't have to pass in
+everything every time. And, related to the ambivalence about
+documentation mentioned above, there isn't any documentation for this
+file yet. Just [`settings.py.example`][settings] which you should copy
+to `settings.py` in the same directory and then modify for your own
+needs.
 
 [settings]: /ledgerbil/settings.py.example
 
