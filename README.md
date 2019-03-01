@@ -104,10 +104,10 @@ Preamble: A Note to Prospective Users and Contributors
 In many ways, ledgerbil is tuned to my own usage of ledger. It will be
 fine with me if I'm the only one that ever uses it.
 
-*However,* I heart emoji free software and am be happy to share my work
-and would be thrilled if others find ledgerbil useful. I don't
-necessarily want to make this thing rigidly conform to my own use cases,
-but the likelihood of that happening grows greater by the day.
+*However,* I heart emoji free software and am happy to share my work and
+would be thrilled if others find ledgerbil useful. I don't necessarily
+want to make this thing rigidly conform to my own use cases, but the
+likelihood of that happening grows greater by the day.
 
 Please let me know if you try it and run into problems. Many of those
 problems I'll either be unable or unwilling to address, because I'm
