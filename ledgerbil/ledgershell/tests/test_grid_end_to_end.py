@@ -263,7 +263,8 @@ def test_get_grid_report_networth_flat_report_transposed():
 def test_get_grid_report_networth_flat_report_different_date_format():
     settings_getter.settings = MockSettingsAltDateFormat()
     args, ledger_args = grid.get_args(
-        ['--net-worth', '--month', '--transpose', '--period', '2017']
+        ['--net-worth', '--month', '--transpose',
+         '--begin', '2017/01', '--end', '2018']
     )
     report = grid.get_grid_report(args, ledger_args)
     expected = (
