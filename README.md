@@ -5,7 +5,7 @@ A small rodent-like program for working with ledger-cli journals.
 
 Some of ledgerbil's features:
 
-  * Automate the entry of recurring transactions via a scheduler.
+  * Automate the entry of recurring transactions via a [scheduler](#--schedule).
   * Interactively reconcile accounts.
   * Sort a file by transaction date.
   * Display balances or net worth by year or month in a grid format.
