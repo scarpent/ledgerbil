@@ -6,10 +6,10 @@ A small rodent-like program for working with ledger-cli journals.
 Some of ledgerbil's features:
 
   * Automate the entry of recurring transactions via a [scheduler](#--schedule).
-  * Interactively reconcile accounts.
-  * Sort a file by transaction date.
-  * Display balances or net worth by year or month in a grid format.
-  * Display investments with dollar and share amounts side by side.
+  * Interactively [reconcile](#--reconcile-acct) accounts.
+  * [Sort](#--sort) a file by transaction date.
+  * Display balances or net worth by year or month in a [grid](#grid) format.
+  * Display [investments](#investments-or-inv) with dollar and share amounts side by side.
 
 Hi. I'm a personal finance enthusiast. Keeping my records organized and
 analyzable is a soothing and reassuring activity for me. I used
