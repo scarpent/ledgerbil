@@ -261,9 +261,9 @@ The `days` spot can be used to specify more than one day in a month, e.g.:
 ```
 
 Will cause entries to be created on the 15th and 30th of every month. If
-you start with an entry as above with 2018/01/12, it will also create an
-entry on that date (*I think*), but then rotate between the other two.
-The schedule entry will always show the date of the next entry to be
+you start with an entry as above with 2018/01/12, it will first create
+an entry on that date, and then rotate between the other two. The
+schedule file entry will always show the date of the next entry to be
 added.
 
 What will this scheduled transaction do for the 30th, when confronted
