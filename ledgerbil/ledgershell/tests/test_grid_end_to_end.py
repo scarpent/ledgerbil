@@ -1,4 +1,10 @@
+# These tests actually run ledger for a bit of integration testing.
+# We'll try to have test_grid.py continue to test 100% of grid.py.
+
+import subprocess
 from textwrap import dedent
+
+import pytest
 
 from .. import grid
 from ... import settings, settings_getter
@@ -6,12 +12,25 @@ from ...colorable import Colorable
 from ...tests import filetester as FT
 from ...tests.helpers import OutputFileTester
 
-# These tests actually run ledger for a bit of integration testing.
-# We'll try to make sure test_grid.py continues to test 100% of grid.py.
+LEDGER = 'ledger'
+
+
+def ledger_not_found():
+    try:
+        subprocess.Popen([LEDGER, '--version'], stdout=subprocess.PIPE)
+        return False
+    except FileNotFoundError:
+        return True
+
+
+pytestmark = pytest.mark.skipif(
+    ledger_not_found(),
+    reason='ledger command not found'
+)
 
 
 class MockSettings:
-    LEDGER_COMMAND = ('ledger', )
+    LEDGER_COMMAND = (LEDGER, )
     LEDGER_DIR = FT.testdir
     LEDGER_FILES = ['grid-end-to-end.ldg']
     NETWORTH_ACCOUNTS = settings_getter.defaults['NETWORTH_ACCOUNTS']

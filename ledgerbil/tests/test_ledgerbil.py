@@ -70,7 +70,7 @@ def test_sorting_multiple_files(mock_init, mock_sort, mock_write_file):
         mock.call(file1, None),
         mock.call(file2, None),
     ]
-    # It would be nice to be able to further confirm that each instanace
+    # It would be nice to be able to further confirm that each instance
     # of Ledgerfile called these methods
     assert mock_sort.call_args_list == [mock.call(), mock.call()]
     assert mock_write_file.call_args_list == [mock.call(), mock.call()]
