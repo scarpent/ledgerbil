@@ -1,8 +1,8 @@
 # These tests actually run ledger for a bit of integration testing.
 # We'll try to have test_grid.py continue to test 100% of grid.py.
-
 import subprocess
 from textwrap import dedent
+from unittest import mock
 
 import pytest
 
@@ -47,6 +47,11 @@ def setup_module():
 
 def teardown_module():
     settings_getter.settings = settings.Settings()
+
+
+@mock.patch(__name__ + '.LEDGER', 'fubar')
+def test_ledger_not_found():
+    assert ledger_not_found()
 
 
 def test_get_grid_report_flat_report_expenses():
