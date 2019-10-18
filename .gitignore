@@ -2,6 +2,7 @@
 *.out
 *.pyc
 *.sublime-*
+!*.sublime-syntax
 .DS_Store
 .cache
 .coverage
