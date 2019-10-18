@@ -9,6 +9,7 @@
 .ledgerbil_cache_test
 .pytest_cache
 .python-version
+.vscode
 .~lock.*
 /temp
 htmlcov

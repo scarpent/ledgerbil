@@ -1,4 +1,4 @@
-# SYNTAX TEST "Packages/User/ledger.tmLanguage"
+# SYNTAX TEST "Packages/User/ledger.sublime-syntax"
 ;; header comment / bold comment
 # <- string.unquoted.header-bold-comment
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string.unquoted.header-bold-comment
@@ -22,13 +22,13 @@
 #^^^^^^^^^^^^^^^^^^^^ comment.comment
 
        ; regular old comment
-# <- unscoped.indent
-#^^^^^^ unscoped.indent
+# <- source.ledger
+#^^^^^^ source.ledger
 #      ^^^^^^^^^^^^^^^^^^^^^ comment.comment
 
 2018/07/23 some payee  ; regular old comment after other stuff
 # <- variable.parameter.date
-#^^^^^^^^^ variable.parameter.date
+#^^^^^^^^^^ variable.parameter.date
 #          ^^^^^^^^^^ constant.character.payee
 #                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.comment
 
@@ -36,20 +36,20 @@
 #                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.comment
 
        ; blah todo blah
-# <- unscoped.indent
-#^^^^^^ unscoped.indent
+# <- source.ledger
+#^^^^^^ source.ledger
 #      ^^^^^^^ comment.comment
 #             ^^^^ keyword.todo
 #                 ^^^^^ comment.comment
 
        ; only the last todo is highlighted as a todo blah
-#^^^^^^ unscoped.indent
+#^^^^^^ source.ledger
 #      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.comment
 #                                               ^^^^ keyword.todo
 #                                                   ^^^^^ comment.comment
 
     ; :the_tag: single tag
-#^^^ unscoped.indent
+#^^^ source.ledger
 #   ^^ comment.comment
 #     ^^^^^^^^^ support.class.tag-without-value
 #               ^^^^^^^^^^
@@ -60,13 +60,13 @@
 #                                ^^^^^^^^^^ comment.comment
 
         ; abc :one_tag:two_tag:three_tag: xyz
-#^^^^^^^ unscoped.indent
+#^^^^^^^ source.ledger
 #       ^^^^^^ comment.comment
 #             ^^^^^^^^^^^^^^^^^^^^^^^^^^^ support.class.tag-without-value
 #                                        ^^^^ comment.comment
 
     ; a_tag: a value
-#^^^ unscoped.indent
+#^^^ source.ledger
 #   ^^ comment.comment
 #     ^^^^^^^ support.class.tag-key
 #            ^^^^^^^ string.unquoted.tag-value
@@ -78,7 +78,7 @@
                  #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.comment
 
     ; a_tag: a value x: y
-#^^^ unscoped.indent
+#^^^ source.ledger
 #   ^^ comment.comment
 #     ^^^^^^^ support.class.tag-key
 #            ^^^^^^^^^^^^ string.unquoted.tag-value
@@ -89,11 +89,11 @@
 #            ^^^^^^^^^^^^^^^^^^^^^ string.unquoted.tag-value
 
     ; abc a_tag: not a valid tag
-#^^^ unscoped.indent
+#^^^ source.ledger
 #   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     ; Payee: some person
-#^^^ unscoped.indent
+#^^^ source.ledger
 #   ^^ comment.comment
 #     ^^^^^^^ support.class.tag-key
 #            ^^^^^^^^^^^ constant.character.tag-value-payee
@@ -104,7 +104,7 @@
 #                         ^^^^^^^^^^^ constant.character.tag-value-payee
 
     ; payee: lower case payee
-#^^^ unscoped.indent
+#^^^ source.ledger
 #   ^^ comment.comment
 #     ^^^^^^^ support.class.tag-key
 #            ^^^^^^^^^^^^^^^^ constant.character.tag-value-payee
@@ -133,36 +133,31 @@
 #                    ^^^^^^^^^ comment.comment
 
 2018/07/23 !
-#^^^^^^^^^ variable.parameter.date
-#         ^ source.ledger
-#          ^ constant.pending
+#^^^^^^^^^^ variable.parameter.date
+#          ^^ source.ledger
 
 2018/07/23  !
-#^^^^^^^^^ variable.parameter.date
-#         ^^ source.ledger
-#           ^ constant.pending
+#^^^^^^^^^^^ variable.parameter.date
+#           ^^ source.ledger
 
 2018/07/23 *
-#^^^^^^^^^ variable.parameter.date
-#         ^ source.ledger
-#          ^ entity.name.function.cleared
+#^^^^^^^^^^ variable.parameter.date
+#          ^^ source.ledger
 
 2018/07/23  *
-#^^^^^^^^^ variable.parameter.date
-#         ^ source.ledger
-#           ^ entity.name.function.cleared
+#^^^^^^^^^^^ variable.parameter.date
+#           ^^ source.ledger
 
 2018/07/24 ! someone
-#^^^^^^^^^ variable.parameter.date
-#         ^ source.ledger
-#          ^^ constant.pending
+#^^^^^^^^^^ variable.parameter.date
+#          ^^
 #            ^^^^^^^ constant.character.payee
 
 2018/07/24  *  someone
-#^^^^^^^^^ variable.parameter.date
-#         ^^ source.ledger
-#           ^^^ entity.name.function.cleared
+#^^^^^^^^^^^ variable.parameter.date
+#           ^^^ source.ledger
 #              ^^^^^^^ constant.character.payee
+#                     ^ source.ledger
 
 2018/07/24 (123)
 #^^^^^^^^^ variable.parameter.date
@@ -191,31 +186,27 @@
 #                  ^^^^^^^ constant.character.payee
 
 2018/07/24 ! (abc)
-#^^^^^^^^^ variable.parameter.date
-#         ^ source.ledger
-#          ^^ constant.pending
+#^^^^^^^^^^ variable.parameter.date
+#          ^^ source.ledger
 #            ^^^^^ string.quoted.transacton-number
 #                 ^ source.ledger
 
 2018/07/24  *  (abc)
-#^^^^^^^^^ variable.parameter.date
-#         ^^ source.ledger
-#           ^^^ entity.name.function.cleared
+#^^^^^^^^^^^ variable.parameter.date
+#           ^^^ source.ledger
 #              ^^^^^ string.quoted.transacton-number
 #                   ^ source.ledger
 
 2018/07/24 ! (789) some place
-#^^^^^^^^^ variable.parameter.date
-#         ^ source.ledger
-#          ^^ constant.pending
+#^^^^^^^^^^ variable.parameter.date
+#          ^^ source.ledger
 #            ^^^^^ string.quoted.transacton-number
 #                 ^ source.ledger
 #                  ^^^^^^^^^^ constant.character.payee
 
 2018/07/24  *  (xyz)  blah blah blah
-#^^^^^^^^^ variable.parameter.date
-#         ^^ source.ledger
-#           ^^^ entity.name.function.cleared
+#^^^^^^^^^^^ variable.parameter.date
+#           ^^^ source.ledger
 #              ^^^^^ string.quoted.transacton-number
 #                   ^^ source.ledger
 #                     ^^^^^^^^^^^^^^ constant.character.payee
@@ -370,18 +361,18 @@ P 2018/07/25 cesop $11.32
 #                  ^^^^^^ string.unquoted.amount
 
     a
-# <- unscoped.indent
-#^^^ unscoped.indent
+# <- source.ledger
+#^^^ source.ledger
 #   ^^ source.ledger
 
     ; comment
-# <- unscoped.indent
-#^^^ unscoped.indent
+# <- source.ledger
+#^^^ source.ledger
 #   ^^^^^^^^^ comment.comment
 
     e: parent
-# <- unscoped.indent
-#^^^ unscoped.indent
+# <- source.ledger
+#^^^ source.ledger
 #   ^^^ string.unquoted.expenses-label
 #      ^^^^^^ string.unquoted.expenses-parent
 
@@ -390,7 +381,7 @@ P 2018/07/25 cesop $11.32
 #             ^^^^^^ string.unquoted.expenses-parent
 
     e: parent: child
-#^^^ unscoped.indent
+#^^^ source.ledger
 #   ^^^ string.unquoted.expenses-label
 #      ^^^^^^^ string.unquoted.expenses-parent
 #             ^^^^^^ unscoped.account-name
@@ -420,7 +411,7 @@ P 2018/07/25 cesop $11.32
 #                   ^^^^^^^^ comment.comment
 
     e: fu: bar      $25
-#^^^ unscoped.indent
+#^^^ source.ledger
 #   ^^^ string.unquoted.expenses-label
 #      ^^^ string.unquoted.expenses-parent
 #          ^^^ unscoped.account-name
@@ -440,7 +431,7 @@ P 2018/07/25 cesop $11.32
 #                        ^^^^^^^^^ comment.comment
 
     e: fu: bar      103 abcx @ $10
-#^^^ unscoped.indent
+#^^^ source.ledger
 #   ^^^ string.unquoted.expenses-label
 #      ^^^ string.unquoted.expenses-parent
 #         ^^^^ unscoped.account-name
@@ -468,8 +459,8 @@ P 2018/07/25 cesop $11.32
 #                                         ^^^^^^^^^ comment.comment
 
     a: fu
-# <- unscoped.indent
-#^^^ unscoped.indent
+# <- source.ledger
+#^^^ source.ledger
 #   ^^^ entity.name.function.assets-label
 #      ^^ support.class.assets-parent
 
@@ -495,9 +486,28 @@ P 2018/07/25 cesop $11.32
 #          ^^^ unscoped.account-name
 #             ^^^^^^^^^^^ comment.comment
 
+    a: fu: bar      $2
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^ entity.name.function.money-in
+#                     ^ source.ledger
+
+    a: fu: bar      $
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^^ source.ledger
+
+    a: fu: bar      $-2
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^^ message.error.money-out
+#                      ^ source.ledger
+
+    a: fu: bar      $-
+#          ^^^ unscoped.account-name
+#             ^^^^^^^^^ source.ledger
+
     a: fu: bar      $25.11
 #          ^^^ unscoped.account-name
-#             ^^^^^^^^^ entity.name.function.money-in
+#             ^^^^^^^^^^^^ entity.name.function.money-in
+#                         ^source.ledger
 
     a: fu: bar      $25 ; comment
 #             ^^^^^^^^^^ entity.name.function.money-in
@@ -554,8 +564,8 @@ P 2018/07/25 cesop $11.32
 #                                            ^^^^^^^^^ comment.comment
 
     liabilities: parent
-# <- unscoped.indent
-#^^^ unscoped.indent
+# <- source.ledger
+#^^^ source.ledger
 #   ^^^^^^^^^^^^^ message.error.liabilities-label
 #                ^^^^^^ support.class.liabilities-parent
 
@@ -564,8 +574,8 @@ P 2018/07/25 cesop $11.32
 #                       ^^^^^^^^^^^^^^^^^^ unscoped.account-name
 
     l: parent
-# <- unscoped.indent
-#^^^ unscoped.indent
+# <- source.ledger
+#^^^ source.ledger
 #   ^^^ message.error.liabilities-label
 #      ^^^^^^ support.class.liabilities-parent
 
@@ -586,8 +596,8 @@ P 2018/07/25 cesop $11.32
 #             ^^^^^^^^^ entity.name.function.money-in
 
     income: wages
-# <- unscoped.indent
-#^^^ unscoped.indent
+# <- source.ledger
+#^^^ source.ledger
 #   ^^^^^^^^ entity.name.function.income-label
 #           ^^^^^ entity.name.function.income-parent
 
@@ -614,8 +624,8 @@ P 2018/07/25 cesop $11.32
 #             ^^^^^^^^^^^^ message.error.money-out
 
     equity: parent
-# <- unscoped.indent
-#^^^ unscoped.indent
+# <- source.ledger
+#^^^ source.ledger
 #   ^^^^^^^^ unscoped.equity-label
 #           ^^^^^^ unscoped.equity-parent
 
@@ -698,18 +708,17 @@ P 2018/07/25 cesop $11.32
 
     a: 401k: abc  10.000 abx @ $80.00 = 20.555 abx
 #                            ^^ keyword.at
-#                              ^^^^^^^^^^^^^^^^ string.unquoted.amount
-#                                              ^^^ support.class.commodity
+#                              ^^^^^^^^^^^^^^^^^^^^ string.unquoted.amount
 
     a: 401k: abc  10.000 abx @ $80.00 = -20.555 abx
 #                            ^^ keyword.at
-#                              ^^^^^^^^^^^^^^^^^ string.unquoted.amount
-#                                               ^^^^ support.class.commodity
+#                              ^^^^^^^^^^^^^^^^^^^^^ string.unquoted.amount
+#
 
     a: 401k: abc  -10.000 abx @ $80.00 = -20.555 abx
 #                             ^^ keyword.at
-#                               ^^^^^^^^^^^^^^^^^ string.unquoted.amount
-#                                                ^^^^ support.class.commodity
+#                               ^^^^^^^^^^^^^^^^^^^^^ string.unquoted.amount
+#
 
     e: something           $10 = $10
 #               ^^^^^^^^^^^^^^^ variable.parameter.money-out
@@ -726,3 +735,40 @@ P 2018/07/25 cesop $11.32
     i: something          $10 = $20
 #               ^^^^^^^^^^^^^^ message.error.money-out
 #                             ^^^^^ string.unquoted.amount
+
+  * a: some: thing
+#<- source.ledger
+#^^^ source.ledger
+#   ^^^ entity.name.function.assets-label
+#      ^^^^^ support.class.assets-parent
+#           ^^^^^^ unscoped.account-name
+
+  * a: something
+#<- source.ledger
+#^^^ source.ledger
+#   ^^^ entity.name.function.assets-label
+#      ^^^^^^^^^ support.class.assets-parent
+#               ^ source.ledger
+
+  *a: something
+#<- source.ledger
+#^^ source.ledger
+#  ^^^ entity.name.function.assets-label
+#     ^^^^^^^^^ support.class.assets-parent
+#              ^ source.ledger
+
+  ! a: some: thing
+#<- source.ledger
+#^^^ source.ledger
+#   ^^^ entity.name.function.assets-label
+#      ^^^^^ support.class.assets-parent
+#           ^^^^^^ unscoped.account-name
+#                 ^ source.ledger
+
+  !a: some: thing
+#<- source.ledger
+#^^ source.ledger
+#  ^^^ entity.name.function.assets-label
+#     ^^^^^ support.class.assets-parent
+#          ^^^^^^ unscoped.account-name
+#                ^ source.ledger
