@@ -133,10 +133,10 @@ You can see we're expecting standard top-level account names: expenses,
 assets, liabilities, income, and equity, with one-letter aliases for all
 but equity.
 
-![ledger higlighting](../docs/images/ledger-syntax-highlighting-5.png)
-![ledger higlighting](../docs/images/ledger-syntax-highlighting-6.png)
-![ledger higlighting](../docs/images/ledger-syntax-highlighting-7.png)
-![ledger higlighting](../docs/images/ledger-syntax-highlighting.png)
+![ledger higlighting](../docs/images/ledger-syntax-highlighting-10.png)
+![ledger higlighting](../docs/images/ledger-syntax-highlighting-11.png)
+![ledger higlighting](../docs/images/ledger-syntax-highlighting-12.png)
+![ledger higlighting](../docs/images/ledger-syntax-highlighting-13.png)
 
 [1]: https://macromates.com/manual/en/language_grammars
 [2]: https://www.sublimetext.com/docs/3/syntax.html
