@@ -20,9 +20,9 @@ variables:
 
   commodity: "[a-zA-Z_]+"
   comment_lookahead: "(?=\\s*(;|$))"
-  # =?  up front will include the equal sign in amounts for
+  # =? up front will include the equal sign in amounts for
   # balance assertions and assignments
-  amount_common: "\\s*=?\\s*\\(?\\s*\\$?\\s*"
+  amount_common: "\\s*=?\\s*\\(?\\s*[$£€¥₹]?\\s*"
   amount: "{{amount_common}}[ \\d\\.,()+*/$-]+"
   less_than_zero_lookahead: "(?={{amount_common}}-)"
   more_than_zero_lookahead: "(?={{amount_common}}\\d)"
@@ -35,48 +35,48 @@ contexts:
       push: top_line
 
     - match: "^account\\s+.*  .*$"
-      scope: invalid
+      scope: invalid.ledger
     - match: "^(account\\s+)([a-z]+: ?)([a-z0-9 ]+(?::|$))([^;]*)$"
       captures:
-        1: support.class.directive
-        2: unscoped.account-name
-        3: string.unquoted.top-level
-        4: unscoped.account-name
+        1: support.class.ledger.directive
+        2: markup.ledger.account-name
+        3: string.unquoted.ledger.top-level
+        4: markup.ledger.account-name
     - match: "^((?:tag|account)\\s+)([^ ;]+)$"
       captures:
-        1: support.class.directive
-        2: variable.parameter.name
+        1: support.class.ledger.directive
+        2: variable.parameter.ledger.name
     - match: "^(tag|account)\\s+.*[ ;].*$"
-      scope: invalid
+      scope: invalid.ledger
       # this will also mark trailing spaces as invalid but that's okay
     - match: "^commodity\\s+[^ ;]+(;|\\s+[^ ;]).*$"
-      scope: invalid
+      scope: invalid.ledger
     - match: "^(commodity\\s+)([^ ;]+)"
       captures:
-        1: support.class.directive
-        2: variable.parameter.name
+        1: support.class.ledger.directive
+        2: variable.parameter.ledger.name
     - match: "^payee\\s+.*(;|  ).*$"
-      scope: invalid
+      scope: invalid.ledger
     - match: "^payee\\S.*$"
-      scope: invalid
+      scope: invalid.ledger
     - match: "^(payee\\s+)([^;]+)$"
       captures:
-        1: support.class.directive
-        2: constant.character.name
+        1: support.class.ledger.directive
+        2: constant.character.ledger.payee
     - match: "^(\\s+note\\s+)(.*)$"
       captures:
-        1: keyword.sub-directive
-        2: comment.comment.note
+        1: keyword.ledger.sub-directive
+        2: comment.ledger
     - match: "^(\\s+(?:alias|format|default|check|assert)\\s+)(.*)$"
       captures:
-        1: keyword.sub-directive
-        2: entity.name.function.subdir-value
+        1: keyword.ledger.sub-directive
+        2: entity.name.function.ledger.subdir-value
     - match: "^(P\\s+)({{date}}\\s+)({{commodity}}\\s+)(\\$\\s*-?[\\d\\.,_]+)"
       captures:
-        1: keyword.price
-        2: variable.parameter.date
-        3: support.class.commodity
-        4: string.unquoted.amount
+        1: keyword.ledger.price
+        2: variable.parameter.ledger.date
+        3: support.class.ledger.commodity
+        4: string.unquoted.ledger.amount
 
     - match: "(?={{expenses}})"
       push: expenses
@@ -94,9 +94,9 @@ contexts:
   assets:
     - match: "({{assets}})({{account_parent}})({{account_children}})"
       captures:
-        1: entity.name.function.assets-label
-        2: support.class.assets-parent
-        3: unscoped.account-name
+        1: entity.name.function.ledger.assets-label
+        2: support.class.ledger.assets-parent
+        3: markup.ledger.account-name
     - match: "{{less_than_zero_lookahead}}"
       push: money_out
     - match: "{{more_than_zero_lookahead}}"
@@ -107,9 +107,9 @@ contexts:
   liabilities:
     - match: "({{liabilities}})({{account_parent}})({{account_children}})"
       captures:
-        1: message.error.liabilities-label
-        2: support.class.liabilities-parent
-        3: unscoped.account-name
+        1: message.error.ledger.liabilities-label
+        2: support.class.ledger.liabilities-parent
+        3: markup.ledger.account-name
     - match: "{{less_than_zero_lookahead}}"
       push: money_out
     - match: "{{more_than_zero_lookahead}}"
@@ -120,9 +120,9 @@ contexts:
   income:
     - match: "({{income}})({{account_parent}})({{account_children}})"
       captures:
-        1: entity.name.function.income-label
-        2: entity.name.function.income-parent
-        3: unscoped.account-name
+        1: entity.name.function.ledger.income-label
+        2: entity.name.function.ledger.income-parent
+        3: markup.ledger.account-name
     - match: "{{less_than_zero_lookahead}}"
       push: money_in
     - match: "{{more_than_zero_lookahead}}"
@@ -133,9 +133,9 @@ contexts:
   equity:
     - match: "({{equity}})({{account_parent}})({{account_children}})"
       captures:
-        1: unscoped.equity-label
-        2: unscoped.equity-parent
-        3: unscoped.account-name
+        1: markup.ledger.equity-label
+        2: markup.ledger.equity-parent
+        3: markup.ledger.account-name
     - match: "{{less_than_zero_lookahead}}"
       push: money_in
     - match: "{{more_than_zero_lookahead}}"
@@ -145,14 +145,14 @@ contexts:
 
   money_in:
     - match: "{{amount}}"
-      scope: entity.name.function.money-in
+      scope: entity.name.function.ledger.money-in
       push: commodity_stuff
     - match: "{{comment_lookahead}}"
       pop: true
 
   money_out:
     - match: "{{amount}}"
-      scope: message.error.money-out
+      scope: message.error.ledger.money-out
       push: commodity_stuff
     - match: "{{comment_lookahead}}"
       pop: true
@@ -160,28 +160,28 @@ contexts:
   commodity_stuff:
     - match: "({{commodity}}\\s*)?(@\\s*)?({{amount}}[^=;]*)?"
       captures:
-        '1': support.class.commodity
-        '2': keyword.at
-        '3': string.unquoted.amount
+        '1': support.class.ledger.commodity
+        '2': keyword.ledger.at
+        '3': string.unquoted.ledger.amount
     ## the following three matches allowed for the commodity to be highlighted
     ## the same on either side of a balance assertion/assignment, but couldn't
     ## easily figure out how to do the same with old tmLanguage definition,
     ## so have changed this to match and have both definitions pass same tests
     # - match: "{{commodity}}\\s*"
-    #   scope: support.class.commodity
+    #   scope: support.class.ledger.commodity
     # - match: "@\\s*"
-    #   scope: keyword.at
+    #   scope: keyword.ledger.at
     # - match: "{{amount}}"
-    #   scope: string.unquoted.amount
+    #   scope: string.unquoted.ledger.amount
     - match: "{{comment_lookahead}}"
       pop: true
 
   expenses:
     - match: "({{expenses}})({{account_parent}})({{account_children}})"
       captures:
-        1: string.unquoted.expenses-label
-        2: string.unquoted.expenses-parent
-        3: unscoped.account-name
+        1: string.unquoted.ledger.expenses-label
+        2: string.unquoted.ledger.expenses-parent
+        3: markup.ledger.account-name
     - match: "{{less_than_zero_lookahead}}"
       push: expenses_money_in
     - match: "{{more_than_zero_lookahead}}"
@@ -191,14 +191,14 @@ contexts:
 
   expenses_money_in:
     - match: "{{amount}}"
-      scope: string.unquoted.money-in
+      scope: string.unquoted.ledger.money-in.expenses
       push: commodity_stuff
     - match: "{{comment_lookahead}}"
       pop: true
 
   expenses_money_out:
     - match: "{{amount}}"
-      scope: variable.parameter.money-out
+      scope: variable.parameter.ledger.money-out.expenses
       push: commodity_stuff
     - match: "{{comment_lookahead}}"
       pop: true
@@ -208,48 +208,48 @@ contexts:
   comments_special:
     - match: "^(\\s*;;\\s*scheduler?)(\\s*;.*)$"
       captures:
-        1: keyword.scheduler-config
-        2: string.unquoted.scheduler-config
+        1: keyword.ledger.scheduler-config
+        2: string.unquoted.ledger.scheduler-config
     - match: "^\\s*;;.*\\n"
-      scope: string.unquoted.header-bold-comment
+      scope: string.unquoted.ledger.header-bold-comment
     - match: "$"
       pop: true
 
   comments:
     - match: "(\\s*;.*)(todo)(.*)$"
       captures:
-        1: comment.comment
-        2: keyword.todo
-        3: comment.comment
+        1: comment.ledger
+        2: keyword.ledger.todo
+        3: comment.ledger
     - match: "(\\s*;[^:]*?)((?::\\w+:|(?<=:)\\w+:)+)(.*)$"
       captures:
-        1: comment.comment
-        2: support.class.tag-without-value
-        3: comment.comment
+        1: comment.ledger
+        2: support.class.ledger.tag-without-value
+        3: comment.ledger
       # make payee name in tag be purple as with payee directive
     - match: "(\\s*;\\s*)([Pp]ayee: )(.*)$"
       captures:
-        1: comment.comment
-        2: support.class.tag-key
-        3: constant.character.tag-value-payee
+        1: comment.ledger
+        2: support.class.ledger.tag-key
+        3: constant.character.ledger.tag-value-payee
     - match: "(\\s*;\\s*)(\\w+: )(.*)$"
       captures:
-        1: comment.comment
-        2: support.class.tag-key
-        3: string.unquoted.tag-value
+        1: comment.ledger
+        2: support.class.ledger.tag-key
+        3: string.unquoted.ledger.tag-value
     - match: "\\s*;.*$"
-      scope: comment.comment
+      scope: comment.ledger
 
   top_line:
     - match: "({{date}}\\s+)([!*]\\s*)?"
       captures:
-        1: variable.parameter.date
+        1: variable.parameter.ledger.date
     - match: "\\s*(\\([^)]*\\))\\s*"
       captures:
-        1: string.quoted.transacton-number
+        1: string.unquoted.ledger.transaction-number
       # comes before payee regex so it won't keep matching
     - match: "{{name_terminator}}"
       pop: true
     - match: ".*?{{name_terminator}}"
-      scope: constant.character.payee
+      scope: constant.character.ledger.payee
 

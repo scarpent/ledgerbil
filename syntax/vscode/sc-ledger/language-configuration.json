@@ -1,0 +1,23 @@
+{
+    "comments": {
+        /*
+            Ledger has lots of possible line comments
+            http://www.ledger-cli.org/3.0/doc/ledger3.html#Commenting-on-your-Journal
+            ; This is a single line comment,
+            #  and this,
+            %   and this,
+            |    and this,
+            *     and this.
+            This extension supports only ;
+        */
+        "lineComment":  ";"
+    },
+    "autoClosingPairs": [
+        ["\"", "\""],
+        ["'", "'"]
+    ],
+    "surroundingPairs": [
+        ["\"", "\""],
+        ["'", "'"]
+    ]
+}

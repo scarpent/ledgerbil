@@ -1,45 +1,30 @@
-; monokai color scheme
-
-; this file describes ledger.sublime-syntax rules (not ledger.tmLanguage)
-; (they're similar, but some things changed with the newer syntax definition)
-
-; comments with one semicolon have grey fg (something like that - dim, anyway)
-; either for whole line or after non-comment stuff
+; comments with one semicolon have flint fg, either for whole line or after
+; non-comment stuff
 
 ;; comments with two semicolons have yellow fg
     ;; still yellow even if indented
-2018/07/22 payee  ;; only if at start of line or after whitespace
+2018/07/22 payee  ;; but regular comment if after other stuff
 
-;;;; comments with four semicolons have white fg and purple bg
-    ;;;; and extend to edge of window
-2018/07/22 payee  ;;;; only if at start of line or after whitespace
-; maybe you want a banner:
-;;;; ------------------------------------------------------------------------ ;
-;;;; future
-;;;; ------------------------------------------------------------------------ ;
-
-; a todo in a comment also has white fg and purple bg
-; just the last todo on a line is the specially highlighted todo
-
-; Lines with capital letters have white fg and pink bg, extending to edge
-; except for special case for prices db:
-P 2013/05/10 abcdx      $11.59
-; and for the special payee tag:
-; Payee: george
+; a todo in a regular comment has a blue fg -
+; only the last todo on a line is the specially highlighted todo
 
 ; top line
-; can omit payee
-2018/07/23
-2018/07/24 some payee
 2018/07/06 some payee           ; date has orange fg, payee has purple fg
+; payee is optional
+2018/07/23
+2019/10/19    ; comment with ommitted payee is actually the payee
+2019/10/19                      ; payee  ; comment
+2018/07/24 some payee
 2018/07/06 (1234) some payee    ; optional transaction # has yellow fg
-2018/07/06  payee               ; can have mult spaces between date and payee
+2018/07/06  payee               ; can have multiple spaces after date
 2018/07/06  (123)  payee        ; and with optional
 2018/07/06 (123)payee           ; space not required between trans # and payee
 2018/07/24 (123)
-2018/07/06 payee ;              ; first se micolon is part of payee name
-2018/07/06 ! some payee         ; pending (!) has white fg and pink bg
-2018/07/06 * some payee         ; cleared (*) has green fg
+; 2 spaces or a tab terminates a name, so "payee ;" is the payee here:
+2018/07/06 payee ;
+2018/07/06 xy ; z  ; two spaces termination makes this payee "xy ; z"
+2018/07/06 ! some payee         ; pending (!) has white fg
+2018/07/06 * some payee         ; cleared (*) has white fg
 2018/07/06 ! (abc) some payee   ; pending (!) with optional transaction #
 2018/07/06 * (xyz) some payee   ; cleared (*) with transaction #
 2018/07/06 (xyz) * some payee   ; valid but weird (payee = "* some payee")
@@ -51,8 +36,11 @@ P 2013/05/10 abcdx      $11.59
 2018/07/06 *(abc)some payee     ; space is optional after * and trans #
 2018/07/24 !
 2018/07/24 *
+; a tab character also terminates a payee name
+; https://www.ledger-cli.org/3.0/doc/ledger3.html#Transaction-notes-1
+2018/07/06 this is unfortunate	; comment
 
-; line items can have pending and cleared, too
+; pending and cleared at line item level
   ! a: xyz      ; pending
   * a: xyz      ; cleared
    !a: xyz      ; space is optional between ! and account
@@ -65,6 +53,9 @@ P 2013/05/10 abcdx      $11.59
                                     ; rest have white fg
     e: parent
     e: parent: child
+
+    e                               ; not scoping top level only
+    expenses      $5                ; you wouldn't want to do this for reasons
 
     a: checking: bank name          ; assets (a)
     assets: misc: etc: etc          ; first level (a/assets) has green fg
@@ -90,7 +81,7 @@ P 2013/05/10 abcdx      $11.59
 
 ; negative and postive dollar amounts
 
-    e: fu            $25            ; normal positive expense has orange fg
+    e: fu            $25            ; positive (normal) expense has orange fg
     e: bar           $-25           ; negative expense has yellow fg
     e: lic           ($25 + $10)    ; same for calculations
     e: ious          ($-25 - $5)    ; maybe negative expense should be income
@@ -106,7 +97,7 @@ P 2013/05/10 abcdx      $11.59
     l: the          ($25 * 8)       ; same for calculations
     l: belfry       ($-25 * 8)
 
-    a: money we have    $100        ; see how they are opposing forces
+    a: money we have    $100        ; see how they are opposing forces?
     l: money we owe     $-100
 
     i: one          $-25            ; negative income green fg (this is good)
@@ -116,6 +107,7 @@ P 2013/05/10 abcdx      $11.59
     i: please       ($25 * 10)
 
     equity: bar     $-25            ; negative equity green fg
+                                    ; (as with income, this is good)
     equity: fu      $25             ; positive equity red fg
 
 2017/12/31 balance assignments
@@ -139,14 +131,32 @@ P 2013/05/10 abcdx      $11.59
     ; of the equal sign, and yellow fg numbers for the equal sign
     ; and right side of the equal, regardless of sign or account
     ; type
-    l: credit card: man     $0 = $-56.87
-    l: credit card: man   $-10 = $-56.87
-
+    l: credit card: foo     $0 = $-56.87
+    l: credit card: foo    $10 = $-56.87
+    l: credit card: foo     $0 = $56.87
+    l: credit card: foo    $10 = $56.87
+    l: credit card: foo    $-0 = $-56.87
+    l: credit card: foo   $-10 = $-56.87
+    l: credit card: foo    $-0 = $56.87
+    l: credit card: foo   $-10 = $56.87
     a: bank                 $0 = $50
+    a: bank                $10 = $50
+    a: bank                 $0 = $-50
+    a: bank                $10 = $-50
     a: bank                $-0 = $50
+    a: bank               $-10 = $50
+    a: bank                $-0 = $-50
+    a: bank               $-10 = $-50
     e: something           $10 = $10
     e: something          $-10 = $10
+    e: something           $10 = $-10
+    e: something          $-10 = $-10
     i: something          $-10 = $-20
+    i: something          $-10 = $20
+    i: something           $10 = $-20
+    i: something           $10 = $20
+    ; currently there are only rules and tests for a commodity assignment
+    ; like this for assets
     a: 401k: abc  10.000 abx @ $80.00 = 20.555 abx
     a: 401k: abc  10.000 abx @ $80.00 = -20.555 abx
 
@@ -185,15 +195,22 @@ P 2013/05/10 abcdx      $11.59
     ; a_tag: a value :part:
     ; abc a_tag: tag value          ; this isn't a valid tag
 
-    ; special payee metadata field (cyan: yellow)
+    ; special payee metadata field (cyan: purple)
     ; Payee: some person
 
 ; misc
 
-; tag keyword (directive?) has cyan fg, name of the tag has orange fg
+; prices db line has a pink P
+P 2013/05/10 abcdx      $11.59
+
+; invalid lines have white fg and pink bg in sublime text monokai, but
+; vscode as of 2019/10/11 doesn't appear to support background colors;
+; we'll use red fg instead
+
+; tag keyword/directive has cyan fg, name of the tag has orange fg
 tag car
-tag xyz  ; this is invalid (can't have comment) pink bg, white fg
-; this is a valid tag but we'll highlight as invalid (i mean, come on)
+tag xyz  ; this is invalid (can't have comment)
+; this is a valid tag but we'll highlight as invalid (i mean, come on!)
 tag abc;
 ; this is not a valid tag because can't have have space in tag name
 tag abc ;
@@ -212,21 +229,21 @@ commodity abcdx ; comments allowed on commodities, even w/ 1 space
     format 1,000.000
     note big co 500 idx
 
-; these are invalid (pink bg, white fg)
+; these are invalid
 commodity abcdx; ; is not valid
 commodity also not valid
 
 ; payee directive has cyan fg and name of payee has purple fg
 payee name of same
 ; we'll mark valid names with semicolons as invalid
-; valid "apple;"
+; technically valid "apple;"
 payee apple;
-; valid "apple ;"
+; technically valid "apple ;"
 payee apple ;
-; valid "apple ; banana"
+; technically valid "apple ; banana"
 payee apple ; banana
-; ledger will let you have two spaces like this but it's not a comment and you
-; it will cause validation errors because in an entry, the payee name is
+; ledger will let you have two spaces like this but it's not a comment and it
+; will cause validation errors if used because in an entry, the payee name is
 ; terminated after 2 spaces
 payee apple  ; banana
 ; again two spaces isn't a good idea because of the two space termination
@@ -234,26 +251,16 @@ payee abc  xyz
 
 ; account directive has cyan fg and value has orange fg
 ; this is only for equity/income/expenses/assets/liabilities, or more
-; specifically, if no spaces in hte value
+; specifically, if no spaces in the value
 ; alias sub-directive has pink fg and value has green fg
 account assets
     alias a
 ; assets with children has white fg, "one" has yellow fg, and rest white
 account assets: one: two: three
-; comments not allowed on account line, mark as invalid (pink bg, white fg)
+; comments not allowed on account line, mark as invalid
 account assets: one: two: three  ;
 ; same for others
 account liabilities
-
-; misc combinations
-2018/07/06  payee  ; can have multiple spaces between date and payee
-2018/07/06  (123)  payee  ; and with optional
-2018/07/06 blah blah payee  ; comment blah blah todo (not really todo)
-2018/07/06 xy ; z  ; two spaces terminate the payee, making this "xy ; z"
-; a tab character also terminates a payee name
-; https://www.ledger-cli.org/3.0/doc/ledger3.html#Transaction-notes-1
-2018/07/06 this is unfortunate	; comment
-
 
 ;; ledgerbil specific --------------------------------------------------------
 
@@ -266,8 +273,13 @@ account liabilities
 
 ;; more pending and cleared ---------------------------------------------------
 
-   !l: xyz ;
-   *l: xyz ;  ; similarly to payees, can have weirdness with semicolons
+   !a: xyz
+   *a: xyz
+  ! a: xyz
+  * a: xyz
+   !l: xyz ;  ; similarly to payees, can have weirdness with semicolons
+   *l: xyz ;  ; this may be valid but we're not highlighting as so - let's
+              ; really just not do that
   * l: xyz
   ! l: xyz
    !e: xyz
@@ -278,7 +290,7 @@ account liabilities
    *i: xyz
   * i: xyz
   ! i: xyz
-   !equity: xyz	; hard tabs again
+   !equity: xyz  ; hard tabs again
    *equity: xyz
   * equity: xyz
   ! equity: xyz

@@ -1,0 +1,231 @@
+name: Ledger
+scopeName: source.ledger
+fileTypes:
+- ldg
+- ledger
+uuid: 50e628ee-56b8-4ab2-985d-8a49feff4f2d
+
+# ----------------------------------------------------------------------
+# "variables" - patterns defined as actual variables in ledger.sublime_syntax,
+#               but here we use yaml_tmlanguage_helper.py to create assorted
+#               regex monstrosities in production of ledger.YAML-tmLanguage
+#               (also had to modify things here to work in older format)
+#
+# start variables
+#
+# date                              \\d{4}[/-]\\d{2}[/-]\\d{2}
+# transaction_number                (\\([^)]*\\))?
+# name_terminator                   (?=  |\\t|$)
+# account_parent                    ([^:;]+?(?::|{{name_terminator}}))
+# account_children                  ([^;]*?{{name_terminator}})
+#
+# label_start                       ^[!*\\s]+(
+# label_end                         ?: ?)
+# expenses                          {{label_start}}e(?:xpenses){{label_end}}
+# assets                            {{label_start}}a(?:ssets){{label_end}}
+# liabilities                       {{label_start}}l(?:iabilities){{label_end}}
+# income                            {{label_start}}i(?:ncome){{label_end}}
+# equity                            {{label_start}}equity{{label_end}}
+#
+## notes on ammount_start
+##  1) =? up front will include the equal sign in amounts for balance
+##     assertions and assignments
+##  2) uses [(] instead of \\( to avoid syntax highlighting problem of *this*
+##     file in sublime text
+# amount_start                      \\s*=?\\s*[(]?\\s*[$£€¥₹]?\\s*
+# amount_end                        [ \\d\\.,()+*/$-]+
+# amount                            ({{amount_start}}{{amount_end}})
+# less_than_zero_amount             ({{amount_start}}-{{amount_end}})
+# more_than_zero_amount             ({{amount_start}}\\d(?:{{amount_end}})?)
+#
+# commodity                         [a-zA-Z_]+
+# commodity_stuff                   ({{commodity}}\\s*)(@\\s*)?{{amount}}?
+## balance assertions and balance assignments
+# balance_a                         (=[^;]+)?
+## comment_lookahead no longer used, but let's keep it around for now
+# comment_lookahead                 (?=\\s*(;|$))
+#
+# end variables
+
+# ----------------------------------------------------------------------
+
+patterns:
+
+# special comments
+
+- match: ^(\s*;;\s*scheduler?)(\s*;.*)$
+  captures:
+    '1': {name: keyword.ledger.scheduler-config}
+    '2': {name: string.unquoted.ledger.scheduler-config}
+
+- match: "^\\s*;;.*\\n"
+  name: string.unquoted.ledger.header-bold-comment
+
+# definitions / directives (account, payee, tag, commodity)
+
+- match: "^account\\s+.*  .*$"
+  name: invalid.ledger
+
+- comment: account definition with children
+  match: "^(account\\s+)([a-z]+: ?)([a-z0-9 ]+(?::|$))([^;]*)$"
+  captures:
+    '1': {name: support.class.ledger.directive}
+    '2': {name: markup.ledger.account-name}
+    '3': {name: string.unquoted.ledger.top-level}
+    '4': {name: markup.ledger.account-name}
+
+- comment: top level account/tag definition
+  match: "^((?:tag|account)\\s+)([^ ;]+)$"
+  captures:
+    '1': {name: support.class.ledger.directive}
+    '2': {name: variable.parameter.ledger.name}
+
+- comment: comments not allowed in account/tag definitions
+  match: "^(tag|account)\\s+.*[ ;].*$"
+  name: invalid.ledger
+
+- comment: will also mark trailing spaces as invalid but that's o.k.
+  match: "^commodity\\s+[^ ;]+(;|\\s+[^ ;]).*$"
+  name: invalid.ledger
+
+- comment: technically *could* have semicolons, but that way lies madness
+  match: "^payee\\s+.*(;|  ).*$"
+  name: invalid.ledger
+
+- match: "^payee\\S.*$"
+  name: invalid.ledger
+
+- match: "^(payee\\s+)([^;]+)$"
+  captures:
+    '1': {name: support.class.ledger.directive}
+    '2': {name: constant.character.ledger.payee}
+
+- match: "^(commodity\\s+)([^ ;]+)"
+  captures:
+    '1': {name: support.class.ledger.directive}
+    '2': {name: variable.parameter.ledger.name}
+
+# sub-directives
+
+- match: "^(\\s+note\\s+)(.*)$"
+  captures:
+    '1': {name: keyword.ledger.sub-directive}
+    '2': {name: comment.ledger}
+
+- match: "^(\\s+(?:alias|format|default|check|assert)\\s+)(.*)$"
+  captures:
+    '1': {name: keyword.ledger.sub-directive}
+    '2': {name: entity.name.function.ledger.subdir-value}
+
+# price history entry
+
+- match: "^(P\\s+)({{date}}\\s+)({{commodity}}\\s+)(\\$\\s*-?[\\d\\.,_]+)"
+  captures:
+    '1': {name: keyword.ledger.price}
+    '2': {name: variable.parameter.ledger.date}
+    '3': {name: support.class.ledger.commodity}
+    '4': {name: string.unquoted.ledger.amount}
+
+# transaction top line
+
+- match: "^({{date}}\\s+)[!*]?\\s*{{transaction_number}}\\s*(.+?)?{{name_terminator}}"
+  captures:
+    '1': {name: variable.parameter.ledger.date}
+    '2': {name: string.unquoted.ledger.transaction-number}
+    '3': {name: constant.character.ledger.payee}
+
+# expenses
+
+- match: "{{expenses}}{{account_parent}}{{account_children}}(?:{{more_than_zero_amount}}|{{less_than_zero_amount}})?(?:{{commodity_stuff}})?(?:{{balance_a}})?"
+  captures:
+    '1': {name: string.unquoted.ledger.expenses-label}
+    '2': {name: string.unquoted.ledger.expenses-parent}
+    '3': {name: markup.ledger.account-name}
+    '4': {name: variable.parameter.ledger.money-out.expenses}
+    '5': {name: string.unquoted.ledger.money-in.expenses}
+    '6': {name: support.class.ledger.commodity}
+    '7': {name: keyword.ledger.at}
+    '8': {name: string.unquoted.ledger.amount}
+    '9': {name: string.unquoted.ledger.amount}
+
+# assets
+
+- match: "{{assets}}{{account_parent}}{{account_children}}(?:{{more_than_zero_amount}}|{{less_than_zero_amount}})?(?:{{commodity_stuff}})?(?:{{balance_a}})?"
+  captures:
+    '1': {name: entity.name.function.ledger.assets-label}
+    '2': {name: support.class.ledger.assets-parent}
+    '3': {name: markup.ledger.account-name}
+    '4': {name: entity.name.function.ledger.money-in}
+    '5': {name: message.error.ledger.money-out}
+    '6': {name: support.class.ledger.commodity}
+    '7': {name: keyword.ledger.at}
+    '8': {name: string.unquoted.ledger.amount}
+    '9': {name: string.unquoted.ledger.amount}
+
+# liabilities
+
+- match: "{{liabilities}}{{account_parent}}{{account_children}}(?:{{more_than_zero_amount}}|{{less_than_zero_amount}})?(?:{{commodity_stuff}})?(?:{{balance_a}})?"
+  captures:
+    '1': {name: message.error.ledger.liabilities-label}
+    '2': {name: support.class.ledger.liabilities-parent}
+    '3': {name: markup.ledger.account-name}
+    '4': {name: entity.name.function.ledger.money-in}
+    '5': {name: message.error.ledger.money-out}
+    '6': {name: support.class.ledger.commodity}
+    '7': {name: keyword.ledger.at}
+    '8': {name: string.unquoted.ledger.amount}
+    '9': {name: string.unquoted.ledger.amount}
+
+# income
+
+- match: "{{income}}{{account_parent}}{{account_children}}(?:{{more_than_zero_amount}}|{{less_than_zero_amount}})?(?:{{commodity_stuff}})?(?:{{balance_a}})?"
+  captures:
+    '1': {name: entity.name.function.ledger.income-label}
+    '2': {name: entity.name.function.ledger.income-parent}
+    '3': {name: markup.ledger.account-name}
+    '4': {name: message.error.ledger.money-out}
+    '5': {name: entity.name.function.ledger.money-in}
+    '6': {name: support.class.ledger.commodity}
+    '7': {name: keyword.ledger.at}
+    '8': {name: string.unquoted.ledger.amount}
+    '9': {name: string.unquoted.ledger.amount}
+
+# equity
+
+- match: "{{equity}}{{account_parent}}{{account_children}}(?:{{more_than_zero_amount}}|{{less_than_zero_amount}})?(?:{{commodity_stuff}})?(?:{{balance_a}})?"
+  captures:
+    '1': {name: markup.ledger.equity-label}
+    '2': {name: markup.ledger.equity-parent}
+    '3': {name: markup.ledger.account-name}
+    '4': {name: message.error.ledger.money-out}
+    '5': {name: entity.name.function.ledger.money-in}
+    '6': {name: support.class.ledger.commodity}
+    '7': {name: keyword.ledger.at}
+    '8': {name: string.unquoted.ledger.amount}
+    '9': {name: string.unquoted.ledger.amount}
+
+# comments
+
+- match: "(\\s*;.*)(todo)(.*)$"
+  captures:
+    '1': {name: comment.ledger}
+    '2': {name: keyword.ledger.todo}
+    '3': {name: comment.ledger}
+- match: "(\\s*;[^:]*?)((?::\\w+:|(?<=:)\\w+:)+)(.*)$"
+  captures:
+    '1': {name: comment.ledger}
+    '2': {name: support.class.ledger.tag-without-value}
+    '3': {name: comment.ledger}
+- comment: make payee name in tag be same as in payee directive
+  match: "(\\s*;\\s*)([Pp]ayee: )(.*)$"
+  captures:
+    '1': {name: comment.ledger}
+    '2': {name: support.class.ledger.tag-key}
+    '3': {name: constant.character.ledger.tag-value-payee}
+- match: "(\\s*;\\s*)(\\w+: )(.*)$"
+  captures:
+    '1': {name: comment.ledger}
+    '2': {name: support.class.ledger.tag-key}
+    '3': {name: string.unquoted.ledger.tag-value}
+- match: "\\s*;.*$"
+  name: comment.ledger

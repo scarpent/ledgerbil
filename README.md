@@ -33,9 +33,9 @@ programs and their data, which you can learn about at:
 https://plaintextaccounting.org/
 
 At a minimum, all you really need is a text editor for data entry. I'm
-using Sublime Text for my journal, and with the [syntax highlighting
-files included in this repo](/syntax), I find it pleasant to work with
-and look upon:
+using VSCode for my journal, and with the [syntax highlighting files 
+included in this repo](/syntax), I find it pleasant to work with and 
+look upon:
 
 ![ledger file with syntax highlighting](docs/images/ledger-syntax-highlighting.png "Syntax Highlighting")
 

@@ -1,0 +1,50 @@
+{
+    "editor.tokenColorCustomizations": {
+        "textMateRules": [
+            {
+                "scope": ["comment.ledger"],
+                "settings": {"fontStyle": "", "foreground": "#75715e"} // flint
+            },
+            {
+                "scope": ["constant.character.ledger"],
+                "settings": {"fontStyle": "", "foreground": "#ae81ff"} // light slate blue (purple)
+            },
+            {
+                "scope": ["entity.name.function.ledger"],
+                "settings": {"fontStyle": "", "foreground": "#a6e22e"} // las palmas (green)
+            },
+            {
+                "scope": ["invalid.ledger"],
+                "settings": {"fontStyle": "", "foreground": "#ac1111"} // fire engine red
+            },
+            {
+                "scope": ["keyword.ledger"],
+                "settings": {"fontStyle": "", "foreground": "#f92672"} // radical red (pink)
+            },
+            {
+                "scope": ["keyword.ledger.todo"],
+                "settings": {"fontStyle": "", "foreground": "#458af3"} // cobalt (blue)
+            },
+            {
+                "scope": ["markup.ledger"],
+                "settings": {"fontStyle": "", "foreground": "#ffffff"} // white
+            },
+            {
+                "scope": ["message.error.ledger"],
+                "settings": {"fontStyle": "", "foreground": "#f83333"} // red orange
+            },
+            {
+                "scope": ["string.unquoted.ledger"],
+                "settings": {"fontStyle": "", "foreground": "#e6db74"} // wild rice (yellow)
+            },
+            {
+                "scope": ["support.class.ledger"],
+                "settings": {"fontStyle": "", "foreground": "#66d9ef"} // turquoise blue (cyan)
+            },
+            {
+                "scope": ["variable.parameter.ledger"],
+                "settings": {"fontStyle": "", "foreground": "#fd971f"} // dark tangerine (orange)
+            }
+        ]
+    }
+}

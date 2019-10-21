@@ -1,0 +1,41 @@
+{
+    "name": "sc-ledger",
+    "displayName": "SC Ledger",
+    "description": "Ledger syntax definition",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/scarpent/ledgerbil.git"
+    },
+    "publisher": "Scott Carpenter",
+    "icon": "images/icon.png",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.39.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [
+            {
+                "id": "ledger",
+                "aliases": [
+                    "Ledger",
+                    "ledger"
+                ],
+                "extensions": [
+                    ".ledger",
+                    ".ldg"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "ledger",
+                "scopeName": "source.ledger",
+                "path": "./syntaxes/ledger.tmLanguage"
+            }
+        ]
+    }
+}
