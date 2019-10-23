@@ -1,8 +1,8 @@
 *.iml
 *.out
 *.pyc
-*.sublime-*
-!*.sublime-syntax
+*.sublime-project
+*.sublime-workspace
 .DS_Store
 .cache
 .coverage

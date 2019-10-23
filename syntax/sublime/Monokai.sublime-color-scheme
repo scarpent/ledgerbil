@@ -1,0 +1,113 @@
+{
+    "globals":
+    {
+        "invisibles": "#555555",
+    },
+    "rules":
+    [
+        {
+            "name": "Variable Parameter (to a function)",
+            "scope": "variable.parameter",
+            "font_style": "normal"
+        },
+        {
+            "name": "Variable Language (e.g. self)",
+            "scope": "variable.language",
+            "font_style": "normal"
+        },
+        {
+            "name": "Storage Type (e.g. def, class)",
+            "scope": "storage.type",
+            "font_style": "normal"
+        },
+        {
+            "name": "Support Type (e.g. built-in functions like list)",
+            "scope": "support.type",
+            "font_style": "normal"
+        },
+        {
+            "name": "Support Class",
+            "scope": "support.class",
+            "font_style": "normal"
+        },
+        {
+            "name": "Inherited Class",
+            "scope": "entity.other.inherited-class",
+            "font_style": "normal"
+        },
+        {
+            "name": "Python Docstrings",
+            "scope": "comment.block.documentation.python",
+            "foreground": "var(yellow)"
+        },
+        // ledger start ------------------------------------------------------
+        // (i think these are default Monokai colors but let's be explicit)
+        {
+            "name": "Ledger comments",
+            "scope": "comment.ledger",
+            "font_style": "normal",
+            "foreground": "#75715e" // flint
+        },
+        {
+            "name": "Ledger payee",
+            "scope": "constant.character.ledger",
+            "font_style": "normal",
+            "foreground": "#ae81ff" // light slate blue (purple)
+        },
+        {
+            "name": "Ledger assets/income stuff, money in, sub-directive value",
+            "scope": "entity.name.function.ledger",
+            "font_style": "normal",
+            "foreground": "#a6e22e" // las palmas (green)
+        },
+        {
+            "name": "Ledger invalid",
+            "scope": "invalid.ledger",
+            "font_style": "normal",
+            "foreground": "#ac1111",
+            "background": "#272822" // dark
+        },
+        {
+            "name": "Ledger @, price, scheduler-config, sub-directive",
+            "scope": "keyword.ledger",
+            "font_style": "normal",
+            "foreground": "#f92672" // radical red (pink)
+        },
+        {
+            "name": "Ledger todo",
+            "scope": "keyword.ledger.todo",
+            "font_style": "normal",
+            "foreground": "#458af3" // cobalt (blue)
+        },
+        {
+            "name": "Ledger account name, equity stuff",
+            "scope": "markup.ledger",
+            "font_style": "normal",
+            "foreground": "#ffffff" // white
+        },
+        {
+            "name": "Ledger liabilities, money out",
+            "scope": "message.error.ledger",
+            "font_style": "normal",
+            "foreground": "#f83333" // red orange
+        },
+        {
+            "name": "Ledger trans #, amount, expenses stuff, bold comment, money in (expenses), scheduler config, tag-level, account def top-level",
+            "scope": "string.unquoted.ledger",
+            "font_style": "normal",
+            "foreground": "#e6db74" // wild rice (yellow)
+        },
+        {
+            "name": "Ledger assets/liabilities parent, commodity, directive, tag key",
+            "scope": "support.class.ledger",
+            "font_style": "normal",
+            "foreground": "#66d9ef" // turquoise blue (cyan)
+        },
+        {
+            "name": "Ledger date, money out (expenses), tag/account name",
+            "scope": "variable.parameter.ledger",
+            "font_style": "normal",
+            "foreground": "#fd971f" // dark tangerine (orange)
+        },
+    ]
+}
