@@ -37,7 +37,7 @@ using VSCode for my journal, and with the [syntax highlighting files
 included in this repo](/syntax), I find it pleasant to work with and 
 look upon:
 
-![ledger file with syntax highlighting](docs/images/ledger-syntax-highlighting.png "Syntax Highlighting")
+![ledger file with syntax highlighting](docs/images/ledger-syntax-highlighting-0.png)
 
 Why yet another tool? Why ledgerbil? I had my own ideas for features,
 and it's fun to have a project to work on. Let's look at a few examples 

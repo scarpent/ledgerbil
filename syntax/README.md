@@ -15,7 +15,7 @@ variants and chose scopes that looked good to me (initially in Sublime
 Text SoDaReloaded theme). Included here are settings for both editors
 that match any screenshots you see in this repo, like this one:
 
-![ledger higlighting](../docs/images/ledger-syntax-highlighting.png)
+![ledger higlighting](../docs/images/ledger-syntax-highlighting-0.png)
 
 Below are instructions on using the ledger definitions in either editor,
 along with theme coloring, and then more on testing, building, and
@@ -133,10 +133,9 @@ You can see we're expecting standard top-level account names: expenses,
 assets, liabilities, income, and equity, with one-letter aliases for all
 but equity.
 
-![ledger higlighting](../docs/images/ledger-syntax-highlighting-10.png)
-![ledger higlighting](../docs/images/ledger-syntax-highlighting-11.png)
-![ledger higlighting](../docs/images/ledger-syntax-highlighting-12.png)
-![ledger higlighting](../docs/images/ledger-syntax-highlighting-13.png)
+![ledger higlighting](../docs/images/ledger-syntax-highlighting-1.png)
+![ledger higlighting](../docs/images/ledger-syntax-highlighting-2.png)
+![ledger higlighting](../docs/images/ledger-syntax-highlighting-3.png)
 
 [1]: https://macromates.com/manual/en/language_grammars
 [2]: https://www.sublimetext.com/docs/3/syntax.html

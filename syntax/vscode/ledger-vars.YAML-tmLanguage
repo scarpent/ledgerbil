@@ -19,13 +19,14 @@ uuid: 50e628ee-56b8-4ab2-985d-8a49feff4f2d
 # account_parent                    ([^:;]+?(?::|{{name_terminator}}))
 # account_children                  ([^;]*?{{name_terminator}})
 #
-# label_start                       ^[!*\\s]+(
+# virtual_posting_start             [(\\[]?
+# label_start                       ^[!*\\s]+({{virtual_posting_start}}
 # label_end                         ?: ?)
-# expenses                          {{label_start}}e(?:xpenses){{label_end}}
-# assets                            {{label_start}}a(?:ssets){{label_end}}
-# liabilities                       {{label_start}}l(?:iabilities){{label_end}}
-# income                            {{label_start}}i(?:ncome){{label_end}}
-# equity                            {{label_start}}equity{{label_end}}
+# expenses                          {{label_start}}[Ee](?:xpenses){{label_end}}
+# assets                            {{label_start}}[Aa](?:ssets){{label_end}}
+# liabilities                       {{label_start}}[Ll](?:iabilities){{label_end}}
+# income                            {{label_start}}[Ii](?:ncome){{label_end}}
+# equity                            {{label_start}}[Ee]quity{{label_end}}
 #
 ## notes on ammount_start
 ##  1) =? up front will include the equal sign in amounts for balance

@@ -12,4 +12,4 @@ With the color settings [here][3], I think it looks pretty:
 [1]: https://www.ledger-cli.org/
 [2]: https://github.com/scarpent/ledgerbil/tree/master/syntax
 [3]: https://github.com/scarpent/ledgerbil/tree/master/syntax/vscode/vscode-settings.json
-[4]: https://raw.githubusercontent.com/scarpent/ledgerbil/master/docs/images/ledger-syntax-highlighting.png
+[4]: https://raw.githubusercontent.com/scarpent/ledgerbil/master/docs/images/ledger-syntax-highlighting-0.png

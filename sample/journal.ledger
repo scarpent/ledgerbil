@@ -12,14 +12,14 @@
     l: car loan: herbie                     $-3,500
     equity: opening balances
 
-2017/11/01 food and stuff
+2017/11/03 pizza unlimited
+    e: food: take home
+    l: credit card: mega                    $-17.73
+
+2017/11/10 food and stuff
     e: food: groceries                                  ; argh: this is a tag!
     e: home: stuff: in                      $10
   ! l: credit card: mega                    $-32.87
-
-2017/11/10 pizza unlimited
-    e: food: take home
-    l: credit card: mega                    $-17.73
 
 2017/11/15 johnny paycheck
     i: wages: gross pay                     $-2,100

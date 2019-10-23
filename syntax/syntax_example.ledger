@@ -79,6 +79,27 @@
     equity: blah: blah              ; equity has white fg all the way
     equity: blah
 
+; virtual postings
+
+    (e: twas)
+    (expenses: brillig: uffish)
+    (a: slithy)
+    (assets:  toves)
+    (l: mimsy)
+  * (liabilities: borogoves)
+    (i: jabberwock: vorpal)
+    (income: jubjub)
+    (equity: bandersnatch)
+    [e: twas]
+  ! [expenses: brillig]
+    [a: slithy]
+    [assets:  toves]
+    [l: mimsy]
+    [liabilities: borogoves: gimble]
+    [i: jabberwock]
+    [income: jubjub]
+    [equity: bandersnatch]
+
 ; negative and postive dollar amounts
 
     e: fu            $25            ; positive (normal) expense has orange fg

@@ -10,13 +10,14 @@ variables:
   account_parent: "[^:;]+?(?::|{{name_terminator}})"
   account_children: "[^;]*?{{name_terminator}}"
 
-  label_start: "(?<!^)\\b"
-  label_end: "?: ?"
-  expenses: "{{label_start}}e(?:xpenses){{label_end}}"
-  assets: "{{label_start}}a(?:ssets){{label_end}}"
-  liabilities: "{{label_start}}l(?:iabilities){{label_end}}"
-  income: "{{label_start}}i(?:ncome){{label_end}}"
-  equity: "{{label_start}}equity{{label_end}}"
+  virtual_posting_start: "[(\\[]?"
+  label_start: "^[!*\\s]+({{virtual_posting_start}}"
+  label_end: "?: ?)"
+  expenses: "{{label_start}}[Ee](?:xpenses){{label_end}}"
+  assets: "{{label_start}}[Aa](?:ssets){{label_end}}"
+  liabilities: "{{label_start}}[Ll](?:iabilities){{label_end}}"
+  income: "{{label_start}}[Ii](?:ncome){{label_end}}"
+  equity: "{{label_start}}[Ee]quity{{label_end}}"
 
   commodity: "[a-zA-Z_]+"
   comment_lookahead: "(?=\\s*(;|$))"
@@ -92,7 +93,7 @@ contexts:
     - include: comments
 
   assets:
-    - match: "({{assets}})({{account_parent}})({{account_children}})"
+    - match: "{{assets}}({{account_parent}})({{account_children}})"
       captures:
         1: entity.name.function.ledger.assets-label
         2: support.class.ledger.assets-parent
@@ -105,7 +106,7 @@ contexts:
       pop: true
 
   liabilities:
-    - match: "({{liabilities}})({{account_parent}})({{account_children}})"
+    - match: "{{liabilities}}({{account_parent}})({{account_children}})"
       captures:
         1: message.error.ledger.liabilities-label
         2: support.class.ledger.liabilities-parent
@@ -118,7 +119,7 @@ contexts:
       pop: true
 
   income:
-    - match: "({{income}})({{account_parent}})({{account_children}})"
+    - match: "{{income}}({{account_parent}})({{account_children}})"
       captures:
         1: entity.name.function.ledger.income-label
         2: entity.name.function.ledger.income-parent
@@ -131,7 +132,7 @@ contexts:
       pop: true
 
   equity:
-    - match: "({{equity}})({{account_parent}})({{account_children}})"
+    - match: "{{equity}}({{account_parent}})({{account_children}})"
       captures:
         1: markup.ledger.equity-label
         2: markup.ledger.equity-parent
@@ -177,7 +178,7 @@ contexts:
       pop: true
 
   expenses:
-    - match: "({{expenses}})({{account_parent}})({{account_children}})"
+    - match: "{{expenses}}({{account_parent}})({{account_children}})"
       captures:
         1: string.unquoted.ledger.expenses-label
         2: string.unquoted.ledger.expenses-parent

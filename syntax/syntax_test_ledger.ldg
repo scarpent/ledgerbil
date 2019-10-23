@@ -711,3 +711,88 @@ P 2018/07/25 cesop $11.32
 #  ^^^ entity.name.function.ledger.assets-label
 #     ^^^^^ support.class.ledger.assets-parent
 #          ^^^^^^ markup.ledger.account-name
+
+
+    (e: twas)
+#   ^^^^ string.unquoted.ledger.expenses-label
+#       ^^^^^ string.unquoted.ledger.expenses-parent
+
+    (expenses: brillig: uffish)
+#   ^^^^^^^^^^^ string.unquoted.ledger.expenses-label
+#              ^^^^^^^^ string.unquoted.ledger.expenses-parent
+#                      ^^^^^^^^ markup.ledger.account-name
+
+    (a: slithy: beamish)
+#   ^^^^ entity.name.function.ledger.assets-label
+#       ^^^^^^^ support.class.ledger.assets-parent
+#              ^^^^^^^^^ markup.ledger.account-name
+
+    (assets:  toves)
+#   ^^^^^^^^^ entity.name.function.ledger.assets-label
+#            ^^^^^^^ support.class.ledger.assets-parent
+
+    (l: mimsy)
+#   ^^^^ message.error.ledger.liabilities-label
+#       ^^^^^^ support.class.ledger.liabilities-parent
+
+  * (liabilities: borogoves)
+#   ^^^^^^^^^^^^^^ message.error.ledger.liabilities-label
+#                 ^^^^^^^^^^ support.class.ledger.liabilities-parent
+
+    (i: jabberwock: vorpal)
+#   ^^^^ entity.name.function.ledger.income-label
+#       ^^^^^^^^^^^ entity.name.function.ledger.income-parent
+
+    (income: jubjub)
+#   ^^^^^^^^^ entity.name.function.ledger.income-label
+#            ^^^^^^^ entity.name.function.ledger.income-parent
+
+    (equity: bandersnatch)
+#   ^^^^^^^^^ markup.ledger.equity-label
+#            ^^^^^^^^^^^^^ markup.ledger.equity-parent
+
+    [e: twas]
+#   ^^^^ string.unquoted.ledger.expenses-label
+#       ^^^^^ string.unquoted.ledger.expenses-parent
+
+  ! [expenses: brillig]
+#   ^^^^^^^^^^^ string.unquoted.ledger.expenses-label
+#              ^^^^^^^^ string.unquoted.ledger.expenses-parent
+
+    [l: mimsy]
+#   ^^^^ message.error.ledger.liabilities-label
+#       ^^^^^^ support.class.ledger.liabilities-parent
+
+    [liabilities: borogoves: gimble]
+#   ^^^^^^^^^^^^^^ message.error.ledger.liabilities-label
+#                 ^^^^^^^^^^ support.class.ledger.liabilities-parent
+#                           ^^^^^^^^ markup.ledger.account-name
+
+    Assets:abc
+#   ^^^^^^^ entity.name.function.ledger.assets-label
+
+    A:abc
+#   ^^ entity.name.function.ledger.assets-label
+
+    Expenses:xyz
+#   ^^^^^^^^^ string.unquoted.ledger.expenses-label
+
+    E:xyz
+#   ^^ string.unquoted.ledger.expenses-label
+
+    Income: foo
+#   ^^^^^^^^ entity.name.function.ledger.income-label
+
+    I: bar
+#   ^^^ entity.name.function.ledger.income-label
+
+    Liabilities:apple
+#   ^^^^^^^^^^^^ message.error.ledger.liabilities-label
+
+    L:banana
+#   ^^ message.error.ledger.liabilities-label
+
+    Equity:cantaloupe
+#   ^^^^^^^ markup.ledger.equity-label
+
+
