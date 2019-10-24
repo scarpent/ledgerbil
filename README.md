@@ -451,8 +451,15 @@ restored when the reconciler is restarted.
 ### mark / unmark
 
 Set transactions as pending (`!`) or remove the pending mark. You can
-enter one or more lines, or "all" for all lines. Giving a single number
-by itself with no command will be interpreted as a mark command.
+enter one or more line numbers, unique transaction amounts, or "all" for
+all lines.
+
+If the amount isn't unique in the listed transactions, a line number is
+required instead. To specify an amount, include a decimal point, for 
+example: `12.` or `6.37`
+
+Giving a single line number or amount by itself with no command will be
+interpreted as a mark command.
 
 ```
 > mark 1 2
@@ -474,6 +481,14 @@ to zero: $0.00
 
 ending date: 2016/10/29 ending balance: $70.00 cleared: $100.00
 to zero: $ -20.00
+
+> mark -20.
+
+1. 2016/10/26    $-10.00 ! lorem
+2. 2016/10/29    $-20.00 ! ipsum
+
+ending date: 2016/10/29 ending balance: $70.00 cleared: $100.00
+to zero: $ 0.00
 ```
 
 The ledger file is saved after every mark/unmark command.

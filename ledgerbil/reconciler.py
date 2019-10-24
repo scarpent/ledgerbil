@@ -81,7 +81,7 @@ class Reconciler(cmd.Cmd):
 
         if command in self.aliases:
             return self.aliases[command](arg)
-        elif util.is_integer(line):
+        elif util.is_integer(line) or util.is_float(line):
             return self.do_mark(line)
         else:
             print(self.UNKNOWN_SYNTAX + line)
@@ -126,13 +126,18 @@ class Reconciler(cmd.Cmd):
     def do_mark(self, args):
         """Mark a transaction as pending (!)
 
+        Transactions can be marked by giving the line number, or
+        by specifying a unique amount. If an amount isn't unique,
+        the line number is required. To indicate an amount,
+        include a decimal point, for example: 12. or 6.37
+
         Syntax: mark <#> or <# ... #>
                 <#>
                 mark all
 
-        - The numbered line of a transaction, or multiple numbers
-          separated by spaces
-        - Without "mark", a single transaction number
+        - The transaction number or amount, or multiple line
+          numbers or amounts separated by spaces
+        - Without "mark", a single transaction number or amount
         - "all" to mark all uncleared transactions
         """
         self.mark_or_unmark(args, mark=True)
@@ -140,11 +145,16 @@ class Reconciler(cmd.Cmd):
     def do_unmark(self, args):
         """Remove pending mark (!) from transaction
 
+        Transactions can be unmarked by giving the line number, or
+        by specifying a unique amount. If an amount isn't unique,
+        the line number is required. To indicate an amount,
+        include a decimal point, for example: 12. or 6.37
+
         Syntax: unmark <#>
                 unmark all
 
-        - The numbered line of a transaction, or multiple numbers
-          separated by spaces
+        - The transaction number or amount, or multiple line
+          numbers or amounts separated by spaces
         - "all" to unmark all pending transactions
         """
         self.mark_or_unmark(args, mark=False)
@@ -245,10 +255,25 @@ class Reconciler(cmd.Cmd):
                 f'"{self.get_rec_account_matched()}": {sorted(list(symbols))}'
             )
 
+    def get_current_listing_index_from_amount(self, amount):
+        try:
+            matches = [key for key, thing in self.current_listing.items()
+                       if float(thing.rec_amount) == float(amount)]
+        except ValueError:
+            matches = []
+
+        if not matches:
+            return None, f'Amount not found: {amount}\n'
+        elif len(matches) > 1:
+            return None, (f'More than one match for amount: {amount} '
+                          '(Specify a line number instead.)\n')
+        else:
+            return matches[0], None
+
     def mark_or_unmark(self, args, mark=True):
         args = util.parse_args(args)
         if not args:
-            print('*** Transaction number(s) required')
+            print('*** Transaction numbers or amounts required')
             return
 
         if args[0].lower() == 'all':
@@ -261,6 +286,12 @@ class Reconciler(cmd.Cmd):
         at_least_one_success = False
         messages = ''
         for num in args:
+            if '.' in num:
+                num, message = self.get_current_listing_index_from_amount(num)
+                if message:
+                    messages += message
+                    continue
+
             if num not in self.current_listing:
                 messages += f'Transaction not found: {num}\n'
                 continue

@@ -59,6 +59,14 @@ def is_integer(value):
         return False
 
 
+def is_float(value):
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
+
+
 def get_float(value):
     return float(re.sub(r'[ $,]', '', value))
 

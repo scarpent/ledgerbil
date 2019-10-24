@@ -68,7 +68,11 @@
     e: taxes: medicare                      $3.63
     a: checking
 
-2018/08/03
+2018/08/02 gas n go
+    e: car: gas
+    a: cash                                 $-12
+
+2018/08/04
     e: food: take home
     a: cash                                 $-12
 
