@@ -109,24 +109,30 @@ def get_args(args):
         "--reconcile",
         type=str,
         metavar="ACCT",
-        help="interactively reconcile ledger file(s) with this account regex; "
-        "scheduler/sort have no effect if also specified",
+        help=(
+            "interactively reconcile ledger file(s) with this account regex; "
+            "scheduler/sort have no effect if also specified"
+        ),
     )
     parser.add_argument(
         "-R",
         "--reconciled-status",
         action="store_true",
-        help="show accounts where reconciler previous balance differs "
-        "from cleared balance in ledger",
+        help=(
+            "show accounts where reconciler previous balance "
+            "differs from cleared balance in ledger"
+        ),
     )
     parser.add_argument(
         "-s",
         "--schedule",
         type=str,
         metavar="FILE",
-        help="scheduled transactions file, with new entries to be added to -f ledger "
-        "file; if given multiple ledger files, will use the first; if --sort also "
-        "specified, sorts the ledger file after entries have been added",
+        help=(
+            "scheduled transactions file, with new entries to be added to -f ledger "
+            "file; if given multiple ledger files, will use the first; if --sort also "
+            "specified, sorts the ledger file after entries have been added"
+        ),
     )
     parser.add_argument(
         "-n",

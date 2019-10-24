@@ -515,8 +515,10 @@ def get_args(args):
         "--payees",
         action="store_true",
         default=False,
-        help="show results by payee (results may be nonsensical "
-        "if you do not specify accounts, e.g. expenses)",
+        help=(
+            "show results by payee (results may be nonsensical "
+            "if you do not specify accounts, e.g. expenses)"
+        ),
     )
     parser.add_argument(
         "--net-worth",
@@ -544,8 +546,10 @@ def get_args(args):
         "--sort",
         type=str,
         default=SORT_DEFAULT,
-        help='sort by specified column header, or "row" to sort by account or '
-        "payee (default: by total)",
+        help=(
+            'sort by specified column header, or "row" to sort '
+            "by account or payee (default: by total)"
+        ),
     )
     parser.add_argument(
         "-t",
