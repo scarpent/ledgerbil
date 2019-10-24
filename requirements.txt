@@ -5,6 +5,7 @@ pytest==3.6.2
 pytest-cov==2.5.1
 
 # utils
+black==19.3b0
 flake8==3.6.0
 flake8-bugbear==18.8.0
 flake8-builtins==1.4.1

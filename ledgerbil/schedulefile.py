@@ -3,7 +3,6 @@ from .schedulething import ScheduleThing
 
 
 class ScheduleFile(LedgerFile):
-
     def __init__(self, filename):
         ScheduleThing.do_file_config = True
         ScheduleThing.enter_days = 0
@@ -22,4 +21,4 @@ class ScheduleFile(LedgerFile):
             if thing.is_transaction:
                 return thing.get_date_string()
 
-        return ''
+        return ""

@@ -15,36 +15,25 @@ from ..colorable import Colorable
 from ..settings_getter import get_setting
 from ..util import get_date, parse_args
 from .runner import get_ledger_output
-from .util import (
-    get_account_balance, get_first_dollar_amount_float, get_payee_subtotal
-)
+from .util import get_account_balance, get_first_dollar_amount_float, get_payee_subtotal
 
-TOTAL_HEADER = 'Total'
+TOTAL_HEADER = "Total"
 SORT_DEFAULT = TOTAL_HEADER.lower()
-EMPTY_VALUE = ''
+EMPTY_VALUE = ""
 
 
 def get_grid_report(args, ledger_args):
-    unit = 'month' if args.month else 'year'
-    period_names, current_period = get_period_names(
-        args,
-        ledger_args,
-        unit
-    )
+    unit = "month" if args.month else "year"
+    period_names, current_period = get_period_names(args, ledger_args, unit)
     if not period_names:
-        return ''
+        return ""
 
     # Row headers: i.e. accounts, payees, net worth (things with amounts)
-    row_headers, columns = get_columns(
-        args,
-        ledger_args,
-        period_names,
-        current_period
-    )
+    row_headers, columns = get_columns(args, ledger_args, period_names, current_period)
     # Many queries with no results will come up empty on period names and
     # return above, but some, for example queries with "and" in them, may not
     if not row_headers:
-        return ''
+        return ""
 
     rows = get_rows(
         row_headers,
@@ -53,7 +42,7 @@ def get_grid_report(args, ledger_args):
         args.sort,
         args.limit_rows,
         args.total_only,
-        no_total=args.networth
+        no_total=args.networth,
     )
 
     # Move account/payee name to first column for csv and/or transpose
@@ -80,9 +69,9 @@ def get_grid_report(args, ledger_args):
 
 
 def get_csv_report(rows, tabs=False):
-    delimiter = '\t' if tabs else ','
+    delimiter = "\t" if tabs else ","
     output = StringIO()
-    writer = csv.writer(output, delimiter=delimiter, lineterminator='\n')
+    writer = csv.writer(output, delimiter=delimiter, lineterminator="\n")
     writer.writerows(rows)
     return output.getvalue()
 
@@ -110,27 +99,25 @@ def get_flat_report(rows, networth=False):
     FOOTER_ROW = -1 if has_total_row else None
 
     headers = get_flat_report_header(
-        rows[HEADER_ROW][:ACCOUNT_PAYEE_COLUMN],
-        AMOUNT_WIDTH
+        rows[HEADER_ROW][:ACCOUNT_PAYEE_COLUMN], AMOUNT_WIDTH
     )
-    report = str(Colorable('white', headers))
+    report = str(Colorable("white", headers))
 
     for row in rows[DATA_ROW_START:DATA_ROW_END]:
-        row_header_f = Colorable('blue', row[ACCOUNT_PAYEE_COLUMN])
-        amounts_f = [util.get_colored_amount(
-            amount,
-            colwidth=AMOUNT_WIDTH,
-            positive='yellow',
-            zero='grey'
-        ) for amount in row[AMOUNT_COLUMN_START:AMOUNT_COLUMN_END]]
+        row_header_f = Colorable("blue", row[ACCOUNT_PAYEE_COLUMN])
+        amounts_f = [
+            util.get_colored_amount(
+                amount, colwidth=AMOUNT_WIDTH, positive="yellow", zero="grey"
+            )
+            for amount in row[AMOUNT_COLUMN_START:AMOUNT_COLUMN_END]
+        ]
 
         if has_total_column:
             row_total_f = util.get_colored_amount(
-                row[TOTAL_COLUMN],
-                colwidth=AMOUNT_WIDTH
+                row[TOTAL_COLUMN], colwidth=AMOUNT_WIDTH
             )
         else:
-            row_total_f = ''
+            row_total_f = ""
 
         report += f"{''.join(amounts_f)}{row_total_f}  {row_header_f}\n"
 
@@ -148,10 +135,10 @@ def get_flat_report(rows, networth=False):
 
 def get_flat_report_header(headers, width=14):
     header_lists = get_flat_report_header_lists(headers, width)
-    report_header = ''
+    report_header = ""
     for i in range(len(header_lists[0])):
         row = [line[i] for line in header_lists]
-        headers_f = [f'{header:>{width}}' for header in row]
+        headers_f = [f"{header:>{width}}" for header in row]
         report_header += f"{''.join(headers_f)}\n"
 
     return report_header
@@ -161,15 +148,9 @@ def get_flat_report_header_lists(headers, width=14):
     """Attempts to break up account and payee names into chunks that
        will read better when they are used as column headers"""
 
-    TRUNC_CHAR = '~'
-    ACCOUNT_TYPES = [
-        'assets:',
-        'liabilities:',
-        'income:',
-        'expenses:',
-        'equity:'
-    ]
-    HEADER_SPLIT = r'(?<=: )|(?<=:)(?=\S)|(?<=[- ])'
+    TRUNC_CHAR = "~"
+    ACCOUNT_TYPES = ["assets:", "liabilities:", "income:", "expenses:", "equity:"]
+    HEADER_SPLIT = r"(?<=: )|(?<=:)(?=\S)|(?<=[- ])"
     padded_width = width - 3 if width >= 14 else width - 1
 
     header_lists = []
@@ -182,20 +163,20 @@ def get_flat_report_header_lists(headers, width=14):
             # would like the top level account types to live on their own row
             first_part = parts.pop(0).strip()
             if len(first_part) > padded_width:
-                first_part = f'{first_part[:padded_width - 1]}{TRUNC_CHAR}'
+                first_part = f"{first_part[:padded_width - 1]}{TRUNC_CHAR}"
             the_header.append(first_part)
 
         for part in parts:
-            if len(''.join(row_in_progress + [part.rstrip()])) <= padded_width:
+            if len("".join(row_in_progress + [part.rstrip()])) <= padded_width:
                 row_in_progress.append(part)
             else:
                 if row_in_progress:
-                    the_header.append(''.join(row_in_progress).strip())
+                    the_header.append("".join(row_in_progress).strip())
                 if len(part.rstrip()) > padded_width:
-                    part = f'{part[:padded_width - 1]}{TRUNC_CHAR}'
+                    part = f"{part[:padded_width - 1]}{TRUNC_CHAR}"
                 row_in_progress = [part]
 
-        the_header.append(''.join(row_in_progress).strip())
+        the_header.append("".join(row_in_progress).strip())
 
         header_lists.append(the_header)
 
@@ -203,37 +184,39 @@ def get_flat_report_header_lists(headers, width=14):
     longest_list = max(len(hlist) for hlist in header_lists)
     for header_list in header_lists:
         for _ in range(longest_list - len(header_list)):
-            header_list.insert(0, '')
+            header_list.insert(0, "")
 
     return header_lists
 
 
-def get_period_names(args, ledger_args, unit='year'):
+def get_period_names(args, ledger_args, unit="year"):
     # --collapse behavior seems suspicous, but with --empty
     # appears to work for our purposes here
     # groups.google.com/forum/?fromgroups=#!topic/ledger-cli/HAKAMYiaL7w
-    begin = ('--begin', args.begin) if args.begin else ()
-    end = ('--end', args.end) if args.end else ()
-    period = ('--period', args.period) if args.period else ()
+    begin = ("--begin", args.begin) if args.begin else ()
+    end = ("--end", args.end) if args.end else ()
+    period = ("--period", args.period) if args.period else ()
 
-    if unit == 'year':
-        date_format = get_setting('DATE_FORMAT_YEAR')
-        period_options = ('--yearly', '--date-format', date_format)
+    if unit == "year":
+        date_format = get_setting("DATE_FORMAT_YEAR")
+        period_options = ("--yearly", "--date-format", date_format)
         period_len = 4
     else:
-        date_format = get_setting('DATE_FORMAT_MONTH')
-        period_options = ('--monthly', '--date-format', date_format)
+        date_format = get_setting("DATE_FORMAT_MONTH")
+        period_options = ("--monthly", "--date-format", date_format)
         period_len = 7
 
     lines = get_ledger_output(
-        ('register', )
-        + begin + end + period + period_options
-        + ('--collapse', '--empty')
-        + ledger_args).split('\n')
+        ("register",)
+        + begin
+        + end
+        + period
+        + period_options
+        + ("--collapse", "--empty")
+        + ledger_args
+    ).split("\n")
 
-    names = sorted(
-        {x[:period_len] for x in lines if x[:period_len].strip() != ''}
-    )
+    names = sorted({x[:period_len] for x in lines if x[:period_len].strip() != ""})
 
     current_period = None
     if args.current:
@@ -241,7 +224,7 @@ def get_period_names(args, ledger_args, unit='year'):
         if current_period_date_str in names:
             current_period = current_period_date_str
             # remove future periods
-            names = names[:names.index(current_period_date_str) + 1]
+            names = names[: names.index(current_period_date_str) + 1]
 
     return tuple(names), current_period
 
@@ -253,11 +236,9 @@ def get_columns(args, ledger_args, period_names, current_period=None):
         ending = ()
         for period_name in period_names:
             if current_period and current_period == period_name:
-                ending = ('--end', 'tomorrow')
+                ending = ("--end", "tomorrow")
 
-            future = executor.submit(
-                get_column, args, ledger_args, period_name, ending
-            )
+            future = executor.submit(get_column, args, ledger_args, period_name, ending)
             to_do.append(future)
 
         row_headers = set()
@@ -274,22 +255,18 @@ def get_column(args, ledger_args, period_name, ending):
     if args.payees:
         column = get_column_payees(period_name, ledger_args + ending)
     elif args.networth:
-        networth_period = 'tomorrow' if ending else period_name
+        networth_period = "tomorrow" if ending else period_name
         column = get_column_networth(networth_period, ledger_args)
     else:
-        column = get_column_accounts(
-            period_name,
-            ledger_args + ending,
-            args.depth
-        )
+        column = get_column_accounts(period_name, ledger_args + ending, args.depth)
 
     return period_name, column
 
 
 def get_column_accounts(period_name, ledger_args, depth=0):
     lines = get_ledger_output(
-        ('balance', '--flat', '--period', period_name) + ledger_args
-    ).split('\n')
+        ("balance", "--flat", "--period", period_name) + ledger_args
+    ).split("\n")
     column = defaultdict(int)
     next_is_total = False
 
@@ -299,22 +276,22 @@ def get_column_accounts(period_name, ledger_args, depth=0):
             validate_column_total(
                 period_name,
                 column_total=sum(column.values()),
-                ledgers_total=util.get_float(line)
+                ledgers_total=util.get_float(line),
             )
             break
-        elif line and line[0] == '-':  # ledger's total line separator
+        elif line and line[0] == "-":  # ledger's total line separator
             next_is_total = True
             continue
-        elif line == '':  # last element when ledger doesn't give a total
+        elif line == "":  # last element when ledger doesn't give a total
             break
 
         balance = get_account_balance(line)
         # should match as long as --market is used?
-        assert balance, f'Did not find expected account and dollars: {line}'
+        assert balance, f"Did not find expected account and dollars: {line}"
         account = balance.account
         if depth > 0:
-            account_parts = balance.account.split(':')
-            account = ':'.join(account_parts[:depth])
+            account_parts = balance.account.split(":")
+            account = ":".join(account_parts[:depth])
         column[account] += balance.amount
 
     return column
@@ -331,7 +308,7 @@ def validate_column_total(period_name, column_total=0, ledgers_total=0):
     # your accounts this way.)
 
     # We'll not concern ourselves over small floating point differences
-    if round(abs(column_total - ledgers_total), 2) > .05:
+    if round(abs(column_total - ledgers_total), 2) > 0.05:
         warn_column_total(period_name, column_total, ledgers_total)
 
 
@@ -347,9 +324,19 @@ def warn_column_total(period_name, column_total=0, ledgers_total=0):
 
 def get_column_payees(period_name, ledger_args):
     lines = get_ledger_output(
-        ('register', '--group-by', '(payee)', '--collapse',
-         '--subtotal', '--depth', '1', '--period', period_name) + ledger_args
-    ).split('\n')
+        (
+            "register",
+            "--group-by",
+            "(payee)",
+            "--collapse",
+            "--subtotal",
+            "--depth",
+            "1",
+            "--period",
+            period_name,
+        )
+        + ledger_args
+    ).split("\n")
     column = {}
     payee = None
     for line in lines:
@@ -359,9 +346,8 @@ def get_column_payees(period_name, ledger_args):
             payee = line
         else:
             amount = get_payee_subtotal(line)
-            assert amount is not None, \
-                f'Did not find expected payee subtotal: {line}'
-            assert payee not in column, f'Payee already in column: {payee}'
+            assert amount is not None, f"Did not find expected payee subtotal: {line}"
+            assert payee not in column, f"Payee already in column: {payee}"
             column[payee] = amount
             payee = None
 
@@ -369,14 +355,14 @@ def get_column_payees(period_name, ledger_args):
 
 
 def get_column_networth(period_name, ledger_args):
-    if period_name == 'tomorrow':
+    if period_name == "tomorrow":
         ending = period_name
     else:
         if len(period_name) == 4:  # year
-            date_format = get_setting('DATE_FORMAT_YEAR')
+            date_format = get_setting("DATE_FORMAT_YEAR")
             networth_relativedelta = relativedelta(years=1)
         else:  # month
-            date_format = get_setting('DATE_FORMAT_MONTH')
+            date_format = get_setting("DATE_FORMAT_MONTH")
             networth_relativedelta = relativedelta(months=1)
 
         # Let's report net worth for the end of the current period,
@@ -386,13 +372,10 @@ def get_column_networth(period_name, ledger_args):
         next_period_date = period_date + networth_relativedelta
         ending = next_period_date.strftime(date_format)
 
-    accounts = tuple(parse_args(get_setting('NETWORTH_ACCOUNTS')))
+    accounts = tuple(parse_args(get_setting("NETWORTH_ACCOUNTS")))
     lines = get_ledger_output(
-        ('balance',)
-        + accounts
-        + ('--depth', '1', '--end', ending)
-        + ledger_args
-    ).split('\n')
+        ("balance",) + accounts + ("--depth", "1", "--end", ending) + ledger_args
+    ).split("\n")
 
     amount = lines[-1].strip()
     if amount:
@@ -400,17 +383,19 @@ def get_column_networth(period_name, ledger_args):
     else:
         networth = 0
 
-    column = {'net worth': networth}
+    column = {"net worth": networth}
     return column
 
 
-def get_rows(row_headers,
-             columns,
-             period_names,
-             sort=SORT_DEFAULT,
-             limit_rows=0,
-             total_only=False,
-             no_total=False):
+def get_rows(
+    row_headers,
+    columns,
+    period_names,
+    sort=SORT_DEFAULT,
+    limit_rows=0,
+    total_only=False,
+    no_total=False,
+):
 
     ACCOUNT_PAYEE_HEADER = EMPTY_VALUE
     ACCOUNT_PAYEE_COLUMN = -1
@@ -423,7 +408,7 @@ def get_rows(row_headers,
         amounts = [grid[row_header].get(pn, 0) for pn in period_names]
         rows.append(amounts + [sum(amounts)] + [row_header])
 
-    if sort == 'row':
+    if sort == "row":
         sort_index = ACCOUNT_PAYEE_COLUMN
         reverse_sort = False
     elif sort in period_names:
@@ -468,8 +453,9 @@ def get_grid(row_headers, columns):
 
 
 def get_args(args):
-    program = 'ledgerbil/main.py grid'
-    description = dedent('''\
+    program = "ledgerbil/main.py grid"
+    description = dedent(
+        """\
         Show ledger balance report in tabular form with years or months as the
         columns. Begin, end, and period params are handled as ledger interprets
         them, and all arguments not defined here are passed through to ledger.
@@ -492,117 +478,93 @@ def get_args(args):
         any accounts, ledger gives odd results for the query used by ledgerbil:
 
         register --group-by '(payee)' --collapse --subtotal --depth 1
-    ''')
+    """
+    )
     parser = argparse.ArgumentParser(
         prog=program,
         description=description,
         allow_abbrev=False,
-        formatter_class=(lambda prog: argparse.RawDescriptionHelpFormatter(
-            prog,
-            max_help_position=40,
-            width=71
-        ))
+        formatter_class=(
+            lambda prog: argparse.RawDescriptionHelpFormatter(
+                prog, max_help_position=40, width=71
+            )
+        ),
     )
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
-        '-y', '--year',
-        action='store_true',
-        default=True,
-        help='year grid (default)'
+        "-y", "--year", action="store_true", default=True, help="year grid (default)"
     )
-    group.add_argument(
-        '-m', '--month',
-        action='store_true',
-        help='month grid'
-    )
+    group.add_argument("-m", "--month", action="store_true", help="month grid")
+    parser.add_argument("-b", "--begin", type=str, metavar="DATE", help="begin date")
+    parser.add_argument("-e", "--end", type=str, metavar="DATE", help="end date")
+    parser.add_argument("-p", "--period", type=str, help="period expression")
     parser.add_argument(
-        '-b', '--begin',
-        type=str,
-        metavar='DATE',
-        help='begin date'
-    )
-    parser.add_argument(
-        '-e', '--end',
-        type=str,
-        metavar='DATE',
-        help='end date'
-    )
-    parser.add_argument(
-        '-p', '--period',
-        type=str,
-        help='period expression'
-    )
-    parser.add_argument(
-        '--current',
-        action='store_true',
+        "--current",
+        action="store_true",
         default=False,
-        help='exclude future transactions'
+        help="exclude future transactions",
     )
     parser.add_argument(
-        '--depth',
+        "--depth",
         type=int,
-        metavar='N',
+        metavar="N",
         default=0,
-        help='limit the depth of account tree for account reports'
+        help="limit the depth of account tree for account reports",
     )
     parser.add_argument(
-        '--payees',
-        action='store_true',
+        "--payees",
+        action="store_true",
         default=False,
-        help='show results by payee (results may be nonsensical '
-             'if you do not specify accounts, e.g. expenses)'
+        help="show results by payee (results may be nonsensical "
+        "if you do not specify accounts, e.g. expenses)",
     )
     parser.add_argument(
-        '--net-worth',
-        dest='networth',
-        action='store_true',
+        "--net-worth",
+        dest="networth",
+        action="store_true",
         default=False,
-        help='show net worth at end of periods'
+        help="show net worth at end of periods",
     )
     parser.add_argument(
-        '--limit-rows',
+        "--limit-rows",
         type=int,
-        metavar='N',
+        metavar="N",
         default=0,
-        help='limit the number of rows shown to top N'
+        help="limit the number of rows shown to top N",
     )
     parser.add_argument(
-        '-T', '--total-only',
-        action='store_true',
+        "-T",
+        "--total-only",
+        action="store_true",
         default=False,
-        help='show only the total column'
+        help="show only the total column",
     )
     parser.add_argument(
-        '-s', '--sort',
+        "-s",
+        "--sort",
         type=str,
         default=SORT_DEFAULT,
-        help='sort by specified column header, or "row" to '
-             'sort by account or payee (default: by total)'
+        help='sort by specified column header, or "row" to sort by account or '
+        "payee (default: by total)",
     )
     parser.add_argument(
-        '-t', '--transpose',
-        action='store_true',
+        "-t",
+        "--transpose",
+        action="store_true",
         default=False,
-        help='transpose columns and rows (row sorting will '
-             'then apply to columns)'
+        help="transpose columns and rows (row sorting will then apply to columns)",
     )
     parser.add_argument(
-        '--csv',
-        action='store_true',
-        default=False,
-        help='output as csv'
+        "--csv", action="store_true", default=False, help="output as csv"
     )
     parser.add_argument(
-        '--tab',
-        action='store_true',
+        "--tab",
+        action="store_true",
         default=False,
-        help='output as tsv (tab-delimited)'
+        help="output as tsv (tab-delimited)",
     )
     parser.add_argument(
-        '--no-color',
-        action='store_true',
-        default=False,
-        help='output without color'
+        "--no-color", action="store_true", default=False, help="output without color"
     )
 
     # workaround for problems with nargs=argparse.REMAINDER
@@ -621,4 +583,4 @@ def main(argv=None):
     if args.no_color and not args.csv:
         report = Colorable.get_plain_string(report)
 
-    print(report, end='')
+    print(report, end="")

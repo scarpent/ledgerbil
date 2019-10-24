@@ -10,21 +10,21 @@ from .util import AccountBalance, get_account_balance
 
 
 def get_investment_command_options(accounts, end_date, shares=False):
-    options = ['--no-total']
+    options = ["--no-total"]
     if shares:
-        options += ['--exchange', '.']  # override --market
-    options += ['--end', end_date]
+        options += ["--exchange", "."]  # override --market
+    options += ["--end", end_date]
 
-    return tuple(['bal'] + parse_args(accounts) + options)
+    return tuple(["bal"] + parse_args(accounts) + options)
 
 
 def warn_negative_dollars(amount, account):
-    warning = Colorable('red', 'WARNING:')
-    amount = Colorable('red', amount)
+    warning = Colorable("red", "WARNING:")
+    amount = Colorable("red", amount)
     print(
         f'{warning} Negative dollar amount {amount} for "{account.strip()}". '
-        'This may be a data entry mistake, or because we are '
-        'looking at a date range.\n'
+        "This may be a data entry mistake, or because we are "
+        "looking at a date range.\n"
     )
 
 
@@ -33,9 +33,9 @@ def get_lines(args, shares=False):
     output = get_ledger_output(options)
 
     if args.command:
-        print(' '.join(get_ledger_command(options)))
+        print(" ".join(get_ledger_command(options)))
 
-    return output.split('\n')
+    return output.split("\n")
 
 
 def get_dollars(args):
@@ -53,9 +53,9 @@ def get_dollars(args):
     lines = get_lines(args)
     for line in lines:
         dollars = get_account_balance(line, strip_account=False)
-        assert dollars, f'Did not find expected account and dollars: {line}'
+        assert dollars, f"Did not find expected account and dollars: {line}"
         if dollars.amount < 0:
-                warn_negative_dollars(dollars.amount, dollars.account)
+            warn_negative_dollars(dollars.amount, dollars.account)
         listing.append(dollars)
 
     return listing
@@ -87,7 +87,7 @@ def get_shares(args):
     # with one line per account "level"
     # (Note: We can't handle multiple symbols for an account. Should
     #        we catch this and error out?)
-    lines = [x for x in lines if re.search(r'\S  ', x)]
+    lines = [x for x in lines if re.search(r"\S  ", x)]
     # Reverse the list to make it easier to find leaf nodes in the
     # indented tree structure of account names
     last_indent = 0
@@ -98,27 +98,18 @@ def get_shares(args):
             # make share amount be 0 and symbol empty and just have the
             # account to keep our lists lined up
             if dollars.amount < 0:
-                warn_negative_dollars(
-                    dollars.amount,
-                    dollars.account
-                )
-            shares = AccountBalance(dollars.account, 0, '')
+                warn_negative_dollars(dollars.amount, dollars.account)
+            shares = AccountBalance(dollars.account, 0, "")
         else:
-            shares = get_account_balance(
-                line,
-                shares=True,
-                strip_account=False
-            )
-            assert shares, f'Did not find expected account and shares: {line}'
+            shares = get_account_balance(line, shares=True, strip_account=False)
+            assert shares, f"Did not find expected account and shares: {line}"
 
         # Only use the shares from the leaf nodes, which will be
         # at the same indent or further indented
-        indent = (
-            len(shares.account) - len(shares.account.strip())
-        )
+        indent = len(shares.account) - len(shares.account.strip())
         if indent < last_indent:
             # Same as with cash lines, make share amount 0 and symbol empty
-            shares = AccountBalance(shares.account, 0, '')
+            shares = AccountBalance(shares.account, 0, "")
         last_indent = indent
 
         listing.append(shares)
@@ -142,62 +133,66 @@ def get_investment_report(args):
     share_listing = get_shares(args)
     dollar_listing = get_dollars(args)
 
-    report = ''
+    report = ""
 
     for shares, dollars in zip(share_listing, dollar_listing):
 
-        err_message = (f'Non-matching accounts. Shares: {shares.account}, '
-                       f'Dollars: {dollars.account}')
+        err_message = (
+            f"Non-matching accounts. Shares: {shares.account}, "
+            f"Dollars: {dollars.account}"
+        )
         assert shares.account == dollars.account, err_message
 
-        dollar_color = 'red' if dollars.amount < 0 else 'green'
-        dollars_f = '0' if dollars.amount == 0 else f'$ {dollars.amount:,.2f}'
-        shares_amount_f = '' if shares.amount == 0 else f'{shares.amount:,}'
+        dollar_color = "red" if dollars.amount < 0 else "green"
+        dollars_f = "0" if dollars.amount == 0 else f"$ {dollars.amount:,.2f}"
+        shares_amount_f = "" if shares.amount == 0 else f"{shares.amount:,}"
 
-        report += ('{shares} {symbol} {dollars} {investment}\n'.format(
-            shares=Colorable('gray', shares_amount_f, '>12', bright=True),
-            symbol=Colorable('purple', shares.symbol, 5),
-            dollars=Colorable(dollar_color, dollars_f, '>16'),
-            investment=Colorable('blue', dollars.account)
-        ))
+        report += "{shares} {symbol} {dollars} {investment}\n".format(
+            shares=Colorable("gray", shares_amount_f, ">12", bright=True),
+            symbol=Colorable("purple", shares.symbol, 5),
+            dollars=Colorable(dollar_color, dollars_f, ">16"),
+            investment=Colorable("blue", dollars.account),
+        )
 
     return report
 
 
 def get_args(args):
-    program = 'ledgerbil/main.py inv'
-    description = dedent('''\
+    program = "ledgerbil/main.py inv"
+    description = dedent(
+        """\
         Viewing shares with --exchange is kind of weird in ledger. This creates
         a report that shows share totals and dollar amounts in a nicer way.
-    ''')
+    """
+    )
     parser = argparse.ArgumentParser(
         prog=program,
         description=description,
-        formatter_class=(lambda prog: argparse.RawDescriptionHelpFormatter(
-            prog,
-            max_help_position=40,
-            width=71
-        ))
+        formatter_class=(
+            lambda prog: argparse.RawDescriptionHelpFormatter(
+                prog, max_help_position=40, width=71
+            )
+        ),
     )
-    default_accounts = get_setting('INVESTMENT_DEFAULT_ACCOUNTS')
+    default_accounts = get_setting("INVESTMENT_DEFAULT_ACCOUNTS")
     parser.add_argument(
-        '-a', '--accounts',
+        "-a",
+        "--accounts",
         type=str,
         default=default_accounts,
-        help=f'balances for specified accounts (default: {default_accounts})'
+        help=f"balances for specified accounts (default: {default_accounts})",
     )
-    default_end_date = get_setting('INVESTMENT_DEFAULT_END_DATE')
+    default_end_date = get_setting("INVESTMENT_DEFAULT_END_DATE")
     parser.add_argument(
-        '-e', '--end',
+        "-e",
+        "--end",
         type=str,
-        metavar='DATE',
+        metavar="DATE",
         default=default_end_date,
-        help=f'end date (default: {default_end_date})'
+        help=f"end date (default: {default_end_date})",
     )
     parser.add_argument(
-        '-c', '--command',
-        action='store_true',
-        help='print ledger commands used'
+        "-c", "--command", action="store_true", help="print ledger commands used"
     )
 
     return parser.parse_args(args)
@@ -205,4 +200,4 @@ def get_args(args):
 
 def main(argv=None):
     args = get_args(argv or [])
-    print(get_investment_report(args), end='')
+    print(get_investment_report(args), end="")

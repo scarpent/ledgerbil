@@ -9,15 +9,15 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv[1:]
 
-    command = argv[0] if argv else ''
+    command = argv[0] if argv else ""
 
     other = {
-        'grid': grid,
-        'inv': investments,
-        'investments': investments,
-        'pass': passthrough,
-        'port': portfolio,
-        'portfolio': portfolio,
+        "grid": grid,
+        "inv": investments,
+        "investments": investments,
+        "pass": passthrough,
+        "port": portfolio,
+        "portfolio": portfolio,
     }
 
     if command not in other:
@@ -26,5 +26,5 @@ def main(argv=None):
         other[command].main(argv[1:])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())  # pragma: no cover

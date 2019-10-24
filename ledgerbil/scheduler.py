@@ -11,7 +11,7 @@ def run_scheduler(ledgerfile, schedule_filename):
     except LdgSchedulerError as e:
         return handle_error(str(e))
 
-    print(f'Schedule file (enter days = {ScheduleThing.enter_days}):')
+    print(f"Schedule file (enter days = {ScheduleThing.enter_days}):")
 
     if ScheduleThing.enter_days == 0:
         return
@@ -28,10 +28,10 @@ def run_scheduler(ledgerfile, schedule_filename):
         things_added += len(things)
 
         for thing in things:
-            print(f'\t{thing.thing_date} {thing.payee}')
+            print(f"\t{thing.thing_date} {thing.payee}")
 
-    entries = 'entry' if things_added == 1 else 'entries'
-    print(f'Added {things_added} {entries}')
+    entries = "entry" if things_added == 1 else "entries"
+    print(f"Added {things_added} {entries}")
 
     schedulefile.sort()
     schedulefile.write_file()

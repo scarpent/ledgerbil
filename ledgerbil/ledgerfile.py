@@ -25,7 +25,7 @@ class LedgerFile:
             sys.exit(-1)
 
         current_lines = []
-        with open(self.filename, 'r', encoding='utf-8') as the_file:
+        with open(self.filename, "r", encoding="utf-8") as the_file:
             for line in the_file:
                 line = line.rstrip()
 
@@ -40,10 +40,10 @@ class LedgerFile:
     def is_writable(self):
         # Catch read-only files as well as bad filenames
         try:
-            with open(self.filename, 'r+'):
+            with open(self.filename, "r+"):
                 return True
         except IOError as e:
-            print(f'error: {e}', file=sys.stderr)
+            print(f"error: {e}", file=sys.stderr)
             return False
 
     def add_thing_from_lines(self, lines):
@@ -61,10 +61,9 @@ class LedgerFile:
                 if not self.rec_account_matched:
                     self.rec_account_matched = thing.rec_account_matched
                 else:
-                    assert_only_one_matching_account({
-                        self.rec_account_matched,
-                        thing.rec_account_matched,
-                    })
+                    assert_only_one_matching_account(
+                        {self.rec_account_matched, thing.rec_account_matched}
+                    )
 
     @staticmethod
     def next_thing_number():
@@ -80,7 +79,7 @@ class LedgerFile:
             else:
                 current_date = thing.thing_date
 
-        self.things.sort(key=attrgetter('thing_date', 'thing_number'))
+        self.things.sort(key=attrgetter("thing_date", "thing_number"))
 
     def print_file(self):
         for thing in self.things:
@@ -89,14 +88,14 @@ class LedgerFile:
             print()
 
     def write_file(self):
-        with open(self.filename, 'w', encoding='utf-8') as the_file:
+        with open(self.filename, "w", encoding="utf-8") as the_file:
             for thing in self.things:
-                the_file.write('\n'.join(thing.get_lines()) + '\n\n')
+                the_file.write("\n".join(thing.get_lines()) + "\n\n")
 
 
 def remove_trailing_blank_lines(lines):
     for line in reversed(lines):
-        if line == '':
+        if line == "":
             lines.pop()
         else:
             break

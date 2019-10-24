@@ -10,7 +10,7 @@ class MockSettingsEmpty:
 
 
 class MockSettings:
-    DATE_FORMAT = '%Y-%m-%d'
+    DATE_FORMAT = "%Y-%m-%d"
 
 
 def setup_function():
@@ -22,42 +22,44 @@ def teardown_function():
 
 
 expected_account_aliases = {
-    r'^a:': 'assets:',
-    r'^e:': 'expenses:',
-    r'^i:': 'income:',
-    r'^l:': 'liabilities:',
+    r"^a:": "assets:",
+    r"^e:": "expenses:",
+    r"^i:": "income:",
+    r"^l:": "liabilities:",
 }
 
 expected_reconciler_cache_file = os.path.join(
-    os.path.expanduser('~'),
-    '.ledgerbil_reconciler_cache'
+    os.path.expanduser("~"), ".ledgerbil_reconciler_cache"
 )
 
 
-@pytest.mark.parametrize('test_input, expected', [
-    ('ACCOUNT_ALIASES', expected_account_aliases),
-    ('DATE_FORMAT', '%Y/%m/%d'),
-    ('DATE_FORMAT_MONTH', '%Y/%m'),
-    ('DATE_FORMAT_YEAR', '%Y'),
-    ('INVESTMENT_DEFAULT_ACCOUNTS', '401k or ira or mutual'),
-    ('INVESTMENT_DEFAULT_END_DATE', 'tomorrow'),
-    ('NETWORTH_ACCOUNTS', '(^assets ^liabilities)'),
-    ('RECONCILER_CACHE_FILE', expected_reconciler_cache_file),
-])
+@pytest.mark.parametrize(
+    "test_input, expected",
+    [
+        ("ACCOUNT_ALIASES", expected_account_aliases),
+        ("DATE_FORMAT", "%Y/%m/%d"),
+        ("DATE_FORMAT_MONTH", "%Y/%m"),
+        ("DATE_FORMAT_YEAR", "%Y"),
+        ("INVESTMENT_DEFAULT_ACCOUNTS", "401k or ira or mutual"),
+        ("INVESTMENT_DEFAULT_END_DATE", "tomorrow"),
+        ("NETWORTH_ACCOUNTS", "(^assets ^liabilities)"),
+        ("RECONCILER_CACHE_FILE", expected_reconciler_cache_file),
+    ],
+)
 def test_empty_or_missing_settings_defaults(test_input, expected):
     settings_getter.settings = MockSettingsEmpty()
     assert settings_getter.get_setting(test_input) == expected
 
 
 def test_settings_date_format():
-    assert settings_getter.get_setting('DATE_FORMAT') == '%Y-%m-%d'
+    assert settings_getter.get_setting("DATE_FORMAT") == "%Y-%m-%d"
 
 
 def test_settings_more_defaulting():
-    assert 'FUBAR' not in settings_getter.defaults
-    assert not hasattr(settings_getter.settings, 'FUBAR')
+    assert "FUBAR" not in settings_getter.defaults
+    assert not hasattr(settings_getter.settings, "FUBAR")
 
-    assert settings_getter.get_setting('FUBAR') is None
+    assert settings_getter.get_setting("FUBAR") is None
 
-    actual = settings_getter.get_setting('FUBAR', default='fubariffic')
-    assert actual == 'fubariffic'
+    actual = settings_getter.get_setting("FUBAR", default="fubariffic")
+    assert actual == "fubariffic"

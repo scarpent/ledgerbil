@@ -5,18 +5,19 @@ from collections import namedtuple
 from . import util
 from .ledgerbilexceptions import LdgReconcilerError
 
-UNSPECIFIED_PAYEE = '<Unspecified payee>'
+UNSPECIFIED_PAYEE = "<Unspecified payee>"
 
-DATE_REGEX = r'^\d{4}(?:[-/]\d\d){2}(?=\s|$)'
+DATE_REGEX = r"^\d{4}(?:[-/]\d\d){2}(?=\s|$)"
 # not matching optional comment since we don't do anything with it
 TOP_LINE_REGEX = re.compile(
-    r'(' + DATE_REGEX + r')(?:\s+|$)'  # date with required whitespace (or $)
-    r'\s*([!*])?\s*'                   # optional transaction state (c/p)
-    r'(?:\(([^)]*)\)\s*)?'             # optional transaction # and whitespace
-    r'(.*?)(?=  |$)'                   # opt. payee ends with two spaces (or $)
+    r"(" + DATE_REGEX + r")(?:\s+|$)"  # date with required whitespace (or $)
+    r"\s*([!*])?\s*"  # optional transaction state (c/p)
+    r"(?:\(([^)]*)\)\s*)?"  # optional transaction # and whitespace
+    r"(.*?)(?=  |$)"  # opt. payee ends with two spaces (or $)
 )
 # todo: should require amount when @ symbol is found
-POSTING_REGEX = re.compile(r'''(?x)  # verbose mode
+POSTING_REGEX = re.compile(
+    r"""(?x)  # verbose mode
     ^\s+                             # opening indent
     ([!*])?                          # optional pending/cleared
     (?:\s*)?                         # optional whitespace after p/c
@@ -29,15 +30,13 @@ POSTING_REGEX = re.compile(r'''(?x)  # verbose mode
     \(?([-+*/()$\d.,\s]+)?\)?        # optional amount expression
     (?:\s*=\s*[^;]+\s*)?             # optional balance assertion
     (?:;.*$|$)                       # optional end comment
-    ''')
-REC_PENDING = '!'
-REC_CLEARED = '*'
-REC_UNCLEARED = ''
-
-LedgerPosting = namedtuple(
-    'LedgerPosting',
-    'status account shares symbol amount'
+    """
 )
+REC_PENDING = "!"
+REC_CLEARED = "*"
+REC_UNCLEARED = ""
+
+LedgerPosting = namedtuple("LedgerPosting", "status account shares symbol amount")
 
 
 def get_ledger_posting(line):
@@ -52,10 +51,10 @@ def get_ledger_posting(line):
 
     if amount is not None:
         amount = amount.strip()
-        if amount == '':
+        if amount == "":
             amount = None
         else:
-            amount = util.eval_expr(re.sub(r'[$,]', '', amount))
+            amount = util.eval_expr(re.sub(r"[$,]", "", amount))
             if shares is not None:
                 amount *= shares
 
@@ -63,12 +62,11 @@ def get_ledger_posting(line):
 
 
 class LedgerThing:
-
     def __init__(self, lines, reconcile_account=None):
         self.thing_number = None
         self.thing_date = None
         self.payee = None
-        self.transaction_code = ''  # e.g. check number
+        self.transaction_code = ""  # e.g. check number
         self.lines = list(lines)
         self.is_transaction = False
 
@@ -91,11 +89,13 @@ class LedgerThing:
             self.parse_transaction_lines(lines[1:])
 
     def __repr__(self):
-        return (f'{self.__class__.__name__}({self.get_lines()}, '
-                f'reconcile_account={self.rec_account})')
+        return (
+            f"{self.__class__.__name__}({self.get_lines()}, "
+            f"reconcile_account={self.rec_account})"
+        )
 
     def __str__(self):
-        return '\n'.join(self.get_lines())
+        return "\n".join(self.get_lines())
 
     def parse_top_line(self, line):
         m = re.match(TOP_LINE_REGEX, line)
@@ -111,7 +111,7 @@ class LedgerThing:
         # payee and transaction code are read-only
         if code is not None:
             self.transaction_code = str(code)
-        if payee is None or payee.strip() == '':
+        if payee is None or payee.strip() == "":
             self.payee = UNSPECIFIED_PAYEE
         else:
             self.payee = payee.strip()
@@ -199,7 +199,7 @@ class LedgerThing:
         if self.rec_account_matched is None:
             return lines_out + self.lines[1:]
 
-        current_status = self.rec_status or ' '
+        current_status = self.rec_status or " "
 
         for line in self.lines[1:]:
             posting = get_ledger_posting(line)
@@ -208,12 +208,12 @@ class LedgerThing:
                 continue
 
             if re.search(self.rec_account, posting.account):
-                m = re.match(r'^\s+[!*]?\s*(.*)$', line)
+                m = re.match(r"^\s+[!*]?\s*(.*)$", line)
                 assert m
                 # going to use a standard 4 space indent; alternatively
                 # could try to be smart about preserving what is there
                 remainder = m.groups()[0]
-                lines_out.append(f'  {current_status} {remainder}')
+                lines_out.append(f"  {current_status} {remainder}")
             else:
                 lines_out.append(line)
 
@@ -236,15 +236,15 @@ class LedgerThing:
     def assert_only_one_status(self, statuses):
         if len(set(statuses)) > 1:
             raise LdgReconcilerError(
-                f'Unhandled multiple statuses: {self.get_date_and_payee()}'
+                f"Unhandled multiple statuses: {self.get_date_and_payee()}"
             )
 
     def assert_only_one_symbol(self, symbols):
         if len(set(symbols)) > 1:
             sorted_list = sorted(list(set(symbols)))
-            formatted_lines = '\n'.join(self.lines)
+            formatted_lines = "\n".join(self.lines)
             raise LdgReconcilerError(
-                f'Unhandled multiple symbols: {sorted_list}\n{formatted_lines}'
+                f"Unhandled multiple symbols: {sorted_list}\n{formatted_lines}"
             )
 
     def assert_only_shares_if_shares(self, shareses):
@@ -262,19 +262,19 @@ class LedgerThing:
         https://www.ledger-cli.org/3.0/doc/ledger3.html#Eliding-amounts
         """
         if self.rec_is_shares and None in shareses:
-            formatted_lines = '\n'.join(self.lines)
+            formatted_lines = "\n".join(self.lines)
             raise LdgReconcilerError(
-                f'Unhandled shares with non-shares:\n{formatted_lines}'
+                f"Unhandled shares with non-shares:\n{formatted_lines}"
             )
 
     def assert_not_top_line_status(self):
         if self.rec_top_line_status:
             raise LdgReconcilerError(
-                f'Unhandled top line transaction status:\n{self.lines[0]}'
+                f"Unhandled top line transaction status:\n{self.lines[0]}"
             )
 
     def get_date_and_payee(self):
-        return f'{self.get_date_string()} {self.payee}'
+        return f"{self.get_date_string()} {self.payee}"
 
     def get_date_string(self):
         return util.get_date_string(self.thing_date)

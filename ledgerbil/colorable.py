@@ -3,28 +3,28 @@ import re
 
 class Colorable:
 
-    START_CODE = '\033'
-    END_CODE = f'{START_CODE}[0m'
+    START_CODE = "\033"
+    END_CODE = f"{START_CODE}[0m"
 
     BRIGHT_OFFSET = 60
 
     COLORS = {
-        'black': 30,
-        'gray': 30,
-        'grey': 30,
-        'red': 31,
-        'green': 32,
-        'yellow': 33,
-        'blue': 34,
-        'magenta': 35,
-        'purple': 35,
-        'cyan': 36,
-        'white': 37
+        "black": 30,
+        "gray": 30,
+        "grey": 30,
+        "red": 31,
+        "green": 32,
+        "yellow": 33,
+        "blue": 34,
+        "magenta": 35,
+        "purple": 35,
+        "cyan": 36,
+        "white": 37,
     }
 
-    ansi_escape = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
+    ansi_escape = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
 
-    def __init__(self, color, value, fmt='', bright=False):
+    def __init__(self, color, value, fmt="", bright=False):
 
         if color not in self.COLORS:
             raise UnsupportedColorError(
@@ -43,11 +43,8 @@ class Colorable:
         )
 
     def __str__(self):
-        start = self.ansi_sequence(
-            self.COLORS[self.my_color],
-            bright=self.bright
-        )
-        ansi_str = f'{start}{self.value:{self.format_string}}{self.END_CODE}'
+        start = self.ansi_sequence(self.COLORS[self.my_color], bright=self.bright)
+        ansi_str = f"{start}{self.value:{self.format_string}}{self.END_CODE}"
         return ansi_str
 
     def __len__(self):
@@ -59,14 +56,14 @@ class Colorable:
     def ansi_sequence(self, code, bright=False):
         offset = 60 if bright else 0
         color = code + offset
-        return f'{self.START_CODE}[0;{color}m'
+        return f"{self.START_CODE}[0;{color}m"
 
     def plain(self):
         return self.value
 
     @staticmethod
     def get_plain_string(ansi_string):
-        return Colorable.ansi_escape.sub('', ansi_string)
+        return Colorable.ansi_escape.sub("", ansi_string)
 
 
 class UnsupportedColorError(Exception):

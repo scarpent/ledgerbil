@@ -13,19 +13,18 @@ from ..ledgerthing import LedgerThing
 from .helpers import Redirector
 
 
-@mock.patch(__name__ + '.ledgerfile.open')
-@mock.patch(__name__ + '.ledgerfile.print')
+@mock.patch(__name__ + ".ledgerfile.open")
+@mock.patch(__name__ + ".ledgerfile.print")
 def test_file_problem(mock_print, mock_open):
-    mock_open.side_effect = IOError('fubar')
+    mock_open.side_effect = IOError("fubar")
     with pytest.raises(SystemExit) as excinfo:
-        LedgerFile('blarg')
-    assert str(excinfo.value) == '-1'
-    mock_print.assert_called_once_with('error: fubar', file=sys.stderr)
-    mock_open.assert_called_once_with('blarg', 'r+')
+        LedgerFile("blarg")
+    assert str(excinfo.value) == "-1"
+    mock_print.assert_called_once_with("error: fubar", file=sys.stderr)
+    mock_open.assert_called_once_with("blarg", "r+")
 
 
 class FileParsingOnInit(Redirector):
-
     def test_parsed_file_unchanged_via_print(self):
         """file output after parsing should be identical to input"""
         expected = FT.read_file(FT.testfile)
@@ -50,13 +49,15 @@ def test_count_initial_non_transaction():
     """counts initial non-transaction (probably a comment)
        first two comment lines are thing_number 0, rest are #1
        thing_counter will then be at #1"""
-    testdata = dedent('''\
+    testdata = dedent(
+        """\
         ; blah
         ; blah blah blah
         2013/05/06 payee name
             expenses: misc
             liabilities: credit card  $-50
-    ''')
+    """
+    )
     with FT.temp_file(testdata) as templedgerfile:
         lfile = LedgerFile(templedgerfile)
 
@@ -64,7 +65,8 @@ def test_count_initial_non_transaction():
 
 
 def test_count_initial_transaction():
-    testdata = dedent('''\
+    testdata = dedent(
+        """\
         2013/05/06 payee name
             expenses: misc
             liabilities: credit card  $-50
@@ -74,7 +76,8 @@ def test_count_initial_transaction():
             liabilities: credit card  $-50
         2013/02/30 invalid date (bonus test for thing date checking cov)
             (will be lumped with previous; note is invalid ledger file...)
-        ''')
+        """
+    )
     with FT.temp_file(testdata) as templedgerfile:
         lfile = LedgerFile(templedgerfile)
 
@@ -83,28 +86,32 @@ def test_count_initial_transaction():
 
 def test_assigned_thing_numbers():
     """thing numbers added in sequence starting at one"""
-    testdata = dedent('''\
+    testdata = dedent(
+        """\
         ; blah
         ; blah blah blah
         2013/05/06 payee name
             expenses: misc
             liabilities: credit card  $-50
-    ''')
+    """
+    )
     with FT.temp_file(testdata) as templedgerfile:
         lfile = LedgerFile(templedgerfile)
 
-    thing = LedgerThing([
-        '2011/01/01 beezlebub',
-        '    assets: soul',
-        '    liabilities: credit card  $666',
-    ])
+    thing = LedgerThing(
+        [
+            "2011/01/01 beezlebub",
+            "    assets: soul",
+            "    liabilities: credit card  $666",
+        ]
+    )
     lfile.add_things([thing])
     assert len(lfile.things) == 3
 
 
 def test_initial_non_transaction_date():
     """1st thing in file is a non-transaction, has default date"""
-    with FT.temp_file('blah\nblah blah blah') as templedgerfile:
+    with FT.temp_file("blah\nblah blah blah") as templedgerfile:
         lfile = LedgerFile(templedgerfile)
 
     # non-transaction dates are only populated with sort
@@ -114,18 +121,20 @@ def test_initial_non_transaction_date():
 
 def test_later_non_transaction_date():
     """later non-transaction things inherit preceding thing date"""
-    testdata = dedent('''\
+    testdata = dedent(
+        """\
         2013/05/06 payee name
             expenses: misc
             liabilities: credit card  $-1
         2013/05/07 payee name
             expenses: misc
             liabilities: credit card  $-2
-        ''')
+        """
+    )
     with FT.temp_file(testdata) as templedgerfile:
         lfile = LedgerFile(templedgerfile)
 
-    lfile.add_thing_from_lines(['; blah blah blah', '; and so on...'])
+    lfile.add_thing_from_lines(["; blah blah blah", "; and so on..."])
     # non-transaction dates are only populated with sort
     lfile.sort()
     assert lfile.things[0].thing_date == datetime.date(2013, 5, 6)
@@ -158,21 +167,21 @@ def test_sorting():
 
 
 def test_sorting_by_date_and_thing_number():
-    with FT.temp_file('') as templedgerfile:
+    with FT.temp_file("") as templedgerfile:
         lfile = LedgerFile(templedgerfile)
-    lfile.add_thing_from_lines(['2018/12/28 apple'])
+    lfile.add_thing_from_lines(["2018/12/28 apple"])
     lfile.things[-1].thing_number = 5
-    lfile.add_thing_from_lines(['2018/12/28 banana'])
+    lfile.add_thing_from_lines(["2018/12/28 banana"])
     lfile.things[-1].thing_number = 4
-    lfile.add_thing_from_lines(['2017/12/27 carrot'])
+    lfile.add_thing_from_lines(["2017/12/27 carrot"])
     lfile.things[-1].thing_number = 3
-    lfile.add_thing_from_lines(['2017/12/27 dill'])
+    lfile.add_thing_from_lines(["2017/12/27 dill"])
     lfile.things[-1].thing_number = 1
-    lfile.add_thing_from_lines(['2017/12/27 eggplant'])
+    lfile.add_thing_from_lines(["2017/12/27 eggplant"])
     lfile.things[-1].thing_number = 2
     lfile.sort()
 
-    expected_payees = ['dill', 'eggplant', 'carrot', 'banana', 'apple']
+    expected_payees = ["dill", "eggplant", "carrot", "banana", "apple"]
     for thing, expected in zip(lfile.things, expected_payees):
         assert thing.payee == expected
 
@@ -180,16 +189,16 @@ def test_sorting_by_date_and_thing_number():
 def test_reconciler_multiple_matches_across_transactions():
     # individual checking transactions ok, but multiple across file
     with pytest.raises(LdgReconcilerError) as excinfo:
-        LedgerFile(FT.test_rec_multiple_match, 'checking')
-    expected = ('More than one matching account:\n'
-                '    a: checking down\n    a: checking up')
+        LedgerFile(FT.test_rec_multiple_match, "checking")
+    expected = (
+        "More than one matching account:\n    a: checking down\n    a: checking up"
+    )
     assert str(excinfo.value) == expected
 
 
 def test_reconciler_multiple_matches_within_transaction():
     # multiple matches within a single transaction
     with pytest.raises(LdgReconcilerError) as excinfo:
-        LedgerFile(FT.test_rec_multiple_match, 'cash')
-    expected = ('More than one matching account:\n'
-                '    a: cash in\n    a: cash out')
+        LedgerFile(FT.test_rec_multiple_match, "cash")
+    expected = "More than one matching account:\n    a: cash in\n    a: cash out"
     assert str(excinfo.value) == expected

@@ -17,26 +17,24 @@ class ScheduleThing(LedgerThing):
     LINE_FILE_CONFIG = 0
     LINE_DATE = 0
     LINE_SCHEDULE = 1
-    INTERVAL_DAY = 'daily'
-    INTERVAL_WEEK = 'weekly'
-    INTERVAL_MONTH = 'monthly'
-    EOM = 'eom'
-    EOM30 = 'eom30'
-    SEPARATOR = ';'
-    THING_CONFIG_LABEL = 'schedule'
+    INTERVAL_DAY = "daily"
+    INTERVAL_WEEK = "weekly"
+    INTERVAL_MONTH = "monthly"
+    EOM = "eom"
+    EOM30 = "eom30"
+    SEPARATOR = ";"
+    THING_CONFIG_LABEL = "schedule"
 
     def __init__(self, lines):
         self.first_thing = False
-        self.interval_uom = ''   # month or week
-        self.days = []           # e.g. 5, 15, eom, eom30
-        self.interval = 1        # e.g. 1 = every month, 2 = every other
+        self.interval_uom = ""  # month or week
+        self.days = []  # e.g. 5, 15, eom, eom30
+        self.interval = 1  # e.g. 1 = every month, 2 = every other
 
         super().__init__(lines)
 
         if ScheduleThing.do_file_config:
-            self.handle_file_config(
-                lines[ScheduleThing.LINE_FILE_CONFIG]
-            )
+            self.handle_file_config(lines[ScheduleThing.LINE_FILE_CONFIG])
             self.first_thing = True
             ScheduleThing.do_file_config = False
             return
@@ -44,7 +42,7 @@ class ScheduleThing(LedgerThing):
         self.handle_thing_config(lines[ScheduleThing.LINE_SCHEDULE])
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({self.get_lines()})'
+        return f"{self.__class__.__name__}({self.get_lines()})"
 
     # file level config looks like this:
     # ;; scheduler ; enter N days
@@ -52,7 +50,7 @@ class ScheduleThing(LedgerThing):
     @staticmethod
     def handle_file_config(line):
 
-        config_regex = r'''(?x)               # verbose mode
+        config_regex = r"""(?x)               # verbose mode
             ^                                 # line start
             \s*;;\s*scheduler\s*              # required
             (?:                               # non-capturing
@@ -60,7 +58,7 @@ class ScheduleThing(LedgerThing):
             )?                                # optional
             (?:\s*;.*)?                       # optional end semi-colon
             $                                 # line end
-            '''
+            """
 
         # capturing groups
         enter_days_idx = 1
@@ -68,8 +66,8 @@ class ScheduleThing(LedgerThing):
         match = re.match(config_regex, line)
         if not match:
             raise LdgSchedulerError(
-                f'Invalid schedule file config:\n{line}\nExpected:\n'
-                ';; scheduler ; enter N days'
+                f"Invalid schedule file config:\n{line}\nExpected:\n"
+                ";; scheduler ; enter N days"
             )
 
         if match.group(enter_days_idx):
@@ -78,8 +76,8 @@ class ScheduleThing(LedgerThing):
             if ScheduleThing.enter_days < 1:
                 ScheduleThing.enter_days = 0
 
-        ScheduleThing.entry_boundary_date = (
-            date.today() + relativedelta(days=ScheduleThing.enter_days)
+        ScheduleThing.entry_boundary_date = date.today() + relativedelta(
+            days=ScheduleThing.enter_days
         )
 
     def handle_thing_config(self, line):
@@ -96,33 +94,31 @@ class ScheduleThing(LedgerThing):
 
         if len(configitems) < 4:
             raise LdgSchedulerError(
-                f'Invalid schedule thing config:\n{line}\n'
-                'Not enough parameters'
+                f"Invalid schedule thing config:\n{line}\nNot enough parameters"
             )
 
         del configitems[0:2]  # remove empty strings from opening ;;
 
         # now: ['schedule', 'monthly', '12th 21st eom', '3', 'auto']
 
-        if configitems[cfg_label_idx].lower() != \
-                ScheduleThing.THING_CONFIG_LABEL:
+        if configitems[cfg_label_idx].lower() != ScheduleThing.THING_CONFIG_LABEL:
             raise LdgSchedulerError(
-                f'Invalid schedule thing config:\n{line}\n'
+                f"Invalid schedule thing config:\n{line}\n"
                 f'"{ScheduleThing.THING_CONFIG_LABEL}" '
-                'label not found in expected place.'
+                "label not found in expected place."
             )
 
         interval_uom_regex = (
-            '(daily|weekly|monthly|bimonthly|quarterly|biannual|yearly)'
+            "(daily|weekly|monthly|bimonthly|quarterly|biannual|yearly)"
         )
 
         match = re.match(interval_uom_regex, configitems[interval_uom_idx])
         if not match:
             uom = configitems[interval_uom_idx]
             raise LdgSchedulerError(
-                f'Invalid schedule thing config:\n{line}\nInterval UOM '
+                f"Invalid schedule thing config:\n{line}\nInterval UOM "
                 f'"{uom}" not recognized. Supported UOMs: daily, '
-                'weekly, monthly, bimonthly, quarterly, biannual, yearly.'
+                "weekly, monthly, bimonthly, quarterly, biannual, yearly."
             )
 
         intervaluom = match.group(1).lower()
@@ -131,28 +127,25 @@ class ScheduleThing(LedgerThing):
         # optional fields are referenceable
 
         for _ in range(len(configitems), 4):
-            configitems.append('')
+            configitems.append("")
 
         if not configitems[days_idx].strip():
             configitems[days_idx] = str(self.thing_date.day)
 
-        match = re.match(r'[^\d]*(\d+).*', configitems[interval_idx])
+        match = re.match(r"[^\d]*(\d+).*", configitems[interval_idx])
         interval = 1
         if match:
             interval = int(match.group(1))
 
-        uom_translations = {
-            'bimonthly': 2,
-            'quarterly': 3,
-            'biannual': 6,
-            'yearly': 12,
-        }
+        uom_translations = {"bimonthly": 2, "quarterly": 3, "biannual": 6, "yearly": 12}
 
         if intervaluom in uom_translations:
             interval *= uom_translations[intervaluom]
 
-        if intervaluom != ScheduleThing.INTERVAL_DAY \
-                and intervaluom != ScheduleThing.INTERVAL_WEEK:
+        if (
+            intervaluom != ScheduleThing.INTERVAL_DAY
+            and intervaluom != ScheduleThing.INTERVAL_WEEK
+        ):
             intervaluom = ScheduleThing.INTERVAL_MONTH
 
         self.interval = interval
@@ -160,7 +153,7 @@ class ScheduleThing(LedgerThing):
 
         day_string = configitems[days_idx].lower()
         self.days = []
-        days_regex = r'(\d+|eom(?:\d\d?)?)'
+        days_regex = r"(\d+|eom(?:\d\d?)?)"
         for match in re.finditer(days_regex, day_string):
             if match.groups()[0].isdigit():
                 theday = match.groups()[0].zfill(2)  # format for sorting
@@ -183,9 +176,7 @@ class ScheduleThing(LedgerThing):
         entry_lines = list(self.lines)
         del entry_lines[ScheduleThing.LINE_SCHEDULE]
         entry_lines[ScheduleThing.LINE_DATE] = re.sub(
-            DATE_REGEX,
-            self.get_date_string(),
-            entry_lines[ScheduleThing.LINE_DATE]
+            DATE_REGEX, self.get_date_string(), entry_lines[ScheduleThing.LINE_DATE]
         )
         return LedgerThing(entry_lines)
 
@@ -198,26 +189,17 @@ class ScheduleThing(LedgerThing):
         else:  # INTERVAL_MONTH
             # first see if any scheduled days remaining in same month
             for scheduleday in self.days:
-                scheduleday = self.get_month_day(
-                    scheduleday,
-                    previousdate
-                )
+                scheduleday = self.get_month_day(scheduleday, previousdate)
                 # compare with greater so we don't keep matching same
                 if scheduleday > previousdate.day:
-                    return self.get_safe_date(
-                        previousdate,
-                        scheduleday
-                    )
+                    return self.get_safe_date(previousdate, scheduleday)
 
             # advance to next month (by specified interval)
 
-            nextdate = previousdate + relativedelta(
-                months=self.interval
-            )
+            nextdate = previousdate + relativedelta(months=self.interval)
 
             return self.get_safe_date(
-                nextdate,
-                self.get_month_day(self.days[0], nextdate)
+                nextdate, self.get_month_day(self.days[0], nextdate)
             )
 
     # handle situations like 8/31 -> 9/31 (back up to 9/30)
@@ -230,9 +212,7 @@ class ScheduleThing(LedgerThing):
             # month (may be unlikely now that we check last_day_of_month
             # in get_month_day)
             return date(
-                thedate.year,
-                thedate.month,
-                monthrange(thedate.year, thedate.month)[1]
+                thedate.year, thedate.month, monthrange(thedate.year, thedate.month)[1]
             )
 
     # knows how to handle "eom"

@@ -3,7 +3,8 @@ from textwrap import dedent
 from . import filetester as FT
 from ..schedulefile import ScheduleFile
 
-schedule_testdata = dedent('''\
+schedule_testdata = dedent(
+    """\
     ;; scheduler ; enter 45 days
 
     2016/10/31 absolute insurance
@@ -20,24 +21,25 @@ schedule_testdata = dedent('''\
         ;; schedule ; monthly ; 15 ; 6 ; auto
         e: dolor
         a: cash                                 $-45
-    ''')
+    """
+)
 
 
 def test_next_scheduled_transaction():
     with FT.temp_file(schedule_testdata) as tempfilename:
         schedulefile = ScheduleFile(tempfilename)
-    assert schedulefile.next_scheduled_date() == '2007/07/07'
+    assert schedulefile.next_scheduled_date() == "2007/07/07"
 
 
 def test_next_scheduled_transaction_no_next():
-    scheduler_data = ';; scheduler ; enter 45 days'
+    scheduler_data = ";; scheduler ; enter 45 days"
     with FT.temp_file(scheduler_data) as tempfilename:
         schedulefile = ScheduleFile(tempfilename)
-    assert schedulefile.next_scheduled_date() == ''
+    assert schedulefile.next_scheduled_date() == ""
 
 
 def test_add_thing_with_no_lines():
-    scheduler_data = ';; scheduler ; enter 45 days'
+    scheduler_data = ";; scheduler ; enter 45 days"
     with FT.temp_file(scheduler_data) as tempfilename:
         schedulefile = ScheduleFile(tempfilename)
 
