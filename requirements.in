@@ -1,0 +1,16 @@
+python-dateutil
+
+# test
+pytest
+pytest-cov
+
+# utils
+black
+flake8
+flake8-bugbear
+flake8-builtins
+flake8-commas
+flake8-comprehensions
+isort
+ipdb
+ipython
