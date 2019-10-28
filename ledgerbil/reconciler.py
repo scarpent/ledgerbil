@@ -267,19 +267,18 @@ class Reconciler(cmd.Cmd):
             return None
 
         if len(matches) > 1:
-            # See if there is an "available" match, meaning if we're marking
-            # a transaction, use one that isn't already pending, and vice versa
-            # for unmarking. If none are available in this way, we'll fall back
-            # to using the first match which will result in an "already marked"
-            # (or unmarked) message
-            if mark:
-                available = [
-                    key for key in matches if not self.current_listing[key].is_pending()
-                ]
-            else:
-                available = [
-                    key for key in matches if self.current_listing[key].is_pending()
-                ]
+            # See if there is an "available" match for which we can actually
+            # do a mark or an unmark. If none are available to be toggled,
+            # we'll fall back to using the first match which will result in an
+            # "already un/marked" message
+            def is_available(pending):
+                return (mark and not pending) or (not mark and pending)
+
+            available = [
+                key
+                for key in matches
+                if is_available(self.current_listing[key].is_pending())
+            ]
 
             if available:
                 matches = available
