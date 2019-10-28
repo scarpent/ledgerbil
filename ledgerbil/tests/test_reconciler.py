@@ -165,7 +165,7 @@ class OutputTests(Redirector):
         multiple_matches = dedent(
             f"""
 
-            2019/10/23 two
+            2019/10/23 two again
                 e: beep
                 a: cash         $-20
             """
@@ -174,35 +174,23 @@ class OutputTests(Redirector):
         with FT.temp_file(testdata + multiple_matches) as tempfilename:
             recon = Reconciler([LedgerFile(tempfilename, "cash")])
 
-        self.reset_redirect()
-
         # none of these should result in a file write; we'll get out of
         # the context manager as an additional confirmation of this
 
         for command in [recon.do_mark, recon.do_unmark]:
+            self.reset_redirect()
             command("")
             expected = "*** Transaction numbers or amounts required\n"
             assert self.redirect.getvalue() == expected
             self.reset_redirect()
             command("ahchew")
-            expected = "Transaction not found: ahchew\n"
-            assert self.redirect.getvalue() == expected
+            assert self.redirect.getvalue() == "Transaction not found: ahchew\n"
             self.reset_redirect()
             command("1234.")
-            expected = "Amount not found: 1234.\n"
-            assert self.redirect.getvalue() == expected
+            assert self.redirect.getvalue() == "Amount not found: 1234.\n"
             self.reset_redirect()
             command("twillig.")
-            expected = "Amount not found: twillig.\n"
-            assert self.redirect.getvalue() == expected
-            self.reset_redirect()
-            command("-20.")
-            expected = (
-                "More than one match for amount: -20. "
-                "(Specify a line number instead.)\n"
-            )
-            assert self.redirect.getvalue() == expected
-            self.reset_redirect()
+            assert self.redirect.getvalue() == "Amount not found: twillig.\n"
 
         recon.do_list("")
         self.reset_redirect()
@@ -211,6 +199,9 @@ class OutputTests(Redirector):
         assert self.redirect.getvalue() == "Already marked pending: 2\n"
         self.reset_redirect()
         recon.do_unmark("1")
+        assert self.redirect.getvalue() == "Not marked; can't unmark: 1\n"
+        self.reset_redirect()
+        recon.do_unmark("-20.")
         assert self.redirect.getvalue() == "Not marked; can't unmark: 1\n"
 
     def test_finish_balancing_errors(self):
@@ -656,6 +647,35 @@ def test_mark_and_unmark_all():
     recon.do_mark("all")
     assert_equal_floats(-15, recon.total_cleared)
     assert_equal_floats(-22.12, recon.total_pending)
+
+
+def test_mark_and_unmark_multiple_amount_matches():
+
+    multiple_matches = dedent(
+        f"""
+
+        2019/10/23 two again
+            e: beep
+            a: cash         $-20
+        """
+    )
+
+    with FT.temp_file(testdata + multiple_matches) as tempfilename:
+        recon = Reconciler([LedgerFile(tempfilename, "cash")])
+
+    assert_equal_floats(-32.12, recon.total_pending)
+    recon.do_mark("-20.")
+    assert_equal_floats(-52.12, recon.total_pending)
+    recon.do_mark("-20.")
+    assert_equal_floats(-72.12, recon.total_pending)
+    recon.do_unmark("-20.")
+    assert_equal_floats(-52.12, recon.total_pending)
+    recon.do_unmark("-20. 2")
+    assert_equal_floats(-30, recon.total_pending)
+    recon.do_mark("-20. 2 -20.")
+    assert_equal_floats(-72.12, recon.total_pending)
+    recon.do_unmark("-20. -20.")
+    assert_equal_floats(-32.12, recon.total_pending)
 
 
 def test_finish_balancing_with_errors():

@@ -126,17 +126,16 @@ class Reconciler(cmd.Cmd):
     def do_mark(self, args):
         """Mark a transaction as pending (!)
 
-        Transactions can be marked by giving the line number, or
-        by specifying a unique amount. If an amount isn't unique,
-        the line number is required. To indicate an amount,
-        include a decimal point, for example: 12. or 6.37
+        Transactions can be marked by giving the line number, or by
+        specifying an amount. To indicate an amount, include a decimal
+        point, for example: 12. or 6.37
 
         Syntax: mark <#> or <# ... #>
                 <#>
                 mark all
 
         - The transaction number or amount, or multiple line
-          numbers or amounts separated by spaces
+          numbers and amounts separated by spaces
         - Without "mark", a single transaction number or amount
         - "all" to mark all uncleared transactions
         """
@@ -145,16 +144,15 @@ class Reconciler(cmd.Cmd):
     def do_unmark(self, args):
         """Remove pending mark (!) from transaction
 
-        Transactions can be unmarked by giving the line number, or
-        by specifying a unique amount. If an amount isn't unique,
-        the line number is required. To indicate an amount,
-        include a decimal point, for example: 12. or 6.37
+        Transactions can be un marked by giving the line number, or by
+        specifying an amount. To indicate an amount, include a decimal
+        point, for example: 12. or 6.37
 
         Syntax: unmark <#>
                 unmark all
 
         - The transaction number or amount, or multiple line
-          numbers or amounts separated by spaces
+          numbers and amounts separated by spaces
         - "all" to unmark all pending transactions
         """
         self.mark_or_unmark(args, mark=False)
@@ -255,7 +253,7 @@ class Reconciler(cmd.Cmd):
                 f'"{self.get_rec_account_matched()}": {sorted(list(symbols))}'
             )
 
-    def get_current_listing_index_from_amount(self, amount):
+    def get_current_listing_index_from_amount(self, amount, mark=True):
         try:
             matches = [
                 key
@@ -266,17 +264,27 @@ class Reconciler(cmd.Cmd):
             matches = []
 
         if not matches:
-            return None, f"Amount not found: {amount}\n"
-        elif len(matches) > 1:
-            return (
-                None,
-                (
-                    f"More than one match for amount: {amount} "
-                    "(Specify a line number instead.)\n"
-                ),
-            )
-        else:
-            return matches[0], None
+            return None
+
+        if len(matches) > 1:
+            # See if there is an "available" match, meaning if we're marking
+            # a transaction, use one that isn't already pending, and vice versa
+            # for unmarking. If none are available in this way, we'll fall back
+            # to using the first match which will result in an "already marked"
+            # (or unmarked) message
+            if mark:
+                available = [
+                    key for key in matches if not self.current_listing[key].is_pending()
+                ]
+            else:
+                available = [
+                    key for key in matches if self.current_listing[key].is_pending()
+                ]
+
+            if available:
+                matches = available
+
+        return matches[0]
 
     def mark_or_unmark(self, args, mark=True):
         args = util.parse_args(args)
@@ -296,9 +304,10 @@ class Reconciler(cmd.Cmd):
         messages = ""
         for num in args:
             if "." in num:
-                num, message = self.get_current_listing_index_from_amount(num)
-                if message:
-                    messages += message
+                amount = num
+                num = self.get_current_listing_index_from_amount(amount, mark)
+                if not num:
+                    messages += f"Amount not found: {amount}\n"
                     continue
 
             if num not in self.current_listing:

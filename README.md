@@ -451,12 +451,18 @@ restored when the reconciler is restarted.
 ### mark / unmark
 
 Set transactions as pending (`!`) or remove the pending mark. You can
-enter one or more line numbers, unique transaction amounts, or "all" for
-all lines.
+enter one or more line numbers, transaction amounts, or "all" for all
+lines.
 
-If the amount isn't unique in the listed transactions, a line number is
-required instead. To specify an amount, include a decimal point, for 
-example: `12.` or `6.37`
+To specify an amount, include a decimal point, for example: `12.`
+or `6.37`
+
+If multiple transactions have the same amount, the first "available"
+transaction will be used. That is, if you are marking a transaction as
+pending, the reconciler will look for a match that is not already marked
+pending. If all matches are already pending, it will use the first
+match, which will result in a message that it has already been marked
+pending.
 
 Giving a single line number or amount by itself with no command will be
 interpreted as a mark command.

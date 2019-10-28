@@ -70,11 +70,11 @@
 
 2018/08/02 gas n go
     e: car: gas
-    a: cash                                 $-12
+  ! a: cash                                 $-12
 
-2018/08/04
+2018/08/04 food and stuff
     e: food: take home
-    a: cash                                 $-12
+  ! a: cash                                 $-12
 
 2019/08/01 account test  ; ledger will appear to double count parent
     e: parent                               $20
