@@ -22,57 +22,57 @@ import os
 class Settings:
 
     # This is where your ledger files live
-    LEDGER_DIR = os.path.join(os.path.expanduser('~'), 'some', 'place')
+    LEDGER_DIR = os.path.join(os.path.expanduser("~"), "some", "place")
 
     LEDGER_FILES = [
-        'accounts.ldg',
-        'payees.ldg',
-        'misc.ldg',
-        'investments.ledger',
-        'journal.ledger',
+        "accounts.ldg",
+        "payees.ldg",
+        "misc.ldg",
+        "investments.ledger",
+        "journal.ledger",
     ]
-    PRICES_FILE = os.path.join(LEDGER_DIR, 'prices.db.ldg')
-    PORTFOLIO_FILE = os.path.join(LEDGER_DIR, 'portfolio.json')
-    RECONCILER_CACHE_FILE = os.path.join(LEDGER_DIR, '.reconciler_cache')
+    PRICES_FILE = os.path.join(LEDGER_DIR, "prices.db.ldg")
+    PORTFOLIO_FILE = os.path.join(LEDGER_DIR, "portfolio.json")
+    RECONCILER_CACHE_FILE = os.path.join(LEDGER_DIR, ".reconciler_cache")
 
     LEDGER_COMMAND = (
-        'ledger',
-        '--strict',
-        '--check-payees',
-        '--pedantic',
-        '--explicit',
-        '--columns',
-        '120',
-        '--market',
-        '--price-db',
+        "ledger",
+        "--strict",
+        "--check-payees",
+        "--pedantic",
+        "--explicit",
+        "--columns",
+        "120",
+        "--market",
+        "--price-db",
         PRICES_FILE,
     )
 
     # Date format used by your ledger journal files. This is needed for
     # sorting and the scheduler to work properly. (Only '%Y/%m/%d' and
     # '%Y-%m-%d' are currently supported due to ledgerthing DATE_REGEX.)
-    DATE_FORMAT = '%Y/%m/%d'
+    DATE_FORMAT = "%Y/%m/%d"
 
     # Only used for output purposes, for example, in grid column headers.
     # (Probably safest to assume '%Y-%m' as the alternative here.)
-    DATE_FORMAT_MONTH = '%Y/%m'
+    DATE_FORMAT_MONTH = "%Y/%m"
 
-    INVESTMENT_DEFAULT_ACCOUNTS = '401k or ira or mutual'
-    INVESTMENT_DEFAULT_END_DATE = 'tomorrow'
+    INVESTMENT_DEFAULT_ACCOUNTS = "401k or ira or mutual"
+    INVESTMENT_DEFAULT_END_DATE = "tomorrow"
 
     # Accounts to use for the grid command's `--net-worth` option
     #
     # Grouping with parens allows for excluding accounts when running grid,
     # e.g. `grid --networth and not home` to exclude home value and mortgage
     # if your accounts are named appropriately for that...
-    NETWORTH_ACCOUNTS = '(^assets ^liabilities)'
+    NETWORTH_ACCOUNTS = "(^assets ^liabilities)"
 
     # When querying ledger with accounts (say, from reconciler),
     # will expand these regex patterns (since ledger doesn't
     # appear to interpret aliases in queries)
     ACCOUNT_ALIASES = {
-        r'^a:': 'assets:',
-        r'^e:': 'expenses:',
-        r'^i:': 'income:',
-        r'^l:': 'liabilities:',
+        r"^a:": "assets:",
+        r"^e:": "expenses:",
+        r"^i:": "income:",
+        r"^l:": "liabilities:",
     }
