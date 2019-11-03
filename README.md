@@ -97,7 +97,7 @@ Ledgerbil will assume a properly formatted ledger file, although it
 won't necessarily enforce rules or report problems with an input file.
 It will be best to feed it files that run cleanly through ledger-cli.
 
-Please see [CONTRIBUTING.md](contributing.md) for a note to prospective
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for a note to prospective
 users and contributors.
 
 ***And now!*** Here is the current state of --help, which reflects the
