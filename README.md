@@ -417,7 +417,7 @@ To specify an amount, include a decimal point, for example: `12.`
 or `6.37`
 
 If multiple transactions have the same amount, the first "available"
-transaction will be used. That is, if you are marking a transaction as
+transaction will be used. That is: if you are marking a transaction as
 pending, the reconciler will look for a match that is not already marked
 pending. If all matches are already pending, it will use the first
 match, which will result in a message that it has already been marked
@@ -465,8 +465,8 @@ entries, with the `!` or `*` going in the third "space" when present.
 
 It wouldn't be *that* hard to make it smarter about this, but I didn't
 want to deal with some edge cases in the initial implementation. (And
-note, again, that the reconciler only works with individual account
-entries; never the whole transaction on the top line.)
+note, again, the reconciler only works with individual account entries;
+never the whole transaction on the top line.)
 
 ### show
 
