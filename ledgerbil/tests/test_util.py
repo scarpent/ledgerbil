@@ -231,5 +231,5 @@ def test_get_colored_amount(test_input, expected):
 @mock.patch(__name__ + ".util.print")
 def test_handle_error(mock_print):
     return_value = util.handle_error("this is a test")
-    assert return_value == -1
+    assert return_value == util.ERROR_RETURN_VALUE
     mock_print.assert_called_once_with("this is a test", file=sys.stderr)

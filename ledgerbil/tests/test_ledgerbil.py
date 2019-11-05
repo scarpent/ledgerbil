@@ -5,6 +5,7 @@ from unittest import mock
 import pytest
 from dateutil.relativedelta import relativedelta
 
+from ..ledgerbilexceptions import ERROR_RETURN_VALUE
 from . import filetester as FT
 from .helpers import Redirector
 from .test_schedulefile import schedule_testdata
@@ -332,7 +333,7 @@ def test_reconciler_exception_return_value():
     )
     with FT.temp_file(ledgerfile_data) as tempfilename:
         return_value = ledgerbil.main(["--file", tempfilename, "--reconcile", "bonds"])
-    assert return_value == -1
+    assert return_value == ERROR_RETURN_VALUE
 
 
 @mock.patch(__name__ + ".ledgerbil.handle_error")
@@ -345,7 +346,7 @@ def test_main_investments_with_argv_none(mock_handle_error):
 
 def test_main_investments_with_argv_none_retun_value():
     with mock.patch("sys.argv", ["/script"]):
-        assert ledgerbil.main() == -1
+        assert ledgerbil.main() == ERROR_RETURN_VALUE
 
 
 @mock.patch(__name__ + ".scheduler.handle_error")
@@ -366,7 +367,7 @@ def test_next_scheduled_date_scheduler_exception(mock_handle_error):
 def test_next_scheduled_date_scheduler_exception_return_value():
     schedulefile_data = ";; scheduler enter 567 days"
     with FT.temp_file(schedulefile_data) as tempfilename:
-        assert ledgerbil.main(["--schedule", tempfilename, "-n"]) == -1
+        assert ledgerbil.main(["--schedule", tempfilename, "-n"]) == ERROR_RETURN_VALUE
 
 
 @mock.patch(__name__ + ".scheduler.handle_error")
@@ -386,7 +387,7 @@ def test_scheduler_exception(mock_handle_error):
 def test_scheduler_exception_return_value():
     with FT.temp_file(";; scheduler enter 321 days") as tempfilename:
         return_value = ledgerbil.main(["--schedule", tempfilename, "-f", FT.testfile])
-    assert return_value == -1
+    assert return_value == ERROR_RETURN_VALUE
 
 
 @mock.patch(__name__ + ".ledgerbil.argparse.ArgumentParser.print_help")

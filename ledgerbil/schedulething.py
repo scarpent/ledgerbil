@@ -5,7 +5,7 @@ from datetime import date
 
 from dateutil.relativedelta import relativedelta
 
-from .ledgerbilexceptions import LdgSchedulerError
+from .ledgerbilexceptions import ERROR_RETURN_VALUE, LdgSchedulerError
 from .ledgerthing import DATE_REGEX, LedgerThing
 
 
@@ -237,4 +237,4 @@ class ScheduleThing(LedgerThing):
 
     @staticmethod
     def get_week_day():
-        return -1
+        return ERROR_RETURN_VALUE

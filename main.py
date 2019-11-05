@@ -21,7 +21,7 @@ def main(argv=None):
     }
 
     if command not in other:
-        ledgerbil.main(argv)
+        return ledgerbil.main(argv)
     else:
         other[command].main(argv[1:])
 

@@ -600,7 +600,7 @@ class GetWeekDay(TestCase):
         self.schedule_thing = ScheduleThing(schedule_lines_test)
 
     def test_get_week_day(self):
-        assert self.schedule_thing.get_week_day() == -1
+        assert self.schedule_thing.get_week_day() == util.ERROR_RETURN_VALUE
 
 
 class GetMonthDay(Redirector):

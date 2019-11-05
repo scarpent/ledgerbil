@@ -15,6 +15,10 @@ def test_main_ledgerbil(mock_ledgerbil_main):
     mock_ledgerbil_main.assert_called_with(["-r", "blah", "-f", "fubar"])
 
 
+def test_main_ledgerbil_returns_error_code():
+    assert main.main(["-r", "borogoves"]) == 1
+
+
 @mock.patch("main.grid.main")
 def test_main_grid(mock_grid_main):
     main.main(["grid"])

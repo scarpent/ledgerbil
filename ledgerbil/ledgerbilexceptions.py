@@ -1,3 +1,6 @@
+ERROR_RETURN_VALUE = 1
+
+
 class LdgException(Exception):
     pass
 

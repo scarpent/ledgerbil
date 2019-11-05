@@ -7,7 +7,7 @@ from datetime import datetime
 from functools import reduce
 
 from .colorable import Colorable
-from .ledgerbilexceptions import LdgReconcilerError
+from .ledgerbilexceptions import ERROR_RETURN_VALUE, LdgReconcilerError
 from .settings_getter import get_setting
 
 # supported operators
@@ -139,4 +139,4 @@ def assert_only_one_matching_account(accounts):
 
 def handle_error(message):
     print(message, file=sys.stderr)
-    return -1
+    return ERROR_RETURN_VALUE
