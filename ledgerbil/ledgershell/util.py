@@ -16,11 +16,11 @@ AccountBalance = namedtuple("AccountBalance", "account amount symbol")
 
 def get_account_balance(line, shares=False, strip_account=True):
     if shares:
-        match = re.match(SHARES_REGEX, line)
+        match = SHARES_REGEX.match(line)
         if match:
             amount, symbol, account = match.groups()
     else:
-        match = re.match(DOLLARS_REGEX, line)
+        match = DOLLARS_REGEX.match(line)
         if match:
             amount, account = match.groups()
             symbol = "$"
@@ -42,7 +42,7 @@ def get_account_balance_generic(line):
 
 def get_payee_subtotal(line):
     DOLLARS = 0
-    match = re.match(PAYEE_SUBTOTAL_REGEX, line)
+    match = PAYEE_SUBTOTAL_REGEX.match(line)
     if match:
         return get_float(match.groups()[DOLLARS])
     return None
@@ -50,7 +50,7 @@ def get_payee_subtotal(line):
 
 def get_first_dollar_amount_float(line):
     DOLLARS = 0
-    match = re.match(FIRST_DOLLAR_AMOUNT_REGEX, line)
+    match = FIRST_DOLLAR_AMOUNT_REGEX.match(line)
     if match:
         return get_float(match.groups()[DOLLARS])
     return None

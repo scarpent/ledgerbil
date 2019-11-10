@@ -40,7 +40,7 @@ LedgerPosting = namedtuple("LedgerPosting", "status account shares symbol amount
 
 
 def get_ledger_posting(line):
-    m = re.match(POSTING_REGEX, line)
+    m = POSTING_REGEX.match(line)
     if not m:
         return None
 
@@ -98,7 +98,7 @@ class LedgerThing:
         return "\n".join(self.get_lines())
 
     def parse_top_line(self, line):
-        m = re.match(TOP_LINE_REGEX, line)
+        m = TOP_LINE_REGEX.match(line)
 
         the_date, status, code, payee = m.groups()
 
