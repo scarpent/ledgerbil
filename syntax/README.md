@@ -6,8 +6,8 @@ definition format][2], and a means of [testing][3] both `.tmLanguage`
 and `.sublime-syntax` files.
 
 I've switched to using vscode as my main editor but am still maintaining
-the newer sublime syntax files, (At least for now. And I'm still using
-Sublime Text for building/testing.)
+the newer sublime syntax files, at least for now. I'm still using
+Sublime Text for building/testing.
 
 The syntax definition files create scopes, and then it is up to your
 editor's theme to apply colors to those scopes. I use Monokai dark
