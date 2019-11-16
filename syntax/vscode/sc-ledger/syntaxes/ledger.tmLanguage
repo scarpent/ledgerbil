@@ -30,6 +30,12 @@
 		</dict>
 		<dict>
 			<key>match</key>
+			<string>^;;;;.*</string>
+			<key>name</key>
+			<string>keyword.ledger.banner</string>
+		</dict>
+		<dict>
+			<key>match</key>
 			<string>^\s*;;.*\n</string>
 			<key>name</key>
 			<string>string.unquoted.ledger.header-bold-comment</string>

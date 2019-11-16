@@ -41,7 +41,7 @@
             "foreground": "var(yellow)"
         },
         // ledger start ------------------------------------------------------
-        // (i think these are default Monokai colors but let's be explicit)
+        // (many of these are default Monokai colors but let's be explicit)
         {
             "name": "Ledger comments",
             "scope": "comment.ledger",
@@ -76,6 +76,12 @@
         {
             "name": "Ledger todo",
             "scope": "keyword.ledger.todo",
+            "font_style": "normal",
+            "foreground": "#458af3" // cobalt (blue)
+        },
+        {
+            "name": "Ledger banner (four colons start of line)",
+            "scope": "keyword.ledger.banner",
             "font_style": "normal",
             "foreground": "#458af3" // cobalt (blue)
         },

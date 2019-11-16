@@ -26,6 +26,10 @@
                 "settings": {"fontStyle": "", "foreground": "#458af3"} // cobalt (blue)
             },
             {
+                "scope": ["keyword.ledger.banner"],
+                "settings": {"fontStyle": "", "foreground": "#458af3"} // cobalt (blue)
+            },
+            {
                 "scope": ["markup.ledger"],
                 "settings": {"fontStyle": "", "foreground": "#ffffff"} // white
             },

@@ -16,6 +16,10 @@
     e: food: take home
     l: credit card: mega                    $-17.73
 
+;;;; ------------------------------------------------------------------------ ;
+;;;; this is a banner, e.g. 'twas twillig, and the slithy toves...
+;;;; ------------------------------------------------------------------------ ;
+
 2017/11/10 food and stuff
     e: food: groceries                                  ; argh: this is a tag!
     e: home: stuff: in                      $10
@@ -33,7 +37,7 @@
     a: fsa                                  $41.67
   * a: checking                             $1,241.67
 
-2017/11/30 johnny paycheck
+2017/11/30 johnny paycheck                                              ; todo
     i: wages: gross pay                     $-2,100
     i: wages: employer match                $-63
     e: taxes: federal                       $171.46

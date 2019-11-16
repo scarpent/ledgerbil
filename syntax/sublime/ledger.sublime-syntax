@@ -211,6 +211,8 @@ contexts:
       captures:
         1: keyword.ledger.scheduler-config
         2: string.unquoted.ledger.scheduler-config
+    - match: "^;;;;.*"
+      scope: "keyword.ledger.banner"
     - match: "^\\s*;;.*\\n"
       scope: string.unquoted.ledger.header-bold-comment
     - match: "$"

@@ -1,4 +1,11 @@
 # SYNTAX TEST "Packages/User/ledger.tmLanguage"
+;;;; banner comment
+# <- keyword.ledger.banner
+#^^^^^^^^^^^^^^^^^^ keyword.ledger.banner
+
+  ;;;; only a banner at start of line
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string.unquoted.ledger.header-bold-comment
+
 ;; header comment / bold comment
 # <- string.unquoted.ledger.header-bold-comment
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string.unquoted.ledger.header-bold-comment

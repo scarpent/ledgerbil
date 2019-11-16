@@ -59,6 +59,9 @@ patterns:
     '1': {name: keyword.ledger.scheduler-config}
     '2': {name: string.unquoted.ledger.scheduler-config}
 
+- match: "^;;;;.*"
+  name: keyword.ledger.banner
+
 - match: "^\\s*;;.*\\n"
   name: string.unquoted.ledger.header-bold-comment
 
