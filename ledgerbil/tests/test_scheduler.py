@@ -4,9 +4,9 @@ from unittest import mock
 
 from dateutil.relativedelta import relativedelta
 
+from . import filetester as FT
 from .. import scheduler, util
 from ..ledgerfile import LedgerFile
-from . import filetester as FT
 from .test_schedulefile import schedule_testdata
 
 

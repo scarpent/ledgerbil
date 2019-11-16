@@ -5,10 +5,10 @@ from unittest import mock
 
 import pytest
 
+from .. import grid
 from ... import settings, settings_getter
 from ...colorable import Colorable
 from ...tests.helpers import OutputFileTester
-from .. import grid
 
 
 class MockSettings:

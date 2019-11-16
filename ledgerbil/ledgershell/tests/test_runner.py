@@ -3,8 +3,8 @@ from unittest import mock
 
 import pytest
 
-from ... import settings, settings_getter
 from .. import runner
+from ... import settings, settings_getter
 
 
 class MockSettings:

@@ -5,11 +5,11 @@ from unittest import mock
 
 import pytest
 
+from . import filetester as FT
 from .. import ledgerfile  # noqa: F401 (is used in patch)
 from ..ledgerbilexceptions import LdgReconcilerError
 from ..ledgerfile import LedgerFile
 from ..ledgerthing import LedgerThing
-from . import filetester as FT
 from .helpers import Redirector
 
 
