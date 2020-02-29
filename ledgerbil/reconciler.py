@@ -643,7 +643,7 @@ def reconciled_status():
         if account in ledger_balances:
             accounts[account].ledger_balance = ledger_balances[account]
 
-    reconciled_status_report(accounts)
+    return reconciled_status_report(accounts)
 
 
 def get_accounts_reconciled_data():
@@ -686,13 +686,14 @@ def reconciled_status_report(accounts):
         print_reconciled_status_line(
             "prev date", "prev balance", "ldg cleared", "account"
         )
-        print(
+        return util.handle_error(
             Colorable(
                 "red",
                 "Accounts found in reconciler cache with differing amounts "
                 "between previous balance and cleared balance from ledger.",
             )
         )
+
     else:
         print(
             "Previous balances match cleared balances from ledger for "

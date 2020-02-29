@@ -1268,9 +1268,14 @@ def test_reconciled_status_report_no_accounts(mock_print):
     mock_print.assert_called_once_with(expected)
 
 
+def test_reconciled_status_report_normal_return_value():
+    accounts = {}
+    assert reconciler.reconciled_status_report(accounts) is None
+
+
 @mock.patch(__name__ + ".reconciler.print_reconciled_status_line")
-@mock.patch(__name__ + ".reconciler.print")
-def test_reconciled_status_report_mismatch(mock_print, mock_print_status_line):
+@mock.patch(__name__ + ".reconciler.util.handle_error")
+def test_reconciled_status_report_mismatch(mock_handle_error, mock_print_status_line):
     accounts = {
         "fu: bar": reconciler.ReconData("f: bar", "1997/01/01", 10.0, 10.0),
         "abc: def": reconciler.ReconData("a: def", "2007/07/07", 15.0, 10.0),
@@ -1290,7 +1295,18 @@ def test_reconciled_status_report_mismatch(mock_print, mock_print_status_line):
         "between previous balance and cleared balance from ledger.",
     )
 
-    mock_print.assert_called_once_with(expected)
+    mock_handle_error.assert_called_once_with(expected)
+
+
+def test_reconciled_status_report_mismatch_return_value():
+    accounts = {
+        "fu: bar": reconciler.ReconData("f: bar", "1997/01/01", 10.0, 10.0),
+        "abc: def": reconciler.ReconData("a: def", "2007/07/07", 15.0, 10.0),
+    }
+    assert reconciler.reconciled_status_report(accounts) == util.ERROR_RETURN_VALUE
+
+    # TODO: Would like also to have a test in test_ledgerbil.py that confirms this
+    #       propagates back to command line...
 
 
 @mock.patch(__name__ + ".reconciler.get_reconciler_cache")
