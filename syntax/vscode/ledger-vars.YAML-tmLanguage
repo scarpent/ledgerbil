@@ -7,8 +7,9 @@ uuid: 50e628ee-56b8-4ab2-985d-8a49feff4f2d
 
 # ----------------------------------------------------------------------
 # "variables" - patterns defined as actual variables in ledger.sublime_syntax,
-#               but here we use yaml_tmlanguage_helper.py to create assorted
-#               regex monstrosities in production of ledger.YAML-tmLanguage
+#               but here we use ledger-vars.YAML-tmLanguage and
+#               yaml_tmlanguage_helper.py to create assorted regex
+#               monstrosities in ledger.YAML-tmLanguage
 #               (also had to modify things here to work in older format)
 #
 # start variables
