@@ -1,7 +1,7 @@
 from textwrap import dedent
 
-from . import filetester as FT
 from ..schedulefile import ScheduleFile
+from . import filetester as FT
 
 schedule_testdata = dedent(
     """\

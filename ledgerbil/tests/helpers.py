@@ -13,8 +13,8 @@ import sys
 from io import StringIO
 from unittest import TestCase
 
-from . import filetester as FT
 from ..colorable import Colorable
+from . import filetester as FT
 
 
 class OutputFileTesterBase:

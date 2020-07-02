@@ -17,9 +17,9 @@ that match any screenshots you see in this repo, like this one:
 
 ![ledger higlighting](../docs/images/ledger-syntax-highlighting-0.png)
 
-Below are instructions on using the ledger definitions in either editor,
-along with theme coloring, and then more on testing, building, and
-sundry.
+Below are instructions for using the ledger definitions in either
+editor, along with theme coloring, and then more on testing, building,
+and sundry.
 
 ## VSCode
 

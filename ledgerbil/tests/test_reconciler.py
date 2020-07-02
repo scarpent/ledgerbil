@@ -7,11 +7,11 @@ from unittest import TestCase, mock
 import pytest
 from dateutil.relativedelta import relativedelta
 
-from . import filetester as FT
 from .. import reconciler, settings, settings_getter, util
 from ..ledgerbilexceptions import LdgReconcilerError
 from ..ledgerfile import LedgerFile
 from ..reconciler import Reconciler, run_reconciler
+from . import filetester as FT
 from .helpers import OutputFileTesterStdout, Redirector
 
 next_week = util.get_date_string(date.today() + relativedelta(weeks=1))

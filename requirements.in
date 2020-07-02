@@ -1,3 +1,5 @@
+# run `pip-compile --upgrade` to generate requirements.txt with latest
+
 python-dateutil
 
 # test
@@ -14,3 +16,4 @@ flake8-comprehensions
 isort
 ipdb
 ipython
+pip-tools

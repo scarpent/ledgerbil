@@ -6,11 +6,11 @@ from unittest import mock
 
 import pytest
 
-from .. import grid
 from ... import settings, settings_getter
 from ...colorable import Colorable
 from ...tests import filetester as FT
 from ...tests.helpers import OutputFileTester
+from .. import grid
 
 LEDGER = "ledger"
 
