@@ -32,6 +32,8 @@ programs and their data, which you can learn about at:
 
 https://plaintextaccounting.org/
 
+## Ledger Data Entry
+
 At a minimum, all you really need is a text editor for data entry. I'm
 using VSCode for my journal, and with the [syntax highlighting files 
 included in this repo](/syntax), I find it pleasant to work with and 
@@ -39,9 +41,14 @@ look upon:
 
 ![ledger file with syntax highlighting](docs/images/ledger-syntax-highlighting-0.png)
 
-Why yet another tool? Why ledgerbil? I had my own ideas for features,
-and it's fun to have a project to work on. Let's look at a few examples 
-of reporting options before moving on to a deeper dive...
+Once you have data created, you can do about one million things with
+ledger all by itself.
+
+## Why yet another tool? Why ledgerbil?
+
+I had my own ideas for features, and it's fun to have a project to work
+on. Let's look at a few examples of reporting options before moving on
+to a deeper dive...
 
 A grid report:
 
@@ -99,6 +106,47 @@ It will be best to feed it files that run cleanly through ledger-cli.
 
 Please see [CONTRIBUTING.md](CONTRIBUTING.md) for a note to prospective
 users and contributors.
+
+## Building/Running/Testing
+
+You can set up a virtual environment using python3 and the included
+requirements.txt, of course, or use the included docker files:
+
+### just docker
+
+```
+docker build -t ledgerbil .         # build it from repo root
+docker run --rm ledgerbil pytest    # run the test suite
+docker run -it ledgerbil /bin/bash  # launch and join the container
+```
+
+You can do stuff in the container's bash shell using `python main.py`
+or aliases `ledgerbil` or `lbil`, for example:
+
+```
+# lbil --help
+    <...the help...>
+# lbil grid expenses --depth 2
+    <...grid view of expenses...>
+# lbil inv
+    <...list investments...>
+```
+
+There is a settings.py file that is set up during the build to use
+sample data in the repo.
+
+### docker compose
+
+```
+$ docker-compose build
+$ docker-compose run --rm tests
+
+# run commands
+$ docker-compose run --rm lbil --help
+$ docker-compose run --rm lbil grid income
+```
+
+## Ledgerbil Features
 
 ***And now!*** Here is the current state of --help, which reflects the
 current state of exciting features:
