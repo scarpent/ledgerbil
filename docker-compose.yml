@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  lbil:
+    build: .
+    entrypoint: python /code/main.py
+    volumes:
+      - .:/code
+  tests:
+    build: .
+    entrypoint: /usr/local/bin/py.test
+    restart: 'no'
+    volumes:
+      - .:/code
