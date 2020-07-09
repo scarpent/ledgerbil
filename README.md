@@ -110,7 +110,7 @@ users and contributors.
 ## Building/Running/Testing
 
 You can set up a virtual environment using python3 and the included
-requirements.txt, of course, or use the included docker files:
+requirements.txt, or use the included docker files:
 
 ### just docker
 
@@ -133,15 +133,19 @@ or aliases `ledgerbil` or `lbil`, for example:
 ```
 
 There is a settings.py file that is set up during the build to use
-sample data in the repo.
+sample data in the repo. It's also needed for tests to pass.
 
 ### docker compose
 
 ```
+// settings.py file from build is overwritten by local files, so
+// we need to make that settings file available:
+$ cp ledgerbil/settings.py.example ledgerbil/settings.py
+
 $ docker-compose build
 $ docker-compose run --rm tests
 
-# run commands
+// run commands
 $ docker-compose run --rm lbil --help
 $ docker-compose run --rm lbil grid income
 ```
@@ -370,7 +374,7 @@ The reconciler will total up all cleared (`*`) transactions to get what
 should be the "last statement balance," but only shows pending and
 uncleared transactions.
 
-The only changes the reconciler should make to your data is adding or
+The only change the reconciler will make to your data is adding or
 subtracting the pending `!` and cleared `*` symbols to the white space
 in front of posting lines within a transaction, but see the note below
 about *how* it does this.

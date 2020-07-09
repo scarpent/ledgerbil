@@ -97,7 +97,7 @@ class Reconciler(cmd.Cmd):
 
     def do_aliases(self, arg):
         """Print aliases"""
-        sorted_aliases = sorted(list(self.aliases.keys()), key=lambda x: x.lower())
+        sorted_aliases = sorted(self.aliases.keys(), key=lambda x: x.lower())
         for alias in sorted_aliases:
             command = self.aliases[alias].__name__[3:]
             print(f"{alias:6}{command}")
@@ -250,7 +250,7 @@ class Reconciler(cmd.Cmd):
         if self.is_shares and len(set(symbols)) != 1:
             raise LdgReconcilerError(
                 "Unhandled multiple symbols: "
-                f'"{self.get_rec_account_matched()}": {sorted(list(symbols))}'
+                f'"{self.get_rec_account_matched()}": {sorted(symbols)}'
             )
 
     def get_current_listing_index_from_amount(self, amount, mark=True):

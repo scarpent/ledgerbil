@@ -163,7 +163,7 @@ class OutputTests(Redirector):
     def test_mark_and_unmark_errors(self):
 
         multiple_matches = dedent(
-            f"""
+            """
 
             2019/10/23 two again
                 e: beep
@@ -652,7 +652,7 @@ def test_mark_and_unmark_all():
 def test_mark_and_unmark_multiple_amount_matches():
 
     multiple_matches = dedent(
-        f"""
+        """
 
         2019/10/23 two again
             e: beep

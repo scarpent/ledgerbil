@@ -241,7 +241,7 @@ class LedgerThing:
 
     def assert_only_one_symbol(self, symbols):
         if len(set(symbols)) > 1:
-            sorted_list = sorted(list(set(symbols)))
+            sorted_list = sorted(set(symbols))
             formatted_lines = "\n".join(self.lines)
             raise LdgReconcilerError(
                 f"Unhandled multiple symbols: {sorted_list}\n{formatted_lines}"

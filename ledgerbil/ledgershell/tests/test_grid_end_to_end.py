@@ -54,7 +54,7 @@ def test_ledger_not_found():
 def test_get_grid_report_flat_report_expenses():
     args, ledger_args = grid.get_args(["expenses", "--sort", "row"])
     report = grid.get_grid_report(args, ledger_args)
-    helper = OutputFileTester(f"test_grid_end_to_end_flat_expenses")
+    helper = OutputFileTester("test_grid_end_to_end_flat_expenses")
     helper.save_out_file(report)
     helper.assert_out_equals_expected()
 
@@ -62,7 +62,7 @@ def test_get_grid_report_flat_report_expenses():
 def test_get_grid_report_flat_report_transposed():
     args, ledger_args = grid.get_args(["food", "--transpose"])
     report = grid.get_grid_report(args, ledger_args)
-    helper = OutputFileTester(f"test_grid_end_to_end_flat_transposed")
+    helper = OutputFileTester("test_grid_end_to_end_flat_transposed")
     helper.save_out_file(report)
     helper.assert_out_equals_expected()
 
@@ -70,7 +70,7 @@ def test_get_grid_report_flat_report_transposed():
 def test_get_grid_report_flat_report_expenses_monthly():
     args, ledger_args = grid.get_args(["expenses", "--sort", "row", "--month"])
     report = grid.get_grid_report(args, ledger_args)
-    helper = OutputFileTester(f"test_grid_end_to_end_flat_monthly_expenses")
+    helper = OutputFileTester("test_grid_end_to_end_flat_monthly_expenses")
     helper.save_out_file(report)
     helper.assert_out_equals_expected()
 
@@ -135,7 +135,7 @@ def test_get_grid_report_flat_report_single_row_and_column():
 def test_get_grid_report_flat_report_payees():
     args, ledger_args = grid.get_args(["--payees", "expenses"])
     report = grid.get_grid_report(args, ledger_args)
-    helper = OutputFileTester(f"test_grid_end_to_end_flat_payees")
+    helper = OutputFileTester("test_grid_end_to_end_flat_payees")
     helper.save_out_file(report)
     helper.assert_out_equals_expected()
 
@@ -143,7 +143,7 @@ def test_get_grid_report_flat_report_payees():
 def test_get_grid_report_csv_report_all():
     args, ledger_args = grid.get_args(["--csv"])
     report = grid.get_grid_report(args, ledger_args)
-    helper = OutputFileTester(f"test_grid_end_to_end_csv_all")
+    helper = OutputFileTester("test_grid_end_to_end_csv_all")
     helper.save_out_file(report)
     helper.assert_out_equals_expected()
 

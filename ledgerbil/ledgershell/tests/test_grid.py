@@ -792,7 +792,7 @@ def test_get_csv_report():
         ["", 4, "", 6, "glurg"],
     ]
     expected = dedent(
-        f'''\
+        '''\
         1,2,3,4,5
         a,b,"""c""",d e f,"g, h"
         ,4,,6,glurg
@@ -811,7 +811,7 @@ def test_get_csv_report_with_tabs():
         ["", 4, "", 6, "glurg"],
     ]
     expected = dedent(
-        f'''\
+        '''\
         1\t2\t3\t4\t5
         a\tb\t"""c"""\td e f\t"g\th"
         \t4\t\t6\tglurg
@@ -831,7 +831,7 @@ def test_get_flat_report():
         [26.52, -9595.26, -9568.74, grid.EMPTY_VALUE],
     ]
     report = grid.get_flat_report(rows)
-    helper = OutputFileTester(f"test_grid_flat_report")
+    helper = OutputFileTester("test_grid_flat_report")
     helper.save_out_file(report)
     helper.assert_out_equals_expected()
 

@@ -132,7 +132,7 @@ def get_colored_amount(
 def assert_only_one_matching_account(accounts):
     if len(set(accounts)) > 1:
         message = "More than one matching account:\n"
-        for account in sorted(list(accounts)):
+        for account in sorted(accounts):
             message += f"    {account}\n"
         raise LdgReconcilerError(message[:-1])
 
