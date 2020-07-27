@@ -54,7 +54,8 @@ class LedgerFile:
 
     def add_things(self, things):
         for thing in things:
-            thing.thing_number = LedgerFile.next_thing_number()
+            self.thing_counter += 1
+            thing.thing_number = self.thing_counter
             self.things.append(thing)
 
             if self.rec_account and thing.rec_account_matched:
@@ -64,11 +65,6 @@ class LedgerFile:
                     assert_only_one_matching_account(
                         {self.rec_account_matched, thing.rec_account_matched}
                     )
-
-    @staticmethod
-    def next_thing_number():
-        LedgerFile.thing_counter += 1
-        return LedgerFile.thing_counter
 
     def sort(self):
         current_date = self.STARTING_DATE
