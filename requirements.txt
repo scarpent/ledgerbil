@@ -10,26 +10,27 @@ attrs==19.3.0             # via black, flake8-bugbear, pytest
 backcall==0.2.0           # via ipython
 black==19.10b0            # via -r requirements.in
 click==7.1.2              # via black, pip-tools
-coverage==5.1             # via pytest-cov
+coverage==5.2.1           # via pytest-cov
 decorator==4.4.2          # via ipython, traitlets
 flake8-bugbear==20.1.4    # via -r requirements.in
 flake8-builtins==1.5.3    # via -r requirements.in
 flake8-commas==2.0.0      # via -r requirements.in
 flake8-comprehensions==3.2.3  # via -r requirements.in
 flake8==3.8.3             # via -r requirements.in, flake8-bugbear, flake8-builtins, flake8-commas, flake8-comprehensions
+iniconfig==1.0.0          # via pytest
 ipdb==0.13.3              # via -r requirements.in
 ipython-genutils==0.2.0   # via traitlets
 ipython==7.16.1           # via -r requirements.in, ipdb
-isort==4.3.21             # via -r requirements.in
-jedi==0.17.1              # via ipython
+isort==5.2.1              # via -r requirements.in
+jedi==0.17.2              # via ipython
 mccabe==0.6.1             # via flake8
 more-itertools==8.4.0     # via pytest
 packaging==20.4           # via pytest
-parso==0.7.0              # via jedi
+parso==0.7.1              # via jedi
 pathspec==0.8.0           # via black
 pexpect==4.8.0            # via ipython
 pickleshare==0.7.5        # via ipython
-pip-tools==5.2.1          # via -r requirements.in
+pip-tools==5.3.0          # via -r requirements.in
 pluggy==0.13.1            # via pytest
 prompt-toolkit==3.0.5     # via ipython
 ptyprocess==0.6.0         # via pexpect
@@ -39,14 +40,14 @@ pyflakes==2.2.0           # via flake8
 pygments==2.6.1           # via ipython
 pyparsing==2.4.7          # via packaging
 pytest-cov==2.10.0        # via -r requirements.in
-pytest==5.4.3             # via -r requirements.in, pytest-cov
+pytest==6.0.0             # via -r requirements.in, pytest-cov
 python-dateutil==2.8.1    # via -r requirements.in
-regex==2020.6.8           # via black
+regex==2020.7.14          # via black
 six==1.15.0               # via packaging, pip-tools, python-dateutil, traitlets
-toml==0.10.1              # via black
+toml==0.10.1              # via black, pytest
 traitlets==4.3.3          # via ipython
 typed-ast==1.4.1          # via black
-wcwidth==0.2.5            # via prompt-toolkit, pytest
+wcwidth==0.2.5            # via prompt-toolkit
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
