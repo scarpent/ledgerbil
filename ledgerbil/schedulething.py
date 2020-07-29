@@ -81,15 +81,12 @@ class ScheduleThing(LedgerThing):
         )
 
     def handle_thing_config(self, line):
-
-        cfg_label_idx = 0
-        interval_uom_idx = 1
-        days_idx = 2
-        interval_idx = 3
-
         # ';; schedule ; monthly ; 12th 21st eom; 3 ; auto'
-        #        -->
+        #       -->
         # ['', '', 'schedule', 'monthly', '12th 21st eom', '3', 'auto']
+        #       or perhaps more simply
+        # ';; schedule ; monthly'
+        # ['', '', 'schedule', 'monthly']
         configitems = [x.strip() for x in line.split(ScheduleThing.SEPARATOR)]
 
         if len(configitems) < 4:
@@ -97,11 +94,13 @@ class ScheduleThing(LedgerThing):
                 f"Invalid schedule thing config:\n{line}\nNot enough parameters"
             )
 
-        del configitems[0:2]  # remove empty strings from opening ;;
+        # remove empty strings from opening ;;, drop comment field,
+        # and make sure optional fields can be referenced
+        configitems = configitems[2:6] + ["", ""]
 
-        # now: ['schedule', 'monthly', '12th 21st eom', '3', 'auto']
+        config_label, config_intervaluom, config_days, config_interval = configitems[:4]
 
-        if configitems[cfg_label_idx].lower() != ScheduleThing.THING_CONFIG_LABEL:
+        if config_label.lower() != ScheduleThing.THING_CONFIG_LABEL:
             raise LdgSchedulerError(
                 f"Invalid schedule thing config:\n{line}\n"
                 f'"{ScheduleThing.THING_CONFIG_LABEL}" '
@@ -112,27 +111,20 @@ class ScheduleThing(LedgerThing):
             "(daily|weekly|monthly|bimonthly|quarterly|biannual|yearly)"
         )
 
-        match = re.match(interval_uom_regex, configitems[interval_uom_idx])
+        match = re.match(interval_uom_regex, config_intervaluom)
         if not match:
-            uom = configitems[interval_uom_idx]
             raise LdgSchedulerError(
                 f"Invalid schedule thing config:\n{line}\nInterval UOM "
-                f'"{uom}" not recognized. Supported UOMs: daily, '
+                f'"{config_intervaluom}" not recognized. Supported UOMs: daily, '
                 "weekly, monthly, bimonthly, quarterly, biannual, yearly."
             )
 
         intervaluom = match.group(1).lower()
 
-        # schedule must have minimum two items; now let's make sure
-        # optional fields are referenceable
+        if not config_days.strip():
+            config_days = str(self.thing_date.day)
 
-        for _ in range(len(configitems), 4):
-            configitems.append("")
-
-        if not configitems[days_idx].strip():
-            configitems[days_idx] = str(self.thing_date.day)
-
-        match = re.match(r"[^\d]*(\d+).*", configitems[interval_idx])
+        match = re.match(r"[^\d]*(\d+).*", config_interval)
         interval = 1
         if match:
             interval = int(match.group(1))
@@ -151,7 +143,7 @@ class ScheduleThing(LedgerThing):
         self.interval = interval
         self.interval_uom = intervaluom
 
-        day_string = configitems[days_idx].lower()
+        day_string = config_days.lower()
         self.days = []
         days_regex = r"(\d+|eom(?:\d\d?)?)"
         for match in re.finditer(days_regex, day_string):
