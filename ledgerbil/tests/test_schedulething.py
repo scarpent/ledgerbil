@@ -8,7 +8,6 @@ from dateutil.relativedelta import relativedelta
 from .. import util
 from ..ledgerbilexceptions import LdgSchedulerError
 from ..schedulething import ScheduleThing
-from .helpers import Redirector
 
 
 def reset_schedule_thing():
@@ -34,7 +33,7 @@ def test_repr():
     assert isinstance(eval(repr(schedulething)), ScheduleThing)
 
 
-class ScheduleThingTester(Redirector):
+class ScheduleThingTester(TestCase):
     def setUp(self):
         super().setUp()
         reset_schedule_thing()
@@ -87,7 +86,7 @@ class HandleFileConfig(ScheduleThingTester):
         assert self.get_actual(schedule_thing) == self.get_expected(0)
 
 
-class GetSafeDate(Redirector):
+class GetSafeDate(TestCase):
     def setUp(self):
         super().setUp()
         schedule_lines_test = [
@@ -108,7 +107,7 @@ class GetSafeDate(Redirector):
         assert actual == expected
 
 
-class GetScheduledEntries(Redirector):
+class GetScheduledEntries(TestCase):
     def setUp(self):
         super().setUp()
         schedule_line_file_config = [";; scheduler ; enter 7 days"]
@@ -279,7 +278,7 @@ class GetScheduledEntries(Redirector):
         assert actual == expected
 
 
-class GetEntryThing(Redirector):
+class GetEntryThing(TestCase):
     def setUp(self):
         super().setUp()
         schedule_line_file_config = [";; scheduler ; enter 7 days"]
@@ -302,7 +301,7 @@ class GetEntryThing(Redirector):
         assert actual == expected
 
 
-class HandleThingConfig(Redirector):
+class HandleThingConfig(TestCase):
     def setUp(self):
         super().setUp()
         schedule_line_file_config = [";; scheduler ; enter 7 days"]
@@ -436,7 +435,7 @@ class HandleThingConfig(Redirector):
         assert self.get_actual(schedule_thing) == expected
 
 
-class GetNextDate(Redirector):
+class GetNextDate(TestCase):
     def setUp(self):
         super().setUp()
         schedule_line_file_config = [";; scheduler ; enter 7 days"]
@@ -603,7 +602,7 @@ class GetWeekDay(TestCase):
         assert self.schedule_thing.get_week_day() == util.ERROR_RETURN_VALUE
 
 
-class GetMonthDay(Redirector):
+class GetMonthDay(TestCase):
     def setUp(self):
         super().setUp()
         schedule_lines_test = [
