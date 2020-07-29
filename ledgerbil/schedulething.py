@@ -84,8 +84,11 @@ class ScheduleThing(LedgerThing):
         # ';; schedule ; monthly ; 12th 21st eom; 3 ; auto'
         #       -->
         # ['', '', 'schedule', 'monthly', '12th 21st eom', '3', 'auto']
-        #       or perhaps more simply
+        #
+        # or perhaps more simply
+        #
         # ';; schedule ; monthly'
+        #       -->
         # ['', '', 'schedule', 'monthly']
         configitems = [x.strip() for x in line.split(ScheduleThing.SEPARATOR)]
 
