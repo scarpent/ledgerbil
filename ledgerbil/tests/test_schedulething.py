@@ -5,6 +5,7 @@ from unittest import TestCase
 import pytest
 from dateutil.relativedelta import relativedelta
 
+from .. import schedulething as ST
 from .. import util
 from ..ledgerbilexceptions import LdgSchedulerError
 from ..schedulething import ScheduleThing
@@ -327,9 +328,7 @@ class HandleThingConfig(TestCase):
             "    ;; schedule ; monthly ; eom30 2 15 ; 3 ; auto",
         ]
         schedule_thing = ScheduleThing(schedule_lines)
-        expected = self.get_expected(
-            ScheduleThing.INTERVAL_MONTH, ["02", "15", "eom30"], 3
-        )
+        expected = self.get_expected(ST.INTERVAL_MONTH, ["02", "15", "eom30"], 3)
         assert self.get_actual(schedule_thing) == expected
 
     def test_not_enough_parameters(self):
@@ -374,7 +373,7 @@ class HandleThingConfig(TestCase):
             "    ;; schedule ; monthly ; 15 eom30 ;   ; auto",
         ]
         schedule_thing = ScheduleThing(schedule_lines)
-        expected = self.get_expected(ScheduleThing.INTERVAL_MONTH, ["15", "eom30"], 1)
+        expected = self.get_expected(ST.INTERVAL_MONTH, ["15", "eom30"], 1)
         assert self.get_actual(schedule_thing) == expected
 
     def test_interval_not_given(self):
@@ -383,7 +382,7 @@ class HandleThingConfig(TestCase):
             "    ;; schedule ; monthly ; 15 eom30",
         ]
         schedule_thing = ScheduleThing(schedule_lines)
-        expected = self.get_expected(ScheduleThing.INTERVAL_MONTH, ["15", "eom30"], 1)
+        expected = self.get_expected(ST.INTERVAL_MONTH, ["15", "eom30"], 1)
         assert self.get_actual(schedule_thing) == expected
 
     def test_days_empty(self):
@@ -392,19 +391,19 @@ class HandleThingConfig(TestCase):
             "    ;; schedule ; monthly ;  ;  2 ",
         ]
         schedule_thing = ScheduleThing(schedule_lines)
-        expected = self.get_expected(ScheduleThing.INTERVAL_MONTH, ["27"], 2)
+        expected = self.get_expected(ST.INTERVAL_MONTH, ["27"], 2)
         assert self.get_actual(schedule_thing) == expected
 
     def test_no_days_and_no_interval(self):
         schedule_lines = ["2013/06/13 lightning energy", "    ;; schedule ; monthly"]
         schedule_thing = ScheduleThing(schedule_lines)
-        expected = self.get_expected(ScheduleThing.INTERVAL_MONTH, ["13"], 1)
+        expected = self.get_expected(ST.INTERVAL_MONTH, ["13"], 1)
         assert self.get_actual(schedule_thing) == expected
 
     def test_bimonthly(self):
         schedule_lines = ["2013/06/13 lightning energy", "    ;; schedule ; bimonthly"]
         schedule_thing = ScheduleThing(schedule_lines)
-        expected = self.get_expected(ScheduleThing.INTERVAL_MONTH, ["13"], 2)
+        expected = self.get_expected(ST.INTERVAL_MONTH, ["13"], 2)
         assert self.get_actual(schedule_thing) == expected
 
     def test_quarterly(self):
@@ -413,7 +412,7 @@ class HandleThingConfig(TestCase):
             "    ;; schedule ; quarterly ; 6th ; 3",
         ]
         schedule_thing = ScheduleThing(schedule_lines)
-        expected = self.get_expected(ScheduleThing.INTERVAL_MONTH, ["06"], 9)
+        expected = self.get_expected(ST.INTERVAL_MONTH, ["06"], 9)
         assert self.get_actual(schedule_thing) == expected
 
     def test_biannual(self):
@@ -422,7 +421,7 @@ class HandleThingConfig(TestCase):
             "    ;; schedule ; biannual ; 9th",
         ]
         schedule_thing = ScheduleThing(schedule_lines)
-        expected = self.get_expected(ScheduleThing.INTERVAL_MONTH, ["09"], 6)
+        expected = self.get_expected(ST.INTERVAL_MONTH, ["09"], 6)
         assert self.get_actual(schedule_thing) == expected
 
     def test_yearly(self):
@@ -431,7 +430,7 @@ class HandleThingConfig(TestCase):
             "    ;; schedule ; yearly ; ; 5",
         ]
         schedule_thing = ScheduleThing(schedule_lines)
-        expected = self.get_expected(ScheduleThing.INTERVAL_MONTH, ["22"], 60)
+        expected = self.get_expected(ST.INTERVAL_MONTH, ["22"], 60)
         assert self.get_actual(schedule_thing) == expected
 
 
@@ -625,47 +624,47 @@ class GetMonthDay(TestCase):
     def test_get_month_day_june_eom(self):
         """eom for a 30-day month is 30"""
         testdate = datetime(2013, 6, 16)
-        actual = self.schedule_thing.get_month_day(ScheduleThing.EOM, testdate)
+        actual = self.schedule_thing.get_month_day(ST.EOM, testdate)
         assert actual == 30
 
     def test_get_month_day_july_eom(self):
         """eom for a 31-day month is 31"""
         testdate = datetime(2013, 7, 1)
-        actual = self.schedule_thing.get_month_day(ScheduleThing.EOM, testdate)
+        actual = self.schedule_thing.get_month_day(ST.EOM, testdate)
         assert actual == 31
 
     def test_get_month_day_february_eom(self):
         """eom for a non-leap year february is 28"""
         testdate = datetime(2013, 2, 5)
-        actual = self.schedule_thing.get_month_day(ScheduleThing.EOM, testdate)
+        actual = self.schedule_thing.get_month_day(ST.EOM, testdate)
         assert actual == 28
 
     def test_get_month_day_leap_february_eom(self):
         """eom for a leap year february is 29"""
         testdate = datetime(2012, 2, 5)
-        actual = self.schedule_thing.get_month_day(ScheduleThing.EOM, testdate)
+        actual = self.schedule_thing.get_month_day(ST.EOM, testdate)
         assert actual == 29
 
     def test_get_month_day_june_eom30(self):
         """eom30 for a 30-day month is 30"""
         testdate = datetime(2013, 6, 16)
-        actual = self.schedule_thing.get_month_day(ScheduleThing.EOM30, testdate)
+        actual = self.schedule_thing.get_month_day(ST.EOM30, testdate)
         assert actual == 30
 
     def test_get_month_day_july_eom30(self):
         """eom30 for a 31-day month is 30"""
         testdate = datetime(2013, 7, 1)
-        actual = self.schedule_thing.get_month_day(ScheduleThing.EOM30, testdate)
+        actual = self.schedule_thing.get_month_day(ST.EOM30, testdate)
         assert actual == 30
 
     def test_get_month_day_february_eom30(self):
         """eom30 for a non-leap year february is 28"""
         testdate = datetime(2013, 2, 5)
-        actual = self.schedule_thing.get_month_day(ScheduleThing.EOM30, testdate)
+        actual = self.schedule_thing.get_month_day(ST.EOM30, testdate)
         assert actual == 28
 
     def test_get_month_day_leap_february_eom30(self):
         """eom for a leap year february is 29"""
         testdate = datetime(2012, 2, 5)
-        actual = self.schedule_thing.get_month_day(ScheduleThing.EOM30, testdate)
+        actual = self.schedule_thing.get_month_day(ST.EOM30, testdate)
         assert actual == 29

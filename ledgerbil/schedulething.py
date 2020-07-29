@@ -8,22 +8,22 @@ from dateutil.relativedelta import relativedelta
 from .ledgerbilexceptions import ERROR_RETURN_VALUE, LdgSchedulerError
 from .ledgerthing import DATE_REGEX, LedgerThing
 
+LINE_FILE_CONFIG = 0
+LINE_DATE = 0
+LINE_SCHEDULE = 1
+INTERVAL_DAY = "daily"
+INTERVAL_WEEK = "weekly"
+INTERVAL_MONTH = "monthly"
+EOM = "eom"
+EOM30 = "eom30"
+SEPARATOR = ";"
+THING_CONFIG_LABEL = "schedule"
+
 
 class ScheduleThing(LedgerThing):
     do_file_config = True
     enter_days = 0
     entry_boundary_date = None
-
-    LINE_FILE_CONFIG = 0
-    LINE_DATE = 0
-    LINE_SCHEDULE = 1
-    INTERVAL_DAY = "daily"
-    INTERVAL_WEEK = "weekly"
-    INTERVAL_MONTH = "monthly"
-    EOM = "eom"
-    EOM30 = "eom30"
-    SEPARATOR = ";"
-    THING_CONFIG_LABEL = "schedule"
 
     def __init__(self, lines):
         self.first_thing = False
@@ -34,12 +34,12 @@ class ScheduleThing(LedgerThing):
         super().__init__(lines)
 
         if ScheduleThing.do_file_config:
-            self.handle_file_config(lines[ScheduleThing.LINE_FILE_CONFIG])
+            self.handle_file_config(lines[LINE_FILE_CONFIG])
             self.first_thing = True
             ScheduleThing.do_file_config = False
             return
 
-        self.handle_thing_config(lines[ScheduleThing.LINE_SCHEDULE])
+        self.handle_thing_config(lines[LINE_SCHEDULE])
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.get_lines()})"
@@ -90,7 +90,7 @@ class ScheduleThing(LedgerThing):
         # ';; schedule ; monthly'
         #       -->
         # ['', '', 'schedule', 'monthly']
-        configitems = [x.strip() for x in line.split(ScheduleThing.SEPARATOR)]
+        configitems = [x.strip() for x in line.split(SEPARATOR)]
 
         if len(configitems) < 4:
             raise LdgSchedulerError(
@@ -103,10 +103,10 @@ class ScheduleThing(LedgerThing):
 
         config_label, config_intervaluom, config_days, config_interval = configitems[:4]
 
-        if config_label.lower() != ScheduleThing.THING_CONFIG_LABEL:
+        if config_label.lower() != THING_CONFIG_LABEL:
             raise LdgSchedulerError(
                 f"Invalid schedule thing config:\n{line}\n"
-                f'"{ScheduleThing.THING_CONFIG_LABEL}" '
+                f'"{THING_CONFIG_LABEL}" '
                 "label not found in expected place."
             )
 
@@ -137,11 +137,8 @@ class ScheduleThing(LedgerThing):
         if intervaluom in uom_translations:
             interval *= uom_translations[intervaluom]
 
-        if (
-            intervaluom != ScheduleThing.INTERVAL_DAY
-            and intervaluom != ScheduleThing.INTERVAL_WEEK
-        ):
-            intervaluom = ScheduleThing.INTERVAL_MONTH
+        if intervaluom not in [INTERVAL_DAY, INTERVAL_WEEK]:
+            intervaluom = INTERVAL_MONTH
 
         self.interval = interval
         self.interval_uom = intervaluom
@@ -169,17 +166,17 @@ class ScheduleThing(LedgerThing):
 
     def get_entry_thing(self):
         entry_lines = list(self.lines)
-        del entry_lines[ScheduleThing.LINE_SCHEDULE]
-        entry_lines[ScheduleThing.LINE_DATE] = re.sub(
-            DATE_REGEX, self.get_date_string(), entry_lines[ScheduleThing.LINE_DATE]
+        del entry_lines[LINE_SCHEDULE]
+        entry_lines[LINE_DATE] = re.sub(
+            DATE_REGEX, self.get_date_string(), entry_lines[LINE_DATE]
         )
         return LedgerThing(entry_lines)
 
     def get_next_date(self, previousdate):
 
-        if self.interval_uom == ScheduleThing.INTERVAL_DAY:
+        if self.interval_uom == INTERVAL_DAY:
             return previousdate + relativedelta(days=self.interval)
-        elif self.interval_uom == ScheduleThing.INTERVAL_WEEK:
+        elif self.interval_uom == INTERVAL_WEEK:
             return previousdate + relativedelta(weeks=self.interval)
         else:  # INTERVAL_MONTH
             # first see if any scheduled days remaining in same month
@@ -221,7 +218,7 @@ class ScheduleThing(LedgerThing):
             else:
                 return int(scheduleday)
 
-        if scheduleday == self.EOM:
+        if scheduleday == EOM:
             return last_day_of_month
 
         # EOM30
