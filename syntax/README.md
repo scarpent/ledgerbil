@@ -27,7 +27,7 @@ and sundry.
 `~/.vscode/extensions` dir. (You'll then have
 `~/.vscode/extensions/sc-ledger`.)
 
-It may then take a reload to see `.ldg` and `.ledger` files highlighted
+It may take a reload to see `.ldg` and `.ledger` files highlighted
 according to your current theme.
 
 If you want to use "my" colors, copy entries from

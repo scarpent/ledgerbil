@@ -100,7 +100,7 @@
     [income: jubjub]
     [equity: bandersnatch]
 
-; negative and postive dollar amounts
+; negative and positive dollar amounts
 
     e: fu            $25            ; positive (normal) expense has orange fg
     e: bar           $-25           ; negative expense has yellow fg
