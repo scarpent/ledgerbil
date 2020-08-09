@@ -1,7 +1,7 @@
 ledgerbil
 =========
 
-A small rodent-like program for working with ledger-cli journals.
+A rodent-like program for working with ledger-cli journals.
 
 Some of ledgerbil's features:
 
