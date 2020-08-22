@@ -61,13 +61,6 @@ class Reconciler(cmd.Cmd):
         self.previous_balance = None
         self.cached_is_shares = None
         self.get_statement_info_from_cache()
-
-        # these are immediately reset in populate open transactions
-        self.open_transactions = []
-        self.current_listing = {}
-        self.total_cleared = 0
-        self.total_pending = 0
-        self.is_shares = False
         self.populate_open_transactions()
 
     intro = ""
@@ -210,6 +203,7 @@ class Reconciler(cmd.Cmd):
         self.current_listing = {}
         self.total_cleared = 0
         self.total_pending = 0
+        self.is_shares = False
 
         is_shareses = set()
         symbols = set()
