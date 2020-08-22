@@ -5,7 +5,6 @@ from .util import handle_error
 
 
 def run_scheduler(ledgerfile, schedule_filename):
-    schedulefile = None
     try:
         schedulefile = ScheduleFile(schedule_filename)
     except LdgSchedulerError as e:
