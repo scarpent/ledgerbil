@@ -44,7 +44,7 @@ def test_main_sort(test_input):
 
 def test_main_sort_different_date_format():
     """main should fail to sort file if date format is different
-       than in ledger entries"""
+    than in ledger entries"""
 
     class MockSettings:
         DATE_FORMAT = "%Y-%m-%d"
@@ -139,7 +139,7 @@ class Scheduler(Redirector):
 @mock.patch(__name__ + ".ledgerbil.run_scheduler")
 def test_scheduler_multiple_files(mock_scheduler):
     """The first ledger file should be used by the scheduler
-       if more than one is passed in"""
+    if more than one is passed in"""
     with FT.temp_file("; schedule file") as schedule_filename:
         with FT.temp_file("; ledger file") as ledger_filename:
             with FT.temp_file("; ledger file 2") as ledger2_filename:

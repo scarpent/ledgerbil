@@ -47,8 +47,8 @@ def test_parsed_file_unchanged_via_write():
 
 def test_count_initial_non_transaction():
     """counts initial non-transaction (probably a comment)
-       first two comment lines are thing_number 0, rest are #1
-       thing_counter will then be at #1"""
+    first two comment lines are thing_number 0, rest are #1
+    thing_counter will then be at #1"""
     testdata = dedent(
         """\
         ; blah

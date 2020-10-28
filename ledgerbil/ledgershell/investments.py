@@ -39,15 +39,15 @@ def get_lines(args, shares=False):
 
 
 def get_dollars(args):
-    """ A sample dollars report:
+    """A sample dollars report:
 
-                  $ 1,737.19  assets
-                  $ 1,387.19     401k
-                    $ 798.19       big co 500 idx
-                    $ 400.00       bonds idx
-                    $ 189.00       cash
-                    $ 150.00     ira: glass idx
-                    $ 200.00     mutual: total idx
+    $ 1,737.19  assets
+    $ 1,387.19     401k
+      $ 798.19       big co 500 idx
+      $ 400.00       bonds idx
+      $ 189.00       cash
+      $ 150.00     ira: glass idx
+      $ 200.00     mutual: total idx
     """
     listing = []
     lines = get_lines(args)
@@ -62,23 +62,23 @@ def get_dollars(args):
 
 
 def get_shares(args):
-    """ A sample share report to help make sense of this. We will turn this
-        odd lump of output into a list that matches the much nicer dollars
-        report shown above.
+    """A sample share report to help make sense of this. We will turn this
+    odd lump of output into a list that matches the much nicer dollars
+    report shown above.
 
-                    $ 189.00
-                 9.897 abcdx
-                20.000 lmnop
-                15.000 qwrty
-                 5.000 yyzxx  assets
-                    $ 189.00
-                 9.897 abcdx
-                20.000 lmnop     401k
-                 9.897 abcdx       big co 500 idx
-                20.000 lmnop       bonds idx
-                    $ 189.00       cash
-                15.000 qwrty     ira: glass idx
-                 5.000 yyzxx     mutual: total idx
+                $ 189.00
+             9.897 abcdx
+            20.000 lmnop
+            15.000 qwrty
+             5.000 yyzxx  assets
+                $ 189.00
+             9.897 abcdx
+            20.000 lmnop     401k
+             9.897 abcdx       big co 500 idx
+            20.000 lmnop       bonds idx
+                $ 189.00       cash
+            15.000 qwrty     ira: glass idx
+             5.000 yyzxx     mutual: total idx
     """
     listing = []
     lines = get_lines(args, shares=True)
@@ -119,16 +119,16 @@ def get_shares(args):
 
 
 def get_investment_report(args):
-    """ We want to put the separate shares and dollars reports
-        together to get something like this:
+    """We want to put the separate shares and dollars reports
+    together to get something like this:
 
-                           $ 1,737.19   assets
-                           $ 1,387.19      401k
-         9.897 abcdx         $ 798.19        big co 500 idx
-        20.000 lmnop         $ 400.00        bonds idx
-                             $ 189.00        cash
-        15.000 qwrty         $ 150.00      ira: glass idx
-         5.000 yyzxx         $ 200.00      mutual: total idx
+                       $ 1,737.19   assets
+                       $ 1,387.19      401k
+     9.897 abcdx         $ 798.19        big co 500 idx
+    20.000 lmnop         $ 400.00        bonds idx
+                         $ 189.00        cash
+    15.000 qwrty         $ 150.00      ira: glass idx
+     5.000 yyzxx         $ 200.00      mutual: total idx
     """
     share_listing = get_shares(args)
     dollar_listing = get_dollars(args)

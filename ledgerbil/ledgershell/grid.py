@@ -146,7 +146,7 @@ def get_flat_report_header(headers, width=14):
 
 def get_flat_report_header_lists(headers, width=14):
     """Attempts to break up account and payee names into chunks that
-       will read better when they are used as column headers"""
+    will read better when they are used as column headers"""
 
     TRUNC_CHAR = "~"
     ACCOUNT_TYPES = ["assets:", "liabilities:", "income:", "expenses:", "equity:"]

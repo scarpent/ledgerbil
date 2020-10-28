@@ -159,7 +159,7 @@ class Reconciler(cmd.Cmd):
 
         - Marking all pending transactions as cleared (*) if the ending
           balance is set and the total is zeroed out
-       """
+        """
         self.finish_balancing()
 
     def do_reload(self, args):

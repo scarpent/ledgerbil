@@ -501,7 +501,7 @@ def test_get_column_networth_month_different_date_format(mock_ledger_output):
 @mock.patch(__name__ + ".grid.get_ledger_output")
 def test_get_column_networth_default_networth_accounts(mock_ledger_output):
     """get_column_networth should use a default for NETWORTH_ACCOUNTS
-       if the setting is not present"""
+    if the setting is not present"""
     settings_getter.settings = MockSettingsEmpty()
     output = dedent(
         """\
@@ -785,7 +785,7 @@ def test_get_rows_single_row_and_column(mock_get_grid):
 
 def test_get_csv_report():
     """csv report should turn whatever it's given into csv it tabs
-       not specified"""
+    not specified"""
     rows = [
         [1, 2, 3, 4, 5],
         ["a", "b", '"c"', "d e f", "g, h"],
@@ -804,7 +804,7 @@ def test_get_csv_report():
 
 def test_get_csv_report_with_tabs():
     """csv report should turn whatever it's given into tsv if tabs
-       are specified"""
+    are specified"""
     rows = [
         [1, 2, 3, 4, 5],
         ["a", "b", '"c"', "d e f", "g\th"],
@@ -1084,7 +1084,7 @@ def test_get_grid_report_no_period_names(mock_ledger_output):
 @mock.patch(__name__ + ".grid.get_period_names")
 def test_get_grid_report_no_results(mock_pnames, mock_cols):
     """Queries that return period names but not row headers should
-       return no results"""
+    return no results"""
     period_names, row_headers, columns = (("paprika", "garlic"), set(), "tarragon")
 
     mock_pnames.return_value = (period_names, "celery")

@@ -248,7 +248,7 @@ class LedgerThing:
             )
 
     def assert_only_shares_if_shares(self, shareses):
-        """ ledgerbil isn't smart enough yet to handle a scenario like this:
+        """ledgerbil isn't smart enough yet to handle a scenario like this:
 
         2018/07/08 zombie investments
             a: abc: xyz: little co idx                        2.345 abcdx
