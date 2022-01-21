@@ -24,6 +24,13 @@ decorator==5.0.9
     # via
     #   ipdb
     #   ipython
+flake8==3.9.2
+    # via
+    #   -r requirements.in
+    #   flake8-bugbear
+    #   flake8-builtins
+    #   flake8-commas
+    #   flake8-comprehensions
 flake8-bugbear==21.4.3
     # via -r requirements.in
 flake8-builtins==1.5.3
@@ -32,23 +39,16 @@ flake8-commas==2.0.0
     # via -r requirements.in
 flake8-comprehensions==3.6.1
     # via -r requirements.in
-flake8==3.9.2
-    # via
-    #   -r requirements.in
-    #   flake8-bugbear
-    #   flake8-builtins
-    #   flake8-commas
-    #   flake8-comprehensions
 iniconfig==1.1.1
     # via pytest
 ipdb==0.13.9
     # via -r requirements.in
-ipython-genutils==0.2.0
-    # via traitlets
-ipython==7.26.0
+ipython==7.31.1
     # via
     #   -r requirements.in
     #   ipdb
+ipython-genutils==0.2.0
+    # via traitlets
 isort==5.9.3
     # via -r requirements.in
 jedi==0.18.0
@@ -89,12 +89,12 @@ pygments==2.10.0
     # via ipython
 pyparsing==2.4.7
     # via packaging
-pytest-cov==2.12.1
-    # via -r requirements.in
 pytest==6.2.4
     # via
     #   -r requirements.in
     #   pytest-cov
+pytest-cov==2.12.1
+    # via -r requirements.in
 python-dateutil==2.8.2
     # via -r requirements.in
 regex==2021.8.3
