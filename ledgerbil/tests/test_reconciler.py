@@ -86,7 +86,7 @@ class SimpleOutputTests(Redirector):
         assert self.redirect.getvalue() == expected
 
     def test_not_syntax_error(self):
-        """ crudely verify basic commands """
+        """crudely verify basic commands"""
         commands = [
             # 'statement', 'start', # do not test here (need input)
             "account",
@@ -905,7 +905,7 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         self.cache_test(do_quit=True)
 
     def test_caching_without_quit(self):
-        """ same results if we don't quit """
+        """same results if we don't quit"""
         self.cache_test(do_quit=False)
 
     def cache_test(self, do_quit=True):
