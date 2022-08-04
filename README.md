@@ -564,9 +564,9 @@ Shows available shortcuts, for example, `m` for `mark`.
 
 ### --reconciled-status, -R
 
-There is also the `--reconciled-status` option for ledgerbil which will
-go through all your cached entries and compare to ledger's `--cleared`
-totals to see if things have gotten out of sync somehow.
+The reconciled status option for will go through all your cached entries
+and compare to ledger's `--cleared` totals to see if things have gotten
+out of sync somehow.
 
 Note that where the interactive reconciler only uses
 `RECONCILER_CACHE_FILE`, `--reconciled-status` needs more stuff
