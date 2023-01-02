@@ -34,7 +34,7 @@ uuid: 50e628ee-56b8-4ab2-985d-8a49feff4f2d
 ##     assertions and assignments
 ##  2) uses [(] instead of \\( to avoid syntax highlighting problem of *this*
 ##     file in sublime text
-# amount_start                      \\s*=?\\s*[(]?\\s*[$£€¥₹]?\\s*
+# amount_start                      \\s*=?\\s*[(]{0,2}\\s*[$£€¥₹]?\\s*
 # amount_end                        [ \\d\\.,()+*/$-]+
 # amount                            ({{amount_start}}{{amount_end}})
 # less_than_zero_amount             ({{amount_start}}-{{amount_end}})

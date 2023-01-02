@@ -7,7 +7,10 @@ and `.sublime-syntax` files.
 
 I've switched to using vscode as my main editor but am still maintaining
 the newer sublime syntax files, at least for now. I'm still using
-Sublime Text for building/testing.
+Sublime Text for building/testing. (2 January 2023: Three years later,
+I'm still using vscode and I'm not planning to use/maintain the
+Sublime part of this anymore, even though it's better. But I can't bring
+myself to remove it from this repo yet...)
 
 The syntax definition files create scopes, and then it is up to your
 editor's theme to apply colors to those scopes. I use Monokai dark
@@ -77,8 +80,12 @@ when it's in a symlinked directory. My `User` dir is symlinked so I put
 
 ## Building
 
+VSCode has [TextMate Languages][7] for highlighting YAML/JSON tmLanguage
+files, and is able to convert between YAML/JSON/XML (plist) formats.
+(This is a fork of [TextMate Languages][6], which is unmaintained.)
+
 Sublime Text has [PackageDev][4] for working with syntax definition
-files and tests. It can convert YAML/JSON tmLanguage files into the
+files and tests. It also converts YAML/JSON tmLanguage files into the
 plist (XML) format.
 
 `ledger.YAML-tmLanguage` is included here in the vscode subdir, and is
@@ -89,9 +96,6 @@ way. I found [ST3 docs][4] helpful for understanding the older YAML
 format.)
 
 There's no build needed for the `.sublime-syntax` files.
-
-VSCode has [TextMate Languages][6] for highlighting YAML/JSON tmLanugage
-files, and is also able to convert between YAML/JSON/XML formats.
 
 I really liked working with Sublime's [newer syntax definition][2]. With
 contexts and pushing and popping, you have a lot more control. And being
@@ -143,3 +147,4 @@ but equity.
 [4]: http://docs.sublimetext.info/en/latest/extensibility/syntaxdefs.html
 [5]: https://github.com/SublimeText/PackageDev
 [6]: https://github.com/Togusa09/vscode-tmlanguage
+[7]: https://github.com/pedro-w/vscode-tmlanguage

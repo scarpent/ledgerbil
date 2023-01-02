@@ -7,8 +7,9 @@ uuid: 50e628ee-56b8-4ab2-985d-8a49feff4f2d
 
 # ----------------------------------------------------------------------
 # "variables" - patterns defined as actual variables in ledger.sublime_syntax,
-#               but here we use yaml_tmlanguage_helper.py to create assorted
-#               regex monstrosities in production of ledger.YAML-tmLanguage
+#               but here we use ledger-vars.YAML-tmLanguage and
+#               yaml_tmlanguage_helper.py to create assorted regex
+#               monstrosities in ledger.YAML-tmLanguage
 #               (also had to modify things here to work in older format)
 #
 # start variables
@@ -33,7 +34,7 @@ uuid: 50e628ee-56b8-4ab2-985d-8a49feff4f2d
 ##     assertions and assignments
 ##  2) uses [(] instead of \\( to avoid syntax highlighting problem of *this*
 ##     file in sublime text
-# amount_start                      \\s*=?\\s*[(]?\\s*[$£€¥₹]?\\s*
+# amount_start                      \\s*=?\\s*[(]{0,2}\\s*[$£€¥₹]?\\s*
 # amount_end                        [ \\d\\.,()+*/$-]+
 # amount                            ({{amount_start}}{{amount_end}})
 # less_than_zero_amount             ({{amount_start}}-{{amount_end}})
@@ -140,7 +141,7 @@ patterns:
 
 # expenses
 
-- match: "^[!*\\s]+([(\\[]?[Ee](?:xpenses)?: ?)([^:;]+?(?::|(?=  |\\t|$)))([^;]*?(?=  |\\t|$))(?:(\\s*=?\\s*[(]?\\s*[$£€¥₹]?\\s*\\d(?:[ \\d\\.,()+*/$-]+)?)|(\\s*=?\\s*[(]?\\s*[$£€¥₹]?\\s*-[ \\d\\.,()+*/$-]+))?(?:([a-zA-Z_]+\\s*)(@\\s*)?(\\s*=?\\s*[(]?\\s*[$£€¥₹]?\\s*[ \\d\\.,()+*/$-]+)?)?(?:(=[^;]+)?)?"
+- match: "^[!*\\s]+([(\\[]?[Ee](?:xpenses)?: ?)([^:;]+?(?::|(?=  |\\t|$)))([^;]*?(?=  |\\t|$))(?:(\\s*=?\\s*[(]{0,2}\\s*[$£€¥₹]?\\s*\\d(?:[ \\d\\.,()+*/$-]+)?)|(\\s*=?\\s*[(]{0,2}\\s*[$£€¥₹]?\\s*-[ \\d\\.,()+*/$-]+))?(?:([a-zA-Z_]+\\s*)(@\\s*)?(\\s*=?\\s*[(]{0,2}\\s*[$£€¥₹]?\\s*[ \\d\\.,()+*/$-]+)?)?(?:(=[^;]+)?)?"
   captures:
     '1': {name: string.unquoted.ledger.expenses-label}
     '2': {name: string.unquoted.ledger.expenses-parent}
@@ -154,7 +155,7 @@ patterns:
 
 # assets
 
-- match: "^[!*\\s]+([(\\[]?[Aa](?:ssets)?: ?)([^:;]+?(?::|(?=  |\\t|$)))([^;]*?(?=  |\\t|$))(?:(\\s*=?\\s*[(]?\\s*[$£€¥₹]?\\s*\\d(?:[ \\d\\.,()+*/$-]+)?)|(\\s*=?\\s*[(]?\\s*[$£€¥₹]?\\s*-[ \\d\\.,()+*/$-]+))?(?:([a-zA-Z_]+\\s*)(@\\s*)?(\\s*=?\\s*[(]?\\s*[$£€¥₹]?\\s*[ \\d\\.,()+*/$-]+)?)?(?:(=[^;]+)?)?"
+- match: "^[!*\\s]+([(\\[]?[Aa](?:ssets)?: ?)([^:;]+?(?::|(?=  |\\t|$)))([^;]*?(?=  |\\t|$))(?:(\\s*=?\\s*[(]{0,2}\\s*[$£€¥₹]?\\s*\\d(?:[ \\d\\.,()+*/$-]+)?)|(\\s*=?\\s*[(]{0,2}\\s*[$£€¥₹]?\\s*-[ \\d\\.,()+*/$-]+))?(?:([a-zA-Z_]+\\s*)(@\\s*)?(\\s*=?\\s*[(]{0,2}\\s*[$£€¥₹]?\\s*[ \\d\\.,()+*/$-]+)?)?(?:(=[^;]+)?)?"
   captures:
     '1': {name: entity.name.function.ledger.assets-label}
     '2': {name: support.class.ledger.assets-parent}
@@ -168,7 +169,7 @@ patterns:
 
 # liabilities
 
-- match: "^[!*\\s]+([(\\[]?[Ll](?:iabilities)?: ?)([^:;]+?(?::|(?=  |\\t|$)))([^;]*?(?=  |\\t|$))(?:(\\s*=?\\s*[(]?\\s*[$£€¥₹]?\\s*\\d(?:[ \\d\\.,()+*/$-]+)?)|(\\s*=?\\s*[(]?\\s*[$£€¥₹]?\\s*-[ \\d\\.,()+*/$-]+))?(?:([a-zA-Z_]+\\s*)(@\\s*)?(\\s*=?\\s*[(]?\\s*[$£€¥₹]?\\s*[ \\d\\.,()+*/$-]+)?)?(?:(=[^;]+)?)?"
+- match: "^[!*\\s]+([(\\[]?[Ll](?:iabilities)?: ?)([^:;]+?(?::|(?=  |\\t|$)))([^;]*?(?=  |\\t|$))(?:(\\s*=?\\s*[(]{0,2}\\s*[$£€¥₹]?\\s*\\d(?:[ \\d\\.,()+*/$-]+)?)|(\\s*=?\\s*[(]{0,2}\\s*[$£€¥₹]?\\s*-[ \\d\\.,()+*/$-]+))?(?:([a-zA-Z_]+\\s*)(@\\s*)?(\\s*=?\\s*[(]{0,2}\\s*[$£€¥₹]?\\s*[ \\d\\.,()+*/$-]+)?)?(?:(=[^;]+)?)?"
   captures:
     '1': {name: message.error.ledger.liabilities-label}
     '2': {name: support.class.ledger.liabilities-parent}
@@ -182,7 +183,7 @@ patterns:
 
 # income
 
-- match: "^[!*\\s]+([(\\[]?[Ii](?:ncome)?: ?)([^:;]+?(?::|(?=  |\\t|$)))([^;]*?(?=  |\\t|$))(?:(\\s*=?\\s*[(]?\\s*[$£€¥₹]?\\s*\\d(?:[ \\d\\.,()+*/$-]+)?)|(\\s*=?\\s*[(]?\\s*[$£€¥₹]?\\s*-[ \\d\\.,()+*/$-]+))?(?:([a-zA-Z_]+\\s*)(@\\s*)?(\\s*=?\\s*[(]?\\s*[$£€¥₹]?\\s*[ \\d\\.,()+*/$-]+)?)?(?:(=[^;]+)?)?"
+- match: "^[!*\\s]+([(\\[]?[Ii](?:ncome)?: ?)([^:;]+?(?::|(?=  |\\t|$)))([^;]*?(?=  |\\t|$))(?:(\\s*=?\\s*[(]{0,2}\\s*[$£€¥₹]?\\s*\\d(?:[ \\d\\.,()+*/$-]+)?)|(\\s*=?\\s*[(]{0,2}\\s*[$£€¥₹]?\\s*-[ \\d\\.,()+*/$-]+))?(?:([a-zA-Z_]+\\s*)(@\\s*)?(\\s*=?\\s*[(]{0,2}\\s*[$£€¥₹]?\\s*[ \\d\\.,()+*/$-]+)?)?(?:(=[^;]+)?)?"
   captures:
     '1': {name: entity.name.function.ledger.income-label}
     '2': {name: entity.name.function.ledger.income-parent}
@@ -196,7 +197,7 @@ patterns:
 
 # equity
 
-- match: "^[!*\\s]+([(\\[]?[Ee]quity?: ?)([^:;]+?(?::|(?=  |\\t|$)))([^;]*?(?=  |\\t|$))(?:(\\s*=?\\s*[(]?\\s*[$£€¥₹]?\\s*\\d(?:[ \\d\\.,()+*/$-]+)?)|(\\s*=?\\s*[(]?\\s*[$£€¥₹]?\\s*-[ \\d\\.,()+*/$-]+))?(?:([a-zA-Z_]+\\s*)(@\\s*)?(\\s*=?\\s*[(]?\\s*[$£€¥₹]?\\s*[ \\d\\.,()+*/$-]+)?)?(?:(=[^;]+)?)?"
+- match: "^[!*\\s]+([(\\[]?[Ee]quity?: ?)([^:;]+?(?::|(?=  |\\t|$)))([^;]*?(?=  |\\t|$))(?:(\\s*=?\\s*[(]{0,2}\\s*[$£€¥₹]?\\s*\\d(?:[ \\d\\.,()+*/$-]+)?)|(\\s*=?\\s*[(]{0,2}\\s*[$£€¥₹]?\\s*-[ \\d\\.,()+*/$-]+))?(?:([a-zA-Z_]+\\s*)(@\\s*)?(\\s*=?\\s*[(]{0,2}\\s*[$£€¥₹]?\\s*[ \\d\\.,()+*/$-]+)?)?(?:(=[^;]+)?)?"
   captures:
     '1': {name: markup.ledger.equity-label}
     '2': {name: markup.ledger.equity-parent}
