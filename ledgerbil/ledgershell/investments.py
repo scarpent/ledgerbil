@@ -79,6 +79,12 @@ def get_shares(args):
                 $ 189.00       cash
             15.000 qwrty     ira: glass idx
              5.000 yyzxx     mutual: total idx
+
+    Note that this assumes the commodity is defined with a format subdirective
+    like this, with the symbol following the amount:
+
+    commodity abcdx
+        format 1,000.000 abcdx
     """
     listing = []
     lines = get_lines(args, shares=True)

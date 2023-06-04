@@ -12,17 +12,17 @@ commodity $
     default
 
 commodity abcdx
-    format 1,000.000
+    format 1,000.000 abcdx
     note big co 500 idx
 
 commodity lmnop  ; a comment
-    format 1,000.000
+    format 1,000.000 lmnop
     note bonds idx
 
 commodity qwrty
-    format 1,000.000000
+    format 1,000.000000 qwrty
     note ira glass idx
 
 commodity yyzxx
-    format 1,000.0000
+    format 1,000.0000 yyzxx
     note total idx
