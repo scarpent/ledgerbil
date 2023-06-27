@@ -46,7 +46,7 @@
             "name": "Ledger comments",
             "scope": "comment.ledger",
             "font_style": "normal",
-            "foreground": "#75715e" // flint
+            "foreground": "#aaaaaa" // grey
         },
         {
             "name": "Ledger payee",

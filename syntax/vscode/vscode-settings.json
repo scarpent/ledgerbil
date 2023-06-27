@@ -3,7 +3,7 @@
         "textMateRules": [
             {
                 "scope": ["comment.ledger"],
-                "settings": {"fontStyle": "", "foreground": "#75715e"} // flint
+                "settings": {"fontStyle": "", "foreground": "#aaaaaa"} // grey
             },
             {
                 "scope": ["constant.character.ledger"],

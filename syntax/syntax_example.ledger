@@ -1,4 +1,4 @@
-; comments with one semicolon have flint fg, either for whole line or after
+; comments with one semicolon have grey fg, either for whole line or after
 ; non-comment stuff
 
 ;; comments with two semicolons have yellow fg
