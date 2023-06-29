@@ -3,7 +3,7 @@
         "textMateRules": [
             {
                 "scope": ["comment.ledger"],
-                "settings": {"fontStyle": "", "foreground": "#aaaaaa"} // grey
+                "settings": {"fontStyle": "", "foreground": "#999999"} // grey
             },
             {
                 "scope": ["constant.character.ledger"],
