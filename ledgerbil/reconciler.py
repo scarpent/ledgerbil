@@ -563,12 +563,7 @@ class Reconciler(cmd.Cmd):
             cache[key]["ending_date"] = util.get_date_string(self.ending_date)
             cache[key]["ending_balance"] = self.ending_balance
 
-        try:
-            cache_file = get_setting("RECONCILER_CACHE_FILE")
-            with open(cache_file, "w", encoding="utf-8") as the_file:
-                the_file.write(json.dumps(cache, indent=4, sort_keys=True))
-        except (IOError, ValueError) as e:
-            print(f"Error writing reconciler cache: {e}", file=sys.stderr)
+        save_reconciler_cache(cache)
 
     def get_decimals(self):
         return 6 if self.is_shares else 2
@@ -596,6 +591,15 @@ def get_reconciler_cache():
             print(f"Error getting reconciler cache: {e}", file=sys.stderr)
 
     return {}
+
+
+def save_reconciler_cache(cache):
+    cache_file = get_setting("RECONCILER_CACHE_FILE")
+    try:
+        with open(cache_file, "w", encoding="utf-8") as the_file:
+            the_file.write(json.dumps(cache, indent=4, sort_keys=True))
+    except (IOError, ValueError) as e:
+        print(f"Error writing reconciler cache: {e}", file=sys.stderr)
 
 
 @dataclass
