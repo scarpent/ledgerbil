@@ -91,7 +91,7 @@ pycodestyle==2.10.0
     # via flake8
 pyflakes==3.0.1
     # via flake8
-pygments==2.13.0
+pygments==2.15.0
     # via ipython
 pytest==7.2.0
     # via
