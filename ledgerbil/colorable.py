@@ -22,7 +22,21 @@ class Colorable:
         "white": 37,
     }
 
-    ansi_escape = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
+    # https://stackoverflow.com/questions/14693701/how-can-i-remove-the-ansi-escape-sequences-from-a-string-in-python  # noqa E501
+    # 7-bit C1 ANSI sequences
+    ansi_escape = re.compile(
+        r"""
+        \x1B            # ESC
+        (?:             # 7-bit C1 Fe (except CSI)
+            [@-Z\\-_]
+        |               # or [ for CSI, followed by a control sequence
+            \[
+            [0-?]*      # Parameter bytes
+            [ -/]*      # Intermediate bytes
+            [@-~]       # Final byte
+        )""",
+        re.VERBOSE,
+    )
 
     def __init__(self, color, value, fmt="", bright=False):
 
