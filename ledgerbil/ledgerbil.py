@@ -57,11 +57,9 @@ def get_args(args):
         ledgerbil works with ledger cli files. It supports a vague subset of
         ledger as used and tested by its author.
 
-        It is biased, if not welded, to dollars as the default commodity, but
-        the author would happily aspire to more flexibility with the help of
-        motivated contributors or users. (Similarly it assumes commas as the
-        thousands separator but certainly this shouldn't be insurmountable to
-        modify for an international community.)
+        It is biased, if not welded, to dollars as the default commodity, and
+        assumes commas as the thousands separator. These things are unlikely
+        to change this point.
 
         Some features work on ledger files independently of the ledger cli
         program itself, while others use ledger to report on ledger data in
@@ -89,7 +87,7 @@ def get_args(args):
         epilog=scripts_description,
         formatter_class=(
             lambda prog: argparse.RawDescriptionHelpFormatter(
-                prog, max_help_position=40, width=71
+                prog, max_help_position=40
             )
         ),
     )

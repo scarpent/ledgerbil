@@ -176,7 +176,7 @@ def get_args(args):
         description=description,
         formatter_class=(
             lambda prog: argparse.RawDescriptionHelpFormatter(
-                prog, max_help_position=40, width=71
+                prog, max_help_position=40
             )
         ),
     )

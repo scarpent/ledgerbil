@@ -560,9 +560,7 @@ def get_args(args):
         prog=program,
         description=description,
         formatter_class=(
-            lambda prog: argparse.RawTextHelpFormatter(
-                prog, max_help_position=40, width=71
-            )
+            lambda prog: argparse.RawTextHelpFormatter(prog, max_help_position=40)
         ),
     )
     parser.add_argument(
@@ -572,7 +570,7 @@ def get_args(args):
         metavar="REGEX",
         dest="accounts_regex",
         default=".*",
-        help="include accounts that match this regex,\ndefault = .* (all)",
+        help="include accounts that match this regex, default = .* (all)",
     )
     parser.add_argument(
         "-L",
@@ -585,13 +583,13 @@ def get_args(args):
         "-c",
         "--compare",
         action="store_true",
-        help="compare accounts or labels\n(if --labels, will group by labels)",
+        help="compare accounts or labels (if --labels, will group by labels)",
     )
     parser.add_argument(
         "-C",
         "--compare-accounts",
         action="store_true",
-        help="compare accounts only\n(labels still modifies included accounts)",
+        help="compare accounts only (labels still modifies included accounts)",
     )
     parser.add_argument(
         "-s",
