@@ -7,6 +7,7 @@ OutputFileTesterStdout: Redirect standard out to file for easier diffing
                         and look for files in a standard location with
                         standard suffixes.
 """
+
 import filecmp
 import os
 import sys
