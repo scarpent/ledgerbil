@@ -42,8 +42,7 @@ class Reconciler(cmd.Cmd):
             "un": self.do_unmark,
             "q": self.do_quit,
             "r": self.do_reload,
-            "s": self.do_show,
-            "start": self.do_statement,
+            "s": self.do_statement,
         }
 
         util.assert_only_one_matching_account(

@@ -648,8 +648,7 @@ optional arguments:
   -s SORT, --sort SORT        sort by specified column header, or "row"
                               to sort by account or payee (default: by
                               total)
-  -t, --transpose             transpose columns and rows (row sorting
-                              will then apply to columns)
+  -t, --transpose             transpose columns and rows
   --csv                       output as csv
   --tab                       output as tsv (tab-delimited)
   --no-color                  output without color

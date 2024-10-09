@@ -88,7 +88,7 @@ class SimpleOutputTests(Redirector):
     def test_not_syntax_error(self):
         """crudely verify basic commands"""
         commands = [
-            # 'statement', 'start', # do not test here (need input)
+            # 'statement', 's', # do not test here (need input)
             "account",
             "aliases",
             "finish",
@@ -105,7 +105,6 @@ class SimpleOutputTests(Redirector):
             "reload",
             "r",
             "show",
-            "s",
             "unmark",
             "u",
             "un",
