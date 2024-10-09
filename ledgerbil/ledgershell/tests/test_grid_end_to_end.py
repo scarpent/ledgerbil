@@ -52,7 +52,7 @@ def test_ledger_not_found():
 
 
 def test_get_grid_report_flat_report_expenses():
-    args, ledger_args = grid.get_args(["expenses", "--sort", "row"])
+    args, ledger_args = grid.get_args(["expenses", "--sort", "row", "--transpose"])
     report = grid.get_grid_report(args, ledger_args)
     helper = OutputFileTester("test_grid_end_to_end_flat_expenses")
     helper.save_out_file(report)
@@ -60,7 +60,7 @@ def test_get_grid_report_flat_report_expenses():
 
 
 def test_get_grid_report_flat_report_transposed():
-    args, ledger_args = grid.get_args(["food", "--transpose"])
+    args, ledger_args = grid.get_args(["food"])
     report = grid.get_grid_report(args, ledger_args)
     helper = OutputFileTester("test_grid_end_to_end_flat_transposed")
     helper.save_out_file(report)
@@ -68,7 +68,9 @@ def test_get_grid_report_flat_report_transposed():
 
 
 def test_get_grid_report_flat_report_expenses_monthly():
-    args, ledger_args = grid.get_args(["expenses", "--sort", "row", "--month"])
+    args, ledger_args = grid.get_args(
+        ["expenses", "--sort", "row", "--month", "--transpose"]
+    )
     report = grid.get_grid_report(args, ledger_args)
     helper = OutputFileTester("test_grid_end_to_end_flat_monthly_expenses")
     helper.save_out_file(report)
@@ -76,7 +78,7 @@ def test_get_grid_report_flat_report_expenses_monthly():
 
 
 def test_get_grid_report_flat_report_single_column():
-    args, ledger_args = grid.get_args(["food", "--period", "2018"])
+    args, ledger_args = grid.get_args(["food", "--period", "2018", "--transpose"])
     report = grid.get_grid_report(args, ledger_args)
     expected = (
         "          2018\n"
@@ -89,7 +91,7 @@ def test_get_grid_report_flat_report_single_column():
 
 
 def test_get_grid_report_flat_report_single_column_transposed():
-    args, ledger_args = grid.get_args(["food", "--period", "2018", "--transpose"])
+    args, ledger_args = grid.get_args(["food", "--period", "2018"])
     report = grid.get_grid_report(args, ledger_args)
     expected = (
         "     expenses:     expenses:              \n"
@@ -101,7 +103,7 @@ def test_get_grid_report_flat_report_single_column_transposed():
 
 
 def test_get_grid_report_flat_report_single_row():
-    args, ledger_args = grid.get_args(["groceries"])
+    args, ledger_args = grid.get_args(["groceries", "--transpose"])
     report = grid.get_grid_report(args, ledger_args)
     expected = (
         "          2017          2018         Total\n"
@@ -111,7 +113,7 @@ def test_get_grid_report_flat_report_single_row():
 
 
 def test_get_grid_report_flat_report_single_row_transposed():
-    args, ledger_args = grid.get_args(["groceries", "--transpose"])
+    args, ledger_args = grid.get_args(["groceries"])
     report = grid.get_grid_report(args, ledger_args)
     expected = (
         "     expenses:\n"
@@ -126,14 +128,14 @@ def test_get_grid_report_flat_report_single_row_transposed():
 
 
 def test_get_grid_report_flat_report_single_row_and_column():
-    args, ledger_args = grid.get_args(["groceries", "--period", "2018"])
+    args, ledger_args = grid.get_args(["groceries", "--period", "2018", "--transpose"])
     report = grid.get_grid_report(args, ledger_args)
     expected = "          2018\n       $ 57.40  expenses: food: groceries\n"
     assert Colorable.get_plain_string(report) == expected
 
 
 def test_get_grid_report_flat_report_payees():
-    args, ledger_args = grid.get_args(["--payees", "expenses"])
+    args, ledger_args = grid.get_args(["--payees", "expenses", "--transpose"])
     report = grid.get_grid_report(args, ledger_args)
     helper = OutputFileTester("test_grid_end_to_end_flat_payees")
     helper.save_out_file(report)
@@ -141,7 +143,7 @@ def test_get_grid_report_flat_report_payees():
 
 
 def test_get_grid_report_csv_report_all():
-    args, ledger_args = grid.get_args(["--csv"])
+    args, ledger_args = grid.get_args(["--csv", "--transpose"])
     report = grid.get_grid_report(args, ledger_args)
     helper = OutputFileTester("test_grid_end_to_end_csv_all")
     helper.save_out_file(report)
@@ -149,7 +151,7 @@ def test_get_grid_report_csv_report_all():
 
 
 def test_get_grid_report_csv_report_transposed():
-    args, ledger_args = grid.get_args(["--csv", "--transpose", "food"])
+    args, ledger_args = grid.get_args(["--csv", "food"])
     report = grid.get_grid_report(args, ledger_args)
     expected = dedent(
         """\
@@ -163,7 +165,9 @@ def test_get_grid_report_csv_report_transposed():
 
 
 def test_get_grid_report_csv_report_single_column():
-    args, ledger_args = grid.get_args(["--csv", "--period", "2018", "food"])
+    args, ledger_args = grid.get_args(
+        ["--csv", "--period", "2018", "food", "--transpose"]
+    )
     report = grid.get_grid_report(args, ledger_args)
     expected = dedent(
         """\
@@ -177,9 +181,7 @@ def test_get_grid_report_csv_report_single_column():
 
 
 def test_get_grid_report_csv_report_single_column_transposed_to_single_row():
-    args, ledger_args = grid.get_args(
-        ["--csv", "--period", "2018", "food", "--transpose"]
-    )
+    args, ledger_args = grid.get_args(["--csv", "--period", "2018", "food"])
     report = grid.get_grid_report(args, ledger_args)
     expected = dedent(
         """\
@@ -191,7 +193,7 @@ def test_get_grid_report_csv_report_single_column_transposed_to_single_row():
 
 
 def test_get_grid_report_csv_report_single_row():
-    args, ledger_args = grid.get_args(["--csv", "groceries"])
+    args, ledger_args = grid.get_args(["--csv", "groceries", "--transpose"])
     report = grid.get_grid_report(args, ledger_args)
     expected = dedent(
         """\
@@ -203,7 +205,7 @@ def test_get_grid_report_csv_report_single_row():
 
 
 def test_get_grid_report_csv_report_single_row_transposed_to_single_column():
-    args, ledger_args = grid.get_args(["--csv", "groceries", "--transpose"])
+    args, ledger_args = grid.get_args(["--csv", "groceries"])
     report = grid.get_grid_report(args, ledger_args)
     expected = dedent(
         """\
@@ -217,7 +219,9 @@ def test_get_grid_report_csv_report_single_row_transposed_to_single_column():
 
 
 def test_get_grid_report_csv_report_single_row_and_column():
-    args, ledger_args = grid.get_args(["--csv", "groceries", "--period", "2018"])
+    args, ledger_args = grid.get_args(
+        ["--csv", "groceries", "--period", "2018", "--transpose"]
+    )
     report = grid.get_grid_report(args, ledger_args)
     expected = dedent(
         """\
@@ -229,9 +233,7 @@ def test_get_grid_report_csv_report_single_row_and_column():
 
 
 def test_get_grid_report_csv_report_single_row_and_column_transposed():
-    args, ledger_args = grid.get_args(
-        ["--csv", "groceries", "--period", "2018", "--transpose"]
-    )
+    args, ledger_args = grid.get_args(["--csv", "groceries", "--period", "2018"])
     report = grid.get_grid_report(args, ledger_args)
     expected = dedent(
         """\
@@ -243,7 +245,7 @@ def test_get_grid_report_csv_report_single_row_and_column_transposed():
 
 
 def test_get_grid_report_csv_total_only():
-    args, ledger_args = grid.get_args(["--csv", "food", "--total-only"])
+    args, ledger_args = grid.get_args(["--csv", "food", "--total-only", "--transpose"])
     report = grid.get_grid_report(args, ledger_args)
     expected = dedent(
         """\
@@ -257,7 +259,7 @@ def test_get_grid_report_csv_total_only():
 
 
 def test_get_grid_report_csv_total_only_transposed():
-    args, ledger_args = grid.get_args(["--csv", "food", "--total-only", "--transpose"])
+    args, ledger_args = grid.get_args(["--csv", "food", "--total-only"])
     report = grid.get_grid_report(args, ledger_args)
     expected = dedent(
         """\
@@ -269,14 +271,14 @@ def test_get_grid_report_csv_total_only_transposed():
 
 
 def test_get_grid_report_networth_flat_report():
-    args, ledger_args = grid.get_args(["--net-worth"])
+    args, ledger_args = grid.get_args(["--net-worth", "--transpose"])
     report = grid.get_grid_report(args, ledger_args)
     expected = "          2017          2018\n    $ 1,427.71    $ 1,304.27  net worth\n"
     assert Colorable.get_plain_string(report) == expected
 
 
 def test_get_grid_report_networth_flat_report_transposed():
-    args, ledger_args = grid.get_args(["--net-worth", "--transpose"])
+    args, ledger_args = grid.get_args(["--net-worth"])
     report = grid.get_grid_report(args, ledger_args)
     expected = "     net worth\n    $ 1,427.71  2017\n    $ 1,304.27  2018\n"
     assert Colorable.get_plain_string(report) == expected
@@ -285,7 +287,7 @@ def test_get_grid_report_networth_flat_report_transposed():
 def test_get_grid_report_networth_flat_report_different_date_format():
     settings_getter.settings = MockSettingsAltDateFormat()
     args, ledger_args = grid.get_args(
-        ["--net-worth", "--month", "--transpose", "--begin", "2017/01", "--end", "2018"]
+        ["--net-worth", "--month", "--begin", "2017/01", "--end", "2018"]
     )
     report = grid.get_grid_report(args, ledger_args)
     expected = "     net worth\n    $ 1,439.47  2017-11\n    $ 1,427.71  2017-12\n"
@@ -293,7 +295,7 @@ def test_get_grid_report_networth_flat_report_different_date_format():
 
 
 def test_get_grid_report_networth_csv():
-    args, ledger_args = grid.get_args(["--net-worth", "--csv"])
+    args, ledger_args = grid.get_args(["--net-worth", "--csv", "--transpose"])
     report = grid.get_grid_report(args, ledger_args)
     expected = ",2017,2018\n    $ 1,427.71    $ 1,304.27  net worth\n"
     expected = dedent(

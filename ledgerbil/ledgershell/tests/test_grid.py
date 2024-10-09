@@ -906,7 +906,7 @@ def test_get_grid_report_month(mock_pnames, mock_cols, mock_rows, mock_report):
     mock_rows.return_value = rows
     mock_report.return_value = flat_report
 
-    args, ledger_args = grid.get_args(["--month", "nutmeg"])
+    args, ledger_args = grid.get_args(["--month", "nutmeg", "--transpose"])
     assert grid.get_grid_report(args, ledger_args) == flat_report
     mock_pnames.assert_called_once_with(args, ledger_args, "month")
     mock_cols.assert_called_once_with(args, ledger_args, period_names, None)
@@ -973,7 +973,7 @@ def test_get_grid_report_flat_transposed(
     mock_pnames.return_value = (period_names, None)
     mock_cols.return_value = (row_headers, columns)
 
-    args, ledger_args = grid.get_args(["--transpose"])
+    args, ledger_args = grid.get_args([])
     grid.get_grid_report(args, ledger_args)
 
     expected_rows = [[6, 9, 3], [4, 7, 1], [5, 8, 2]]
@@ -994,7 +994,7 @@ def test_get_grid_report_csv(
     mock_rows.return_value = rows
     mock_csv_report.return_value = "csv,report\n"
 
-    args, ledger_args = grid.get_args(["--csv"])
+    args, ledger_args = grid.get_args(["--csv", "--transpose"])
     grid_report_output = grid.get_grid_report(args, ledger_args)
 
     expected_rows = [[3, 1, 2], ["c", "a", "b"], [6, 4, ""]]
@@ -1017,7 +1017,7 @@ def test_get_grid_report_csv_transposed(
     mock_rows.return_value = rows
     mock_csv_report.return_value = "csv,report\n"
 
-    args, ledger_args = grid.get_args(["--csv", "--transpose"])
+    args, ledger_args = grid.get_args(["--csv"])
     grid_report_output = grid.get_grid_report(args, ledger_args)
 
     expected_rows = [[3, 6, 9], [1, 4, 7], [2, 5, 8]]
@@ -1040,7 +1040,7 @@ def test_get_grid_report_tab(
     mock_rows.return_value = rows
     mock_csv_report.return_value = "csv,report\n"
 
-    args, ledger_args = grid.get_args(["--csv", "--tab"])
+    args, ledger_args = grid.get_args(["--csv", "--tab", "--transpose"])
     grid_report_output = grid.get_grid_report(args, ledger_args)
 
     expected_rows = [[3, 1, 2], ["c", "a", "b"], [6, 4, ""]]
@@ -1063,7 +1063,7 @@ def test_get_grid_report_tab_without_csv(
     mock_rows.return_value = rows
     mock_csv_report.return_value = "csv,report\n"
 
-    args, ledger_args = grid.get_args(["--tab"])
+    args, ledger_args = grid.get_args(["--tab", "--transpose"])
     assert args.csv  # csv is made true
     grid_report_output = grid.get_grid_report(args, ledger_args)
 
@@ -1311,7 +1311,7 @@ def test_args_tab(test_input, expected):
 
 
 @pytest.mark.parametrize(
-    "test_input, expected", [(["-t"], True), (["--transpose"], True), ([], False)]
+    "test_input, expected", [([], True), (["--transpose"], False), (["-t"], False)]
 )
 def test_args_transpose(test_input, expected):
     args, _ = grid.get_args(test_input)

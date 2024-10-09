@@ -425,6 +425,17 @@ def get_rows(
 
     if len(rows) > 1:
         totals = [sum(x) for x in list(zip(*rows))[:ACCOUNT_PAYEE_COLUMN]]
+        # was somehow getting test values like this 5.861977570020827e-14,
+        # instead of expected 0.0, so we'll fiddle a bit...
+        epsilon = 1e-10
+        totals = [
+            (
+                float(f"{total:.2f}".rstrip("0").rstrip("."))
+                if abs(total) >= epsilon
+                else 0.0
+            )
+            for total in totals
+        ]
         rows += [totals + [TOTAL_HEADER]]
 
     headers = period_names + (TOTAL_HEADER, ACCOUNT_PAYEE_HEADER)
@@ -551,12 +562,16 @@ def get_args(args):
             "by account or payee (default: by total)"
         ),
     )
+    # note the departure here with store_false and default True; seemed easier
+    # to essentially change the default this way and then just update breaking
+    # tests appropriately, although they weren't renamed so things might be a
+    # *bit* confusing...
     parser.add_argument(
         "-t",
         "--transpose",
-        action="store_true",
-        default=False,
-        help="transpose columns and rows (row sorting will then apply to columns)",
+        action="store_false",
+        default=True,
+        help="transpose columns and rows",
     )
     parser.add_argument(
         "--csv", action="store_true", default=False, help="output as csv"
