@@ -11,10 +11,8 @@ Some of ledgerbil's features:
   * Display balances or net worth by year or month in a [grid](#grid) format.
   * Display [investments](#investments-or-inv) with dollar and share amounts side by side.
 
-Hi. I'm a personal finance enthusiast. Keeping my records organized and
-analyzable is a soothing and reassuring activity for me. I used
-Microsoft Money from 1995 to 2007, KMyMoney from 2008 to 2012, and
-Ledger from 2013 to this very moment. Ledger is nifty:
+Hi! I'm a personal finance enthusiast. Keeping my records organized and
+analyzable is a reassuring activity for me. I've used Ledger since 2013:
 
 http://www.ledger-cli.org/
 

@@ -54,7 +54,7 @@ def get_dollars(args):
     for line in lines:
         dollars = get_account_balance(line, strip_account=False)
         assert dollars, f"Did not find expected account and dollars: {line}"
-        if dollars.amount < 0:
+        if dollars.amount < -0.02:
             warn_negative_dollars(dollars.amount, dollars.account)
         listing.append(dollars)
 
@@ -103,7 +103,7 @@ def get_shares(args):
             # Cash lines don't have share amounts, just dollars; we'll
             # make share amount be 0 and symbol empty and just have the
             # account to keep our lists lined up
-            if dollars.amount < 0:
+            if dollars.amount < -0.02:
                 warn_negative_dollars(dollars.amount, dollars.account)
             shares = AccountBalance(dollars.account, 0, "")
         else:
