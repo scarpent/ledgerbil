@@ -360,9 +360,9 @@ class Reconciler(cmd.Cmd):
                     number=Colorable("cyan", count_str),
                     date=thing.get_date_string(),
                     code=thing.transaction_code,
-                    payee=util.Colorable("cyan", thing.payee, 40),
+                    payee=util.Colorable("cyan", thing.payee, fmt="40"),
                     amount=self.get_colored_amount(
-                        thing.rec_amount, colwidth=16 if self.is_shares else 11
+                        thing.rec_amount, colwidth=16 if self.is_shares else 13
                     ),
                     status=thing.rec_status or "",
                 )

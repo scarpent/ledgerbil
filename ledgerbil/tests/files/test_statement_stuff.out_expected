@@ -1,5 +1,5 @@
 
-   1. 2016/10/26    $ -10.00   one                                             
+   1. 2016/10/26      $ -10.00   one                                             
 
 ending date: 2016/10/27 ending balance: (not set) cleared: $ 0.00
 
@@ -12,8 +12,8 @@ Ending Balance []:
 Ending Date (YYYY/MM/DD) [2016/10/27]: 2016/10/30
 Ending Balance []: 1,234
 
-   1. 2016/10/26    $ -10.00   one                                             
-   2. 2016/10/29    $ -20.00   two                                             
+   1. 2016/10/26      $ -10.00   one                                             
+   2. 2016/10/29      $ -20.00   two                                             
 
 ending date: 2016/10/30 ending balance: $ 1,234.00 cleared: $ 0.00
 to zero: $ 1,234.00
