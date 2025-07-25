@@ -1,4 +1,4 @@
-""" Unit Test Helpers
+"""Unit Test Helpers
 
 Redirector: Capture streams
 

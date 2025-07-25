@@ -12,11 +12,11 @@ black==25.1.0
     # via -r requirements.in
 build==1.2.2.post1
     # via pip-tools
-click==8.1.8
+click==8.2.1
     # via
     #   black
     #   pip-tools
-coverage[toml]==7.8.0
+coverage[toml]==7.10.0
     # via pytest-cov
 decorator==5.2.1
     # via
@@ -24,7 +24,7 @@ decorator==5.2.1
     #   ipython
 executing==2.2.0
     # via stack-data
-flake8==7.2.0
+flake8==7.3.0
     # via
     #   -r requirements.in
     #   flake8-bugbear
@@ -43,7 +43,7 @@ iniconfig==2.1.0
     # via pytest
 ipdb==0.13.13
     # via -r requirements.in
-ipython==9.1.0
+ipython==9.4.0
     # via
     #   -r requirements.in
     #   ipdb
@@ -57,9 +57,9 @@ matplotlib-inline==0.1.7
     # via ipython
 mccabe==0.7.0
     # via flake8
-mypy-extensions==1.0.0
+mypy-extensions==1.1.0
     # via black
-packaging==24.2
+packaging==25.0
     # via
     #   black
     #   build
@@ -72,33 +72,36 @@ pexpect==4.9.0
     # via ipython
 pip-tools==7.4.1
     # via -r requirements.in
-platformdirs==4.3.7
+platformdirs==4.3.8
     # via black
-pluggy==1.5.0
-    # via pytest
+pluggy==1.6.0
+    # via
+    #   pytest
+    #   pytest-cov
 prompt-toolkit==3.0.51
     # via ipython
 ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.3
     # via stack-data
-pycodestyle==2.13.0
+pycodestyle==2.14.0
     # via flake8
-pyflakes==3.3.2
+pyflakes==3.4.0
     # via flake8
-pygments==2.19.1
+pygments==2.19.2
     # via
     #   ipython
     #   ipython-pygments-lexers
+    #   pytest
 pyproject-hooks==1.2.0
     # via
     #   build
     #   pip-tools
-pytest==8.3.5
+pytest==8.4.1
     # via
     #   -r requirements.in
     #   pytest-cov
-pytest-cov==6.1.1
+pytest-cov==6.2.1
     # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via -r requirements.in
