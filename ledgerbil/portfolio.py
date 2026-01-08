@@ -297,7 +297,7 @@ def get_yearly_with_gains(totals):
         )
         gain_value = value - contrib - transfers - (previous_value or 0)
 
-        assert gain > 0, f"Gain < 0 in {year}: {gain}"
+        assert gain >= 0, f"Gain < 0 in {year}: {gain}"
 
         this_year = Year(year, contrib, transfers, value, gain, gain_value)
         years.append(this_year)
