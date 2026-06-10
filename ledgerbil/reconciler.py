@@ -35,6 +35,7 @@ class Reconciler(cmd.Cmd):
         self.aliases = {
             "end": self.do_finish,
             "EOF": self.do_quit,
+            "exit": self.do_quit,
             "l": self.do_list,
             "ll": self.do_list,
             "m": self.do_mark,
