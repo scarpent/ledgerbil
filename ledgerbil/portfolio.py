@@ -549,13 +549,11 @@ def get_portfolio_data():
 
 def get_args(args):
     program = "ledgerbil/main.py port"
-    description = dedent(
-        """\
+    description = dedent("""\
         Portfolio! This is currently independent of ledger data although
         eventually some integration would be swell. Uses a json data file
         to give you a simple yearly view of your investing portfolio.
-    """
-    )
+    """)
     parser = argparse.ArgumentParser(
         prog=program,
         description=description,

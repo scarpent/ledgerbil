@@ -62,13 +62,11 @@ class HandleFileConfig(ScheduleThingTester):
         schedule_line_file_config = [";; shceduler ; enter 7 days"]
         with pytest.raises(LdgSchedulerError) as excinfo:
             ScheduleThing(schedule_line_file_config)
-        expected = dedent(
-            """\
+        expected = dedent("""\
             Invalid schedule file config:
             ;; shceduler ; enter 7 days
             Expected:
-            ;; scheduler ; enter N days"""
-        )
+            ;; scheduler ; enter N days""")
         assert str(excinfo.value) == expected
 
     def test_file_config(self):
@@ -335,24 +333,20 @@ class HandleThingConfig(TestCase):
         schedule_lines = ["2013/06/05 lightning energy", "    ;; schedule"]
         with pytest.raises(LdgSchedulerError) as excinfo:
             ScheduleThing(schedule_lines)
-        expected = dedent(
-            """\
+        expected = dedent("""\
             Invalid schedule thing config:
                 ;; schedule
-            Not enough parameters"""
-        )
+            Not enough parameters""")
         assert str(excinfo.value) == expected
 
     def test_schedule_label_not_right(self):
         schedule_lines = ["2013/06/05 lightning energy", "    ;; scheduble ; monthly"]
         with pytest.raises(LdgSchedulerError) as excinfo:
             ScheduleThing(schedule_lines)
-        expected = dedent(
-            """\
+        expected = dedent("""\
             Invalid schedule thing config:
                 ;; scheduble ; monthly
-            "schedule" label not found in expected place."""
-        )
+            "schedule" label not found in expected place.""")
         assert str(excinfo.value) == expected
 
     def test_schedule_unrecognized_interval_uom(self):

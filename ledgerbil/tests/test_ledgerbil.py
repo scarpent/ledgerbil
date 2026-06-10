@@ -195,25 +195,21 @@ class ReconcilerTests(Redirector):
         ledgerbil.main(
             ["--file", FT.test_rec_multiple_match, "--reconcile", "checking"]
         )
-        expected = dedent(
-            """\
+        expected = dedent("""\
             More than one matching account:
                 a: checking down
                 a: checking up
-            """
-        )
+            """)
         assert self.redirecterr.getvalue() == expected
 
         # in same transaction
         self.reset_err_redirect()
         ledgerbil.main(["--file", FT.test_rec_multiple_match, "--reconcile", "cash"])
-        expected = dedent(
-            """\
+        expected = dedent("""\
             More than one matching account:
                 a: cash in
                 a: cash out
-            """
-        )
+            """)
         assert self.redirecterr.getvalue() == expected
 
     def test_multiple_statuses(self):
@@ -277,13 +273,11 @@ def test_reconciler_takes_precedence_over_scheduler_and_sort(
 
 @mock.patch(__name__ + ".ledgerbil.run_reconciler")
 def test_run_reconciler_called(mock_run_reconciler):
-    ledgerfile_data = dedent(
-        """
+    ledgerfile_data = dedent("""
         2017/11/28 zombie investments
             a: 401k: bonds idx            12.357 qwrty @   $20.05
             i: investment: adjustment
-    """
-    )
+    """)
     with FT.temp_file(ledgerfile_data) as tempfilename:
         ledgerbil.main(["--file", tempfilename, "--reconcile", "bonds"])
     mock_run_reconciler.assert_called_once()
@@ -302,8 +296,7 @@ def test_reconciled_status(mock_reconciled, mock_error, mock_ledgerfile):
 
 @mock.patch(__name__ + ".reconciler.util.handle_error")
 def test_reconciler_exception(mock_handle_error):
-    ledgerfile_data = dedent(
-        """
+    ledgerfile_data = dedent("""
         2017/11/28 zombie investments
             a: 401k: bonds idx            12.357 qwrty @   $20.05
             i: investment: adjustment
@@ -311,8 +304,7 @@ def test_reconciler_exception(mock_handle_error):
         2017/11/28 zombie investments
             a: 401k: bonds idx
             i: investment: adjustment     $100,000
-    """
-    )
+    """)
     with FT.temp_file(ledgerfile_data) as tempfilename:
         ledgerbil.main(["--file", tempfilename, "--reconcile", "bonds"])
     expected = 'Unhandled shares with non-shares: "a: 401k: bonds idx"'
@@ -320,8 +312,7 @@ def test_reconciler_exception(mock_handle_error):
 
 
 def test_reconciler_exception_return_value():
-    ledgerfile_data = dedent(
-        """
+    ledgerfile_data = dedent("""
         2017/11/28 zombie investments
             a: 401k: bonds idx            12.357 qwrty @   $20.05
             i: investment: adjustment
@@ -329,8 +320,7 @@ def test_reconciler_exception_return_value():
         2017/11/28 zombie investments
             a: 401k: bonds idx
             i: investment: adjustment     $100,000
-    """
-    )
+    """)
     with FT.temp_file(ledgerfile_data) as tempfilename:
         return_value = ledgerbil.main(["--file", tempfilename, "--reconcile", "bonds"])
     assert return_value == ERROR_RETURN_VALUE
@@ -354,13 +344,11 @@ def test_next_scheduled_date_scheduler_exception(mock_handle_error):
     schedulefile_data = ";; scheduler enter 567 days"
     with FT.temp_file(schedulefile_data) as tempfilename:
         ledgerbil.main(["--schedule", tempfilename, "-n"])
-    expected = dedent(
-        """\
+    expected = dedent("""\
             Invalid schedule file config:
             ;; scheduler enter 567 days
             Expected:
-            ;; scheduler ; enter N days"""
-    )
+            ;; scheduler ; enter N days""")
     mock_handle_error.assert_called_once_with(expected)
 
 
@@ -374,13 +362,11 @@ def test_next_scheduled_date_scheduler_exception_return_value():
 def test_scheduler_exception(mock_handle_error):
     with FT.temp_file(";; scheduler enter 321 days") as tempfilename:
         ledgerbil.main(["--schedule", tempfilename, "-f", FT.testfile])
-    expected = dedent(
-        """\
+    expected = dedent("""\
         Invalid schedule file config:
         ;; scheduler enter 321 days
         Expected:
-        ;; scheduler ; enter N days"""
-    )
+        ;; scheduler ; enter N days""")
     mock_handle_error.assert_called_once_with(expected)
 
 

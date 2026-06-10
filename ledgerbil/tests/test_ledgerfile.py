@@ -49,15 +49,13 @@ def test_count_initial_non_transaction():
     """counts initial non-transaction (probably a comment)
     first two comment lines are thing_number 0, rest are #1
     thing_counter will then be at #1"""
-    testdata = dedent(
-        """\
+    testdata = dedent("""\
         ; blah
         ; blah blah blah
         2013/05/06 payee name
             expenses: misc
             liabilities: credit card  $-50
-    """
-    )
+    """)
     with FT.temp_file(testdata) as templedgerfile:
         lfile = LedgerFile(templedgerfile)
 
@@ -65,8 +63,7 @@ def test_count_initial_non_transaction():
 
 
 def test_count_initial_transaction():
-    testdata = dedent(
-        """\
+    testdata = dedent("""\
         2013/05/06 payee name
             expenses: misc
             liabilities: credit card  $-50
@@ -76,8 +73,7 @@ def test_count_initial_transaction():
             liabilities: credit card  $-50
         2013/02/30 invalid date (bonus test for thing date checking cov)
             (will be lumped with previous; note is invalid ledger file...)
-        """
-    )
+        """)
     with FT.temp_file(testdata) as templedgerfile:
         lfile = LedgerFile(templedgerfile)
 
@@ -86,15 +82,13 @@ def test_count_initial_transaction():
 
 def test_assigned_thing_numbers():
     """thing numbers added in sequence starting at one"""
-    testdata = dedent(
-        """\
+    testdata = dedent("""\
         ; blah
         ; blah blah blah
         2013/05/06 payee name
             expenses: misc
             liabilities: credit card  $-50
-    """
-    )
+    """)
     with FT.temp_file(testdata) as templedgerfile:
         lfile = LedgerFile(templedgerfile)
 
@@ -121,16 +115,14 @@ def test_initial_non_transaction_date():
 
 def test_later_non_transaction_date():
     """later non-transaction things inherit preceding thing date"""
-    testdata = dedent(
-        """\
+    testdata = dedent("""\
         2013/05/06 payee name
             expenses: misc
             liabilities: credit card  $-1
         2013/05/07 payee name
             expenses: misc
             liabilities: credit card  $-2
-        """
-    )
+        """)
     with FT.temp_file(testdata) as templedgerfile:
         lfile = LedgerFile(templedgerfile)
 

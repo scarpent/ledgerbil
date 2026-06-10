@@ -101,13 +101,11 @@ def test_scheduler_error(mock_error):
     with FT.temp_file(schedulefiledata) as temp_schedule_filename:
         ledgerfile = None  # is going to error before we use ledgerfile
         scheduler.run_scheduler(ledgerfile, temp_schedule_filename)
-        expected = dedent(
-            """\
+        expected = dedent("""\
             Invalid schedule file config:
             ;; scheduler enter 321 days
             Expected:
-            ;; scheduler ; enter N days"""
-        )
+            ;; scheduler ; enter N days""")
         mock_error.assert_called_once_with(expected)
 
 
@@ -132,11 +130,9 @@ def test_next_scheduled_date_scheduler_exception(mock_error):
     schedulefile_data = ";; scheduler enter 567 days"
     with FT.temp_file(schedulefile_data) as temp_schedule_filename:
         scheduler.print_next_scheduled_date(temp_schedule_filename)
-        expected = dedent(
-            """\
+        expected = dedent("""\
                 Invalid schedule file config:
                 ;; scheduler enter 567 days
                 Expected:
-                ;; scheduler ; enter N days"""
-        )
+                ;; scheduler ; enter N days""")
         mock_error.assert_called_once_with(expected)

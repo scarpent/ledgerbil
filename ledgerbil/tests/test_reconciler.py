@@ -15,8 +15,7 @@ from . import filetester as FT
 from .helpers import OutputFileTesterStdout, Redirector
 
 next_week = util.get_date_string(date.today() + relativedelta(weeks=1))
-testdata = dedent(
-    f"""\
+testdata = dedent(f"""\
     2016/10/01 flibble
         e: smurg
         a: credit       $-11
@@ -49,8 +48,7 @@ testdata = dedent(
     {next_week} four
         e: snurp
         a: cash         $-40
-    """
-)
+    """)
 
 
 class MockSettings:
@@ -163,14 +161,12 @@ class OutputTests(Redirector):
 
     def test_mark_and_unmark_errors(self):
 
-        multiple_matches = dedent(
-            """
+        multiple_matches = dedent("""
 
             2019/10/23 two again
                 e: beep
                 a: cash         $-20
-            """
-        )
+            """)
 
         with FT.temp_file(testdata + multiple_matches) as tempfilename:
             recon = Reconciler([LedgerFile(tempfilename, "cash")])
@@ -238,13 +234,11 @@ class OutputTests(Redirector):
         assert self.redirect.getvalue() == expected
 
     def test_show_one_transaction(self):
-        expected = dedent(
-            """\
+        expected = dedent("""\
 
             2016/10/27 two
                 e: meep
-                a: cash         $-20"""
-        )
+                a: cash         $-20""")
 
         with FT.temp_file(testdata) as tempfilename:
             recon = Reconciler([LedgerFile(tempfilename, "cash")])
@@ -254,8 +248,7 @@ class OutputTests(Redirector):
         assert self.redirect.getvalue().rstrip() == expected
 
     def test_show_two_transactions(self):
-        expected = dedent(
-            """\
+        expected = dedent("""\
 
             2016/10/27 two
                 e: meep
@@ -263,8 +256,7 @@ class OutputTests(Redirector):
 
             2016/10/27 two pt five
                 e: meep 2
-              ! a: cash         $-2.12"""
-        )
+              ! a: cash         $-2.12""")
 
         with FT.temp_file(testdata) as tempfilename:
             recon = Reconciler([LedgerFile(tempfilename, "cash")])
@@ -275,8 +267,7 @@ class OutputTests(Redirector):
 
 
 def test_mixed_shares_and_non_shares_raises_exception():
-    ledgerfile_data = dedent(
-        """
+    ledgerfile_data = dedent("""
         2017/11/28 zombie investments
             a: 401k: bonds idx            12.357 qwrty @   $20.05
             i: investment: adjustment
@@ -284,8 +275,7 @@ def test_mixed_shares_and_non_shares_raises_exception():
         2017/11/28 zombie investments
             a: 401k: bonds idx
             i: investment: adjustment     $100,000
-    """
-    )
+    """)
 
     with FT.temp_file(ledgerfile_data) as tempfilename:
         with pytest.raises(LdgReconcilerError) as excinfo:
@@ -296,8 +286,7 @@ def test_mixed_shares_and_non_shares_raises_exception():
 
 
 def test_mixed_symbols_raises_exception():
-    ledgerfile_data = dedent(
-        """
+    ledgerfile_data = dedent("""
         2017/11/28 zombie investments
             a: 401k: bonds idx            12.357 qwrty @   $20.05
             i: investment: adjustment
@@ -305,8 +294,7 @@ def test_mixed_symbols_raises_exception():
         2017/11/28 zombie investments
             a: 401k: bonds idx            12.357 abcde @   $20.05
             i: investment: adjustment
-    """
-    )
+    """)
 
     with FT.temp_file(ledgerfile_data) as tempfilename:
         with pytest.raises(LdgReconcilerError) as excinfo:
@@ -317,8 +305,7 @@ def test_mixed_symbols_raises_exception():
 
 
 def test_top_line_cleared_status_raises_exception_when_account_matched():
-    ledgerfile_data = dedent(
-        """
+    ledgerfile_data = dedent("""
         2017/11/28 so
             fu: bar     $20
             credit card
@@ -326,8 +313,7 @@ def test_top_line_cleared_status_raises_exception_when_account_matched():
         2017/11/28 * nar
             ra: dar     $30
             checking
-    """
-    )
+    """)
 
     with FT.temp_file(ledgerfile_data) as tempfilename:
         with pytest.raises(LdgReconcilerError) as excinfo:
@@ -338,8 +324,7 @@ def test_top_line_cleared_status_raises_exception_when_account_matched():
 
 
 def test_top_line_pending_status_raises_exception_when_account_matched():
-    ledgerfile_data = dedent(
-        """
+    ledgerfile_data = dedent("""
         2017/11/28 so
             fu: bar     $20
             credit card
@@ -347,8 +332,7 @@ def test_top_line_pending_status_raises_exception_when_account_matched():
         2017/11/28 ! nar
             ra: dar     $30
             checking
-    """
-    )
+    """)
 
     with FT.temp_file(ledgerfile_data) as tempfilename:
         with pytest.raises(LdgReconcilerError) as excinfo:
@@ -359,8 +343,7 @@ def test_top_line_pending_status_raises_exception_when_account_matched():
 
 
 def test_top_line_status_does_not_raise_exception_when_account_not_matched():
-    ledgerfile_data = dedent(
-        """
+    ledgerfile_data = dedent("""
         2017/11/28 so
             fu: bar     $20
             credit card
@@ -368,8 +351,7 @@ def test_top_line_status_does_not_raise_exception_when_account_not_matched():
         2017/11/28 * nar
             ra: dar     $30
             checking
-    """
-    )
+    """)
 
     with FT.temp_file(ledgerfile_data) as tempfilename:
         # should not raise LdgReconcilerError
@@ -377,20 +359,16 @@ def test_top_line_status_does_not_raise_exception_when_account_not_matched():
 
 
 def test_non_matching_accounts_in_different_files():
-    ledgerfile_data = dedent(
-        """
+    ledgerfile_data = dedent("""
         2017/11/28 zombie investments
             a: 401k: bonds idx            12.357 qwrty @   $20.05
             i: investment: adjustment
-    """
-    )
-    ledgerfile2_data = dedent(
-        """
+    """)
+    ledgerfile2_data = dedent("""
         2017/12/28 zombie investments
             a: 401k: james bonds idx      45.678 qwrty @   $31.11
             i: investment: adjustment
-    """
-    )
+    """)
 
     with FT.temp_file(ledgerfile_data) as tempfilename:
         with FT.temp_file(ledgerfile2_data) as tempfilename2:
@@ -401,30 +379,24 @@ def test_non_matching_accounts_in_different_files():
                         LedgerFile(tempfilename2, "bonds"),
                     ]
                 )
-    expected = dedent(
-        """\
+    expected = dedent("""\
         More than one matching account:
             a: 401k: bonds idx
-            a: 401k: james bonds idx"""
-    )
+            a: 401k: james bonds idx""")
     assert str(excinfo.value) == expected
 
 
 def test_get_rec_account_matched_when_match_in_either_file():
-    ledgerfile_data = dedent(
-        """
+    ledgerfile_data = dedent("""
         2017/11/28 zombie investments
             a: 401k: stock idx            12.357 qwrty @   $20.05
             i: investment: adjustment
-    """
-    )
-    ledgerfile2_data = dedent(
-        """
+    """)
+    ledgerfile2_data = dedent("""
         2017/12/28 zombie investments
             a: 401k: james bonds idx      45.678 qwrty @   $31.11
             i: investment: adjustment
-    """
-    )
+    """)
 
     with FT.temp_file(ledgerfile_data) as tempfilename:
         with FT.temp_file(ledgerfile2_data) as tempfilename2:
@@ -451,20 +423,16 @@ def test_get_rec_account_matched_when_match_in_either_file():
 
 
 def test_get_rec_account_matched_when_match_in_neither_file():
-    ledgerfile_data = dedent(
-        """
+    ledgerfile_data = dedent("""
         2017/11/28 zombie investments
             a: 401k: stock idx            12.357 qwrty @   $20.05
             i: investment: adjustment
-    """
-    )
-    ledgerfile2_data = dedent(
-        """
+    """)
+    ledgerfile2_data = dedent("""
         2017/12/28 zombie investments
             a: 401k: james bonds idx      45.678 qwrty @   $31.11
             i: investment: adjustment
-    """
-    )
+    """)
 
     with FT.temp_file(ledgerfile_data) as tempfilename:
         with FT.temp_file(ledgerfile2_data) as tempfilename2:
@@ -522,8 +490,7 @@ def test_list():
 
 
 def test_list_shares():
-    ledgerfile_data = dedent(
-        """
+    ledgerfile_data = dedent("""
         2017/11/05 zombie investments
           ! a: 401k: big co 500 idx       1.555555 abcdx @   $81.02
             i: investment: adjustment
@@ -547,8 +514,7 @@ def test_list_shares():
         2017/11/13 zombie investments
             a: 401k: big co 500 idx       3.123321 abcdx @   $90.11
             i: investment: adjustment
-    """
-    )
+    """)
 
     with FT.temp_file(ledgerfile_data) as tempfilename:
         recon = Reconciler([LedgerFile(tempfilename, "401k: big co")])
@@ -652,14 +618,12 @@ def test_mark_and_unmark_all():
 
 def test_mark_and_unmark_multiple_amount_matches():
 
-    multiple_matches = dedent(
-        """
+    multiple_matches = dedent("""
 
         2019/10/23 two again
             e: beep
             a: cash         $-20
-        """
-    )
+        """)
 
     with FT.temp_file(testdata + multiple_matches) as tempfilename:
         recon = Reconciler([LedgerFile(tempfilename, "cash")])
@@ -738,8 +702,7 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         reconciler.date = date
         settings_getter.settings = settings.Settings()
 
-    teststmt = dedent(
-        """\
+    teststmt = dedent("""\
         2016/10/26 one
             e: blurg
             a: cash         $-10
@@ -747,11 +710,9 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         2016/10/29 two
             e: blurgerber
             a: cash         $-20
-        """
-    )
+        """)
 
-    testfinish = dedent(
-        """
+    testfinish = dedent("""
         2016/10/26 one
             e: blurg
           * a: cash         $-10
@@ -759,11 +720,9 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         2016/10/29 two
             e: blurgerber
           * a: cash         $-20
-        """
-    )
+        """)
 
-    teststmt_shares = dedent(
-        """\
+    teststmt_shares = dedent("""\
         2016/10/26 banana
             a: 401k: big co 500 idx     0.123456 abcdx @   $81.89
             i: investment: yargle
@@ -771,11 +730,9 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         2016/10/27 sweet potato
             a: 401k: big co 500 idx        2.111 abcdx @   $82.13
             i: investment: yargle
-        """
-    )
+        """)
 
-    teststmt_shares_finish = dedent(
-        """\
+    teststmt_shares_finish = dedent("""\
         2016/10/26 banana
           * a: 401k: big co 500 idx     0.123456 abcdx @   $81.89
             i: investment: yargle
@@ -783,8 +740,7 @@ class StatementAndFinishTests(MockInput, OutputFileTesterStdout):
         2016/10/27 sweet potato
           * a: 401k: big co 500 idx        2.111 abcdx @   $82.13
             i: investment: yargle
-        """
-    )
+        """)
 
     def test_setting_statement_date_and_balance(self):
         self.init_test("test_statement_stuff")
@@ -975,13 +931,11 @@ class ResponseTests(MockInput, Redirector):
         assert actual == "new value"
 
 
-testcache = dedent(
-    """\
+testcache = dedent("""\
     2016/10/26 one
         e: blurg
         a: cash         $-10
-    """
-)
+    """)
 
 
 def test_get_key_and_cache_no_cache():
@@ -1031,13 +985,11 @@ def test_save_cache_error(mock_get_key_and_cache, mock_print):
 @mock.patch(__name__ + ".reconciler.Reconciler.get_date_and_balance")
 @mock.patch(__name__ + ".reconciler.Reconciler.get_key_and_cache")
 def test_previous_balance_is_zero(mock_get_key, mock_get_date, mock_print):
-    teststmt = dedent(
-        """\
+    teststmt = dedent("""\
         2016/10/26 one
             e: blurg
             a: cash         $-10
-        """
-    )
+        """)
     mock_get_key.return_value = ("a: cash", {"a: cash": {}})
     mock_get_date.return_value = (date.today(), 0)
     with FT.temp_file(teststmt) as tempfilename:
@@ -1056,8 +1008,7 @@ class CacheTests(MockInput, Redirector):
         super().setUp()
         settings_getter.settings = settings.Settings()
 
-    testcache = dedent(
-        """\
+    testcache = dedent("""\
         2016/10/26 one
             e: blurg
             a: cash         $-10
@@ -1065,8 +1016,7 @@ class CacheTests(MockInput, Redirector):
         2016/10/26 two
             e: blurg
             a: credit       $-10
-        """
-    )
+        """)
 
     def test_cache(self):
         with FT.temp_file(self.testcache) as tempfilename:
@@ -1141,8 +1091,7 @@ class ReloadTests(TestCase):
         super().setUp()
         settings_getter.settings = settings.Settings()
 
-    testdata = dedent(
-        """\
+    testdata = dedent("""\
         2016/10/26 one
             e: blurg
             a: cash         $-10
@@ -1150,11 +1099,9 @@ class ReloadTests(TestCase):
         2016/10/29 two
             e: glarg
           * a: cash         $-20
-        """
-    )
+        """)
 
-    testdata_modified = dedent(
-        """\
+    testdata_modified = dedent("""\
         2016/10/26 one
             e: blurg
             a: cash         $-10
@@ -1162,8 +1109,7 @@ class ReloadTests(TestCase):
         2016/10/29 two
             e: blarg
           * a: cash         $-55
-        """
-    )
+        """)
 
     def test_reload(self):
         with FT.temp_file(self.testdata) as tempfilename:
@@ -1180,13 +1126,11 @@ class ReloadTests(TestCase):
 
 @mock.patch(__name__ + ".reconciler.Reconciler.cmdloop")
 def test_reconciler_cmdloop_called(mock_cmdloop):
-    ledgerfile_data = dedent(
-        """
+    ledgerfile_data = dedent("""
         2017/11/28 zombie investments
             a: 401k: bonds idx            12.357 qwrty @   $20.05
             i: investment: adjustment
-    """
-    )
+    """)
     with FT.temp_file(ledgerfile_data) as tempfilename:
         ledgerfile = LedgerFile(tempfilename, reconcile_account="bonds")
         return_value = run_reconciler([ledgerfile])
@@ -1196,8 +1140,7 @@ def test_reconciler_cmdloop_called(mock_cmdloop):
 
 @mock.patch(__name__ + ".util.handle_error")
 def test_reconciler_exception(mock_print):
-    ledgerfile_data = dedent(
-        """
+    ledgerfile_data = dedent("""
         2017/11/28 zombie investments
             a: 401k: bonds idx            12.357 qwrty @   $20.05
             i: investment: adjustment
@@ -1205,8 +1148,7 @@ def test_reconciler_exception(mock_print):
         2017/11/28 zombie investments
             a: 401k: bonds idx
             i: investment: adjustment     $100,000
-    """
-    )
+    """)
     with FT.temp_file(ledgerfile_data) as tempfilename:
         ledgerfile = LedgerFile(tempfilename, reconcile_account="bonds")
         run_reconciler([ledgerfile])
@@ -1372,11 +1314,9 @@ def test_reconciled_status(mock_get_accounts, mock_status_report, mock_ledger_ou
         "x: y": reconciler.ReconData("x: y", "2012/09/09", 0.0, 0),
     }
     mock_get_accounts.return_value = accounts
-    mock_ledger_output.return_value = dedent(
-        """\
+    mock_ledger_output.return_value = dedent("""\
         1.234 abc  fu: bar
-        $ -98.76 abc: def"""
-    )
+        $ -98.76 abc: def""")
 
     reconciler.reconciled_status()
 

@@ -3,8 +3,7 @@ from textwrap import dedent
 from ..schedulefile import ScheduleFile
 from . import filetester as FT
 
-schedule_testdata = dedent(
-    """\
+schedule_testdata = dedent("""\
     ;; scheduler ; enter 45 days
 
     2016/10/31 absolute insurance
@@ -21,8 +20,7 @@ schedule_testdata = dedent(
         ;; schedule ; monthly ; 15 ; 6 ; auto
         e: dolor
         a: cash                                 $-45
-    """
-)
+    """)
 
 
 def test_next_scheduled_transaction():

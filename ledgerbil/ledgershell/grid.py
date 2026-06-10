@@ -465,8 +465,7 @@ def get_grid(row_headers, columns):
 
 def get_args(args):
     program = "ledgerbil/main.py grid"
-    description = dedent(
-        """\
+    description = dedent("""\
         Show ledger balance report in tabular form with years or months as the
         columns. Begin, end, and period params are handled as ledger interprets
         them, and all arguments not defined here are passed through to ledger.
@@ -489,8 +488,7 @@ def get_args(args):
         any accounts, ledger gives odd results for the query used by ledgerbil:
 
         register --group-by '(payee)' --collapse --subtotal --depth 1
-    """
-    )
+    """)
     parser = argparse.ArgumentParser(
         prog=program,
         description=description,

@@ -9,8 +9,7 @@ import yaml_tmlanguage_helper as ytl
 @mock.patch(f"{__name__}.ytl.write_yaml_tmlanguage_file")
 @mock.patch(f"{__name__}.ytl.print")
 def test_do_the_things(mock_print, mock_write_yaml):
-    input_data = dedent(
-        """\
+    input_data = dedent("""\
         ’Twas brillig, and the slithy toves
         # start variables
         # gyre gimble
@@ -22,10 +21,8 @@ def test_do_the_things(mock_print, mock_write_yaml):
         # gyre snicker snack
         {{gyre}}-{{mimsy}}
 
-        {{mome}}|{{gyre}}"""
-    )
-    expected_data = dedent(
-        """\
+        {{mome}}|{{gyre}}""")
+    expected_data = dedent("""\
         ’Twas brillig, and the slithy toves
         # start variables
         # gyre gimble
@@ -37,8 +34,7 @@ def test_do_the_things(mock_print, mock_write_yaml):
         # gyre snicker snack
         gimble-borogoves
 
-        (gimble|outgrabe)|gimble"""
-    )
+        (gimble|outgrabe)|gimble""")
 
     with mock.patch(f"{__name__}.ytl.open", mock.mock_open(read_data=input_data)):
         ytl.do_the_things()

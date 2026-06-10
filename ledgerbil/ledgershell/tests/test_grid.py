@@ -35,11 +35,9 @@ def teardown_function():
 
 @mock.patch(__name__ + ".grid.get_ledger_output")
 def test_get_period_names_years(mock_ledger_output):
-    output = dedent(
-        """\
+    output = dedent("""\
         2017 - 2017          <Total>                    0         0
-        2018 - 2018          <Total>                    0         0"""
-    )
+        2018 - 2018          <Total>                    0         0""")
     mock_ledger_output.return_value = output
 
     timestuff = "--begin banana --end eggplant --period pear"
@@ -57,13 +55,11 @@ def test_get_period_names_years(mock_ledger_output):
 
 @mock.patch(__name__ + ".grid.get_ledger_output")
 def test_get_period_names_months(mock_ledger_output):
-    output = dedent(
-        """\
+    output = dedent("""\
         2017/11 - 2017/11       <Total>                  0         0
         2017/12 - 2017/12       <Total>                  0         0
 
-        2018/01 - 2018/01       <Total>                  0         0"""
-    )
+        2018/01 - 2018/01       <Total>                  0         0""")
     mock_ledger_output.return_value = output
     args, ledger_args = grid.get_args(
         ["--begin", "banana", "--end", "eggplant", "--period", "pear", "lettuce"]
@@ -93,13 +89,11 @@ def test_get_period_names_months(mock_ledger_output):
 @mock.patch(__name__ + ".grid.get_ledger_output")
 def test_get_period_names_months_different_format(mock_ledger_output):
     settings_getter.settings = MockSettingsAltDateFormat()
-    output = dedent(
-        """\
+    output = dedent("""\
         2017-11 - 2017-11       <Total>                  0         0
         2017-12 - 2017-12       <Total>                  0         0
 
-        2018-01 - 2018-01       <Total>                  0         0"""
-    )
+        2018-01 - 2018-01       <Total>                  0         0""")
     mock_ledger_output.return_value = output
     args, ledger_args = grid.get_args(
         ["--begin", "banana", "--end", "eggplant", "--period", "pear", "lettuce"]
@@ -130,14 +124,12 @@ def test_get_period_names_months_different_format(mock_ledger_output):
 @mock.patch(__name__ + ".grid.get_ledger_output")
 def test_get_period_names_months_with_current(mock_ledger_output, mock_date):
     mock_date.today.return_value = date(2017, 12, 15)
-    output = dedent(
-        """\
+    output = dedent("""\
         2017/11 - 2017/11       <Total>                  0         0
         2017/12 - 2017/12       <Total>                  0         0
 
                                 <Total>                  0         0
-        2018/01 - 2018/01       <Total>                  0         0"""
-    )
+        2018/01 - 2018/01       <Total>                  0         0""")
     mock_ledger_output.return_value = output
     args, ledger_args = grid.get_args(
         [
@@ -177,13 +169,11 @@ def test_get_period_names_months_with_current(mock_ledger_output, mock_date):
 @mock.patch(__name__ + ".grid.get_ledger_output")
 def test_get_period_names_months_with_current_not_found(mock_ledger_output, mock_date):
     mock_date.today.return_value = date(2019, 12, 15)
-    output = dedent(
-        """\
+    output = dedent("""\
         2017/11 - 2017/11       <Total>                  0         0
         2017/12 - 2017/12       <Total>                  0         0
 
-        2018/01 - 2018/01       <Total>                  0         0"""
-    )
+        2018/01 - 2018/01       <Total>                  0         0""")
     mock_ledger_output.return_value = output
     args, ledger_args = grid.get_args(
         [
@@ -221,14 +211,12 @@ def test_get_period_names_months_with_current_not_found(mock_ledger_output, mock
 
 @mock.patch(__name__ + ".grid.get_ledger_output")
 def test_get_column_accounts(mock_ledger_output):
-    output = dedent(
-        """\
+    output = dedent("""\
                      $ 17.37  expenses: car: gas
                       $ 6.50  expenses: car: maintenance
                   $ 1,001.78  expenses: widgets
         --------------------
-                  $ 1,025.65"""
-    )
+                  $ 1,025.65""")
     mock_ledger_output.return_value = output
     expected = {
         "expenses: car: gas": 17.37,
@@ -243,15 +231,13 @@ def test_get_column_accounts(mock_ledger_output):
 
 @mock.patch(__name__ + ".grid.get_ledger_output")
 def test_get_column_accounts_depth_one(mock_ledger_output):
-    output = dedent(
-        """\
+    output = dedent("""\
                      $ 10.00  apple: banana: cantaloupe
                      $ 20.00  apple: banana: eggplant
                      $ 40.00  grape: kiwi
                      $ 80.00  grape: fig
         --------------------
-                    $ 150.00"""
-    )
+                    $ 150.00""")
     mock_ledger_output.return_value = output
     expected = {"apple": 30, "grape": 120}
     assert grid.get_column_accounts("2018", (), depth=1) == expected
@@ -262,15 +248,13 @@ def test_get_column_accounts_depth_one(mock_ledger_output):
 
 @mock.patch(__name__ + ".grid.get_ledger_output")
 def test_get_column_accounts_depth_two(mock_ledger_output):
-    output = dedent(
-        """\
+    output = dedent("""\
                      $ 10.00  apple: banana: cantaloupe
                      $ 20.00  apple: banana: eggplant
                      $ 40.00  grape:kiwi
                      $ 80.00  grape:fig
         --------------------
-                    $ 150.00"""
-    )
+                    $ 150.00""")
     mock_ledger_output.return_value = output
     expected = {"apple: banana": 30, "grape:kiwi": 40, "grape:fig": 80}
     assert grid.get_column_accounts("2018", (), depth=2) == expected
@@ -282,13 +266,11 @@ def test_get_column_accounts_depth_two(mock_ledger_output):
 @mock.patch(__name__ + ".grid.print")
 @mock.patch(__name__ + ".grid.get_ledger_output")
 def test_get_column_accounts_differing_totals(mock_ledger_output, mock_print):
-    output = dedent(
-        """\
+    output = dedent("""\
                     $ 49.998  expenses: parent
                     $ 29.999  expenses: parent: child
         --------------------
-                    $ 49.998"""
-    )
+                    $ 49.998""")
     mock_ledger_output.return_value = output
     expected = {"expenses: parent": 49.998, "expenses: parent: child": 29.999}
     assert grid.get_column_accounts("2018", ()) == expected
@@ -312,13 +294,11 @@ def test_get_column_accounts_floating_point_diffs_not_ok(
     mock_ledger_output, mock_print, mock_sum, test_input
 ):
     """should warn about rounded total difference greater than .05"""
-    output = dedent(
-        """\
+    output = dedent("""\
                       $ 1.25  expenses: car: gas
                       $ 1.25  expenses: car: maintenance
         --------------------
-                      $ 2.50"""
-    )
+                      $ 2.50""")
     mock_ledger_output.return_value = output
     expected = {"expenses: car: gas": 1.25, "expenses: car: maintenance": 1.25}
     mock_sum.return_value = test_input
@@ -344,13 +324,11 @@ def test_get_column_accounts_floating_point_diffs_ok(
 ):
     """should not warn about rounded total diff less than or equal to .05"""
     # within a penny seems close enough
-    output = dedent(
-        """\
+    output = dedent("""\
                       $ 1.25  expenses: car: gas
                       $ 1.25  expenses: car: maintenance
         --------------------
-                      $ 2.50"""
-    )
+                      $ 2.50""")
     mock_ledger_output.return_value = output
     expected = {"expenses: car: gas": 1.25, "expenses: car: maintenance": 1.25}
     mock_sum.return_value = test_input
@@ -363,10 +341,8 @@ def test_get_column_accounts_floating_point_diffs_ok(
 
 @mock.patch(__name__ + ".grid.get_ledger_output")
 def test_get_column_accounts_no_total(mock_ledger_output):
-    output = dedent(
-        """\
-                     $ 17.37  expenses: car: gas"""
-    )
+    output = dedent("""\
+                     $ 17.37  expenses: car: gas""")
     mock_ledger_output.return_value = output
     expected = {"expenses: car: gas": 17.37}
     assert grid.get_column_accounts("2018", ()) == expected
@@ -387,8 +363,7 @@ def test_get_column_accounts_no_values(mock_ledger_output):
 
 @mock.patch(__name__ + ".grid.get_ledger_output")
 def test_get_column_payees(mock_ledger_output):
-    output = dedent(
-        """\
+    output = dedent("""\
         food and stuff
         17-Nov-01 - 18-Jan-05    <Total>      $ 102.03           $ 102.03
 
@@ -399,8 +374,7 @@ def test_get_column_payees(mock_ledger_output):
         17-Nov-15 - 17-Nov-30    <Total>    $ 1,381.32         $ 1,381.32
 
         jurassic fork
-        18-Jan-08 - 18-Jan-08    <Total>       $ 42.17            $ 42.17"""
-    )
+        18-Jan-08 - 18-Jan-08    <Total>       $ 42.17            $ 42.17""")
     mock_ledger_output.return_value = output
     expected = {
         "food and stuff": 102.03,
@@ -448,13 +422,11 @@ def test_get_columns_payees(mock_get_column_payees):
 
 @mock.patch(__name__ + ".grid.get_ledger_output")
 def test_get_column_networth_year(mock_ledger_output):
-    output = dedent(
-        """\
+    output = dedent("""\
                   $ 8,270.61  assets
                  $ -4,424.04  liabilities
         --------------------
-                  $ 3,846.57"""
-    )
+                  $ 3,846.57""")
     mock_ledger_output.return_value = output
     expected = {"net worth": 3846.57}
     assert grid.get_column_networth("2007", ("bogus",)) == expected
@@ -465,13 +437,11 @@ def test_get_column_networth_year(mock_ledger_output):
 
 @mock.patch(__name__ + ".grid.get_ledger_output")
 def test_get_column_networth_month(mock_ledger_output):
-    output = dedent(
-        """\
+    output = dedent("""\
                   $ 8,270.61  assets
                  $ -4,424.04  liabilities
         --------------------
-                  $ 3,846.57"""
-    )
+                  $ 3,846.57""")
     mock_ledger_output.return_value = output
     expected = {"net worth": 3846.57}
     assert grid.get_column_networth("2007/10", ()) == expected
@@ -483,13 +453,11 @@ def test_get_column_networth_month(mock_ledger_output):
 @mock.patch(__name__ + ".grid.get_ledger_output")
 def test_get_column_networth_month_different_date_format(mock_ledger_output):
     settings_getter.settings = MockSettingsAltDateFormat()
-    output = dedent(
-        """\
+    output = dedent("""\
                   $ 8,270.61  assets
                  $ -4,424.04  liabilities
         --------------------
-                  $ 3,846.57"""
-    )
+                  $ 3,846.57""")
     mock_ledger_output.return_value = output
     expected = {"net worth": 3846.57}
     assert grid.get_column_networth("2007-10", ()) == expected
@@ -503,13 +471,11 @@ def test_get_column_networth_default_networth_accounts(mock_ledger_output):
     """get_column_networth should use a default for NETWORTH_ACCOUNTS
     if the setting is not present"""
     settings_getter.settings = MockSettingsEmpty()
-    output = dedent(
-        """\
+    output = dedent("""\
                   $ 8,270.61  assets
                  $ -4,424.04  liabilities
         --------------------
-                  $ 3,846.57"""
-    )
+                  $ 3,846.57""")
     mock_ledger_output.return_value = output
     expected = {"net worth": 3846.57}
     assert grid.get_column_networth("2007/10", ()) == expected
@@ -791,13 +757,11 @@ def test_get_csv_report():
         ["a", "b", '"c"', "d e f", "g, h"],
         ["", 4, "", 6, "glurg"],
     ]
-    expected = dedent(
-        '''\
+    expected = dedent('''\
         1,2,3,4,5
         a,b,"""c""",d e f,"g, h"
         ,4,,6,glurg
-        '''
-    )
+        ''')
     csv_report = grid.get_csv_report(rows)
     assert csv_report == expected
 
@@ -810,13 +774,11 @@ def test_get_csv_report_with_tabs():
         ["a", "b", '"c"', "d e f", "g\th"],
         ["", 4, "", 6, "glurg"],
     ]
-    expected = dedent(
-        '''\
+    expected = dedent('''\
         1\t2\t3\t4\t5
         a\tb\t"""c"""\td e f\t"g\th"
         \t4\t\t6\tglurg
-        '''
-    )
+        ''')
     csv_report = grid.get_csv_report(rows, tabs=True)
     assert csv_report == expected
 

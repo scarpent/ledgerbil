@@ -165,12 +165,10 @@ def get_investment_report(args):
 
 def get_args(args):
     program = "ledgerbil/main.py inv"
-    description = dedent(
-        """\
+    description = dedent("""\
         Viewing shares with --exchange is kind of weird in ledger. This creates
         a report that shows share totals and dollar amounts in a nicer way.
-    """
-    )
+    """)
     parser = argparse.ArgumentParser(
         prog=program,
         description=description,

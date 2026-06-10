@@ -6,12 +6,10 @@ from .runner import get_ledger_command, get_ledger_output
 
 def get_args(args):
     program = "ledgerbil/main.py pass"
-    description = dedent(
-        """\
+    description = dedent("""\
         Pass through args to ledger, running ledger with config from
         settings.py
-    """
-    )
+    """)
     parser = argparse.ArgumentParser(
         prog=program,
         description=description,

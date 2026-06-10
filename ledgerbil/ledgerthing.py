@@ -17,8 +17,7 @@ TOP_LINE_REGEX = re.compile(
     r"(.*?)(?=  |$)"  # opt. payee ends with two spaces (or $)
 )
 # todo: should require amount when @ symbol is found
-POSTING_REGEX = re.compile(
-    r"""(?x)  # verbose mode
+POSTING_REGEX = re.compile(r"""(?x)  # verbose mode
     ^\s+                             # opening indent
     ([!*])?                          # optional pending/cleared
     (?:\s*)?                         # optional whitespace after p/c
@@ -31,8 +30,7 @@ POSTING_REGEX = re.compile(
     \(?([-+*/()$\d.,\s]+)?\)?        # optional amount expression
     (?:\s*=\s*[^;]+\s*)?             # optional balance assertion
     (?:;.*$|$)                       # optional end comment
-    """
-)
+    """)
 REC_PENDING = "!"
 REC_CLEARED = "*"
 REC_UNCLEARED = ""

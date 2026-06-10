@@ -52,8 +52,7 @@ def matching_account_found(ledgerfiles, reconcile_account):
 
 def get_args(args):
     program = "ledgerbil/main.py"
-    description = dedent(
-        """\
+    description = dedent("""\
         ledgerbil works with ledger cli files. It supports a vague subset of
         ledger as used and tested by its author.
 
@@ -68,18 +67,15 @@ def get_args(args):
 
         See settings.py.example for config options with the "other commands"
         below. (These are "ledgershell" scripts which use the ledger client.)
-    """
-    )
-    scripts_description = dedent(
-        f"""\
+    """)
+    scripts_description = dedent(f"""\
         other commands (run with -h to see command help):
             {program}
                 grid                    ledger reports in year/month tables
                 investments (or inv)    nicer view of shares and dollars
                 pass                    passthrough to ledger
                 portfolio (or port)     standalone investment tracker
-        """
-    )
+        """)
 
     parser = argparse.ArgumentParser(
         prog=program,

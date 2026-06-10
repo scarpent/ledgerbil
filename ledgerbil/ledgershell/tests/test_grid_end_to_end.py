@@ -153,14 +153,12 @@ def test_get_grid_report_csv_report_all():
 def test_get_grid_report_csv_report_transposed():
     args, ledger_args = grid.get_args(["--csv", "food"])
     report = grid.get_grid_report(args, ledger_args)
-    expected = dedent(
-        """\
+    expected = dedent("""\
         ,expenses: food: groceries,expenses: food: dining out,Total
         2017,34.63,0,34.63
         2018,57.4,42.17,99.57
         Total,92.03,42.17,134.2
-    """
-    )
+    """)
     assert report == expected
 
 
@@ -169,52 +167,44 @@ def test_get_grid_report_csv_report_single_column():
         ["--csv", "--period", "2018", "food", "--transpose"]
     )
     report = grid.get_grid_report(args, ledger_args)
-    expected = dedent(
-        """\
+    expected = dedent("""\
         ,2018
         expenses: food: groceries,57.4
         expenses: food: dining out,42.17
         Total,99.57
-    """
-    )
+    """)
     assert report == expected
 
 
 def test_get_grid_report_csv_report_single_column_transposed_to_single_row():
     args, ledger_args = grid.get_args(["--csv", "--period", "2018", "food"])
     report = grid.get_grid_report(args, ledger_args)
-    expected = dedent(
-        """\
+    expected = dedent("""\
         ,expenses: food: groceries,expenses: food: dining out,Total
         2018,57.4,42.17,99.57
-    """
-    )
+    """)
     assert report == expected
 
 
 def test_get_grid_report_csv_report_single_row():
     args, ledger_args = grid.get_args(["--csv", "groceries", "--transpose"])
     report = grid.get_grid_report(args, ledger_args)
-    expected = dedent(
-        """\
+    expected = dedent("""\
         ,2017,2018,Total
         expenses: food: groceries,34.63,57.4,92.03
-    """
-    )
+    """)
     assert report == expected
 
 
 def test_get_grid_report_csv_report_single_row_transposed_to_single_column():
     args, ledger_args = grid.get_args(["--csv", "groceries"])
     report = grid.get_grid_report(args, ledger_args)
-    expected = dedent(
-        """\
+    expected = dedent("""\
         ,expenses: food: groceries
         2017,34.63
         2018,57.4
         Total,92.03
-    """
-    )
+    """)
     assert report == expected
 
 
@@ -223,50 +213,42 @@ def test_get_grid_report_csv_report_single_row_and_column():
         ["--csv", "groceries", "--period", "2018", "--transpose"]
     )
     report = grid.get_grid_report(args, ledger_args)
-    expected = dedent(
-        """\
+    expected = dedent("""\
         ,2018
         expenses: food: groceries,57.4
-    """
-    )
+    """)
     assert report == expected
 
 
 def test_get_grid_report_csv_report_single_row_and_column_transposed():
     args, ledger_args = grid.get_args(["--csv", "groceries", "--period", "2018"])
     report = grid.get_grid_report(args, ledger_args)
-    expected = dedent(
-        """\
+    expected = dedent("""\
         ,expenses: food: groceries
         2018,57.4
-    """
-    )
+    """)
     assert report == expected
 
 
 def test_get_grid_report_csv_total_only():
     args, ledger_args = grid.get_args(["--csv", "food", "--total-only", "--transpose"])
     report = grid.get_grid_report(args, ledger_args)
-    expected = dedent(
-        """\
+    expected = dedent("""\
         ,Total
         expenses: food: groceries,92.03
         expenses: food: dining out,42.17
         Total,134.2
-    """
-    )
+    """)
     assert report == expected
 
 
 def test_get_grid_report_csv_total_only_transposed():
     args, ledger_args = grid.get_args(["--csv", "food", "--total-only"])
     report = grid.get_grid_report(args, ledger_args)
-    expected = dedent(
-        """\
+    expected = dedent("""\
         ,expenses: food: groceries,expenses: food: dining out,Total
         Total,92.03,42.17,134.2
-    """
-    )
+    """)
     assert report == expected
 
 
@@ -298,10 +280,8 @@ def test_get_grid_report_networth_csv():
     args, ledger_args = grid.get_args(["--net-worth", "--csv", "--transpose"])
     report = grid.get_grid_report(args, ledger_args)
     expected = ",2017,2018\n    $ 1,427.71    $ 1,304.27  net worth\n"
-    expected = dedent(
-        """\
+    expected = dedent("""\
         ,2017,2018
         net worth,1427.71,1304.27
-    """
-    )
+    """)
     assert Colorable.get_plain_string(report) == expected
