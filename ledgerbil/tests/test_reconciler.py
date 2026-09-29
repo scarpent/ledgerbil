@@ -1361,3 +1361,32 @@ def test_reconciled_status_no_cleared_balance_for_previously_reconciled(
     reconciler.reconciled_status()
 
     mock_status_report.assert_called_once_with(accounts)
+
+
+@pytest.mark.parametrize(
+    "credit_posting",
+    [
+        "l: credit       $-30.30",  # amount given on reconciled posting
+        "l: credit",  # amount elided; computed from the other postings
+    ],
+)
+def test_mark_by_amount_matches_computed_amount(tmp_path, credit_posting):
+    """Computed float sums (10.10 + 20.20 = 30.299999999999997) must
+    still match the statement amount typed in"""
+    ledgerfile = tmp_path / "test.ldg"
+    ledgerfile.write_text(
+        dedent(f"""\
+            2016/10/01 flibble
+                e: hob          $10.10
+                e: nob          $20.20
+                {credit_posting}
+            """)
+    )
+    recon = Reconciler([LedgerFile(str(ledgerfile), "credit")])
+
+    assert recon.get_current_listing_index_from_amount("-30.30") == "1"
+
+    recon.do_mark("-30.30")
+
+    assert recon.current_listing["1"].is_pending()
+    assert_equal_floats(-30.30, recon.total_pending)

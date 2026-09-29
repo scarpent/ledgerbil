@@ -248,11 +248,15 @@ class Reconciler(cmd.Cmd):
             )
 
     def get_current_listing_index_from_amount(self, amount, mark=True):
+        # Round to avoid float noise in computed amounts, e.g. an elided
+        # amount of -(10.10 + 20.20) = -30.299999999999997
+        decimals = self.get_decimals()
         try:
             matches = [
                 key
                 for key, thing in self.current_listing.items()
-                if float(thing.rec_amount) == float(amount)
+                if round(float(thing.rec_amount), decimals)
+                == round(float(amount), decimals)
             ]
         except ValueError:
             matches = []
