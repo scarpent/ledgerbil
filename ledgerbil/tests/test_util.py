@@ -109,6 +109,7 @@ def test_is_integer(test_input, expected):
         ("3", True),
         (".", False),
         ("frumious", False),
+        (None, False),  # TypeError, like test_is_integer
     ],
 )
 def test_is_float(test_input, expected):
